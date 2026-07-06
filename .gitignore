@@ -11,6 +11,9 @@ node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
 
 # Environment
 .env
@@ -35,6 +38,9 @@ data/evaluation/*
 !data/reports/.gitkeep
 !data/evaluation/.gitkeep
 
+# Local verification artifacts
+output/
+
 # Neo4j local data
 neo4j_data/
 neo4j_logs/
@@ -44,3 +50,4 @@ neo4j_logs/
 Thumbs.db
 .idea/
 .vscode/
+.worktree/

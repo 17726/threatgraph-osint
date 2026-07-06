@@ -16,11 +16,12 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，构建覆�
 
 ## 当前状态
 
-当前仓库处于架构与契约初始化阶段：
+当前仓库处于 P0 脚手架阶段：
 
 ```text
-已完成：架构方案、数据契约、API 契约、Docker 运行契约、开源项目对比草案、课程要求
-下一步：初始化 Docker Compose、FastAPI 后端、React TypeScript 前端、SQLite seed 数据
+已完成：架构方案、数据契约、API 契约、Docker 运行契约、开源项目对比草案、课程要求、
+        Docker Compose、FastAPI 后端、SQLite demo seed、React TypeScript 前端
+下一步：补真实样本数据、LLM 抽取流水线、评测集、Neo4j 同步和报告结构化展示
 ```
 
 新成员先不要直接改接口字段。所有数据结构和接口变更先同步架构与接口组。
@@ -124,10 +125,18 @@ docs/         架构、接口、数据、运行与协作文档
 
 ## 推荐运行方式
 
-代码脚手架落地后，默认使用：
+项目默认使用 Docker Compose，不要求组员本机安装 Python 依赖。
+
+首次启动：
 
 ```bash
 docker compose up --build
+```
+
+后续启动：
+
+```bash
+docker compose up
 ```
 
 默认访问：
@@ -137,6 +146,35 @@ docker compose up --build
 后端：http://localhost:8000
 API 文档：http://localhost:8000/docs
 Neo4j Browser：http://localhost:7474
+```
+
+后端测试：
+
+```bash
+docker compose build backend
+docker compose run --rm backend python -m pytest backend/tests -v
+```
+
+前端测试和构建：
+
+```bash
+docker compose build frontend
+docker compose run --rm frontend npm run test
+docker compose run --rm frontend npm run build
+```
+
+演示数据脚本：
+
+```bash
+docker compose run --rm backend python scripts/seed_demo_data.py
+docker compose run --rm backend python scripts/export_graph_json.py
+```
+
+生成文件位置：
+
+```text
+SQLite：data/threatgraph_osint.db
+图谱快照：data/graph/graph.json
 ```
 
 ---
