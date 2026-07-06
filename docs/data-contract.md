@@ -36,13 +36,13 @@ LLM 输出 -> SQLite extracted_* 候选表
 
 这次架构不推翻 SQLite 事实源，也不把 Neo4j 改成主库。需要吸收的是几个数据建模原则：
 
-| 参考项目 | 吸收原则 | 落到本项目的字段 / 约束 |
-| --- | --- | --- |
-| OpenCTI | 证据和来源是一等公民 | `evidence_ids`、`source_name`、`source_reliability`、`published_at`、`retrieved_at` |
-| MISP | 文档是情报容器，不只是文本 | `source_type`、`target_groups_json`、`tags_json`、`tlp`、`content_hash` |
-| SpiderFoot | 采集运行和正式文档隔离 | `collection_runs`、`collected_items`、`documents` 分层，采集失败不污染图谱 |
-| GraphRAG | LLM 输出只能是候选层 | `extracted_*` 增加 `candidate_status`、`normalized_*_id`、`validation_errors_json` |
-| TypeDB CTI | schema-first 和关系合法性 | `schema_version`、`validation_status`、实体类型 / 关系类型合法性矩阵 |
+| 参考项目   | 吸收原则                   | 落到本项目的字段 / 约束                                                             |
+| ---------- | -------------------------- | ----------------------------------------------------------------------------------- |
+| OpenCTI    | 证据和来源是一等公民       | `evidence_ids`、`source_name`、`source_reliability`、`published_at`、`retrieved_at` |
+| MISP       | 文档是情报容器，不只是文本 | `source_type`、`target_groups_json`、`tags_json`、`tlp`、`content_hash`             |
+| SpiderFoot | 采集运行和正式文档隔离     | `collection_runs`、`collected_items`、`documents` 分层，采集失败不污染图谱          |
+| GraphRAG   | LLM 输出只能是候选层       | `extracted_*` 增加 `candidate_status`、`normalized_*_id`、`validation_errors_json`  |
+| TypeDB CTI | schema-first 和关系合法性  | `schema_version`、`validation_status`、实体类型 / 关系类型合法性矩阵                |
 
 字段调整结论：
 

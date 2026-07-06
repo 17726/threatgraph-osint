@@ -271,7 +271,9 @@ scripts/*：后端与数据层组维护，架构组参与审核
 
 ## 10. 提交规范
 
-提交信息使用中文说明，推荐格式：
+完整 Git 流程、分支命名、MR / Pull Request 和 Force Push 规则见 [开发规范与 Git 流程](development-guidelines.md)。
+
+提交信息使用 Conventional Commits 的轻量格式，类型前缀用英文，冒号后的说明默认中文：
 
 ```text
 docs: 更新接口契约

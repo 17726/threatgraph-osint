@@ -43,13 +43,15 @@ LLM 接口：OpenAI-compatible API
 ```text
 1. README.md
 2. TODO.md
-3. docs/team-workflow.md
-4. docs/stage-roadmap.md
-5. docs/architecture.md
-6. docs/data-contract.md
-7. docs/api-contract.md
-8. docs/reference-comparison.md
-9. docs/docker-runtime.md
+3. AGENTS.md
+4. docs/development-guidelines.md
+5. docs/team-workflow.md
+6. docs/stage-roadmap.md
+7. docs/architecture.md
+8. docs/data-contract.md
+9. docs/api-contract.md
+10. docs/reference-comparison.md
+11. docs/docker-runtime.md
 ```
 
 如果你只负责某一组，先看：
@@ -68,14 +70,14 @@ LLM 与分析组：docs/data-contract.md + docs/architecture.md
 
 详细分工见 [docs/team-workflow.md](docs/team-workflow.md)。
 
-| 组别 | 主要职责 | 关键产出 |
-| --- | --- | --- |
-| 架构与接口组 | 统一技术路线、数据契约、API 契约、目录结构 | 架构文档、接口文档、评审结论 |
-| 数据与样本组 | 收集三类情报源，整理原始文档和黄金测试集 | raw 数据、golden.json、来源索引 |
-| LLM 与行为分析组 | 实体关系抽取、MITRE 映射、行为分析、候选推理 | 抽取结果、行为模式、推理结果 |
-| 后端与数据层组 | FastAPI、SQLite、pipeline、graph.json 导出、Neo4j 同步 | API 服务、数据库、同步脚本 |
-| 图谱与前端组 | React 页面、图谱可视化、搜索、详情、报告展示 | 前端页面、图谱交互、演示界面 |
-| 报告测试与答辩组 | 评测、实验报告、PPT、演示脚本和录像 | 评测结果、报告、PPT、答辩材料 |
+| 组别             | 主要职责                                               | 关键产出                        |
+| ---------------- | ------------------------------------------------------ | ------------------------------- |
+| 架构与接口组     | 统一技术路线、数据契约、API 契约、目录结构             | 架构文档、接口文档、评审结论    |
+| 数据与样本组     | 收集三类情报源，整理原始文档和黄金测试集               | raw 数据、golden.json、来源索引 |
+| LLM 与行为分析组 | 实体关系抽取、MITRE 映射、行为分析、候选推理           | 抽取结果、行为模式、推理结果    |
+| 后端与数据层组   | FastAPI、SQLite、pipeline、graph.json 导出、Neo4j 同步 | API 服务、数据库、同步脚本      |
+| 图谱与前端组     | React 页面、图谱可视化、搜索、详情、报告展示           | 前端页面、图谱交互、演示界面    |
+| 报告测试与答辩组 | 评测、实验报告、PPT、演示脚本和录像                    | 评测结果、报告、PPT、答辩材料   |
 
 ---
 

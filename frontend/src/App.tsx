@@ -57,7 +57,11 @@ export function App() {
           <p className="eyebrow">ThreatGraph-OSINT</p>
           <h1>开源威胁情报知识图谱研判系统</h1>
         </div>
-        <button className="icon-button" type="button" onClick={() => setReloadKey((value) => value + 1)}>
+        <button
+          className="icon-button"
+          type="button"
+          onClick={() => setReloadKey((value) => value + 1)}
+        >
           <RefreshCw size={18} />
           <span>刷新</span>
         </button>
@@ -121,7 +125,9 @@ export function App() {
           <div className="evidence-list">
             {graph?.evidence.map((item) => (
               <button
-                className={selectedEvidence?.id === item.id ? "evidence-item active" : "evidence-item"}
+                className={
+                  selectedEvidence?.id === item.id ? "evidence-item active" : "evidence-item"
+                }
                 key={item.id}
                 type="button"
                 onClick={() => setSelectedEvidence(item)}
