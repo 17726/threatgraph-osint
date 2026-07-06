@@ -1,0 +1,398 @@
+# API 契约 V2
+
+> 适用范围：ThreatGraph-OSINT 项目  
+> 后端：FastAPI  
+> 前端：React + TypeScript + Vite  
+> 数据源：SQLite，Neo4j(P1) 只做图查询增强
+
+---
+
+## 1. 通用响应
+
+成功响应：
+
+```json
+{
+  "success": true,
+  "data": {},
+  "timestamp": "2026-07-06T22:30:00+08:00"
+}
+```
+
+失败响应：
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERR_VALIDATION",
+    "message": "请求参数不合法",
+    "details": {}
+  },
+  "timestamp": "2026-07-06T22:30:00+08:00"
+}
+```
+
+---
+
+## 2. 系统接口
+
+```text
+GET /api/v1/health
+```
+
+返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "status": "healthy",
+    "components": {
+      "sqlite": "ok",
+      "neo4j": "disconnected",
+      "llm": "configured"
+    }
+  }
+}
+```
+
+---
+
+## 3. 文档接口
+
+```text
+GET /api/v1/documents
+GET /api/v1/documents/{doc_id}
+POST /api/v1/documents/import
+```
+
+`POST /documents/import` 请求：
+
+```json
+{
+  "doc_id": "apt28_mitre_001",
+  "target_group": "APT28",
+  "source_url": "https://attack.mitre.org/groups/G0007/",
+  "source_type": "security_report",
+  "title": "APT28 - MITRE ATT&CK",
+  "language": "en",
+  "raw_text": "..."
+}
+```
+
+---
+
+## 4. 流水线接口
+
+```text
+POST /api/v1/pipeline/run
+GET  /api/v1/pipeline/status/{job_id}
+```
+
+请求：
+
+```json
+{
+  "target_group": "APT28",
+  "use_cache": true,
+  "steps": ["clean", "extract", "normalize", "build_graph", "analyze_behavior", "infer", "report"]
+}
+```
+
+说明：
+
+1. P0 可以同步执行，直接返回结果。
+2. 后续可升级为后台任务。
+3. 所有中间结果写入 SQLite。
+
+---
+
+## 5. 实体接口
+
+```text
+GET /api/v1/entities/search?q=APT28
+GET /api/v1/entities/{entity_id}
+```
+
+实体详情返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "apt_group:apt28",
+    "name": "APT28",
+    "type": "APT_GROUP",
+    "aliases": ["Fancy Bear", "Sofacy"],
+    "description": "...",
+    "confidence": 0.96,
+    "source_count": 3,
+    "evidence": []
+  }
+}
+```
+
+---
+
+## 6. 图谱接口
+
+```text
+GET /api/v1/graph?target=APT28&depth=2
+GET /api/v1/graph/timeline?target=APT28
+GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
+```
+
+图谱响应：
+
+```json
+{
+  "success": true,
+  "data": {
+    "nodes": [
+      {
+        "id": "apt_group:apt28",
+        "name": "APT28",
+        "type": "APT_GROUP",
+        "aliases": ["Fancy Bear"],
+        "description": "...",
+        "confidence": 0.96,
+        "source_count": 3,
+        "evidence_ids": ["ev_001"]
+      }
+    ],
+    "edges": [
+      {
+        "id": "rel:apt_group:apt28:USES:malware:x-agent",
+        "source": "apt_group:apt28",
+        "target": "malware:x-agent",
+        "type": "USES",
+        "label": "使用",
+        "confidence": 0.91,
+        "evidence_ids": ["ev_002"]
+      }
+    ],
+    "evidence": []
+  }
+}
+```
+
+说明：
+
+1. `/graph` 默认从 SQLite 查询。
+2. `/graph/path` 在 P0 使用 SQLite relations 表做基础 BFS 路径查询。
+3. `/graph/path` 在 P1 优先使用 Neo4j Cypher 做正式多跳路径查询。
+4. Neo4j 不可用时，路径接口降级到 SQLite；如果 SQLite 也查不到路径，再返回清晰错误。
+
+路径查询返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "source": "apt_group:apt28",
+    "target": "malware:x-agent",
+    "engine": "neo4j",
+    "paths": [
+      {
+        "nodes": [
+          { "id": "apt_group:apt28", "name": "APT28", "type": "APT_GROUP" },
+          { "id": "malware:x-agent", "name": "X-Agent", "type": "MALWARE" }
+        ],
+        "edges": [
+          {
+            "id": "rel:apt_group:apt28:USES:malware:x-agent",
+            "source": "apt_group:apt28",
+            "target": "malware:x-agent",
+            "type": "USES",
+            "label": "使用"
+          }
+        ],
+        "length": 1,
+        "evidence_ids": ["ev_002"]
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 7. 行为分析与推理接口
+
+```text
+POST /api/v1/analysis/{target_group}/run
+GET  /api/v1/analysis/{target_group}/behavior
+GET  /api/v1/analysis/{target_group}/mitre
+GET  /api/v1/analysis/{target_group}/inferences
+GET  /api/v1/analysis/{target_group}/threat-assessment
+```
+
+说明：
+
+1. `behavior` 是行为模式，展示攻击阶段、攻击方式、目标偏好。
+2. `mitre` 是 MITRE ATT&CK 映射，展示技术编号、战术和攻击阶段。
+3. `inferences` 是智能推理候选关系，不能当作原始事实。
+4. `threat-assessment` 是威胁等级和预警建议。
+
+字段含义：
+
+```text
+attack_stage：攻击阶段
+mitre_mapping：MITRE ATT&CK 映射
+behavior_pattern：行为模式
+inferred_relation：推断关系
+rationale：推理理由
+confidence：置信度
+evidence_ids：支撑证据
+```
+
+行为模式返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "target_group": "APT28",
+    "patterns": [
+      {
+        "pattern_id": "pattern_apt28_initial_access",
+        "stage": "初始访问",
+        "description": "APT28 常通过鱼叉式钓鱼获得初始访问。",
+        "technique_ids": ["T1566"],
+        "relation_ids": ["rel:apt_group:apt28:USES:technique:t1566"],
+        "evidence_ids": ["ev_001"],
+        "confidence": 0.88
+      }
+    ]
+  }
+}
+```
+
+MITRE 映射返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "target_group": "APT28",
+    "mappings": [
+      {
+        "mapping_id": "mitre_apt28_t1566",
+        "technique_id": "T1566",
+        "technique_name": "Phishing",
+        "tactic": "Initial Access",
+        "attack_stage": "初始访问",
+        "confidence": 0.9,
+        "source": "rule",
+        "evidence_ids": ["ev_001"]
+      }
+    ]
+  }
+}
+```
+
+推理结果返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "target_group": "APT28",
+    "inferences": [
+      {
+        "inferred_relation_id": "infer_apt28_initial_access",
+        "source": "apt_group:apt28",
+        "target": "technique:t1566",
+        "type": "HAS_BEHAVIOR",
+        "rationale": "APT28 使用鱼叉式钓鱼技术，该技术属于初始访问阶段。",
+        "confidence": 0.86,
+        "status": "candidate",
+        "evidence_ids": ["ev_001"]
+      }
+    ]
+  }
+}
+```
+
+威胁评估返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "target_group": "APT28",
+    "risk_level": "HIGH",
+    "risk_score": 82,
+    "rationale": "APT28 活跃时间长，攻击目标集中于政府和军事领域，并持续使用初始访问与凭证窃取技术。",
+    "recommendations": [
+      "加强鱼叉式钓鱼邮件检测",
+      "对相关 ATT&CK 技术建立告警规则",
+      "持续关注 APT28 相关 IOC 和新工具"
+    ],
+    "evidence_ids": ["ev_001", "ev_002"]
+  }
+}
+```
+
+---
+
+## 8. 报告接口
+
+```text
+GET  /api/v1/reports/{target_group}
+POST /api/v1/reports/{target_group}/generate
+```
+
+返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "target_group": "APT28",
+    "title": "APT28 威胁情报分析报告",
+    "markdown": "...",
+    "generated_at": "2026-07-06T22:30:00+08:00"
+  }
+}
+```
+
+---
+
+## 9. 评测接口
+
+```text
+GET  /api/v1/evaluation/summary
+POST /api/v1/evaluation/run
+```
+
+返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "entity_precision": 0.88,
+    "entity_recall": 0.82,
+    "entity_f1": 0.85,
+    "relation_precision": 0.78
+  }
+}
+```
+
+---
+
+## 10. Neo4j 接口
+
+```text
+GET  /api/v1/neo4j/status
+POST /api/v1/neo4j/sync
+```
+
+说明：
+
+1. P1 必须实现。
+2. 同步输入只能来自 SQLite canonical graph 或导出的 `graph.json`。
+3. 不允许从 LLM 原始输出同步到 Neo4j。
+4. 路径查询接口优先使用 Neo4j；失败时降级到 SQLite BFS。
