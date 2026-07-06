@@ -48,15 +48,15 @@ ThreatGraph-OSINT 不直接复刻某一个成熟 CTI 平台，而是面向课程
 | --- | --- | --- | --- | --- |
 | OpenCTI | 开源威胁情报平台 | STIX 化建模、知识图谱、连接器、时间线、ATT&CK 映射 | 学习实体关系模型、连接器设计和图谱分析页面 | [GitHub](https://github.com/OpenCTI-Platform/opencti) / [官网](https://filigran.io/platform/opencti/) |
 | MISP | 威胁情报共享平台 | Event、Attribute、Object、Tag、Galaxy、Feed 机制 | 学习 IOC、事件、标签和共享格式，不直接照搬其重型平台 | [GitHub](https://github.com/MISP/MISP) / [官网](https://www.misp-project.org/) |
-| SpiderFoot | OSINT 自动化工具 | 模块化数据源、扫描任务、Web UI、CLI | 学习 P0/P1 采集器模型和 scan/run 状态设计 | [GitHub](https://github.com/smicallef/spiderfoot) |
+| SpiderFoot | OSINT 自动化工具 | 模块化数据源、扫描任务、Web UI、CLI | 学习采集器模型和 scan/run 状态设计，但第一阶段先用本地文本入口 | [GitHub](https://github.com/smicallef/spiderfoot) |
 | Maltego | 调查图谱和链接分析平台 | Transform、实体 pivot、交互式关系图 | 学习图谱交互和调查路径展示。注意：它主要是商业平台，不作为开源实现对标 | [官网](https://www.maltego.com/) |
 | MITRE ATT&CK / STIX | 攻击技术知识库和机器可读格式 | ATT&CK 技术、战术、STIX 2.1 数据 | 作为 MITRE 映射和技术编号的标准来源 | [ATT&CK STIX](https://github.com/mitre-attack/attack-stix-data) / [MITRE CTI](https://github.com/mitre/cti) |
 | GraphRAG | 基于图的 RAG / 文本到知识结构流程 | 从非结构化文本抽取图结构、社区摘要、图增强问答 | 学习 LLM 抽取和图结构辅助分析，但本项目优先做可控小图谱 | [GitHub](https://github.com/microsoft/graphrag) / [文档](https://microsoft.github.io/graphrag/) |
 | TypeDB CTI | 基于 TypeDB 的 CTI / STIX Schema | 语义图数据库、强 schema、STIX 关系约束 | 学习更严格的数据模型和关系约束；不作为本项目主数据库 | [GitHub](https://github.com/typedb-osi/typedb-cti) / [用例](https://typedb.com/use-cases/cyber-threat-intelligence) |
 | Harpoon | OSINT / 威胁情报 CLI 工具 | 插件式查询、API Key 管理、命令行工作流 | 学习轻量采集器和插件组织方式 | [GitHub](https://github.com/Te-k/harpoon) |
 | GOSINT | 威胁情报收集与处理框架 | 结构化和非结构化情报收集、IOC 处理、标准化输出 | 学习采集、过滤、标准化、导出的流水线 | [GitHub](https://github.com/ciscocsirt/GOSINT) / [Cisco 介绍](https://blogs.cisco.com/security/open-source-threat-intel-gosint) |
-| T-Pot | 多蜜罐平台 | 多种蜜罐、Elastic 可视化、攻击遥测采集 | 可作为“主动采集类数据源”参考，不纳入 P0 核心 | [GitHub](https://github.com/telekom-security/tpotce) |
-| Cuckoo Sandbox | 恶意软件动态分析沙箱 | 自动运行样本、生成行为报告、IOC 和行为日志 | 可作为 P1/P2 enrichment 参考，不建议作为课程核心依赖 | [GitHub](https://github.com/cuckoosandbox/cuckoo) / [文档](https://cuckoo.readthedocs.io/en/latest/introduction/what/) |
+| T-Pot | 多蜜罐平台 | 多种蜜罐、Elastic 可视化、攻击遥测采集 | 可作为“主动采集类数据源”参考，不纳入第一阶段核心 | [GitHub](https://github.com/telekom-security/tpotce) |
+| Cuckoo Sandbox | 恶意软件动态分析沙箱 | 自动运行样本、生成行为报告、IOC 和行为日志 | 可作为增强阶段 enrichment 参考，不建议作为课程核心依赖 | [GitHub](https://github.com/cuckoosandbox/cuckoo) / [文档](https://cuckoo.readthedocs.io/en/latest/introduction/what/) |
 | TheHive | 安全事件协同管理平台 | Case、Task、Observable、协作流程 | 学习“情报发现 -> 调查 -> 报告”的工作流组织 | [GitHub](https://github.com/TheHive-Project/TheHive) / [官网](https://strangebee.com/thehive/) |
 | Yeti | DFIR / CTI 情报平台 | Observable、Threat Actor、Tag、上下文检索 | 学习“在哪见过这个 IOC/实体”的检索视角 | [GitHub](https://github.com/yeti-platform/yeti) |
 | Cortex | Observable 分析引擎 | Analyzer、Responder、批量 observable enrichment | 学习分析器插件和外部服务集成方式 | [GitHub](https://github.com/TheHive-Project/Cortex) |
@@ -119,7 +119,7 @@ tag / technique / tactic：标签、技术和战术维度
 按证据回看原文
 ```
 
-P0 使用 SQLite BFS 兜底。P1 使用 Neo4j/Cypher 展示多跳路径和组合查询。
+优先级 P0 使用 SQLite BFS 兜底。增强阶段 / 优先级 P1 使用 Neo4j/Cypher 展示多跳路径和组合查询。
 
 ### 4.4 分析器和增强服务
 
@@ -144,7 +144,7 @@ enrichment service：后续可接入 IOC、沙箱、蜜罐、外部 API
 2. SQLite 作为唯一事实源，graph.json 作为导出和 mock，Neo4j 作为增强层，兼顾复现性和图数据库演示。
 3. LLM 抽取结果先进入候选层，再归一化为 canonical graph，避免直接污染图数据库。
 4. 行为分析、MITRE 映射、候选推理和报告都保留证据引用，便于答辩时解释“为什么这样判断”。
-5. P0/P1 分期清晰：P0 保证课程闭环可跑，P1 增强 Neo4j、复杂采集和结构化报告。
+5. 阶段和优先级分开：第一阶段保证离线闭环可跑，优先级 P1 增强 Neo4j、复杂采集和结构化报告。
 
 ---
 

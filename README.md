@@ -21,7 +21,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，构建覆�
 ```text
 已完成：架构方案、数据契约、API 契约、Docker 运行契约、开源项目对比草案、课程要求、
         Docker Compose、FastAPI 后端、SQLite demo seed、React TypeScript 前端
-下一步：补真实样本数据、LLM 抽取流水线、评测集、Neo4j 同步和报告结构化展示
+下一步：冻结 JSON 契约，补真实样本文档、LLM 抽取流水线、评测集、Neo4j 同步和报告结构化展示
 ```
 
 新成员先不要直接改接口字段。所有数据结构和接口变更先同步架构与接口组。
@@ -35,7 +35,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，构建覆�
 后端：FastAPI
 事实源：SQLite
 图谱导出：graph.json
-图查询增强：Neo4j，P1 必做
+图查询增强：Neo4j，增强阶段 / 优先级 P1
 运行环境：Docker Compose
 LLM 接口：OpenAI-compatible API
 ```
@@ -44,7 +44,7 @@ LLM 接口：OpenAI-compatible API
 
 1. SQLite 是唯一事实源。
 2. graph.json 是导出格式、前端 mock、演示兜底和 Neo4j 同步输入。
-3. Neo4j 是 P1 图查询增强，不作为事实源。
+3. Neo4j 是增强能力，不作为事实源。
 4. LLM 原始输出不能直接写入 Neo4j。
 5. 前端只调用 FastAPI，不直接读取 SQLite、graph.json 或 Neo4j。
 
@@ -57,11 +57,12 @@ LLM 接口：OpenAI-compatible API
 ```text
 1. README.md
 2. docs/team-workflow.md
-3. docs/architecture.md
-4. docs/data-contract.md
-5. docs/api-contract.md
-6. docs/reference-comparison.md
-7. docs/docker-runtime.md
+3. docs/stage-roadmap.md
+4. docs/architecture.md
+5. docs/data-contract.md
+6. docs/api-contract.md
+7. docs/reference-comparison.md
+8. docs/docker-runtime.md
 ```
 
 如果你只负责某一组，先看：
@@ -91,22 +92,34 @@ LLM 与分析组：docs/data-contract.md + docs/architecture.md
 
 ---
 
-## 目标分期
+## 阶段与优先级
 
-P0：基础可演示版本
+`P0/P1/P2` 表示优先级，不表示开发先后顺序。阶段路线见 [docs/stage-roadmap.md](docs/stage-roadmap.md)。
+
+Step 0：脚手架和 Mock 闭环
+
+```text
+FastAPI + SQLite demo seed + React 前端
+前端直接调用后端 API，基于 Mock/seed 数据展示图谱和报告
+```
+
+Step 1：真实样本文档闭环
+
+```text
+本地文本文件 -> document.json -> extraction_result.json -> SQLite -> graph.json -> 前端图谱 / 基础报告
+```
+
+Step 2：集成 MVP
 
 ```text
 SQLite + FastAPI + React/ECharts
-完成最小自动采集、文档导入、实体关系图谱、实体详情、证据展示、SQLite 基础路径追踪、
-MITRE 映射、行为模式分析、报告生成、基础评测
+完成本地文档导入、实体关系图谱、实体详情、证据展示、基础路径追踪、报告生成
 ```
 
-P1：图谱增强版本
+Step 3：课程验收增强
 
 ```text
-从 SQLite canonical graph 同步到 Neo4j
-支持 Neo4j/Cypher 多跳路径查询、多维度组合查询、Neo4j 状态展示、
-复杂采集调度、增量更新和结构化报告接口
+补齐三类来源最小采集、三目标组织、MITRE 映射、行为模式分析、评测结果、Neo4j 图查询增强
 ```
 
 ---

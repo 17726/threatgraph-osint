@@ -3,7 +3,7 @@
 > 适用范围：ThreatGraph-OSINT 项目  
 > 后端：FastAPI  
 > 前端：React + TypeScript + Vite  
-> 数据源：SQLite，Neo4j(P1) 只做图查询增强
+> 数据源：SQLite，Neo4j 只做增强阶段 / 优先级 P1 的图查询增强
 
 ---
 
@@ -68,7 +68,7 @@ POST /api/v1/collection-runs
 GET  /api/v1/collection-runs/{collection_run_id}
 ```
 
-P0 目标是最小自动采集闭环：三类来源各能通过统一接口采集少量样本文档，并写入 SQLite。P1 再做定时调度、增量 checkpoint、复杂去重和新情报自动入图。
+第一阶段可以先跳过网络采集，通过本地文本或 `document.json` 导入文档。课程验收增强阶段再实现三类来源的最小自动采集闭环，并写入 SQLite。复杂定时调度、增量 checkpoint、复杂去重和新情报自动入图属于后续增强。
 
 `POST /sources` 请求：
 
@@ -114,15 +114,16 @@ P0 目标是最小自动采集闭环：三类来源各能通过统一接口采�
 }
 ```
 
-P0 支持的采集器类型：
+优先级 P0 支持的输入 / 采集器类型：
 
 ```text
 local_json：读取 data/raw 或 data/sources 下的本地 JSON 样本
-http_page：抓取单篇安全报告、新闻或公告页面
-rss_feed：读取 RSS/Atom feed 并抽取条目
+local_text：读取本地手动清洗文本
+http_page：抓取单篇安全报告、新闻或公告页面，课程验收增强阶段使用
+rss_feed：读取 RSS/Atom feed 并抽取条目，课程验收增强阶段使用
 ```
 
-P1 扩展：
+增强阶段扩展：
 
 ```text
 scheduled_run：定时任务
@@ -176,7 +177,7 @@ GET  /api/v1/pipeline/status/{job_id}
 
 说明：
 
-1. P0 可以同步执行，直接返回结果。
+1. 优先级 P0 可以同步执行，直接返回结果。
 2. 后续可升级为后台任务。
 3. 所有中间结果写入 SQLite。
 
@@ -254,8 +255,8 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 说明：
 
 1. `/graph` 默认从 SQLite 查询。
-2. `/graph/path` 在 P0 使用 SQLite relations 表做基础 BFS 路径查询。
-3. `/graph/path` 在 P1 优先使用 Neo4j Cypher 做正式多跳路径查询。
+2. `/graph/path` 在优先级 P0 使用 SQLite relations 表做基础 BFS 路径查询。
+3. `/graph/path` 在增强阶段 / 优先级 P1 优先使用 Neo4j Cypher 做正式多跳路径查询。
 4. Neo4j 不可用时，路径接口降级到 SQLite；如果 SQLite 也查不到路径，再返回清晰错误。
 
 路径查询返回：
@@ -432,7 +433,7 @@ POST /api/v1/reports/{target_group}/generate
 }
 ```
 
-P1 结构化报告草案：
+增强阶段结构化报告草案：
 
 ```json
 {
@@ -472,7 +473,7 @@ P1 结构化报告草案：
 }
 ```
 
-P1 章节类型：
+增强阶段章节类型：
 
 ```text
 profile：目标组织画像
@@ -517,7 +518,7 @@ POST /api/v1/neo4j/sync
 
 说明：
 
-1. P1 必须实现。
+1. 增强阶段 / 优先级 P1 实现。
 2. 同步输入只能来自 SQLite canonical graph 或导出的 `graph.json`。
 3. 不允许从 LLM 原始输出同步到 Neo4j。
 4. 路径查询接口优先使用 Neo4j；失败时降级到 SQLite BFS。

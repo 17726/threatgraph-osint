@@ -2,7 +2,7 @@
 
 > 适用范围：ThreatGraph-OSINT 项目  
 > 课程方向：实验三「开源情报资源中潜在行为和关系的大模型深度分析系统」  
-> 技术路线：React + TypeScript + Vite + ECharts-for-React + FastAPI + SQLite + graph.json 导出 + Neo4j(P1)  
+> 技术路线：React + TypeScript + Vite + ECharts-for-React + FastAPI + SQLite + graph.json 导出 + Neo4j(增强阶段 / 优先级 P1)
 > 版本：当前版
 > 日期：2026-07-06
 
@@ -15,13 +15,13 @@
 ```text
 SQLite：唯一事实源，保存文档、切块、抽取结果、实体、关系、证据、报告、评测结果
 graph.json：由 SQLite 导出的图谱格式，用于前端 mock、演示兜底、Neo4j 同步输入
-Neo4j：P1 必做的图查询增强层，用于多跳路径查询和 Cypher 展示，但不作为事实源
+Neo4j：增强阶段 / 优先级 P1 的图查询增强层，用于多跳路径查询和 Cypher 展示，但不作为事实源
 ```
 
 当前架构：
 
 ```text
-SQLite 事实源 + graph.json 导出 + Neo4j(P1) 同步 + FastAPI API + React/TypeScript/ECharts 前端
+SQLite 事实源 + graph.json 导出 + Neo4j 增强同步 + FastAPI API + React/TypeScript/ECharts 前端
 ```
 
 核心原则：
@@ -29,9 +29,16 @@ SQLite 事实源 + graph.json 导出 + Neo4j(P1) 同步 + FastAPI API + React/Ty
 1. LLM 原始输出不是事实源。
 2. SQLite 是唯一事实源。
 3. graph.json 是导出格式和前端 mock，不是事实源。
-4. Neo4j 是 P1 必做增强，但不是事实源。
+4. Neo4j 是增强能力，但不是事实源。
 5. 前端只依赖 FastAPI 接口，不感知底层是 SQLite、graph.json 还是 Neo4j。
 6. 现场演示必须可缓存、可复现，不能强依赖实时爬虫或实时 LLM。
+
+阶段和优先级分开管理：
+
+```text
+阶段：表示开发先后顺序，见 docs/stage-roadmap.md
+P0/P1/P2：表示优先级，不表示必须按顺序串行开发
+```
 
 ---
 
@@ -102,7 +109,7 @@ Kimsuky
 │          graph.json           │   │
 │ 前端 mock / 演示兜底 / 同步输入 │   │
 └───────────────┬──────────────┘   │
-                │ P1 同步           │
+                │ 增强同步           │
 ┌───────────────▼──────────────┐   │
 │             Neo4j             │◀──┘
 │ 多跳路径查询 / 图谱增强 / Cypher │
@@ -151,20 +158,30 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
 3. 后续评测、证据追溯、报告复现会困难。
 4. Neo4j 应从已校验的 canonical graph 同步，不能承担清洗和纠错职责。
 
-### 4.1 自动采集边界
+### 4.1 输入与采集边界
 
-课程要求覆盖“至少三类来源自动采集”和“新情报自动融入图谱”。本项目采用分期实现：
+课程要求覆盖“至少三类来源自动采集”和“新情报自动融入图谱”，但第一阶段不应被爬虫平台阻塞。本项目采用阶段化输入策略：
 
 ```text
-P0：最小自动采集闭环
+阶段 1：离线文本入口
+  假设已经拿到本地文本文件
+  数据组手动清洗为 document.json
+  LLM 组和后端组基于固定 JSON 契约并行开发
+
+阶段 2：本地文档导入和集成 MVP
+  支持 document.json 或本地文本导入
+  写入 SQLite documents/chunks
+  后续进入抽取、归一化、建图和报告流水线
+
+阶段 3：最小自动采集闭环
   配置 sources
   手动触发 collection run
-  采集少量样本文档或 feed 条目
+  从三类来源采集少量样本文档或 feed 条目
   写入 collected_items
   转入 documents
   后续进入清洗、抽取、建图流水线
 
-P1：复杂采集调度与增量更新
+阶段 4：复杂采集调度与增量更新
   定时调度
   增量 checkpoint
   去重与版本比较
@@ -172,7 +189,7 @@ P1：复杂采集调度与增量更新
   采集错误重试和运行统计
 ```
 
-P0 不追求完整爬虫平台，只要求三类来源都能通过统一采集接口进入 SQLite。复杂调度、持续更新和大规模去重放到 P1。
+第一阶段的关键不是采集平台，而是固定 `document.json`、`extraction_result.json`、`graph.json` 契约。爬虫、RSS、复杂调度和增量更新不能阻塞离线闭环。
 
 ---
 
@@ -644,7 +661,7 @@ POST /api/v1/collection-runs
 GET  /api/v1/collection-runs/{collection_run_id}
 ```
 
-P0 只要求手动触发最小采集任务，采集结果写入 SQLite。P1 再实现定时调度、增量 checkpoint 和新情报自动入图。
+第一阶段可以先使用本地文本或 `document.json` 导入。课程验收增强阶段再手动触发最小采集任务，采集结果写入 SQLite；后续增强再实现定时调度、增量 checkpoint 和新情报自动入图。
 
 ### 8.3 文档接口
 
@@ -681,14 +698,14 @@ GET /api/v1/graph/timeline?target=APT28
 路径追踪实现策略：
 
 ```text
-P0：SQLite relations 表做基础 BFS 路径查询，保证接口可用
-P1：Neo4j Cypher 做正式多跳路径查询，用于演示高阶图数据库能力
+优先级 P0：SQLite relations 表做基础 BFS 路径查询，保证接口可用
+优先级 P1：Neo4j Cypher 做正式多跳路径查询，用于演示高阶图数据库能力
 ```
 
 说明：
 
 1. 路径追踪接口不能只在 Neo4j 可用时才存在。
-2. Neo4j 是 P1 必做增强，但 SQLite 需要提供演示兜底。
+2. Neo4j 是增强能力，但 SQLite 需要提供演示兜底。
 3. 前端只调用 `/graph/path`，不感知底层使用 SQLite BFS 还是 Neo4j Cypher。
 
 图谱响应：
@@ -718,7 +735,7 @@ GET /api/v1/reports/{target_group}
 POST /api/v1/reports/{target_group}/generate
 ```
 
-P0 返回基础 `markdown` 报告。P1 扩展结构化 `sections`、`evidence_ids`、`analysis_refs` 和 `graph_refs`，方便前端展示课程要求中的画像、行为模式、关联网络、时间线、威胁等级和预警建议。
+优先级 P0 返回基础 `markdown` 报告。增强阶段扩展结构化 `sections`、`evidence_ids`、`analysis_refs` 和 `graph_refs`，方便前端展示课程要求中的画像、行为模式、关联网络、时间线、威胁等级和预警建议。
 
 ### 8.8 行为分析与推理接口
 
@@ -755,7 +772,7 @@ GET  /api/v1/neo4j/status
 
 1. Neo4j 同步接口只读取 canonical graph。
 2. 不允许 LLM 结果直接写入 Neo4j。
-3. P1 必须实现 Neo4j 同步和路径查询。
+3. 增强阶段 / 优先级 P1 实现 Neo4j 同步和路径查询。
 4. 如果 Neo4j 不可用，基础图谱展示和报告生成仍然通过 SQLite 工作。
 
 ---
@@ -872,7 +889,7 @@ threatgraph-osint/
 ```text
 backend：FastAPI 后端
 frontend：React + TypeScript + Vite 前端
-neo4j：P1 图数据库
+neo4j：增强阶段 / 优先级 P1 图数据库
 ```
 
 SQLite 不单独作为服务运行，而是一个挂载文件：
@@ -943,7 +960,7 @@ Neo4j Browser：http://localhost:7474
 3. 前端仍保留本地 `pnpm` 运行能力。
 4. Neo4j 优先通过 Docker Compose 管理，不要求组员本机安装。
 5. `.env` 统一管理 LLM API、Neo4j 密码、SQLite 路径等配置。
-6. P0 可以不启动 Neo4j；P1 必须能通过 Docker Compose 启动 Neo4j 并完成同步。
+6. 基础阶段可以不启动 Neo4j；增强阶段必须能通过 Docker Compose 启动 Neo4j 并完成同步。
 
 ---
 
@@ -985,7 +1002,7 @@ Evaluation：评测结果
 8. 提供统一 API。
 9. 生成报告。
 10. 评估实体和关系抽取质量。
-11. 在 P1 同步 Neo4j 并提供 Cypher 路径查询能力。
+11. 在增强阶段同步 Neo4j 并提供 Cypher 路径查询能力。
 
 ---
 
@@ -1008,39 +1025,50 @@ Neo4j 不负责：
 
 ---
 
-## 14. P0 / P1 验收标准
+## 14. 阶段与 MVP 验收标准
 
-### 14.1 P0 验收标准
+### 14.1 Demo 标准
 
-P0 是基础可演示版本，必须满足：
+Demo 用来证明核心概念能跑，可以有手动步骤和 mock 数据。最低标准：
+
+1. 至少 1 个目标组织样本。
+2. 本地文本或 `document.json` 可作为输入。
+3. 能产出 `extraction_result.json` 或等价 mock。
+4. 能产出 `graph.json`。
+5. 前端能基于 `graph.json` 展示图谱、实体详情和证据。
+6. 能生成基础报告片段。
+
+### 14.2 MVP 标准
+
+MVP 用来证明团队可以交付和继续开发，必须满足：
+
+1. 至少 1 个目标组织端到端跑通。
+2. SQLite 作为唯一事实源。
+3. 能从 SQLite 导出 `data/graph/graph.json`。
+4. 能本地导入文档，不依赖爬虫平台。
+5. 能展示实体和关系图谱。
+6. 能按组织查询。
+7. 能通过 SQLite BFS 提供基础路径追踪。
+8. 能展示实体详情和证据片段。
+9. 能完成基础 MITRE 映射或行为模式分析。
+10. 能生成基础报告。
+11. 其他组员能按文档复现。
+12. 没有 Neo4j 时系统仍能运行。
+
+### 14.3 课程验收增强标准
+
+课程最终演示建议满足：
 
 1. 至少 3 个目标组织：APT28、Lazarus、Kimsuky。
 2. 至少 3 类数据源：安全类、新闻类、社媒/论坛类。
-3. SQLite 作为唯一事实源。
-4. 能从 SQLite 导出 `data/graph/graph.json`。
-5. 能通过最小采集接口从三类来源导入样本文档。
-6. 能展示实体和关系图谱。
-7. 能按组织查询。
-8. 能通过 SQLite BFS 提供基础路径追踪。
-9. 能展示实体详情和证据片段。
-10. 能完成基础 MITRE 映射和行为模式分析。
-11. 能生成基础报告。
-12. 能展示简单评测结果。
-13. 没有 Neo4j 时系统仍能运行。
-
-### 14.2 P1 验收标准
-
-P1 是图谱增强版本，必须满足：
-
-1. 能将 SQLite canonical graph 同步到 Neo4j。
-2. 能查询 Neo4j 连接状态和同步状态。
-3. 能通过 Neo4j Cypher 查询多跳关联路径。
-4. 能通过 Neo4j 支持多维度组合查询。
-5. 能展示至少一条路径追踪：APT 组织 -> 恶意软件/工具 -> 攻击目标/漏洞/技术。
-6. Neo4j 同步失败不能污染 SQLite 事实源。
-7. Neo4j 查询失败时，后端返回清晰错误，前端能降级展示 SQLite 图谱。
-8. 支持采集任务调度、增量 checkpoint、去重和新情报自动触发图谱更新。
-9. 报告接口返回结构化 sections，并能追溯 evidence、analysis 和 graph 引用。
+3. 能通过最小采集入口从三类来源导入样本文档。
+4. 能完成 MITRE 映射和行为模式分析。
+5. 能展示简单评测结果。
+6. 能将 SQLite canonical graph 同步到 Neo4j。
+7. 能查询 Neo4j 连接状态和同步状态。
+8. 能通过 Neo4j Cypher 查询多跳关联路径。
+9. Neo4j 同步失败不能污染 SQLite 事实源。
+10. 报告接口返回结构化 sections，并能追溯 evidence、analysis 和 graph 引用。
 
 ---
 
@@ -1063,9 +1091,10 @@ P1 是图谱增强版本，必须满足：
 2. 后端使用 FastAPI。
 3. SQLite 作为唯一事实源。
 4. `graph.json` 作为导出格式和前端 mock。
-5. Neo4j 作为 P1 必做图查询增强，不作为事实源。
+5. Neo4j 作为增强阶段 / 优先级 P1 的图查询增强，不作为事实源。
 6. Docker Compose 作为标准开发和演示环境。
 7. 服务通过 `docker compose` 命令直接管理。
-8. P0 做最小自动采集闭环，复杂调度和增量更新放 P1。
-9. P0 报告可先返回 markdown，结构化报告接口放 P1。
-10. 后续开发以本架构为准。
+8. 第一阶段先使用本地文本文件或 `document.json` 跑通离线链路。
+9. 自动采集不阻塞第一阶段；三类来源最小采集放到课程验收增强阶段。
+10. 基础报告可先返回 markdown，结构化报告接口放到增强阶段。
+11. 后续开发以本架构和 `docs/stage-roadmap.md` 为准。

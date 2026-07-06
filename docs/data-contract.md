@@ -3,7 +3,7 @@
 > 适用范围：ThreatGraph-OSINT 项目  
 > 唯一事实源：SQLite  
 > 导出格式：`data/graph/graph.json`  
-> 图查询增强：Neo4j(P1)
+> 图查询增强：Neo4j，增强阶段 / 优先级 P1
 
 ---
 
@@ -12,7 +12,7 @@
 ```text
 SQLite：唯一事实源
 graph.json：导出格式、前端 mock、演示兜底、Neo4j 同步输入
-Neo4j：P1 图查询增强，不保存唯一事实
+Neo4j：增强阶段 / 优先级 P1 图查询增强，不保存唯一事实
 ```
 
 禁止链路：
@@ -54,7 +54,7 @@ data/threatgraph_osint.db
 
 ### 3.1 sources
 
-保存可采集来源配置。P0 用于手动触发最小采集，P1 用于调度和增量更新。
+保存可采集来源配置。第一阶段可先使用本地文本或 `document.json` 导入；课程验收增强阶段用于手动触发三类来源最小采集；后续增强用于调度和增量更新。
 
 字段含义：
 
@@ -276,7 +276,7 @@ CREATE TABLE evidence (
 
 ### 3.12 reports
 
-保存报告缓存。P0 可以只写 `markdown`；P1 增加 `report_sections` 作为结构化报告。
+保存报告缓存。优先级 P0 可以只写 `markdown`；增强阶段增加 `report_sections` 作为结构化报告。
 
 ```sql
 CREATE TABLE reports (
@@ -291,7 +291,7 @@ CREATE TABLE reports (
 
 ### 3.13 report_sections
 
-保存 P1 结构化报告章节，便于前端展示课程要求中的画像、行为模式、关联网络、时间线、威胁等级和预警建议。
+保存增强阶段结构化报告章节，便于前端展示课程要求中的画像、行为模式、关联网络、时间线、威胁等级和预警建议。
 
 字段含义：
 

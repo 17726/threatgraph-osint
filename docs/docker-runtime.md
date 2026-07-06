@@ -13,7 +13,7 @@
 ```text
 backend：FastAPI 后端
 frontend：React + TypeScript + Vite 前端
-neo4j：P1 图数据库
+neo4j：增强阶段 / 优先级 P1 图数据库
 ```
 
 SQLite 不作为独立服务运行，而是项目数据文件：
@@ -122,7 +122,7 @@ volumes:
 
 1. `backend` 挂载 `data/`，读写 SQLite 和导出的 `graph.json`。
 2. `frontend` 只通过 `VITE_API_BASE_URL` 调后端。
-3. `neo4j` 是 P1 必做服务，但 P0 的基础图谱展示不依赖它。
+3. `neo4j` 是增强阶段服务，但基础图谱展示不依赖它。
 4. `backend depends_on neo4j` 只保证容器启动顺序，不代表后端必须依赖 Neo4j 可用。
 
 ---
