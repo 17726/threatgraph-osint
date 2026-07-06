@@ -1,4 +1,4 @@
-# API 契约 V2
+# API 契约
 
 > 适用范围：ThreatGraph-OSINT 项目  
 > 后端：FastAPI  

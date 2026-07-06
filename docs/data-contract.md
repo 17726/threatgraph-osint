@@ -1,4 +1,4 @@
-# 数据契约 V2
+# 数据契约
 
 > 适用范围：ThreatGraph-OSINT 项目  
 > 唯一事实源：SQLite  

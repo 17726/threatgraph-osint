@@ -1,16 +1,16 @@
-# ThreatGraph-OSINT 架构设计 V2
+# ThreatGraph-OSINT 架构设计
 
 > 适用范围：ThreatGraph-OSINT 项目  
 > 课程方向：实验三「开源情报资源中潜在行为和关系的大模型深度分析系统」  
 > 技术路线：React + TypeScript + Vite + ECharts-for-React + FastAPI + SQLite + graph.json 导出 + Neo4j(P1)  
-> 版本：V2.0  
+> 版本：当前版
 > 日期：2026-07-06
 
 ---
 
 ## 1. 架构结论
 
-本项目从第一版开始采用 SQLite 作为唯一事实源：
+本项目采用 SQLite 作为唯一事实源：
 
 ```text
 SQLite：唯一事实源，保存文档、切块、抽取结果、实体、关系、证据、报告、评测结果
@@ -18,7 +18,7 @@ graph.json：由 SQLite 导出的图谱格式，用于前端 mock、演示兜底
 Neo4j：P1 必做的图查询增强层，用于多跳路径查询和 Cypher 展示，但不作为事实源
 ```
 
-最终选择方案三：
+当前架构：
 
 ```text
 SQLite 事实源 + graph.json 导出 + Neo4j(P1) 同步 + FastAPI API + React/TypeScript/ECharts 前端
@@ -331,7 +331,7 @@ data/graph/graph.json
 
 ### 5.5 SQLite 表设计
 
-SQLite 从第一版开始作为唯一事实源。建议表设计如下：
+SQLite 是唯一事实源。建议表设计如下：
 
 ```text
 documents
@@ -772,10 +772,10 @@ threatgraph-osint/
   .gitignore
 
   docs/
-    architecture-v2.md
-    api-contract-v2.md
-    data-contract-v2.md
-    reference-comparison-v2.md
+    architecture.md
+    api-contract.md
+    data-contract.md
+    reference-comparison.md
     report-template.md
     team-workflow.md
 
@@ -1061,11 +1061,11 @@ P1 是图谱增强版本，必须满足：
 
 1. 前端使用 React + TypeScript + Vite + ECharts-for-React。
 2. 后端使用 FastAPI。
-3. SQLite 从第一版开始作为唯一事实源。
+3. SQLite 作为唯一事实源。
 4. `graph.json` 作为导出格式和前端 mock。
 5. Neo4j 作为 P1 必做图查询增强，不作为事实源。
 6. Docker Compose 作为标准开发和演示环境。
 7. 服务通过 `docker compose` 命令直接管理。
 8. P0 做最小自动采集闭环，复杂调度和增量更新放 P1。
 9. P0 报告可先返回 markdown，结构化报告接口放 P1。
-10. 后续开发以本 V2 架构为准。
+10. 后续开发以本架构为准。

@@ -19,7 +19,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，构建覆�
 当前仓库处于架构与契约初始化阶段：
 
 ```text
-已完成：架构方案、数据契约、API 契约、Docker 运行契约、开源项目对比草案、脱敏课程要求
+已完成：架构方案、数据契约、API 契约、Docker 运行契约、开源项目对比草案、课程要求
 下一步：初始化 Docker Compose、FastAPI 后端、React TypeScript 前端、SQLite seed 数据
 ```
 
@@ -56,21 +56,21 @@ LLM 接口：OpenAI-compatible API
 ```text
 1. README.md
 2. docs/team-workflow.md
-3. docs/architecture-v2.md
-4. docs/data-contract-v2.md
-5. docs/api-contract-v2.md
-6. docs/reference-comparison-v2.md
-7. docs/docker-runtime-v2.md
+3. docs/architecture.md
+4. docs/data-contract.md
+5. docs/api-contract.md
+6. docs/reference-comparison.md
+7. docs/docker-runtime.md
 ```
 
 如果你只负责某一组，先看：
 
 ```text
-数据与样本组：docs/data-contract-v2.md + docs/team-workflow.md
-LLM 与分析组：docs/data-contract-v2.md + docs/architecture-v2.md
-后端组：docs/api-contract-v2.md + docs/data-contract-v2.md
-前端组：docs/api-contract-v2.md + docs/team-workflow.md
-报告测试组：docs/team-workflow.md + docs/reference-comparison-v2.md + docs/references/course-requirements-sanitized.md
+数据与样本组：docs/data-contract.md + docs/team-workflow.md
+LLM 与分析组：docs/data-contract.md + docs/architecture.md
+后端组：docs/api-contract.md + docs/data-contract.md
+前端组：docs/api-contract.md + docs/team-workflow.md
+报告测试组：docs/team-workflow.md + docs/reference-comparison.md + docs/references/course-requirements.md
 ```
 
 ---
@@ -146,4 +146,4 @@ Neo4j Browser：http://localhost:7474
 1. 不提交原始课程 PDF。
 2. 不提交未脱敏的聊天记录、私有链接、教师联系方式、组员手机号、邮箱、API Key。
 3. `.env` 不入库，只提交 `.env.example`。
-4. 公开材料只保留脱敏版课程要求：`docs/references/course-requirements-sanitized.md`。
+4. 公开材料只保留课程要求：`docs/references/course-requirements.md`。

@@ -20,8 +20,8 @@ LLM 与行为分析组
 
 所有组必须遵守：
 
-1. 数据字段以 `docs/data-contract-v2.md` 为准。
-2. API 字段以 `docs/api-contract-v2.md` 为准。
+1. 数据字段以 `docs/data-contract.md` 为准。
+2. API 字段以 `docs/api-contract.md` 为准。
 3. 任何字段变更必须先通知架构与接口组。
 4. 所有模块都要保留证据链，不能只给自然语言结论。
 5. 演示链路优先于功能堆叠。
@@ -40,10 +40,10 @@ LLM 与行为分析组
 关键产出：
 
 ```text
-docs/architecture-v2.md
-docs/data-contract-v2.md
-docs/api-contract-v2.md
-docs/docker-runtime-v2.md
+docs/architecture.md
+docs/data-contract.md
+docs/api-contract.md
+docs/docker-runtime.md
 接口变更记录
 ```
 
