@@ -38,13 +38,13 @@ LLM 输出 -> SQLite extracted_* 候选表
 默认路径：
 
 ```text
-data/osintelligence.db
+data/threatgraph_osint.db
 ```
 
 容器内路径：
 
 ```text
-/app/data/osintelligence.db
+/app/data/threatgraph_osint.db
 ```
 
 ---

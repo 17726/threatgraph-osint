@@ -14,7 +14,20 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，构建覆�
 
 ---
 
-## 当前架构决策
+## 当前状态
+
+当前仓库处于架构与契约初始化阶段：
+
+```text
+已完成：架构方案、数据契约、API 契约、Docker 运行契约、脱敏课程要求
+下一步：初始化 Docker Compose、FastAPI 后端、React TypeScript 前端、SQLite seed 数据
+```
+
+新成员先不要直接改接口字段。所有数据结构和接口变更先同步架构与接口组。
+
+---
+
+## 技术栈
 
 ```text
 前端：React + TypeScript + Vite + ECharts-for-React
@@ -36,27 +49,43 @@ LLM 接口：OpenAI-compatible API
 
 ---
 
-## 文档入口
+## 新成员上手
+
+建议按这个顺序阅读：
 
 ```text
-docs/architecture-v2.md       架构设计
-docs/data-contract-v2.md      SQLite 与 graph.json 数据契约
-docs/docker-runtime-v2.md     Docker Compose 运行契约
-docs/api-contract-v2.md       FastAPI 接口契约
-docs/references/              课程要求和前期讨论记录
+1. README.md
+2. docs/team-workflow.md
+3. docs/architecture-v2.md
+4. docs/data-contract-v2.md
+5. docs/api-contract-v2.md
+6. docs/docker-runtime-v2.md
+```
+
+如果你只负责某一组，先看：
+
+```text
+数据与样本组：docs/data-contract-v2.md + docs/team-workflow.md
+LLM 与分析组：docs/data-contract-v2.md + docs/architecture-v2.md
+后端组：docs/api-contract-v2.md + docs/data-contract-v2.md
+前端组：docs/api-contract-v2.md + docs/team-workflow.md
+报告测试组：docs/team-workflow.md + docs/references/course-requirements-sanitized.md
 ```
 
 ---
 
-## 计划目录
+## 组别职责简表
 
-```text
-backend/      FastAPI 后端
-frontend/     React + TypeScript + Vite 前端
-data/         SQLite、导出图谱、报告、评测数据
-scripts/      流水线、导出、同步脚本
-docs/         架构和接口文档
-```
+详细分工见 [docs/team-workflow.md](docs/team-workflow.md)。
+
+| 组别 | 主要职责 | 关键产出 |
+| --- | --- | --- |
+| 架构与接口组 | 统一技术路线、数据契约、API 契约、目录结构 | 架构文档、接口文档、评审结论 |
+| 数据与样本组 | 收集三类情报源，整理原始文档和黄金测试集 | raw 数据、golden.json、来源索引 |
+| LLM 与行为分析组 | 实体关系抽取、MITRE 映射、行为分析、候选推理 | 抽取结果、行为模式、推理结果 |
+| 后端与数据层组 | FastAPI、SQLite、pipeline、graph.json 导出、Neo4j 同步 | API 服务、数据库、同步脚本 |
+| 图谱与前端组 | React 页面、图谱可视化、搜索、详情、报告展示 | 前端页面、图谱交互、演示界面 |
+| 报告测试与答辩组 | 评测、实验报告、PPT、演示脚本和录像 | 评测结果、报告、PPT、答辩材料 |
 
 ---
 
@@ -79,7 +108,21 @@ P1：图谱增强版本
 
 ---
 
+## 计划目录
+
+```text
+backend/      FastAPI 后端
+frontend/     React + TypeScript + Vite 前端
+data/         SQLite、导出图谱、报告、评测数据
+scripts/      流水线、导出、同步脚本
+docs/         架构、接口、数据、运行与协作文档
+```
+
+---
+
 ## 推荐运行方式
+
+代码脚手架落地后，默认使用：
 
 ```bash
 docker compose up --build
@@ -94,4 +137,11 @@ API 文档：http://localhost:8000/docs
 Neo4j Browser：http://localhost:7474
 ```
 
-当前仓库处于架构初始化阶段，代码脚手架后续按 `docs/architecture-v2.md` 落地。
+---
+
+## 发布与隐私约束
+
+1. 不提交原始课程 PDF。
+2. 不提交未脱敏的聊天记录、私有链接、教师联系方式、组员手机号、邮箱、API Key。
+3. `.env` 不入库，只提交 `.env.example`。
+4. 公开材料只保留脱敏版课程要求：`docs/references/course-requirements-sanitized.md`。

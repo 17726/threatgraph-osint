@@ -1,4 +1,4 @@
-# OSINTelligence 架构设计 V2
+# ThreatGraph-OSINT 架构设计 V2
 
 > 适用范围：ThreatGraph-OSINT 项目  
 > 课程方向：实验三「开源情报资源中潜在行为和关系的大模型深度分析系统」  
@@ -676,7 +676,7 @@ GET  /api/v1/neo4j/status
 ## 9. 项目目录
 
 ```text
-OSINTelligence/
+threatgraph-osint/
   README.md
   pyproject.toml
   package.json
@@ -786,7 +786,7 @@ neo4j：P1 图数据库
 SQLite 不单独作为服务运行，而是一个挂载文件：
 
 ```text
-data/osintelligence.db
+data/threatgraph_osint.db
 ```
 
 推荐管理命令：

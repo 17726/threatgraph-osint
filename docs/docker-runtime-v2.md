@@ -19,7 +19,7 @@ neo4j：P1 图数据库
 SQLite 不作为独立服务运行，而是项目数据文件：
 
 ```text
-data/osintelligence.db
+data/threatgraph_osint.db
 ```
 
 ---
@@ -47,7 +47,7 @@ API_HOST=0.0.0.0
 API_PORT=8000
 
 # sqlite
-SQLITE_DB_PATH=/app/data/osintelligence.db
+SQLITE_DB_PATH=/app/data/threatgraph_osint.db
 
 # llm openai-compatible
 LLM_API_KEY=
@@ -59,7 +59,7 @@ LLM_MAX_RETRIES=3
 # neo4j
 NEO4J_URI=bolt://neo4j:7687
 NEO4J_USER=neo4j
-NEO4J_PASSWORD=osintelligence_password
+NEO4J_PASSWORD=change_me_for_local_dev
 
 # frontend
 VITE_API_BASE_URL=http://localhost:8000/api/v1
@@ -108,7 +108,7 @@ services:
       - "7474:7474"
       - "7687:7687"
     environment:
-      NEO4J_AUTH: neo4j/osintelligence_password
+      NEO4J_AUTH: neo4j/change_me_for_local_dev
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
