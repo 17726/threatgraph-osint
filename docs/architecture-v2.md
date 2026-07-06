@@ -81,13 +81,14 @@ Kimsuky
                        │ HTTP JSON
 ┌──────────────────────▼───────────────────────┐
 │                 FastAPI 后端                  │
-│  documents / pipeline / graph / entities       │
+│  sources / collection / documents / pipeline   │
+│  graph / entities                              │
 │  analysis / reports / evaluation / neo4j-sync  │
 └──────────────────────┬───────────────────────┘
                        │
 ┌──────────────────────▼───────────────────────┐
 │               业务服务与流水线                  │
-│  清洗 / 抽取 / 归一化 / 建图 / 行为分析 / 推理 / 报告 │
+│  采集 / 清洗 / 抽取 / 归一化 / 建图 / 行为分析 / 推理 / 报告 │
 └───────────────┬──────────────────┬───────────┘
                 │                  │
 ┌───────────────▼──────────────┐   │
@@ -115,7 +116,9 @@ Kimsuky
 权威数据流：
 
 ```text
-data/raw/*.json
+sources 配置 / data/raw/*.json
+  -> collection runs
+  -> SQLite collected_items
   -> SQLite documents/chunks
   -> LLM 抽取结果写入 SQLite extraction tables
   -> 归一化实体和关系写入 SQLite canonical graph tables
@@ -147,6 +150,29 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
 2. 未归一化数据直接入图会污染图数据库。
 3. 后续评测、证据追溯、报告复现会困难。
 4. Neo4j 应从已校验的 canonical graph 同步，不能承担清洗和纠错职责。
+
+### 4.1 自动采集边界
+
+课程要求覆盖“至少三类来源自动采集”和“新情报自动融入图谱”。本项目采用分期实现：
+
+```text
+P0：最小自动采集闭环
+  配置 sources
+  手动触发 collection run
+  采集少量样本文档或 feed 条目
+  写入 collected_items
+  转入 documents
+  后续进入清洗、抽取、建图流水线
+
+P1：复杂采集调度与增量更新
+  定时调度
+  增量 checkpoint
+  去重与版本比较
+  新情报自动触发图谱更新
+  采集错误重试和运行统计
+```
+
+P0 不追求完整爬虫平台，只要求三类来源都能通过统一采集接口进入 SQLite。复杂调度、持续更新和大规模去重放到 P1。
 
 ---
 
@@ -408,6 +434,50 @@ evaluation_runs
   relation_precision
   notes
   created_at
+
+sources
+  source_id
+  name
+  source_type
+  collector_type
+  url
+  target_groups_json
+  enabled
+  config_json
+  created_at
+  updated_at
+
+collection_runs
+  collection_run_id
+  source_id
+  status
+  started_at
+  finished_at
+  items_found
+  items_imported
+  error_message
+
+collected_items
+  item_id
+  collection_run_id
+  source_id
+  target_group
+  source_url
+  title
+  raw_text
+  content_hash
+  status
+  created_at
+
+report_sections
+  section_id
+  report_id
+  section_type
+  title
+  markdown
+  evidence_ids_json
+  analysis_refs_json
+  graph_refs_json
 ```
 
 设计原则：
@@ -479,6 +549,7 @@ INDUSTRY
 TIME
 EVENT
 CAMPAIGN
+BEHAVIOR_PATTERN
 ```
 
 说明：
@@ -487,6 +558,7 @@ CAMPAIGN
 2. `INDUSTRY` 用于行业目标，如金融、政府、能源。
 3. `EVENT` 用于关键攻击事件。
 4. `CAMPAIGN` 用于攻击活动。
+5. `BEHAVIOR_PATTERN` 用于把行为分析结果纳入图谱展示。
 
 ### 6.2 关系类型
 
@@ -503,13 +575,15 @@ LEADS_TO
 RELATED_TO
 DISCOVERED_BY
 CAUSES
+HAS_BEHAVIOR
 ```
 
 说明：
 
-1. 关系类型控制在 10-12 个，避免 LLM 输出过散。
+1. 关系类型控制在 10-13 个，避免 LLM 输出过散。
 2. `RELATED_TO` 只作为兜底关系，不能滥用。
 3. 时间、因果、攻击链关系必须保留证据。
+4. `HAS_BEHAVIOR` 用于连接 APT 组织和行为模式节点。
 
 ---
 
@@ -561,14 +635,25 @@ industry:finance
 GET /api/v1/health
 ```
 
-### 8.2 文档接口
+### 8.2 采集接口
+
+```text
+GET  /api/v1/sources
+POST /api/v1/sources
+POST /api/v1/collection-runs
+GET  /api/v1/collection-runs/{collection_run_id}
+```
+
+P0 只要求手动触发最小采集任务，采集结果写入 SQLite。P1 再实现定时调度、增量 checkpoint 和新情报自动入图。
+
+### 8.3 文档接口
 
 ```text
 GET /api/v1/documents
 GET /api/v1/documents/{doc_id}
 ```
 
-### 8.3 流水线接口
+### 8.4 流水线接口
 
 ```text
 POST /api/v1/pipeline/run
@@ -585,7 +670,7 @@ GET  /api/v1/pipeline/status/{job_id}
 }
 ```
 
-### 8.4 图谱接口
+### 8.5 图谱接口
 
 ```text
 GET /api/v1/graph?target=APT28&depth=2
@@ -619,21 +704,23 @@ P1：Neo4j Cypher 做正式多跳路径查询，用于演示高阶图数据库�
 }
 ```
 
-### 8.5 实体接口
+### 8.6 实体接口
 
 ```text
 GET /api/v1/entities/search?q=APT28
 GET /api/v1/entities/{entity_id}
 ```
 
-### 8.6 报告接口
+### 8.7 报告接口
 
 ```text
 GET /api/v1/reports/{target_group}
 POST /api/v1/reports/{target_group}/generate
 ```
 
-### 8.7 行为分析与推理接口
+P0 返回基础 `markdown` 报告。P1 扩展结构化 `sections`、`evidence_ids`、`analysis_refs` 和 `graph_refs`，方便前端展示课程要求中的画像、行为模式、关联网络、时间线、威胁等级和预警建议。
+
+### 8.8 行为分析与推理接口
 
 ```text
 POST /api/v1/analysis/{target_group}/run
@@ -650,14 +737,14 @@ GET  /api/v1/analysis/{target_group}/threat-assessment
 3. `inferences` 返回候选推断关系。
 4. `threat-assessment` 返回威胁等级、风险分数和防护建议。
 
-### 8.8 评测接口
+### 8.9 评测接口
 
 ```text
 GET /api/v1/evaluation/summary
 POST /api/v1/evaluation/run
 ```
 
-### 8.9 Neo4j 同步接口
+### 8.10 Neo4j 同步接口
 
 ```text
 POST /api/v1/neo4j/sync
@@ -688,6 +775,7 @@ threatgraph-osint/
     architecture-v2.md
     api-contract-v2.md
     data-contract-v2.md
+    reference-comparison-v2.md
     report-template.md
     team-workflow.md
 
@@ -701,6 +789,7 @@ threatgraph-osint/
         schemas.py
       api/
         documents.py
+        collection.py
         pipeline.py
         graph.py
         entities.py
@@ -709,6 +798,7 @@ threatgraph-osint/
         evaluation.py
         neo4j_sync.py
       services/
+        collection_service.py
         document_service.py
         cleaning_service.py
         extraction_service.py
@@ -755,6 +845,7 @@ threatgraph-osint/
       main.tsx
 
   data/
+    sources/
     raw/
     cleaned/
     extracted/
@@ -763,6 +854,7 @@ threatgraph-osint/
     evaluation/
 
   scripts/
+    collect_sources.py
     seed_demo_data.py
     run_pipeline.py
     export_graph_json.py
@@ -926,14 +1018,15 @@ P0 是基础可演示版本，必须满足：
 2. 至少 3 类数据源：安全类、新闻类、社媒/论坛类。
 3. SQLite 作为唯一事实源。
 4. 能从 SQLite 导出 `data/graph/graph.json`。
-5. 能展示实体和关系图谱。
-6. 能按组织查询。
-7. 能通过 SQLite BFS 提供基础路径追踪。
-8. 能展示实体详情和证据片段。
-9. 能完成基础 MITRE 映射和行为模式分析。
-10. 能生成结构化报告。
-11. 能展示简单评测结果。
-12. 没有 Neo4j 时系统仍能运行。
+5. 能通过最小采集接口从三类来源导入样本文档。
+6. 能展示实体和关系图谱。
+7. 能按组织查询。
+8. 能通过 SQLite BFS 提供基础路径追踪。
+9. 能展示实体详情和证据片段。
+10. 能完成基础 MITRE 映射和行为模式分析。
+11. 能生成基础报告。
+12. 能展示简单评测结果。
+13. 没有 Neo4j 时系统仍能运行。
 
 ### 14.2 P1 验收标准
 
@@ -946,6 +1039,8 @@ P1 是图谱增强版本，必须满足：
 5. 能展示至少一条路径追踪：APT 组织 -> 恶意软件/工具 -> 攻击目标/漏洞/技术。
 6. Neo4j 同步失败不能污染 SQLite 事实源。
 7. Neo4j 查询失败时，后端返回清晰错误，前端能降级展示 SQLite 图谱。
+8. 支持采集任务调度、增量 checkpoint、去重和新情报自动触发图谱更新。
+9. 报告接口返回结构化 sections，并能追溯 evidence、analysis 和 graph 引用。
 
 ---
 
@@ -971,4 +1066,6 @@ P1 是图谱增强版本，必须满足：
 5. Neo4j 作为 P1 必做图查询增强，不作为事实源。
 6. Docker Compose 作为标准开发和演示环境。
 7. 服务通过 `docker compose` 命令直接管理。
-8. 后续开发以本 V2 架构为准。
+8. P0 做最小自动采集闭环，复杂调度和增量更新放 P1。
+9. P0 报告可先返回 markdown，结构化报告接口放 P1。
+10. 后续开发以本 V2 架构为准。

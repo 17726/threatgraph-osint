@@ -19,7 +19,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，构建覆�
 当前仓库处于架构与契约初始化阶段：
 
 ```text
-已完成：架构方案、数据契约、API 契约、Docker 运行契约、脱敏课程要求
+已完成：架构方案、数据契约、API 契约、Docker 运行契约、开源项目对比草案、脱敏课程要求
 下一步：初始化 Docker Compose、FastAPI 后端、React TypeScript 前端、SQLite seed 数据
 ```
 
@@ -59,7 +59,8 @@ LLM 接口：OpenAI-compatible API
 3. docs/architecture-v2.md
 4. docs/data-contract-v2.md
 5. docs/api-contract-v2.md
-6. docs/docker-runtime-v2.md
+6. docs/reference-comparison-v2.md
+7. docs/docker-runtime-v2.md
 ```
 
 如果你只负责某一组，先看：
@@ -69,7 +70,7 @@ LLM 接口：OpenAI-compatible API
 LLM 与分析组：docs/data-contract-v2.md + docs/architecture-v2.md
 后端组：docs/api-contract-v2.md + docs/data-contract-v2.md
 前端组：docs/api-contract-v2.md + docs/team-workflow.md
-报告测试组：docs/team-workflow.md + docs/references/course-requirements-sanitized.md
+报告测试组：docs/team-workflow.md + docs/reference-comparison-v2.md + docs/references/course-requirements-sanitized.md
 ```
 
 ---
@@ -95,7 +96,7 @@ P0：基础可演示版本
 
 ```text
 SQLite + FastAPI + React/ECharts
-完成文档导入、实体关系图谱、实体详情、证据展示、SQLite 基础路径追踪、
+完成最小自动采集、文档导入、实体关系图谱、实体详情、证据展示、SQLite 基础路径追踪、
 MITRE 映射、行为模式分析、报告生成、基础评测
 ```
 
@@ -103,7 +104,8 @@ P1：图谱增强版本
 
 ```text
 从 SQLite canonical graph 同步到 Neo4j
-支持 Neo4j/Cypher 多跳路径查询、多维度组合查询和 Neo4j 状态展示
+支持 Neo4j/Cypher 多跳路径查询、多维度组合查询、Neo4j 状态展示、
+复杂采集调度、增量更新和结构化报告接口
 ```
 
 ---

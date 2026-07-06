@@ -59,7 +59,81 @@ GET /api/v1/health
 
 ---
 
-## 3. 文档接口
+## 3. 采集接口
+
+```text
+GET  /api/v1/sources
+POST /api/v1/sources
+POST /api/v1/collection-runs
+GET  /api/v1/collection-runs/{collection_run_id}
+```
+
+P0 目标是最小自动采集闭环：三类来源各能通过统一接口采集少量样本文档，并写入 SQLite。P1 再做定时调度、增量 checkpoint、复杂去重和新情报自动入图。
+
+`POST /sources` 请求：
+
+```json
+{
+  "source_id": "src_securelist_apt28",
+  "name": "Securelist APT Reports",
+  "source_type": "security_report",
+  "collector_type": "http_page",
+  "url": "https://securelist.com/masha-and-these-bears/84311/",
+  "target_groups": ["APT28"],
+  "enabled": true,
+  "config": {
+    "language": "en",
+    "default_target_group": "APT28"
+  }
+}
+```
+
+`POST /collection-runs` 请求：
+
+```json
+{
+  "source_id": "src_securelist_apt28",
+  "target_groups": ["APT28"],
+  "limit": 5,
+  "write_documents": true
+}
+```
+
+返回：
+
+```json
+{
+  "success": true,
+  "data": {
+    "collection_run_id": "colrun_20260707_001",
+    "status": "succeeded",
+    "items_found": 1,
+    "items_imported": 1,
+    "document_ids": ["apt28_securelist_masha_bears"]
+  }
+}
+```
+
+P0 支持的采集器类型：
+
+```text
+local_json：读取 data/raw 或 data/sources 下的本地 JSON 样本
+http_page：抓取单篇安全报告、新闻或公告页面
+rss_feed：读取 RSS/Atom feed 并抽取条目
+```
+
+P1 扩展：
+
+```text
+scheduled_run：定时任务
+checkpoint：增量位置
+dedup_policy：去重策略
+auto_pipeline：新情报采集后自动触发清洗、抽取、建图
+```
+
+---
+
+## 4. 文档接口
 
 ```text
 GET /api/v1/documents
@@ -83,7 +157,7 @@ POST /api/v1/documents/import
 
 ---
 
-## 4. 流水线接口
+## 5. 流水线接口
 
 ```text
 POST /api/v1/pipeline/run
@@ -108,7 +182,7 @@ GET  /api/v1/pipeline/status/{job_id}
 
 ---
 
-## 5. 实体接口
+## 6. 实体接口
 
 ```text
 GET /api/v1/entities/search?q=APT28
@@ -135,7 +209,7 @@ GET /api/v1/entities/{entity_id}
 
 ---
 
-## 6. 图谱接口
+## 7. 图谱接口
 
 ```text
 GET /api/v1/graph?target=APT28&depth=2
@@ -218,7 +292,7 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 
 ---
 
-## 7. 行为分析与推理接口
+## 8. 行为分析与推理接口
 
 ```text
 POST /api/v1/analysis/{target_group}/run
@@ -337,7 +411,7 @@ MITRE 映射返回：
 
 ---
 
-## 8. 报告接口
+## 9. 报告接口
 
 ```text
 GET  /api/v1/reports/{target_group}
@@ -358,9 +432,60 @@ POST /api/v1/reports/{target_group}/generate
 }
 ```
 
+P1 结构化报告草案：
+
+```json
+{
+  "success": true,
+  "data": {
+    "target_group": "APT28",
+    "title": "APT28 威胁情报分析报告",
+    "markdown": "...",
+    "sections": [
+      {
+        "section_id": "profile",
+        "title": "目标画像",
+        "section_type": "profile",
+        "markdown": "...",
+        "evidence_ids": ["ev_001"],
+        "analysis_refs": [],
+        "graph_refs": {
+          "node_ids": ["apt_group:apt28"],
+          "edge_ids": []
+        }
+      },
+      {
+        "section_id": "behavior_patterns",
+        "title": "行为模式",
+        "section_type": "behavior_patterns",
+        "markdown": "...",
+        "evidence_ids": ["ev_001", "ev_002"],
+        "analysis_refs": ["behavior_pattern:pattern_apt28_initial_access"],
+        "graph_refs": {
+          "node_ids": ["apt_group:apt28", "technique:t1566"],
+          "edge_ids": ["rel:apt_group:apt28:HAS_BEHAVIOR:behavior:apt28_initial_access"]
+        }
+      }
+    ],
+    "generated_at": "2026-07-06T22:30:00+08:00"
+  }
+}
+```
+
+P1 章节类型：
+
+```text
+profile：目标组织画像
+behavior_patterns：行为模式总结
+network：关联网络
+timeline：时间线
+threat_assessment：威胁等级评估
+recommendations：预警建议
+```
+
 ---
 
-## 9. 评测接口
+## 10. 评测接口
 
 ```text
 GET  /api/v1/evaluation/summary
@@ -383,7 +508,7 @@ POST /api/v1/evaluation/run
 
 ---
 
-## 10. Neo4j 接口
+## 11. Neo4j 接口
 
 ```text
 GET  /api/v1/neo4j/status

@@ -19,6 +19,7 @@ frontend/.vite/
 # Data outputs
 data/*.db
 data/*.sqlite
+data/sources/*
 data/raw/*
 data/cleaned/*
 data/extracted/*
@@ -26,6 +27,7 @@ data/graph/*
 data/reports/*
 data/evaluation/*
 !data/.gitkeep
+!data/sources/.gitkeep
 !data/raw/.gitkeep
 !data/cleaned/.gitkeep
 !data/extracted/.gitkeep
@@ -42,4 +44,3 @@ neo4j_logs/
 Thumbs.db
 .idea/
 .vscode/
-

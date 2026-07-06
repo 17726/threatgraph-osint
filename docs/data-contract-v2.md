@@ -24,7 +24,8 @@ LLM 原始输出 -> Neo4j -> 前端
 允许链路：
 
 ```text
-raw docs -> SQLite documents/chunks
+sources / raw docs -> SQLite collected_items
+collected_items -> SQLite documents/chunks
 LLM 输出 -> SQLite extracted_* 候选表
 归一化 -> SQLite entities/relations/evidence
 导出 -> graph.json
@@ -51,13 +52,83 @@ data/threatgraph_osint.db
 
 ## 3. 表设计
 
-### 3.1 documents
+### 3.1 sources
+
+保存可采集来源配置。P0 用于手动触发最小采集，P1 用于调度和增量更新。
+
+字段含义：
+
+```text
+source_type：来源类型，如 security_report、news、government_notice、social_forum
+collector_type：采集器类型，如 local_json、http_page、rss_feed
+target_groups_json：该来源默认覆盖的目标组织
+config_json：采集器配置，如语言、默认目标组织、解析规则
+```
+
+```sql
+CREATE TABLE sources (
+  source_id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  source_type TEXT NOT NULL,
+  collector_type TEXT NOT NULL,
+  url TEXT NOT NULL,
+  target_groups_json TEXT NOT NULL DEFAULT '[]',
+  enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
+  config_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+```
+
+### 3.2 collection_runs
+
+保存每次采集运行记录。
+
+```sql
+CREATE TABLE collection_runs (
+  collection_run_id TEXT PRIMARY KEY,
+  source_id TEXT NOT NULL,
+  target_groups_json TEXT NOT NULL DEFAULT '[]',
+  status TEXT NOT NULL CHECK (status IN ('pending', 'running', 'succeeded', 'failed')),
+  started_at TEXT NOT NULL,
+  finished_at TEXT,
+  items_found INTEGER NOT NULL DEFAULT 0,
+  items_imported INTEGER NOT NULL DEFAULT 0,
+  error_message TEXT,
+  FOREIGN KEY (source_id) REFERENCES sources(source_id)
+);
+```
+
+### 3.3 collected_items
+
+保存采集到的原始条目。这里还不是最终文档事实，需要转入 `documents` 后再进入清洗和抽取。
+
+```sql
+CREATE TABLE collected_items (
+  item_id TEXT PRIMARY KEY,
+  collection_run_id TEXT NOT NULL,
+  source_id TEXT NOT NULL,
+  target_group TEXT NOT NULL,
+  source_url TEXT NOT NULL,
+  title TEXT NOT NULL,
+  language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
+  raw_text TEXT NOT NULL,
+  content_hash TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('collected', 'imported', 'skipped', 'failed')),
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (collection_run_id) REFERENCES collection_runs(collection_run_id),
+  FOREIGN KEY (source_id) REFERENCES sources(source_id)
+);
+```
+
+### 3.4 documents
 
 保存原始文档。
 
 ```sql
 CREATE TABLE documents (
   doc_id TEXT PRIMARY KEY,
+  collection_item_id TEXT,
   target_group TEXT NOT NULL,
   source_url TEXT NOT NULL,
   source_type TEXT NOT NULL,
@@ -65,11 +136,12 @@ CREATE TABLE documents (
   language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
   raw_text TEXT NOT NULL,
   metadata_json TEXT NOT NULL DEFAULT '{}',
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (collection_item_id) REFERENCES collected_items(item_id)
 );
 ```
 
-### 3.2 chunks
+### 3.5 chunks
 
 保存清洗和切块后的 LLM 输入。
 
@@ -85,7 +157,7 @@ CREATE TABLE chunks (
 );
 ```
 
-### 3.3 extraction_runs
+### 3.6 extraction_runs
 
 保存每次 LLM 抽取任务。
 
@@ -103,7 +175,7 @@ CREATE TABLE extraction_runs (
 );
 ```
 
-### 3.4 extracted_entities
+### 3.7 extracted_entities
 
 保存 LLM 候选实体。这里不是最终事实。
 
@@ -123,7 +195,7 @@ CREATE TABLE extracted_entities (
 );
 ```
 
-### 3.5 extracted_relations
+### 3.8 extracted_relations
 
 保存 LLM 候选关系。这里不是最终事实。
 
@@ -144,7 +216,7 @@ CREATE TABLE extracted_relations (
 );
 ```
 
-### 3.6 entities
+### 3.9 entities
 
 保存归一化后的实体，属于 canonical graph。
 
@@ -162,7 +234,7 @@ CREATE TABLE entities (
 );
 ```
 
-### 3.7 relations
+### 3.10 relations
 
 保存归一化后的关系，属于 canonical graph。
 
@@ -181,7 +253,7 @@ CREATE TABLE relations (
 );
 ```
 
-### 3.8 evidence
+### 3.11 evidence
 
 保存证据。报告、详情页、评测都依赖这一层。
 
@@ -202,9 +274,9 @@ CREATE TABLE evidence (
 );
 ```
 
-### 3.9 reports
+### 3.12 reports
 
-保存报告缓存。
+保存报告缓存。P0 可以只写 `markdown`；P1 增加 `report_sections` 作为结构化报告。
 
 ```sql
 CREATE TABLE reports (
@@ -217,7 +289,35 @@ CREATE TABLE reports (
 );
 ```
 
-### 3.10 mitre_mappings
+### 3.13 report_sections
+
+保存 P1 结构化报告章节，便于前端展示课程要求中的画像、行为模式、关联网络、时间线、威胁等级和预警建议。
+
+字段含义：
+
+```text
+section_type：profile、behavior_patterns、network、timeline、threat_assessment、recommendations
+evidence_ids_json：支撑该章节的证据
+analysis_refs_json：引用的行为分析、MITRE 映射、推理或威胁评估结果
+graph_refs_json：引用的图谱节点和关系
+```
+
+```sql
+CREATE TABLE report_sections (
+  section_id TEXT PRIMARY KEY,
+  report_id TEXT NOT NULL,
+  section_type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  markdown TEXT NOT NULL,
+  evidence_ids_json TEXT NOT NULL DEFAULT '[]',
+  analysis_refs_json TEXT NOT NULL DEFAULT '[]',
+  graph_refs_json TEXT NOT NULL DEFAULT '{}',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  FOREIGN KEY (report_id) REFERENCES reports(report_id)
+);
+```
+
+### 3.14 mitre_mappings
 
 保存 MITRE ATT&CK 映射。
 
@@ -251,7 +351,7 @@ CREATE TABLE mitre_mappings (
 );
 ```
 
-### 3.11 behavior_patterns
+### 3.15 behavior_patterns
 
 保存攻击行为模式。
 
@@ -279,7 +379,7 @@ CREATE TABLE behavior_patterns (
 );
 ```
 
-### 3.12 inferred_relations
+### 3.16 inferred_relations
 
 保存智能推理得到的候选关系。
 
@@ -310,7 +410,7 @@ CREATE TABLE inferred_relations (
 );
 ```
 
-### 3.13 threat_assessments
+### 3.17 threat_assessments
 
 保存威胁评估和防护建议。
 
@@ -336,7 +436,7 @@ CREATE TABLE threat_assessments (
 );
 ```
 
-### 3.14 evaluation_runs
+### 3.18 evaluation_runs
 
 保存评测结果。
 
@@ -544,6 +644,7 @@ INDUSTRY
 TIME
 EVENT
 CAMPAIGN
+BEHAVIOR_PATTERN
 ```
 
 ---
