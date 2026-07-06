@@ -14,20 +14,6 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，构建覆�
 
 ---
 
-## 当前状态
-
-当前仓库处于 P0 脚手架阶段：
-
-```text
-已完成：架构方案、数据契约、API 契约、Docker 运行契约、开源项目对比草案、课程要求、
-        Docker Compose、FastAPI 后端、SQLite demo seed、React TypeScript 前端
-下一步：冻结 JSON 契约，补真实样本文档、LLM 抽取流水线、评测集、Neo4j 同步和报告结构化展示
-```
-
-新成员先不要直接改接口字段。所有数据结构和接口变更先同步架构与接口组。
-
----
-
 ## 技术栈
 
 ```text
@@ -52,17 +38,18 @@ LLM 接口：OpenAI-compatible API
 
 ## 新成员上手
 
-建议按这个顺序阅读：
+先看根目录 [TODO.md](TODO.md) 了解当前进展和下一步任务，然后按这个顺序阅读项目文档：
 
 ```text
 1. README.md
-2. docs/team-workflow.md
-3. docs/stage-roadmap.md
-4. docs/architecture.md
-5. docs/data-contract.md
-6. docs/api-contract.md
-7. docs/reference-comparison.md
-8. docs/docker-runtime.md
+2. TODO.md
+3. docs/team-workflow.md
+4. docs/stage-roadmap.md
+5. docs/architecture.md
+6. docs/data-contract.md
+7. docs/api-contract.md
+8. docs/reference-comparison.md
+9. docs/docker-runtime.md
 ```
 
 如果你只负责某一组，先看：
@@ -89,38 +76,6 @@ LLM 与分析组：docs/data-contract.md + docs/architecture.md
 | 后端与数据层组 | FastAPI、SQLite、pipeline、graph.json 导出、Neo4j 同步 | API 服务、数据库、同步脚本 |
 | 图谱与前端组 | React 页面、图谱可视化、搜索、详情、报告展示 | 前端页面、图谱交互、演示界面 |
 | 报告测试与答辩组 | 评测、实验报告、PPT、演示脚本和录像 | 评测结果、报告、PPT、答辩材料 |
-
----
-
-## 阶段与优先级
-
-`P0/P1/P2` 表示优先级，不表示开发先后顺序。阶段路线见 [docs/stage-roadmap.md](docs/stage-roadmap.md)。
-
-Step 0：脚手架和 Mock 闭环
-
-```text
-FastAPI + SQLite demo seed + React 前端
-前端直接调用后端 API，基于 Mock/seed 数据展示图谱和报告
-```
-
-Step 1：真实样本文档闭环
-
-```text
-本地文本文件 -> document.json -> extraction_result.json -> SQLite -> graph.json -> 前端图谱 / 基础报告
-```
-
-Step 2：集成 MVP
-
-```text
-SQLite + FastAPI + React/ECharts
-完成本地文档导入、实体关系图谱、实体详情、证据展示、基础路径追踪、报告生成
-```
-
-Step 3：课程验收增强
-
-```text
-补齐三类来源最小采集、三目标组织、MITRE 映射、行为模式分析、评测结果、Neo4j 图查询增强
-```
 
 ---
 
