@@ -17,6 +17,9 @@ DEMO_ENTITIES = [
         "description": "APT28 是长期活跃的高级持续性威胁组织，常被公开报告关联到政府和军事目标攻击。",
         "confidence": 0.95,
         "source_count": 3,
+        "first_seen": "2014-01-01",
+        "last_seen": "2026-07-01",
+        "tags": ["apt", "mitre", "security_report"],
     },
     {
         "entity_id": "technique:t1566",
@@ -26,6 +29,9 @@ DEMO_ENTITIES = [
         "description": "MITRE ATT&CK T1566，常用于初始访问阶段。",
         "confidence": 0.9,
         "source_count": 2,
+        "first_seen": "2015-01-01",
+        "last_seen": "2026-07-01",
+        "tags": ["mitre", "technique"],
     },
     {
         "entity_id": "malware:x-agent",
@@ -35,6 +41,9 @@ DEMO_ENTITIES = [
         "description": "公开威胁报告中多次提到的 APT28 相关恶意软件家族。",
         "confidence": 0.88,
         "source_count": 2,
+        "first_seen": "2015-01-01",
+        "last_seen": "2024-12-31",
+        "tags": ["malware", "security_report"],
     },
     {
         "entity_id": "target:government",
@@ -44,6 +53,9 @@ DEMO_ENTITIES = [
         "description": "APT 活动中常见的高价值目标类别。",
         "confidence": 0.84,
         "source_count": 2,
+        "first_seen": "2014-01-01",
+        "last_seen": "2026-07-01",
+        "tags": ["target"],
     },
     {
         "entity_id": "apt_group:lazarus",
@@ -53,6 +65,9 @@ DEMO_ENTITIES = [
         "description": "公开报告中常与加密货币盗窃和金融目标攻击相关联的威胁组织。",
         "confidence": 0.92,
         "source_count": 2,
+        "first_seen": "2009-01-01",
+        "last_seen": "2026-07-01",
+        "tags": ["apt", "security_report"],
     },
     {
         "entity_id": "apt_group:kimsuky",
@@ -62,6 +77,9 @@ DEMO_ENTITIES = [
         "description": "公开报告中常与情报收集和鱼叉式钓鱼活动相关联的威胁组织。",
         "confidence": 0.9,
         "source_count": 2,
+        "first_seen": "2012-01-01",
+        "last_seen": "2026-07-01",
+        "tags": ["apt", "security_report"],
     },
 ]
 
@@ -74,6 +92,11 @@ DEMO_RELATIONS = [
         "relation_type": "USES",
         "label": "使用",
         "confidence": 0.9,
+        "source_count": 2,
+        "evidence_count": 1,
+        "first_seen": "2015-01-01",
+        "last_seen": "2026-07-01",
+        "validation_status": "valid",
     },
     {
         "relation_id": "rel:apt_group:apt28:USES:malware:x-agent",
@@ -82,6 +105,11 @@ DEMO_RELATIONS = [
         "relation_type": "USES",
         "label": "使用",
         "confidence": 0.88,
+        "source_count": 2,
+        "evidence_count": 1,
+        "first_seen": "2015-01-01",
+        "last_seen": "2024-12-31",
+        "validation_status": "valid",
     },
     {
         "relation_id": "rel:apt_group:apt28:TARGETS:target:government",
@@ -90,6 +118,11 @@ DEMO_RELATIONS = [
         "relation_type": "TARGETS",
         "label": "攻击目标",
         "confidence": 0.84,
+        "source_count": 2,
+        "evidence_count": 0,
+        "first_seen": "2014-01-01",
+        "last_seen": "2026-07-01",
+        "validation_status": "valid",
     },
 ]
 
@@ -103,6 +136,14 @@ DEMO_EVIDENCE = [
         "relation_id": None,
         "evidence_text": "多份公开安全报告将 APT28 描述为长期活跃并偏好政府、军事等高价值目标的威胁组织。",
         "source_url": "https://attack.mitre.org/groups/G0007/",
+        "source_type": "security_report",
+        "source_name": "MITRE ATT&CK",
+        "evidence_type": "summary",
+        "quote_start": None,
+        "quote_end": None,
+        "published_at": None,
+        "retrieved_at": "2026-07-07T00:00:00+08:00",
+        "source_reliability": "A",
         "language": "zh",
     },
     {
@@ -113,6 +154,14 @@ DEMO_EVIDENCE = [
         "relation_id": "rel:apt_group:apt28:USES:technique:t1566",
         "evidence_text": "APT28 相关攻击活动经常通过鱼叉式钓鱼邮件获得初始访问。",
         "source_url": "https://attack.mitre.org/techniques/T1566/",
+        "source_type": "security_report",
+        "source_name": "MITRE ATT&CK",
+        "evidence_type": "summary",
+        "quote_start": None,
+        "quote_end": None,
+        "published_at": None,
+        "retrieved_at": "2026-07-07T00:00:00+08:00",
+        "source_reliability": "A",
         "language": "zh",
     },
     {
@@ -123,6 +172,14 @@ DEMO_EVIDENCE = [
         "relation_id": "rel:apt_group:apt28:USES:malware:x-agent",
         "evidence_text": "公开报告中多次出现 APT28 使用 X-Agent 恶意软件的描述。",
         "source_url": "https://attack.mitre.org/software/",
+        "source_type": "security_report",
+        "source_name": "MITRE ATT&CK",
+        "evidence_type": "summary",
+        "quote_start": None,
+        "quote_end": None,
+        "published_at": None,
+        "retrieved_at": "2026-07-07T00:00:00+08:00",
+        "source_reliability": "A",
         "language": "zh",
     },
 ]
@@ -184,7 +241,10 @@ class DemoStore:
                   aliases_json TEXT NOT NULL DEFAULT '[]',
                   description TEXT NOT NULL DEFAULT '',
                   confidence REAL NOT NULL DEFAULT 0.5,
-                  source_count INTEGER NOT NULL DEFAULT 0
+                  source_count INTEGER NOT NULL DEFAULT 0,
+                  first_seen TEXT,
+                  last_seen TEXT,
+                  tags_json TEXT NOT NULL DEFAULT '[]'
                 );
 
                 CREATE TABLE IF NOT EXISTS relations (
@@ -193,7 +253,12 @@ class DemoStore:
                   target_entity_id TEXT NOT NULL,
                   relation_type TEXT NOT NULL,
                   label TEXT NOT NULL,
-                  confidence REAL NOT NULL DEFAULT 0.5
+                  confidence REAL NOT NULL DEFAULT 0.5,
+                  source_count INTEGER NOT NULL DEFAULT 0,
+                  evidence_count INTEGER NOT NULL DEFAULT 0,
+                  first_seen TEXT,
+                  last_seen TEXT,
+                  validation_status TEXT NOT NULL DEFAULT 'valid'
                 );
 
                 CREATE TABLE IF NOT EXISTS evidence (
@@ -204,6 +269,14 @@ class DemoStore:
                   relation_id TEXT,
                   evidence_text TEXT NOT NULL,
                   source_url TEXT NOT NULL,
+                  source_type TEXT NOT NULL DEFAULT '',
+                  source_name TEXT NOT NULL DEFAULT '',
+                  evidence_type TEXT NOT NULL DEFAULT 'summary',
+                  quote_start INTEGER,
+                  quote_end INTEGER,
+                  published_at TEXT,
+                  retrieved_at TEXT,
+                  source_reliability TEXT NOT NULL DEFAULT 'unknown',
                   language TEXT NOT NULL
                 );
 
@@ -216,7 +289,44 @@ class DemoStore:
                 );
                 """
             )
+            self._ensure_columns(connection)
             self.seed_demo_data(connection)
+
+    def _ensure_columns(self, connection: sqlite3.Connection) -> None:
+        migrations = {
+            "entities": {
+                "first_seen": "TEXT",
+                "last_seen": "TEXT",
+                "tags_json": "TEXT NOT NULL DEFAULT '[]'",
+            },
+            "relations": {
+                "source_count": "INTEGER NOT NULL DEFAULT 0",
+                "evidence_count": "INTEGER NOT NULL DEFAULT 0",
+                "first_seen": "TEXT",
+                "last_seen": "TEXT",
+                "validation_status": "TEXT NOT NULL DEFAULT 'valid'",
+            },
+            "evidence": {
+                "source_type": "TEXT NOT NULL DEFAULT ''",
+                "source_name": "TEXT NOT NULL DEFAULT ''",
+                "evidence_type": "TEXT NOT NULL DEFAULT 'summary'",
+                "quote_start": "INTEGER",
+                "quote_end": "INTEGER",
+                "published_at": "TEXT",
+                "retrieved_at": "TEXT",
+                "source_reliability": "TEXT NOT NULL DEFAULT 'unknown'",
+            },
+        }
+        for table_name, columns in migrations.items():
+            existing_columns = {
+                row["name"]
+                for row in connection.execute(f"PRAGMA table_info({table_name})").fetchall()
+            }
+            for column_name, column_definition in columns.items():
+                if column_name not in existing_columns:
+                    connection.execute(
+                        f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
+                    )
 
     def seed_demo_data(self, connection: sqlite3.Connection | None = None) -> None:
         owns_connection = connection is None
@@ -226,8 +336,9 @@ class DemoStore:
                 active_connection.execute(
                     """
                     INSERT OR REPLACE INTO entities (
-                      entity_id, name, type, aliases_json, description, confidence, source_count
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                      entity_id, name, type, aliases_json, description, confidence,
+                      source_count, first_seen, last_seen, tags_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         entity["entity_id"],
@@ -237,14 +348,19 @@ class DemoStore:
                         entity["description"],
                         entity["confidence"],
                         entity["source_count"],
+                        entity["first_seen"],
+                        entity["last_seen"],
+                        json.dumps(entity["tags"], ensure_ascii=False),
                     ),
                 )
             for relation in DEMO_RELATIONS:
                 active_connection.execute(
                     """
                     INSERT OR REPLACE INTO relations (
-                      relation_id, source_entity_id, target_entity_id, relation_type, label, confidence
-                    ) VALUES (?, ?, ?, ?, ?, ?)
+                      relation_id, source_entity_id, target_entity_id, relation_type, label,
+                      confidence, source_count, evidence_count, first_seen, last_seen,
+                      validation_status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         relation["relation_id"],
@@ -253,14 +369,21 @@ class DemoStore:
                         relation["relation_type"],
                         relation["label"],
                         relation["confidence"],
+                        relation["source_count"],
+                        relation["evidence_count"],
+                        relation["first_seen"],
+                        relation["last_seen"],
+                        relation["validation_status"],
                     ),
                 )
             for evidence in DEMO_EVIDENCE:
                 active_connection.execute(
                     """
                     INSERT OR REPLACE INTO evidence (
-                      evidence_id, doc_id, chunk_id, entity_id, relation_id, evidence_text, source_url, language
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                      evidence_id, doc_id, chunk_id, entity_id, relation_id, evidence_text,
+                      source_url, source_type, source_name, evidence_type, quote_start,
+                      quote_end, published_at, retrieved_at, source_reliability, language
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         evidence["evidence_id"],
@@ -270,6 +393,14 @@ class DemoStore:
                         evidence["relation_id"],
                         evidence["evidence_text"],
                         evidence["source_url"],
+                        evidence["source_type"],
+                        evidence["source_name"],
+                        evidence["evidence_type"],
+                        evidence["quote_start"],
+                        evidence["quote_end"],
+                        evidence["published_at"],
+                        evidence["retrieved_at"],
+                        evidence["source_reliability"],
                         evidence["language"],
                     ),
                 )
@@ -302,21 +433,27 @@ class DemoStore:
         with self.connect() as connection:
             rows = connection.execute(
                 """
-                SELECT entity_id, name, type, aliases_json, description, confidence, source_count
+                SELECT entity_id, name, type, aliases_json, description, confidence,
+                       source_count, first_seen, last_seen, tags_json
                 FROM entities
                 ORDER BY type, name
                 """
             ).fetchall()
             relation_rows = connection.execute(
                 """
-                SELECT relation_id, source_entity_id, target_entity_id, relation_type, label, confidence
+                SELECT relation_id, source_entity_id, target_entity_id, relation_type,
+                       label, confidence, source_count, evidence_count, first_seen,
+                       last_seen, validation_status
                 FROM relations
                 ORDER BY relation_id
                 """
             ).fetchall()
             evidence_rows = connection.execute(
                 """
-                SELECT evidence_id, doc_id, chunk_id, entity_id, relation_id, evidence_text, source_url, language
+                SELECT evidence_id, doc_id, chunk_id, entity_id, relation_id,
+                       evidence_text, source_url, source_type, source_name,
+                       evidence_type, quote_start, quote_end, published_at,
+                       retrieved_at, source_reliability, language
                 FROM evidence
                 ORDER BY evidence_id
                 """
@@ -349,7 +486,7 @@ class DemoStore:
         else:
             evidence = [self._evidence_from_row(row) for row in evidence_rows]
 
-        return {"nodes": nodes, "edges": edges, "evidence": evidence}
+        return {"schema_version": "1.0", "nodes": nodes, "edges": edges, "evidence": evidence}
 
     def get_report(self, target_group: str) -> dict[str, Any] | None:
         with self.connect() as connection:
@@ -406,6 +543,9 @@ class DemoStore:
             "description": row["description"],
             "confidence": row["confidence"],
             "source_count": row["source_count"],
+            "first_seen": row["first_seen"],
+            "last_seen": row["last_seen"],
+            "tags": json.loads(row["tags_json"]),
             "evidence_ids": [],
         }
 
@@ -417,6 +557,11 @@ class DemoStore:
             "type": row["relation_type"],
             "label": row["label"],
             "confidence": row["confidence"],
+            "source_count": row["source_count"],
+            "evidence_count": row["evidence_count"],
+            "first_seen": row["first_seen"],
+            "last_seen": row["last_seen"],
+            "validation_status": row["validation_status"],
             "evidence_ids": [],
         }
 
@@ -429,5 +574,13 @@ class DemoStore:
             "relation_id": row["relation_id"],
             "text": row["evidence_text"],
             "source_url": row["source_url"],
+            "source_type": row["source_type"],
+            "source_name": row["source_name"],
+            "evidence_type": row["evidence_type"],
+            "quote_start": row["quote_start"],
+            "quote_end": row["quote_end"],
+            "published_at": row["published_at"],
+            "retrieved_at": row["retrieved_at"],
+            "source_reliability": row["source_reliability"],
             "language": row["language"],
         }

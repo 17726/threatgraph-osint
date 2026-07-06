@@ -76,10 +76,11 @@ LLM：LLM 抽取与分析，负责 Prompt、合法 JSON 输出、候选抽取、
 目标：先不依赖爬虫平台，用本地文本或 `document.json` 跑通真实样本文档到候选抽取、正式图谱和前端展示的闭环。
 
 1. [ ] **S1.1 冻结三份并行开发契约**（架构 / 后端 / 前端 / LLM）
-   - [ ] 确定 `document.json` 的必填字段、可选字段和样例文件。
-   - [ ] 确定 `extraction_result.json` 的候选实体、候选关系、证据文本和 `confidence` 字段。
-   - [ ] 确定 `graph.json` 的 `nodes`、`edges`、`evidence` 和 `analysis` 字段。
+   - [ ] 确定 `document.json` 的必填字段、可选字段、`schema_version` 和样例文件。
+   - [ ] 确定 `extraction_result.json` 的候选实体、候选关系、候选状态、校验结果、证据文本和 `confidence` 字段。
+   - [ ] 确定 `graph.json` 的 `nodes`、`edges`、`evidence`、`analysis`、`exported_from` 和 `source_of_truth` 字段。
    - [ ] 明确字段归属：哪些字段属于文档层、候选层、正式图谱层和分析层。
+   - [ ] 明确实体类型、关系类型和最小合法关系矩阵。
    - [ ] 给每份 JSON 放入至少 1 个可直接复用的样例。
 
 2. [ ] **S1.2 准备第一份真实样本文档**（数据 / 报告测试）

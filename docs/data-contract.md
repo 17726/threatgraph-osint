@@ -32,6 +32,29 @@ LLM 输出 -> SQLite extracted_* 候选表
 同步 -> Neo4j
 ```
 
+### 1.1 开源项目借鉴后的字段调整
+
+这次架构不推翻 SQLite 事实源，也不把 Neo4j 改成主库。需要吸收的是几个数据建模原则：
+
+| 参考项目 | 吸收原则 | 落到本项目的字段 / 约束 |
+| --- | --- | --- |
+| OpenCTI | 证据和来源是一等公民 | `evidence_ids`、`source_name`、`source_reliability`、`published_at`、`retrieved_at` |
+| MISP | 文档是情报容器，不只是文本 | `source_type`、`target_groups_json`、`tags_json`、`tlp`、`content_hash` |
+| SpiderFoot | 采集运行和正式文档隔离 | `collection_runs`、`collected_items`、`documents` 分层，采集失败不污染图谱 |
+| GraphRAG | LLM 输出只能是候选层 | `extracted_*` 增加 `candidate_status`、`normalized_*_id`、`validation_errors_json` |
+| TypeDB CTI | schema-first 和关系合法性 | `schema_version`、`validation_status`、实体类型 / 关系类型合法性矩阵 |
+
+字段调整结论：
+
+1. 所有对外 JSON 都带 `schema_version`，避免前后端和 LLM 组字段漂移。
+2. `documents` 必须保留来源元信息：来源名称、来源类型、发布时间、抓取时间、可信度、标签和内容哈希。
+3. `chunks` 必须保留原文位置：`chunk_index`、`char_start`、`char_end`、`text_hash`。
+4. `extracted_*` 必须保留候选状态和校验结果：`candidate_status`、`validation_status`、`validation_errors_json`。
+5. LLM 候选结果可以引用归一化结果，但不能决定最终 ID：使用 `normalized_entity_id`、`normalized_relation_id` 记录后端归一化结果。
+6. `evidence` 必须补齐证据类型和原文位置：`evidence_type`、`quote_start`、`quote_end`。
+7. `entities` / `relations` 保留 `first_seen`、`last_seen`、`tags_json`，便于时间线和来源统计。
+8. `graph.json` 是导出快照，需要带 `exported_from` 和 `source_of_truth`，明确它不是事实源。
+
 ---
 
 ## 2. SQLite 文件
@@ -63,6 +86,8 @@ source_type：来源类型，如 security_report、news、government_notice、so
 collector_type：采集器类型，如 local_json、http_page、rss_feed
 target_groups_json：该来源默认覆盖的目标组织
 config_json：采集器配置，如语言、默认目标组织、解析规则
+source_reliability：来源可信度，A/B/C/D 或 unknown
+tags_json：来源标签，如 vendor、mitre、news、social
 ```
 
 ```sql
@@ -73,6 +98,8 @@ CREATE TABLE sources (
   collector_type TEXT NOT NULL,
   url TEXT NOT NULL,
   target_groups_json TEXT NOT NULL DEFAULT '[]',
+  source_reliability TEXT NOT NULL DEFAULT 'unknown',
+  tags_json TEXT NOT NULL DEFAULT '[]',
   enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),
   config_json TEXT NOT NULL DEFAULT '{}',
   created_at TEXT NOT NULL,
@@ -114,6 +141,12 @@ CREATE TABLE collected_items (
   language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
   raw_text TEXT NOT NULL,
   content_hash TEXT NOT NULL,
+  source_type TEXT NOT NULL,
+  source_name TEXT NOT NULL DEFAULT '',
+  published_at TEXT,
+  retrieved_at TEXT NOT NULL,
+  source_reliability TEXT NOT NULL DEFAULT 'unknown',
+  tags_json TEXT NOT NULL DEFAULT '[]',
   status TEXT NOT NULL CHECK (status IN ('collected', 'imported', 'skipped', 'failed')),
   created_at TEXT NOT NULL,
   FOREIGN KEY (collection_run_id) REFERENCES collection_runs(collection_run_id),
@@ -128,13 +161,22 @@ CREATE TABLE collected_items (
 ```sql
 CREATE TABLE documents (
   doc_id TEXT PRIMARY KEY,
+  schema_version TEXT NOT NULL DEFAULT '1.0',
   collection_item_id TEXT,
   target_group TEXT NOT NULL,
+  target_groups_json TEXT NOT NULL DEFAULT '[]',
   source_url TEXT NOT NULL,
   source_type TEXT NOT NULL,
+  source_name TEXT NOT NULL DEFAULT '',
   title TEXT NOT NULL,
   language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
   raw_text TEXT NOT NULL,
+  content_hash TEXT NOT NULL,
+  published_at TEXT,
+  retrieved_at TEXT,
+  source_reliability TEXT NOT NULL DEFAULT 'unknown',
+  tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
+  tags_json TEXT NOT NULL DEFAULT '[]',
   metadata_json TEXT NOT NULL DEFAULT '{}',
   created_at TEXT NOT NULL,
   FOREIGN KEY (collection_item_id) REFERENCES collected_items(item_id)
@@ -149,9 +191,12 @@ CREATE TABLE documents (
 CREATE TABLE chunks (
   chunk_id TEXT PRIMARY KEY,
   doc_id TEXT NOT NULL,
+  chunk_index INTEGER NOT NULL DEFAULT 0,
+  section_title TEXT NOT NULL DEFAULT '',
   text TEXT NOT NULL,
   char_start INTEGER NOT NULL,
   char_end INTEGER NOT NULL,
+  text_hash TEXT NOT NULL,
   token_count INTEGER,
   FOREIGN KEY (doc_id) REFERENCES documents(doc_id)
 );
@@ -164,10 +209,14 @@ CREATE TABLE chunks (
 ```sql
 CREATE TABLE extraction_runs (
   run_id TEXT PRIMARY KEY,
+  schema_version TEXT NOT NULL DEFAULT '1.0',
   doc_id TEXT NOT NULL,
   model_name TEXT NOT NULL,
   prompt_version TEXT NOT NULL,
+  parameters_json TEXT NOT NULL DEFAULT '{}',
   status TEXT NOT NULL CHECK (status IN ('pending', 'running', 'succeeded', 'failed')),
+  validation_status TEXT NOT NULL DEFAULT 'unchecked' CHECK (validation_status IN ('unchecked', 'valid', 'invalid')),
+  validation_errors_json TEXT NOT NULL DEFAULT '[]',
   started_at TEXT NOT NULL,
   finished_at TEXT,
   error_message TEXT,
@@ -188,10 +237,18 @@ CREATE TABLE extracted_entities (
   type TEXT NOT NULL,
   aliases_json TEXT NOT NULL DEFAULT '[]',
   description TEXT NOT NULL DEFAULT '',
+  mention_text TEXT NOT NULL DEFAULT '',
   evidence_text TEXT NOT NULL,
+  char_start INTEGER,
+  char_end INTEGER,
   confidence REAL NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
+  candidate_status TEXT NOT NULL DEFAULT 'candidate' CHECK (candidate_status IN ('candidate', 'accepted', 'rejected', 'merged')),
+  normalized_entity_id TEXT,
+  validation_status TEXT NOT NULL DEFAULT 'unchecked' CHECK (validation_status IN ('unchecked', 'valid', 'invalid')),
+  validation_errors_json TEXT NOT NULL DEFAULT '[]',
   FOREIGN KEY (run_id) REFERENCES extraction_runs(run_id),
-  FOREIGN KEY (chunk_id) REFERENCES chunks(chunk_id)
+  FOREIGN KEY (chunk_id) REFERENCES chunks(chunk_id),
+  FOREIGN KEY (normalized_entity_id) REFERENCES entities(entity_id)
 );
 ```
 
@@ -210,9 +267,16 @@ CREATE TABLE extracted_relations (
   tail_name TEXT NOT NULL,
   tail_type TEXT NOT NULL,
   evidence_text TEXT NOT NULL,
+  char_start INTEGER,
+  char_end INTEGER,
   confidence REAL NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
+  candidate_status TEXT NOT NULL DEFAULT 'candidate' CHECK (candidate_status IN ('candidate', 'accepted', 'rejected', 'merged')),
+  normalized_relation_id TEXT,
+  validation_status TEXT NOT NULL DEFAULT 'unchecked' CHECK (validation_status IN ('unchecked', 'valid', 'invalid')),
+  validation_errors_json TEXT NOT NULL DEFAULT '[]',
   FOREIGN KEY (run_id) REFERENCES extraction_runs(run_id),
-  FOREIGN KEY (chunk_id) REFERENCES chunks(chunk_id)
+  FOREIGN KEY (chunk_id) REFERENCES chunks(chunk_id),
+  FOREIGN KEY (normalized_relation_id) REFERENCES relations(relation_id)
 );
 ```
 
@@ -229,6 +293,9 @@ CREATE TABLE entities (
   description TEXT NOT NULL DEFAULT '',
   confidence REAL NOT NULL DEFAULT 0.5 CHECK (confidence >= 0 AND confidence <= 1),
   source_count INTEGER NOT NULL DEFAULT 0,
+  first_seen TEXT,
+  last_seen TEXT,
+  tags_json TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -246,6 +313,11 @@ CREATE TABLE relations (
   relation_type TEXT NOT NULL,
   label TEXT NOT NULL,
   confidence REAL NOT NULL DEFAULT 0.5 CHECK (confidence >= 0 AND confidence <= 1),
+  source_count INTEGER NOT NULL DEFAULT 0,
+  evidence_count INTEGER NOT NULL DEFAULT 0,
+  first_seen TEXT,
+  last_seen TEXT,
+  validation_status TEXT NOT NULL DEFAULT 'valid' CHECK (validation_status IN ('valid', 'invalid')),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   FOREIGN KEY (source_entity_id) REFERENCES entities(entity_id),
@@ -265,8 +337,17 @@ CREATE TABLE evidence (
   entity_id TEXT,
   relation_id TEXT,
   evidence_text TEXT NOT NULL,
+  evidence_type TEXT NOT NULL DEFAULT 'direct_quote' CHECK (evidence_type IN ('direct_quote', 'summary', 'inference_support')),
+  quote_start INTEGER,
+  quote_end INTEGER,
   source_url TEXT NOT NULL,
+  source_type TEXT NOT NULL DEFAULT '',
+  source_name TEXT NOT NULL DEFAULT '',
+  published_at TEXT,
+  retrieved_at TEXT,
+  source_reliability TEXT NOT NULL DEFAULT 'unknown',
   language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
+  created_at TEXT NOT NULL,
   FOREIGN KEY (doc_id) REFERENCES documents(doc_id),
   FOREIGN KEY (chunk_id) REFERENCES chunks(chunk_id),
   FOREIGN KEY (entity_id) REFERENCES entities(entity_id),
@@ -542,7 +623,10 @@ data/graph/graph.json
 ```json
 {
   "version": "2.0",
+  "schema_version": "1.0",
   "generated_at": "2026-07-06T22:00:00+08:00",
+  "exported_from": "sqlite",
+  "source_of_truth": "data/threatgraph_osint.db",
   "nodes": [
     {
       "id": "apt_group:apt28",
@@ -552,6 +636,9 @@ data/graph/graph.json
       "description": "与俄罗斯 GRU 有关联的 APT 组织",
       "confidence": 0.96,
       "source_count": 3,
+      "first_seen": "2014-01-01",
+      "last_seen": "2026-07-01",
+      "tags": ["apt", "russia", "mitre"],
       "evidence_ids": ["ev_apt28_mitre_001_a1b2"]
     }
   ],
@@ -563,6 +650,11 @@ data/graph/graph.json
       "type": "USES",
       "label": "使用",
       "confidence": 0.91,
+      "source_count": 2,
+      "evidence_count": 1,
+      "first_seen": "2015-01-01",
+      "last_seen": "2024-12-31",
+      "validation_status": "valid",
       "evidence_ids": ["ev_apt28_mitre_001_c3d4"]
     }
   ],
@@ -572,7 +664,15 @@ data/graph/graph.json
       "doc_id": "apt28_mitre_001",
       "chunk_id": "apt28_mitre_001_c001",
       "source_url": "https://attack.mitre.org/groups/G0007/",
+      "source_type": "security_report",
+      "source_name": "MITRE ATT&CK",
       "text": "APT28 is a threat group...",
+      "evidence_type": "direct_quote",
+      "quote_start": 0,
+      "quote_end": 27,
+      "published_at": null,
+      "retrieved_at": "2026-07-07T00:00:00+08:00",
+      "source_reliability": "A",
       "language": "en"
     }
   ],
@@ -624,6 +724,8 @@ data/graph/graph.json
 4. `analysis` 来自 SQLite 行为分析和推理表。
 5. `graph.json` 可以删除后重新生成，不影响事实源。
 6. 前端 mock 数据必须与该格式一致。
+7. `schema_version` 变更前必须同步架构、后端、前端和 LLM。
+8. `evidence.text` 可以是原文短片段或人工清洗后的证据短句，但必须能通过 `doc_id`、`chunk_id`、`quote_start`、`quote_end` 回到原文。
 
 ---
 

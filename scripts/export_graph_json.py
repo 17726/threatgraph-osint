@@ -15,7 +15,10 @@ def export_graph_json(
     graph = DemoStore(db_path).get_graph()
     payload = {
         "version": "2.0",
+        "schema_version": graph["schema_version"],
         "generated_at": datetime.now(UTC).isoformat(),
+        "exported_from": "sqlite",
+        "source_of_truth": str(db_path),
         "nodes": graph["nodes"],
         "edges": graph["edges"],
         "evidence": graph["evidence"],

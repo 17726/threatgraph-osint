@@ -147,14 +147,32 @@ POST /api/v1/documents/import
 ```json
 {
   "doc_id": "apt28_mitre_001",
+  "schema_version": "1.0",
   "target_group": "APT28",
+  "target_groups": ["APT28"],
   "source_url": "https://attack.mitre.org/groups/G0007/",
   "source_type": "security_report",
+  "source_name": "MITRE ATT&CK",
   "title": "APT28 - MITRE ATT&CK",
   "language": "en",
-  "raw_text": "..."
+  "raw_text": "...",
+  "content_hash": "sha256:...",
+  "published_at": null,
+  "retrieved_at": "2026-07-07T00:00:00+08:00",
+  "source_reliability": "A",
+  "tlp": "TLP:CLEAR",
+  "tags": ["mitre", "apt", "security_report"],
+  "metadata": {}
 }
 ```
+
+说明：
+
+1. `schema_version` 必填，用于避免数据、LLM、后端和前端字段漂移。
+2. `target_group` 是主目标组织，`target_groups` 可保存多个相关组织。
+3. `content_hash` 用于重复导入判断。
+4. `source_reliability` 优先使用 `A/B/C/D/unknown`，P0 可先人工填写。
+5. `published_at` 不确定时允许为 `null`，但 `retrieved_at` 必须保留。
 
 ---
 
@@ -203,6 +221,9 @@ GET /api/v1/entities/{entity_id}
     "description": "...",
     "confidence": 0.96,
     "source_count": 3,
+    "first_seen": "2014-01-01",
+    "last_seen": "2026-07-01",
+    "tags": ["apt", "mitre"],
     "evidence": []
   }
 }
@@ -224,6 +245,7 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 {
   "success": true,
   "data": {
+    "schema_version": "1.0",
     "nodes": [
       {
         "id": "apt_group:apt28",
@@ -233,6 +255,9 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
         "description": "...",
         "confidence": 0.96,
         "source_count": 3,
+        "first_seen": "2014-01-01",
+        "last_seen": "2026-07-01",
+        "tags": ["apt", "mitre"],
         "evidence_ids": ["ev_001"]
       }
     ],
@@ -244,10 +269,34 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
         "type": "USES",
         "label": "使用",
         "confidence": 0.91,
+        "source_count": 2,
+        "evidence_count": 1,
+        "first_seen": "2015-01-01",
+        "last_seen": "2024-12-31",
+        "validation_status": "valid",
         "evidence_ids": ["ev_002"]
       }
     ],
-    "evidence": []
+    "evidence": [
+      {
+        "id": "ev_001",
+        "doc_id": "apt28_mitre_001",
+        "chunk_id": "apt28_mitre_001_c001",
+        "entity_id": "apt_group:apt28",
+        "relation_id": null,
+        "text": "APT28 is a threat group...",
+        "evidence_type": "direct_quote",
+        "quote_start": 0,
+        "quote_end": 27,
+        "source_url": "https://attack.mitre.org/groups/G0007/",
+        "source_type": "security_report",
+        "source_name": "MITRE ATT&CK",
+        "published_at": null,
+        "retrieved_at": "2026-07-07T00:00:00+08:00",
+        "source_reliability": "A",
+        "language": "en"
+      }
+    ]
   }
 }
 ```

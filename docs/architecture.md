@@ -33,6 +33,19 @@ SQLite 事实源 + graph.json 导出 + Neo4j 增强同步 + FastAPI API + React/
 5. 前端只依赖 FastAPI 接口，不感知底层是 SQLite、graph.json 还是 Neo4j。
 6. 现场演示必须可缓存、可复现，不能强依赖实时爬虫或实时 LLM。
 
+### 1.1 参考项目后的架构调整
+
+参考 OpenCTI、MISP、SpiderFoot、GraphRAG 和 TypeDB CTI 后，当前架构只吸收轻量且必要的设计，不引入重型平台：
+
+1. **证据链前置**：实体、关系、行为分析和报告结论都必须能追溯到 `evidence_ids`。证据记录要保留来源、发布时间、抓取时间、证据类型和原文位置。
+2. **文档容器化**：`documents` 不只是 `raw_text`，还要保存 `source_name`、`source_type`、`published_at`、`retrieved_at`、`source_reliability`、`tags_json` 和 `content_hash`。
+3. **采集层隔离**：`sources -> collection_runs -> collected_items -> documents` 分层。采集失败、重复、解析失败只影响采集层，不能直接污染正式图谱。
+4. **候选层隔离**：LLM 输出只能进入 `extracted_entities`、`extracted_relations`，并带 `candidate_status`、`validation_status`、`validation_errors_json`。后端归一化后才写入 `entities`、`relations`、`evidence`。
+5. **schema-first**：`document.json`、`extraction_result.json`、`graph.json` 都必须带 `schema_version`。实体类型、关系类型和合法关系矩阵由架构维护，不能由 LLM 临时发明。
+6. **图数据库增强而非真源**：Neo4j 继续作为 P1 增强层，只从 SQLite canonical graph 或 `graph.json` 同步。
+
+这几项属于开工前需要确定的架构边界。暂不吸收的内容包括完整 STIX 2.1、OpenCTI/MISP 式平台权限模型、TypeDB 主库、GraphRAG 完整社区发现和大规模自动采集调度。
+
 阶段和优先级分开管理：
 
 ```text
@@ -212,15 +225,23 @@ data/raw/
 ```json
 {
   "doc_id": "apt28_mitre_001",
+  "schema_version": "1.0",
   "target_group": "APT28",
+  "target_groups": ["APT28"],
   "source_url": "https://attack.mitre.org/groups/G0007/",
   "source_type": "security_report",
+  "source_name": "MITRE ATT&CK",
   "title": "APT28 - MITRE ATT&CK",
   "language": "en",
   "raw_text": "...",
+  "content_hash": "sha256:...",
+  "published_at": null,
+  "retrieved_at": "2026-07-07T00:00:00+08:00",
+  "source_reliability": "A",
+  "tlp": "TLP:CLEAR",
+  "tags": ["mitre", "apt", "security_report"],
   "metadata": {
     "publisher": "MITRE",
-    "publish_date": "2026-01-15",
     "collector": "数据组"
   }
 }
@@ -239,17 +260,23 @@ data/cleaned/cleaned_docs.json
 ```json
 {
   "doc_id": "apt28_mitre_001",
+  "schema_version": "1.0",
   "target_group": "APT28",
+  "target_groups": ["APT28"],
   "source_type": "security_report",
+  "source_name": "MITRE ATT&CK",
   "title": "APT28 - MITRE ATT&CK",
   "language": "en",
   "clean_text": "...",
   "chunks": [
     {
       "chunk_id": "apt28_mitre_001_c001",
+      "chunk_index": 0,
+      "section_title": "Techniques Used",
       "text": "...",
       "char_start": 0,
-      "char_end": 1200
+      "char_end": 1200,
+      "text_hash": "sha256:..."
     }
   ]
 }
@@ -269,6 +296,8 @@ data/extracted/extraction_results.json
 
 ```json
 {
+  "schema_version": "1.0",
+  "run_id": "extract_apt28_mitre_001_001",
   "doc_id": "apt28_mitre_001",
   "chunk_id": "apt28_mitre_001_c001",
   "entities": [
@@ -277,8 +306,13 @@ data/extracted/extraction_results.json
       "type": "APT_GROUP",
       "aliases": ["Fancy Bear", "Sofacy"],
       "description": "与俄罗斯 GRU 有关联的 APT 组织",
+      "mention_text": "APT28",
       "evidence": "APT28 is a threat group...",
-      "confidence": 0.96
+      "char_start": 0,
+      "char_end": 27,
+      "confidence": 0.96,
+      "candidate_status": "candidate",
+      "validation_status": "unchecked"
     }
   ],
   "relations": [
@@ -289,7 +323,11 @@ data/extracted/extraction_results.json
       "tail": "X-Agent",
       "tail_type": "MALWARE",
       "evidence": "APT28 utilizes malware such as X-Agent...",
-      "confidence": 0.91
+      "char_start": 120,
+      "char_end": 170,
+      "confidence": 0.91,
+      "candidate_status": "candidate",
+      "validation_status": "unchecked"
     }
   ]
 }
@@ -310,7 +348,10 @@ data/graph/graph.json
 ```json
 {
   "version": "2.0",
+  "schema_version": "1.0",
   "generated_at": "2026-07-06T21:30:00+08:00",
+  "exported_from": "sqlite",
+  "source_of_truth": "data/threatgraph_osint.db",
   "nodes": [
     {
       "id": "apt_group:apt28",
@@ -319,6 +360,10 @@ data/graph/graph.json
       "aliases": ["Fancy Bear", "Sofacy", "Sednit"],
       "description": "与俄罗斯 GRU 有关联的 APT 组织",
       "confidence": 0.96,
+      "source_count": 3,
+      "first_seen": "2014-01-01",
+      "last_seen": "2026-07-01",
+      "tags": ["apt", "mitre"],
       "evidence_ids": ["ev_apt28_001"]
     }
   ],
@@ -330,6 +375,9 @@ data/graph/graph.json
       "type": "USES",
       "label": "使用",
       "confidence": 0.91,
+      "source_count": 2,
+      "evidence_count": 1,
+      "validation_status": "valid",
       "evidence_ids": ["ev_apt28_002"]
     }
   ],
@@ -339,7 +387,15 @@ data/graph/graph.json
       "doc_id": "apt28_mitre_001",
       "chunk_id": "apt28_mitre_001_c001",
       "source_url": "https://attack.mitre.org/groups/G0007/",
+      "source_type": "security_report",
+      "source_name": "MITRE ATT&CK",
       "text": "APT28 is a threat group...",
+      "evidence_type": "direct_quote",
+      "quote_start": 0,
+      "quote_end": 27,
+      "published_at": null,
+      "retrieved_at": "2026-07-07T00:00:00+08:00",
+      "source_reliability": "A",
       "language": "en"
     }
   ]

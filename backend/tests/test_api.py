@@ -21,12 +21,14 @@ def test_graph_returns_demo_nodes_edges_and_evidence():
 
     assert response.status_code == 200
     data = response.json()["data"]
+    assert data["schema_version"] == "1.0"
     assert {node["id"] for node in data["nodes"]} >= {
         "apt_group:apt28",
         "technique:t1566",
     }
     assert any(edge["source"] == "apt_group:apt28" for edge in data["edges"])
     assert data["evidence"]
+    assert data["evidence"][0]["source_type"]
 
 
 def test_report_returns_markdown_for_target_group():
