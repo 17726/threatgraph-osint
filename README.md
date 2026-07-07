@@ -38,31 +38,31 @@ LLM 接口：OpenAI-compatible API
 
 ## 新成员上手
 
-先看根目录 [TODO.md](TODO.md) 了解当前进展和下一步任务，然后按这个顺序阅读项目文档：
+先看根目录 [TODO.md](TODO.md) 了解当前进展和下一步任务，再按顺序阅读以下文档：
 
-```text
-1. README.md
-2. TODO.md
-3. AGENTS.md
-4. docs/development-guidelines.md
-5. docs/team-workflow.md
-6. docs/stage-roadmap.md
-7. docs/architecture.md
-8. docs/data-contract.md
-9. docs/api-contract.md
-10. docs/reference-comparison.md
-11. docs/docker-runtime.md
-```
+| 顺序 | 文档 | 说明 |
+|------|------|------|
+| 1 | [`README.md`](README.md) | 项目概述与运行方式 |
+| 2 | [`TODO.md`](TODO.md) | 当前进度与下一步任务 |
+| 3 | [`AGENTS.md`](AGENTS.md) | AI Agent 行为约束 |
+| 4 | [`docs/development-guidelines.md`](docs/development-guidelines.md) | 开发规范与 Git 流程 |
+| 5 | [`docs/team-workflow.md`](docs/team-workflow.md) | 团队协作与组别职责 |
+| 6 | [`docs/stage-roadmap.md`](docs/stage-roadmap.md) | 阶段路线与优先级 |
+| 7 | [`docs/architecture.md`](docs/architecture.md) | 系统架构设计 |
+| 8 | [`docs/data-contract.md`](docs/data-contract.md) | 数据层契约 |
+| 9 | [`docs/api-contract.md`](docs/api-contract.md) | API 接口契约 |
+| 10 | [`docs/reference-comparison.md`](docs/reference-comparison.md) | 开源项目对比 |
+| 11 | [`docs/docker-runtime.md`](docs/docker-runtime.md) | Docker 运行说明 |
 
-如果你只负责某一组，先看：
+如果你只负责某一组，优先阅读：
 
-```text
-数据与样本组：docs/data-contract.md + docs/team-workflow.md
-LLM 与分析组：docs/data-contract.md + docs/architecture.md
-后端组：docs/api-contract.md + docs/data-contract.md
-前端组：docs/api-contract.md + docs/team-workflow.md
-报告测试组：docs/team-workflow.md + docs/reference-comparison.md + docs/references/course-requirements.md
-```
+| 组别 | 优先阅读 |
+|------|----------|
+| 数据与样本组 | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md) |
+| LLM 与分析组 | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/architecture.md`](docs/architecture.md) |
+| 后端组 | [`docs/api-contract.md`](docs/api-contract.md) + [`docs/data-contract.md`](docs/data-contract.md) |
+| 前端组 | [`docs/api-contract.md`](docs/api-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md) |
+| 报告测试组 | [`docs/team-workflow.md`](docs/team-workflow.md) + [`docs/reference-comparison.md`](docs/reference-comparison.md) + [`docs/references/course-requirements.md`](docs/references/course-requirements.md) |
 
 ---
 
