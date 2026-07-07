@@ -69,8 +69,9 @@ export function App() {
     const activeIds = new Set(
       graph.nodes.filter((n) => {
         if (!n.first_seen) return true;
-        const fy = parseInt(n.first_seen.split("-")[0]);
+        const fy = parseInt(n.first_seen.split("-")[0],10);
         const ly = n.last_seen ? parseInt(n.last_seen.split("-")[0]) : 2026;
+        if (isNaN(fy) || isNaN(ly)) return true;
         return fy <= currentYear && ly >= currentYear;
       }).map((n) => n.id)
     );
@@ -235,7 +236,7 @@ export function App() {
                 <hr style={{ border:"none", borderTop:"1px solid #e2e8e6", margin:"12px 0" }} />
                 <p style={{ color:"#64748b" }}>{graph?.nodes.find(n=>n.id===selectedEdge.source)?.name ?? selectedEdge.source} → {graph?.nodes.find(n=>n.id===selectedEdge.target)?.name ?? selectedEdge.target}</p>
                 <div style={{ marginTop:12 }}>
-                  {graph?.evidence.filter(e=>selectedEdge.evidence_ids.includes(e.id)).map(e=>(
+                  {graph?.evidence.filter(e=>selectedEdge.evidence_ids?.includes(e.id)).map(e=>(
                     <div key={e.id} style={{ padding:10, marginBottom:8, border:"1px solid #e2e8e6", borderRadius:8, background:"#f8faf9" }}>
                       <p style={{ margin:"0 0 4px", fontSize:12 }}>{e.text}</p>
                       <a href={e.source_url} target="_blank" rel="noreferrer" style={{ fontSize:11, color:"#0f766e", fontWeight:600 }}>{e.source_name}</a>

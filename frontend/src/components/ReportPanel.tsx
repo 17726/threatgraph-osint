@@ -24,9 +24,9 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
   const profile = [
     ["名称", targetNode.name],
     ["别名", targetNode.aliases?.join(", ") || "-"],
-    ["描述", targetNode.description],
-    ["置信度", String(targetNode.confidence)],
-    ["来源数", String(targetNode.source_count)],
+    ["描述", targetNode.description || "-"],
+    ["置信度", targetNode.confidence != null ? String(targetNode.confidence) : "-"],
+    ["来源数", targetNode.source_count != null ? String(targetNode.source_count) :"-"],
     ["首次发现", targetNode.first_seen ?? "-"],
     ["最近活跃", targetNode.last_seen ?? "-"],
   ];

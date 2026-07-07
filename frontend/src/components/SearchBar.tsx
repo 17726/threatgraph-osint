@@ -13,11 +13,10 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
   const results = query.length < 1 ? [] : nodes
     .filter((n) => {
       const q = query.toLowerCase();
-      return (
-        n.name.toLowerCase().includes(q) ||
-        n.aliases.some((a) => a.toLowerCase().includes(q)) ||
-        n.type.toLowerCase().includes(q)
-      );
+      const matchName = n.name?.toLowerCase().includes(q) ?? false;
+      const matchAlias = n.aliases?.some((a) => a?.toLowerCase().includes(q)) ?? false;
+      const matchType = n.type?.toLowerCase().includes(q) ?? false;
+      return matchName || matchAlias || matchType;
     })
     .slice(0, 8);
 

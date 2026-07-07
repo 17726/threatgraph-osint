@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState ,useMemo} from "react";
 import { fetchPath } from "../api/client";
 import type { GraphNode } from "../types";
 
@@ -12,6 +12,13 @@ export default function PathTracking({ nodes, onPathFound, onPathClear }: PathTr
   const [fromId, setFromId] = useState("");
   const [toId, setToId] = useState("");
   const [traversing, setTraversing] = useState(false);
+
+  const nodeIds = useMemo(() => new Set(nodes.map((n) => n.id)), [nodes]);
+
+  useEffect(() => {
+    setFromId(prev => (prev && nodeIds.has(prev) ? prev : ""));
+    setToId(prev => (prev && nodeIds.has(prev) ? prev : ""));
+  }, [nodeIds]);
 
   const handleTrace = async () => {
     if (!fromId || !toId || fromId === toId) {

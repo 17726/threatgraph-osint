@@ -9,42 +9,31 @@ interface TimelineBarProps {
 
 export default function TimelineBar({ minYear, maxYear, currentYear, onChange }: TimelineBarProps) {
   const [playing, setPlaying] = useState(false);
-  const timerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) {
-        window.clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, []);
 
   const togglePlay = () => {
     if (playing) {
-      if (timerRef.current !== null) {
-        window.clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
       setPlaying(false);
-      return;
-    }
-    setPlaying(true);
-    onChange(minYear);
-    let current = minYear;
-    timerRef.current = window.setInterval(() => {
-      current++;
-      if (current > maxYear) {
-        if (timerRef.current !== null) {
-          window.clearInterval(timerRef.current);
-          timerRef.current = null;
-        }
-        setPlaying(false);
-        current = maxYear;
+    } else {
+      if (currentYear >= maxYear) {
+        onChange(minYear);
       }
-      onChange(current);
-    }, 800);
+      setPlaying(true);
+    }
   };
+
+  useEffect(() => {
+    if (!playing) return;
+    
+    const timer = window.setInterval(() => {
+      if (currentYear >= maxYear) {
+        setPlaying(false);
+      } else {
+        onChange(currentYear + 1);
+      }
+    }, 800);
+
+    return () => window.clearInterval(timer);
+  }, [playing, currentYear, maxYear, onChange]);
 
   return (
     <div style={{
