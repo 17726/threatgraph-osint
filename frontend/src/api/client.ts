@@ -1,6 +1,15 @@
-import type { ApiResponse, GraphPayload, ReportPayload } from "../types";
+import type { ApiResponse, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "../types";
+import { getMockGraph, getMockReport } from "../data/mockPayload";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
+
+type PathResult = { nodes: GraphNode[]; edges: GraphEdge[] };
+
+type PathApiPayload =
+  | PathResult
+  | {
+      paths?: Array<PathResult>;
+    };
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`);
@@ -12,9 +21,32 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export function fetchGraph(target: string): Promise<GraphPayload> {
-  return getJson<GraphPayload>(`/graph?target=${encodeURIComponent(target)}&depth=2`);
+  const url = `/graph?target=${encodeURIComponent(target)}&depth=2`;
+
+  if (import.meta.env.DEV) {
+    return getJson<GraphPayload>(url).catch(() => getMockGraph(target));
+  }
+
+  return getJson<GraphPayload>(url);
 }
 
 export function fetchReport(target: string): Promise<ReportPayload> {
-  return getJson<ReportPayload>(`/reports/${encodeURIComponent(target)}`);
+  const url = `/reports/${encodeURIComponent(target)}`;
+
+  if (import.meta.env.DEV) {
+    return getJson<ReportPayload>(url).catch(() => getMockReport(target));
+  }
+
+  return getJson<ReportPayload>(url);
+}
+
+export async function fetchPath(source: string, target: string): Promise<PathResult> {
+  const url = `/graph/path?source=${encodeURIComponent(source)}&target=${encodeURIComponent(target)}`;
+  const payload = await getJson<PathApiPayload>(url);
+
+  if ("nodes" in payload && "edges" in payload) {
+    return payload;
+  }
+
+  return payload.paths?.[0] ?? { nodes: [], edges: [] };
 }
