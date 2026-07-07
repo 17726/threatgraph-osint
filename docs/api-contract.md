@@ -239,6 +239,12 @@ GET /api/v1/graph/timeline?target=APT28
 GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 ```
 
+边界说明：
+
+1. `/api/v1/graph` 返回前端当前使用的轻量图谱视图，字段以本节响应为准。
+2. `docs/schemas/graph.schema.json` 约束的是导出的 `data/graph/graph.json` 快照，不要求 API 响应携带 `version`、`generated_at`、`exported_from`、`source_of_truth` 和 `analysis`。
+3. 如果后续要让 API 直接返回完整快照，必须同步更新本文件、前端类型和后端测试。
+
 图谱响应：
 
 ```json

@@ -14,7 +14,7 @@ docs/schemas/extraction-result.schema.json
   llm 组提交候选抽取结果时使用
 
 docs/schemas/graph.schema.json
-  be 导出 graph.json、fe 接入图谱时使用
+  be 导出 data/graph/graph.json 快照时使用；/api/v1/graph 响应以 docs/api-contract.md 为准
 
 docs/schemas/relationship-matrix.md
   arch / be 校验关系类型是否合法时使用
@@ -57,6 +57,6 @@ data 组先按 `document.apt28.securelist.example.json` 改出第一份 APT28 �
 
 llm 组先按 `extraction_result.apt28.securelist.example.json` 手写或生成候选结果。第一版只要求 JSON 合法、字段完整，不要求准确率完美。
 
-be 组按 `graph.apt28.securelist.example.json` 的格式返回 `/api/v1/graph`，并补齐 `/api/v1/graph/path` 的 SQLite BFS 兜底。
+be 组按 `graph.apt28.securelist.example.json` 的格式导出 `data/graph/graph.json`，并按 `docs/api-contract.md` 返回 `/api/v1/graph` 的轻量图谱视图，同时补齐 `/api/v1/graph/path` 的 SQLite BFS 兜底。
 
 qa 组按 `golden.apt28.example.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。
