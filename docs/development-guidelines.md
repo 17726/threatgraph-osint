@@ -11,28 +11,49 @@
 2. 每天开始开发前先拉取最新 `main`。
 3. 每个任务单独切分支，完成后提交 MR / Pull Request。
 4. MR / Pull Request 经过评审后才能合入 `main`。
-5. 修改数据契约或 API 契约前，必须先和架构与接口组确认。
+5. 修改数据契约或 API 契约前，必须先和架构与数据规范组确认。
 6. 不提交密钥、隐私信息、原始课程 PDF、未脱敏聊天记录和本地环境文件。
 
 ---
 
 ## 2. 分支命名规范
 
-默认格式：
+推荐格式：
 
 ```text
-feat/<task-name>
-fix/<task-name>
+<type>/<group>/<task-name>
 ```
 
-第一个字段默认二选一：
+也允许任务较小时省略组别字段：
 
-| 字段   | 含义                                 |
-| ------ | ------------------------------------ |
-| `feat` | 新功能、文档新增、配置新增           |
-| `fix`  | 修复问题、修复错误配置、修复文档错误 |
+```text
+<type>/<task-name>
+```
 
-第二个字段是任务名，推荐使用英文小写和连字符：
+第一个字段表示变更类型：
+
+| 字段       | 含义                                 |
+| ---------- | ------------------------------------ |
+| `feat`     | 新功能、文档新增、配置新增           |
+| `fix`      | 修复问题、修复错误配置、修复文档错误 |
+| `docs`     | 文档修改                             |
+| `test`     | 测试、评测、质量门禁                 |
+| `refactor` | 重构                                 |
+| `chore`    | 配置、依赖、杂项                     |
+
+第二个字段可选，用于标记负责小组，方便观察每组进度和工作内容：
+
+| 组别缩写 | 含义                   |
+| -------- | ---------------------- |
+| `arch`   | 架构与数据规范组       |
+| `data`   | 数据与样本组           |
+| `llm`    | LLM 抽取与分析组       |
+| `fe`     | 图谱与前端组           |
+| `qa`     | 报告答辩与测试组       |
+
+后端不是单独小组，不设置独立组别缩写。涉及 FastAPI、SQLite、pipeline、归一化、导出等后端横向工作时，优先使用牵头或业务归属小组的缩写。例如架构组牵头的后端骨架用 `arch`，数据导入接口可用 `data`，抽取接口可用 `llm`。
+
+最后一个字段是任务名，推荐使用英文小写和连字符：
 
 ```text
 graph-search
@@ -45,11 +66,13 @@ evaluation-script
 推荐示例：
 
 ```text
+feat/arch/schema-v1
+feat/data/apt28-sample
+feat/llm/json-output
+feat/fe/graph-search
+test/qa/golden-eval
 feat/graph-search
-feat/report-api
-feat/api-contract
-fix/json-output
-fix/evaluation-script
+fix/report-api
 ```
 
 不推荐示例：
@@ -59,11 +82,11 @@ feature/graph-search
 feat/图谱搜索
 feat/graph_search
 fix/ReportAPI
-docs/api-contract
-feat/frontend/graph-search
+feat/backend/graph-search
+feat/be/report-api
 ```
 
-提醒：分支名尽量避免中文、空格、下划线和大写字母。当前阶段默认不加入组别字段，后续如果需要再统一调整。
+提醒：分支名尽量避免中文、空格、下划线和大写字母。组别字段是推荐项，不是强制项；如果使用组别字段，必须使用上面的五个正式缩写。
 
 ---
 
@@ -79,7 +102,7 @@ git pull --ff-only origin main
 然后从最新 `main` 切出任务分支：
 
 ```bash
-git switch -c feat/graph-search
+git switch -c feat/arch/schema-v1
 ```
 
 开发过程中随时查看状态：
@@ -98,7 +121,7 @@ git commit -m "feat: 添加图谱搜索页面"
 推送分支：
 
 ```bash
-git push -u origin feat/graph-search
+git push -u origin feat/arch/schema-v1
 ```
 
 最后到 GitHub 创建 MR / Pull Request，目标分支选择 `main`。
@@ -116,7 +139,7 @@ git push -u origin feat/graph-search
 4. 是否影响 API 契约或数据契约
 ```
 
-前端页面改动建议附截图。后端接口改动建议贴接口返回示例。涉及 `docs/api-contract.md` 或 `docs/data-contract.md` 的改动，必须提醒架构与接口组评审。
+前端页面改动建议附截图。后端接口改动建议贴接口返回示例。涉及 `docs/api-contract.md` 或 `docs/data-contract.md` 的改动，必须提醒架构与数据规范组评审。
 
 合入要求：
 
@@ -189,7 +212,7 @@ git push --force-with-lease
 git push --force
 ```
 
-不确定时先问组长或架构与接口组，不要直接强推。
+不确定时先问组长或架构与数据规范组，不要直接强推。
 
 ---
 
@@ -241,7 +264,7 @@ docs/team-workflow.md
 
 ```text
 前端任务：docs/api-contract.md
-后端任务：docs/api-contract.md + docs/data-contract.md
+后端横向工作流任务：docs/api-contract.md + docs/data-contract.md + docs/team-workflow.md
 LLM 任务：docs/data-contract.md + docs/architecture.md
 测试任务：docs/team-workflow.md + docs/references/course-requirements.md
 架构任务：docs/architecture.md + docs/api-contract.md + docs/data-contract.md
@@ -250,7 +273,8 @@ LLM 任务：docs/data-contract.md + docs/architecture.md
 提醒 Agent：
 
 1. 不要在 `main` 上直接改。
-2. 分支名默认使用 `feat/<task-name>` 或 `fix/<task-name>`，当前阶段默认不加入组别字段。
-3. commit 标题和正文默认中文。
-4. 只改当前任务需要的文件。
-5. 修改契约前先说明影响范围。
+2. 分支名推荐使用 `<type>/<group>/<task-name>`，也允许省略组别字段使用 `<type>/<task-name>`。
+3. 组别字段只使用 `arch`、`data`、`llm`、`fe`、`qa`。
+4. commit 标题和正文默认中文。
+5. 只改当前任务需要的文件。
+6. 修改契约前先说明影响范围。
