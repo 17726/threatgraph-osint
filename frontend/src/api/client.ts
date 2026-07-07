@@ -13,16 +13,32 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export function fetchGraph(target: string): Promise<GraphPayload> {
-  return getJson<GraphPayload>(`/graph?target=${encodeURIComponent(target)}&depth=2`)
-    .catch(() => getMockGraph(target));
+  const url = `/graph?target=${encodeURIComponent(target)}&depth=2`;
+  
+  if (import.meta.env.DEV) {
+    return getJson<GraphPayload>(url).catch(() => getMockGraph(target));
+  }
+  
+  return getJson<GraphPayload>(url);
 }
 
 export function fetchReport(target: string): Promise<ReportPayload> {
-  return getJson<ReportPayload>(`/reports/${encodeURIComponent(target)}`)
-    .catch(() => getMockReport(target));
+  const url = `/reports/${encodeURIComponent(target)}`;
+  
+  if (import.meta.env.DEV) {
+    return getJson<ReportPayload>(url).catch(() => getMockReport(target));
+  }
+  
+  return getJson<ReportPayload>(url);
 }
 
 export function fetchPath(source: string, target: string): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
-  return getJson<{ nodes: GraphNode[]; edges: GraphEdge[] }>(`/graph/path?source=${encodeURIComponent(source)}&target=${encodeURIComponent(target)}`)
-    .catch(() => ({ nodes: [], edges: [] }));
+  const url = `/graph/path?source=${encodeURIComponent(source)}&target=${encodeURIComponent(target)}`;
+  
+  if (import.meta.env.DEV) {
+    return getJson<{ nodes: GraphNode[]; edges: GraphEdge[] }>(url)
+      .catch(() => ({ nodes: [], edges: [] }));
+  }
+  
+  return getJson<{ nodes: GraphNode[]; edges: GraphEdge[] }>(url);
 }

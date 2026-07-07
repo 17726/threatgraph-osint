@@ -1,5 +1,4 @@
 import type { GraphPayload } from "../types";
-import type { EvalMetrics } from "../data/mockEval";
 
 interface AnalysisPageProps {
   graph: GraphPayload | null;

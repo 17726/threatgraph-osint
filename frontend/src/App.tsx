@@ -1,5 +1,5 @@
 import ReactECharts from "echarts-for-react";
-import { Activity, Database, FileText, Network, RefreshCw, ShieldCheck, Search } from "lucide-react";
+import { Activity, Database, FileText, Network, RefreshCw, ShieldCheck} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchGraph } from "./api/client";
