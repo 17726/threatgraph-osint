@@ -274,7 +274,7 @@ scripts/*：后端横向工作流或报告答辩与测试相关脚本，按任�
 
 ## 10. 分支命名建议
 
-完整 Git 流程、MR / Pull Request 和 Force Push 规则见 [开发规范与 Git 流程](development-guidelines.md)。
+完整 Git 流程、分支命名、MR / Pull Request 和 Force Push 规则见 [开发规范与 Git 流程](CONTRIBUTING.md)。
 
 分支名支持两种格式。推荐带组别缩写，方便观察每个组的进度；如果任务很小，也可以不带组别字段。
 

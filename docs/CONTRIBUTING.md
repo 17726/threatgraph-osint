@@ -256,7 +256,7 @@ python -m pytest backend/tests -v
 AGENTS.md
 README.md
 TODO.md
-docs/development-guidelines.md
+docs/CONTRIBUTING.md
 docs/team-workflow.md
 ```
 

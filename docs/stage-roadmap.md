@@ -173,13 +173,13 @@ P2 包含：
 最低并行契约：
 
 ```text
-数据组 -> document.json -> LLM 组 / 后端组
-LLM 组 -> extraction_result.json -> 后端组
-后端组 -> graph.json -> 前端组 / 报告组
-报告组 -> report.md 或 report.json -> 前端组 / 答辩材料
+data -> document.json -> llm / be
+llm -> extraction_result.json -> be
+be -> graph.json -> fe / qa
+qa -> report.md 或 report.json -> fe / 答辩材料
 ```
 
-建议每个契约都至少提供一个固定样例。样例一旦被前端、后端、LLM 组共同使用，字段变更必须先同步架构与接口组。
+建议每个契约都至少提供一个固定样例。样例一旦被 fe、be、llm 共同使用，字段变更必须先同步架构与数据规范组。
 
 ## 6. Demo 和 MVP 区别
 
