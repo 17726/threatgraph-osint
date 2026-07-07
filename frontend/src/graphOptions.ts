@@ -3,19 +3,22 @@ import type { EChartsOption } from "echarts";
 import type { GraphPayload } from "./types";
 
 const TYPE_COLORS: Record<string, string> = {
-  APT_GROUP: "#0f766e",
-  TECHNIQUE: "#b45309",
-  MALWARE: "#be123c",
-  TARGET: "#4f46e5",
-  ORGANIZATION: "#0369a1",
+  APT_GROUP: "#0f766e", MALWARE: "#be123c", TOOL: "#b45309",
+  CVE: "#7c3aed", TECHNIQUE: "#0369a1", PERSON: "#db2777",
+  COUNTRY: "#15803d", INDUSTRY: "#0d9488", CAMPAIGN: "#6d28d9",
+  ORGANIZATION: "#4b5563",
 };
 
-export function buildGraphOption(payload: GraphPayload): EChartsOption {
+export interface BuildOptions {
+  highlightNodeIds?: string[];
+}
+
+export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EChartsOption {
+  const highlightSet = new Set(opts?.highlightNodeIds ?? []);
+
   const categories = Array.from(new Set(payload.nodes.map((node) => node.type))).map((type) => ({
     name: type,
-    itemStyle: {
-      color: TYPE_COLORS[type] ?? "#64748b",
-    },
+    itemStyle: { color: TYPE_COLORS[type] ?? "#64748b" },
   }));
 
   return {
@@ -23,11 +26,12 @@ export function buildGraphOption(payload: GraphPayload): EChartsOption {
     tooltip: {
       trigger: "item",
       formatter: (params: unknown) => {
-        const data = (params as { data?: { name?: string; type?: string; value?: number } }).data;
+        const data = (params as { data?: { name?: string; type?: string; value?: number; _raw?: { validation_status?: string } } }).data;
         if (!data?.name) {
           return "";
         }
-        return `${data.name}<br/>类型：${data.type ?? "关系"}<br/>置信度：${data.value ?? "-"}`;
+        const tag = data._raw?.validation_status === "invalid" ? "【系统推断】" : "";
+        return `${tag}${data.name}<br/>类型：${data.type ?? "关系"}<br/>置信度：${data.value ?? "-"}`;
       },
     },
     legend: {
@@ -75,16 +79,33 @@ export function buildGraphOption(payload: GraphPayload): EChartsOption {
           type: node.type,
           value: Number(node.confidence.toFixed(2)),
           category: node.type,
-          symbolSize: node.type === "APT_GROUP" ? 56 : 42,
+          symbolSize: node.type === "APT_GROUP" ? 56 : node.type === "COUNTRY" ? 48 : 36,
           itemStyle: {
             color: TYPE_COLORS[node.type] ?? "#64748b",
+            borderColor: highlightSet.has(node.id) ? "#f59e0b" : "transparent",
+            borderWidth: highlightSet.has(node.id) ? 3 : 0,
+            opacity: highlightSet.size > 0 && !highlightSet.has(node.id) ? 0.25 : 1,
           },
+          label: {
+            show: true,
+            fontSize: highlightSet.size > 0 && !highlightSet.has(node.id) ? 10 : 12,
+            color: "#172026",
+          },
+          _raw: node,
         })),
-        links: payload.edges.map((edge) => ({
-          source: edge.source,
-          target: edge.target,
-          name: edge.label,
-        })),
+        links: payload.edges.map((edge) => {
+          const pathEdge = highlightSet.has(edge.source) && highlightSet.has(edge.target);
+          const isInfer = edge.validation_status === "invalid";
+          return {
+            source: edge.source,
+            target: edge.target,
+            name: edge.label,
+            lineStyle: highlightSet.size > 0
+              ? { opacity: pathEdge ? 1 : 0.08 }
+              : isInfer ? { opacity: 0.4, type: "dashed" as const, color: "#9ca3af" } : undefined,
+            _raw: edge,
+          };
+        }),
       },
     ],
   };
