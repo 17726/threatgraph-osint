@@ -69,6 +69,7 @@ docs/docker-runtime.md
 3. 整理原始文档，填充来源、标题、语言、发布时间等元数据。
 4. 维护小型黄金测试集 `golden.json`。
 5. 按数据导入和清洗边界修改对应后端业务代码。
+6. 按 `docs/data-contract.md` 的 P0 清洗边界做格式清洗，不提前做事实筛选。
 
 关键产出：
 
@@ -93,6 +94,7 @@ golden.json 原则：
 不自定义新字段
 不直接改 LLM Prompt
 不把网页 HTML 原样丢给后端
+不把 MITRE/MISP 这类知识库当作首篇真实正文清洗样本
 ```
 
 ---

@@ -1,31 +1,37 @@
 {
   "schema_version": "1.0",
   "target_group": "APT28",
-  "doc_ids": ["apt28_mitre_001"],
+  "doc_ids": ["apt28_securelist_masha_bears_001"],
   "entities": [
     {
       "name": "APT28",
       "type": "APT_GROUP",
-      "aliases": ["Fancy Bear", "Sofacy"],
+      "aliases": ["Sofacy", "Fancy Bear", "Tsar Team"],
       "canonical_id": "apt_group:apt28"
     },
     {
-      "name": "X-Agent",
+      "name": "XAgent",
+      "type": "MALWARE",
+      "aliases": ["SPLM", "CHOPSTICK"],
+      "canonical_id": "malware:xagent"
+    },
+    {
+      "name": "Zebrocy",
       "type": "MALWARE",
       "aliases": [],
-      "canonical_id": "malware:x-agent"
+      "canonical_id": "malware:zebrocy"
     },
     {
-      "name": "Phishing",
-      "type": "TECHNIQUE",
-      "aliases": ["T1566"],
-      "canonical_id": "technique:t1566"
+      "name": "China",
+      "type": "COUNTRY",
+      "aliases": [],
+      "canonical_id": "country:china"
     },
     {
-      "name": "government and military organizations",
+      "name": "military and foreign affairs related organizations",
       "type": "TARGET",
-      "aliases": ["government organizations", "military organizations"],
-      "canonical_id": "target:government-and-military-organizations"
+      "aliases": ["military organizations", "foreign affairs organizations"],
+      "canonical_id": "target:military-and-foreign-affairs-related-organizations"
     }
   ],
   "relations": [
@@ -33,26 +39,34 @@
       "source": "APT28",
       "source_type": "APT_GROUP",
       "relation_type": "USES",
-      "target": "X-Agent",
+      "target": "XAgent",
       "target_type": "MALWARE",
-      "evidence_text": "Public reporting links APT28 activity to phishing techniques and malware such as X-Agent."
+      "evidence_text": "Cleaned sample summary links SPLM, CHOPSTICK, and XAgent as the same second-stage tool family used in Sofacy activity."
     },
     {
       "source": "APT28",
       "source_type": "APT_GROUP",
       "relation_type": "USES",
-      "target": "Phishing",
-      "target_type": "TECHNIQUE",
-      "evidence_text": "Public reporting links APT28 activity to phishing techniques and malware such as X-Agent."
+      "target": "Zebrocy",
+      "target_type": "MALWARE",
+      "evidence_text": "Cleaned sample summary describes Zebrocy activity alongside SPLM in Sofacy activity."
     },
     {
       "source": "APT28",
       "source_type": "APT_GROUP",
       "relation_type": "TARGETS",
-      "target": "government and military organizations",
+      "target": "China",
+      "target_type": "COUNTRY",
+      "evidence_text": "Cleaned sample summary highlights targeting activity including China."
+    },
+    {
+      "source": "APT28",
+      "source_type": "APT_GROUP",
+      "relation_type": "TARGETS",
+      "target": "military and foreign affairs related organizations",
       "target_type": "TARGET",
-      "evidence_text": "Reports describe APT28 targeting government and military organizations, including activity related to Ukraine."
+      "evidence_text": "Cleaned sample summary describes targeting of military or foreign affairs related organizations."
     }
   ],
-  "notes": "qa 组可在此基础上扩充人工标准答案。第一版重点用于发现 LLM 漏抽、错抽和关系类型错误。"
+  "notes": "qa 组可在此基础上扩充人工标准答案。该样例使用 Securelist 厂商报告的人工清洗摘要，不把完整原文放入仓库。第一版重点用于发现 LLM 漏抽、错抽和关系类型错误。"
 }

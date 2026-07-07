@@ -69,19 +69,69 @@ docs/schemas/relationship-matrix.md
 可复制样例：
 
 ```text
-data/examples/document.apt28.example.json
-data/examples/extraction_result.apt28.example.json
-data/examples/graph.apt28.example.json
+data/examples/document.apt28.securelist.example.json
+data/examples/reference.apt28.mitre.example.json
+data/examples/extraction_result.apt28.securelist.example.json
+data/examples/graph.apt28.securelist.example.json
 data/examples/golden.apt28.example.json
 ```
 
 使用规则：
 
-1. data 组提交真实样本时，复制 `document.apt28.example.json` 后替换正文、来源和 `content_hash`。
-2. llm 组提交候选抽取时，复制 `extraction_result.apt28.example.json` 后替换候选实体和候选关系。
-3. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.example.json`。
-4. qa 做人工标准答案时，先从 `golden.apt28.example.json` 扩展。
-5. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
+1. data 组提交真实样本时，复制 `document.apt28.securelist.example.json` 后替换正文、来源和 `content_hash`。
+2. arch / qa / be 做标准名和别名对齐时，参考 `reference.apt28.mitre.example.json`。
+3. llm 组提交候选抽取时，复制 `extraction_result.apt28.securelist.example.json` 后替换候选实体和候选关系。
+4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.securelist.example.json`。
+5. qa 做人工标准答案时，先从 `golden.apt28.example.json` 扩展。
+6. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
+
+APT28 首个样例的字段标准：
+
+1. Securelist、Mandiant、Microsoft、ESET 等厂商威胁情报文章使用 `source_type = vendor_report`。
+2. MITRE ATT&CK、MISP Galaxy 等标准知识库使用 `source_type = knowledge_base`。
+3. `target_group` 只放标准名，例如 `APT28`；别名放在实体 `aliases_json` / JSON 样例的 `aliases` 中。
+4. 仓库中的 `raw_text` 可以是人工清洗后的短样本文本，不要求保存完整原文；可追溯性由 `source_url`、`published_at`、`retrieved_at`、`doc_id`、`chunk_id` 和 `evidence` 保证。
+5. `evidence_type = summary` 表示证据文本来自人工清洗摘要；只有保留短原文片段时才使用 `direct_quote`。
+
+### 1.3 三份 JSON 的开发工作流
+
+```text
+document.json
+  data 组交付的清洗后文档，是 LLM 的输入
+
+extraction_result.json
+  llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入
+
+graph.json
+  be 从 SQLite 正式图谱导出的快照，是前端 mock、演示兜底和 Neo4j 同步输入
+```
+
+边界：
+
+1. `document.json` 只承载来源元信息和清洗正文，不承载最终实体 ID。
+2. `extraction_result.json` 只承载 LLM 候选结果，不承载最终 `entity_id` / `relation_id`。
+3. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
+4. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
+
+### 1.4 P0 文档清洗边界
+
+P0 阶段的清洗是格式清洗，不是语义筛选。data 组需要把网页、PDF 或本地文本整理成可读、可切块、可追溯的正文。
+
+应该做：
+
+1. 去掉导航栏、菜单、广告、推荐文章、评论区、页脚、订阅提示和脚本噪声。
+2. 保留标题、正文段落、小标题、列表、表格中的有效文字和必要上下文。
+3. 保留原文顺序，尽量不改写原句。
+4. 记录 `source_url`、`source_name`、`published_at`、`retrieved_at`、`language`、`target_group` 和 `content_hash`。
+
+不应该做：
+
+1. 不提前删除作者评估、推测或讨论性段落。
+2. 不提前判断哪些句子是事实、哪些关系成立。
+3. 不把正文改写成自己的总结后再当作完整原文。
+4. 不把整个浏览器页面原样转成 TXT 后直接提交。
+
+仓库里的 `document.apt28.securelist.example.json` 只放短样本文本，是为了说明字段格式和避免提交完整网页正文；data 组真实工作时可以在本地保存完整清洗正文，再按同一字段契约导入。
 
 ---
 
@@ -110,7 +160,7 @@ data/threatgraph_osint.db
 字段含义：
 
 ```text
-source_type：来源类型，如 security_report、news、government_notice、social_forum
+source_type：来源类型，如 vendor_report、knowledge_base、government_notice、news、social_forum、blog；security_report 只作为无法细分时的泛称
 collector_type：采集器类型，如 local_json、http_page、rss_feed
 target_groups_json：该来源默认覆盖的目标组织
 config_json：采集器配置，如语言、默认目标组织、解析规则
@@ -692,7 +742,7 @@ data/graph/graph.json
       "doc_id": "apt28_mitre_001",
       "chunk_id": "apt28_mitre_001_c001",
       "source_url": "https://attack.mitre.org/groups/G0007/",
-      "source_type": "security_report",
+      "source_type": "knowledge_base",
       "source_name": "MITRE ATT&CK",
       "text": "APT28 is a threat group...",
       "evidence_type": "direct_quote",

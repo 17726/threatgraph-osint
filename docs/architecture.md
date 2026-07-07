@@ -224,24 +224,24 @@ data/raw/
 
 ```json
 {
-  "doc_id": "apt28_mitre_001",
+  "doc_id": "apt28_securelist_masha_bears_001",
   "schema_version": "1.0",
   "target_group": "APT28",
   "target_groups": ["APT28"],
-  "source_url": "https://attack.mitre.org/groups/G0007/",
-  "source_type": "security_report",
-  "source_name": "MITRE ATT&CK",
-  "title": "APT28 - MITRE ATT&CK",
+  "source_url": "https://securelist.com/masha-and-these-bears/84311/",
+  "source_type": "vendor_report",
+  "source_name": "Kaspersky Securelist",
+  "title": "Masha and these Bears",
   "language": "en",
   "raw_text": "...",
   "content_hash": "sha256:...",
-  "published_at": null,
+  "published_at": "2018-03-09",
   "retrieved_at": "2026-07-07T00:00:00+08:00",
   "source_reliability": "A",
   "tlp": "TLP:CLEAR",
-  "tags": ["mitre", "apt", "security_report"],
+  "tags": ["securelist", "apt", "vendor_report"],
   "metadata": {
-    "publisher": "MITRE",
+    "publisher": "Kaspersky Securelist",
     "collector": "数据组"
   }
 }
@@ -259,18 +259,18 @@ data/cleaned/cleaned_docs.json
 
 ```json
 {
-  "doc_id": "apt28_mitre_001",
+  "doc_id": "apt28_securelist_masha_bears_001",
   "schema_version": "1.0",
   "target_group": "APT28",
   "target_groups": ["APT28"],
-  "source_type": "security_report",
-  "source_name": "MITRE ATT&CK",
-  "title": "APT28 - MITRE ATT&CK",
+  "source_type": "vendor_report",
+  "source_name": "Kaspersky Securelist",
+  "title": "Masha and these Bears",
   "language": "en",
   "clean_text": "...",
   "chunks": [
     {
-      "chunk_id": "apt28_mitre_001_c001",
+      "chunk_id": "apt28_securelist_masha_bears_001_c001",
       "chunk_index": 0,
       "section_title": "Techniques Used",
       "text": "...",
@@ -387,7 +387,7 @@ data/graph/graph.json
       "doc_id": "apt28_mitre_001",
       "chunk_id": "apt28_mitre_001_c001",
       "source_url": "https://attack.mitre.org/groups/G0007/",
-      "source_type": "security_report",
+      "source_type": "knowledge_base",
       "source_name": "MITRE ATT&CK",
       "text": "APT28 is a threat group...",
       "evidence_type": "direct_quote",

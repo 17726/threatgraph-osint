@@ -54,6 +54,7 @@
       "enum": [
         "security_report",
         "vendor_report",
+        "knowledge_base",
         "government_notice",
         "news",
         "social_forum",

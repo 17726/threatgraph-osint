@@ -1,0 +1,24 @@
+{
+  "doc_id": "apt28_securelist_masha_bears_001",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": ["APT28"],
+  "source_url": "https://securelist.com/masha-and-these-bears/84311/",
+  "source_type": "vendor_report",
+  "source_name": "Kaspersky Securelist",
+  "title": "Masha and these Bears",
+  "language": "en",
+  "raw_text": "Cleaned sample summary based on Kaspersky Securelist's 2018 report Masha and these Bears. The report treats Sofacy as the same actor family commonly tracked as APT28, Fancy Bear, and Tsar Team. It discusses SPLM, also called CHOPSTICK or XAgent, as a selective second-stage tool, and describes Zebrocy activity alongside SPLM. The report highlights targeting activity in Central and East Asia, including China and military or foreign affairs related organizations.",
+  "content_hash": "sha256:ae3b967426e774a78bdfdf755d90f37bb66f67a27e259ed4c3238830bf6cd56d",
+  "published_at": "2018-03-09",
+  "retrieved_at": "2026-07-08T10:00:00+08:00",
+  "source_reliability": "A",
+  "tlp": "TLP:CLEAR",
+  "tags": ["securelist", "kaspersky", "apt", "apt28", "vendor_report"],
+  "metadata": {
+    "collector": "data",
+    "aliases": ["Sofacy", "Fancy Bear", "Tsar Team"],
+    "example_scope": "short_cleaned_summary",
+    "notes": "示例文件用于字段对齐，只保留人工清洗后的短样本文本；data 组提交真实样本时需要替换 raw_text 和 content_hash。"
+  }
+}
