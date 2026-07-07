@@ -59,4 +59,6 @@ llm 组先按 `extraction_result.apt28.securelist.example.json` 手写或生成�
 
 be 组按 `graph.apt28.securelist.example.json` 的格式导出 `data/graph/graph.json`，并按 `docs/api-contract.md` 返回 `/api/v1/graph` 的轻量图谱视图，同时补齐 `/api/v1/graph/path` 的 SQLite BFS 兜底。
 
+如果后续需要对 `/api/v1/graph` 做机器校验，应新增独立的 `graph-view.schema.json`，不要复用完整 GraphSnapshot 的 `graph.schema.json`。
+
 qa 组按 `golden.apt28.example.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。

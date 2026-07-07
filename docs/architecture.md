@@ -14,7 +14,7 @@
 
 ```text
 SQLite：唯一事实源，保存文档、切块、抽取结果、实体、关系、证据、报告、评测结果
-graph.json：由 SQLite 导出的图谱格式，用于前端 mock、演示兜底、Neo4j 同步输入
+graph.json：由 SQLite 导出的完整图谱快照，用于演示兜底、离线样例和 Neo4j 同步输入
 Neo4j：增强阶段 / 优先级 P1 的图查询增强层，用于多跳路径查询和 Cypher 展示，但不作为事实源
 ```
 
@@ -28,7 +28,7 @@ SQLite 事实源 + graph.json 导出 + Neo4j 增强同步 + FastAPI API + React/
 
 1. LLM 原始输出不是事实源。
 2. SQLite 是唯一事实源。
-3. graph.json 是导出格式和前端 mock，不是事实源。
+3. graph.json 是导出快照，不是事实源；前端默认只消费 FastAPI 的轻量图谱视图。
 4. Neo4j 是增强能力，但不是事实源。
 5. 前端只依赖 FastAPI 接口，不感知底层是 SQLite、graph.json 还是 Neo4j。
 6. 现场演示必须可缓存、可复现，不能强依赖实时爬虫或实时 LLM。
@@ -120,7 +120,7 @@ Kimsuky
                 │ 导出 graph.json   │
 ┌───────────────▼──────────────┐   │
 │          graph.json           │   │
-│ 前端 mock / 演示兜底 / 同步输入 │   │
+│ 演示兜底 / 离线样例 / 同步输入   │   │
 └───────────────┬──────────────┘   │
                 │ 增强同步           │
 ┌───────────────▼──────────────┐   │
@@ -341,7 +341,7 @@ data/extracted/extraction_results.json
 data/graph/graph.json
 ```
 
-用途：保存从 SQLite 导出的标准图谱快照，用于前端 mock、演示兜底、Neo4j 同步输入。
+用途：保存从 SQLite 导出的标准图谱快照，用于演示兜底、离线样例和 Neo4j 同步输入。前端页面默认通过 FastAPI 获取轻量图谱视图，不直接绑定该完整快照格式。
 
 注意：`graph.json` 不是事实源。事实源是 SQLite 中的实体、关系、证据和文档表。
 
@@ -386,6 +386,8 @@ data/graph/graph.json
       "id": "ev_apt28_001",
       "doc_id": "apt28_mitre_001",
       "chunk_id": "apt28_mitre_001_c001",
+      "entity_id": "apt_group:apt28",
+      "relation_id": null,
       "source_url": "https://attack.mitre.org/groups/G0007/",
       "source_type": "knowledge_base",
       "source_name": "MITRE ATT&CK",
@@ -398,7 +400,12 @@ data/graph/graph.json
       "source_reliability": "A",
       "language": "en"
     }
-  ]
+  ],
+  "analysis": {
+    "mitre_mappings": [],
+    "behavior_patterns": [],
+    "inferred_relations": []
+  }
 }
 ```
 
@@ -1091,7 +1098,7 @@ Demo 用来证明核心概念能跑，可以有手动步骤和 mock 数据。最
 2. 本地文本或 `document.json` 可作为输入。
 3. 能产出 `extraction_result.json` 或等价 mock。
 4. 能产出 `graph.json`。
-5. 前端能基于 `graph.json` 展示图谱、实体详情和证据。
+5. 前端能通过 `/api/v1/graph` 展示图谱、实体详情和证据；离线演示可由后端从 `graph.json` 适配出同等响应。
 6. 能生成基础报告片段。
 
 ### 14.2 MVP 标准
@@ -1146,7 +1153,7 @@ MVP 用来证明团队可以交付和继续开发，必须满足：
 1. 前端使用 React + TypeScript + Vite + ECharts-for-React。
 2. 后端使用 FastAPI。
 3. SQLite 作为唯一事实源。
-4. `graph.json` 作为导出格式和前端 mock。
+4. `graph.json` 作为导出快照、离线样例和 Neo4j 同步输入。
 5. Neo4j 作为增强阶段 / 优先级 P1 的图查询增强，不作为事实源。
 6. Docker Compose 作为标准开发和演示环境。
 7. 服务通过 `docker compose` 命令直接管理。

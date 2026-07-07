@@ -161,7 +161,7 @@ POST /api/v1/documents/import
   "retrieved_at": "2026-07-07T00:00:00+08:00",
   "source_reliability": "A",
   "tlp": "TLP:CLEAR",
-  "tags": ["mitre", "apt", "security_report"],
+  "tags": ["securelist", "kaspersky", "apt", "apt28", "vendor_report"],
   "metadata": {}
 }
 ```
@@ -243,7 +243,8 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 
 1. `/api/v1/graph` 返回前端当前使用的轻量图谱视图，字段以本节响应为准。
 2. `docs/schemas/graph.schema.json` 约束的是导出的 `data/graph/graph.json` 快照，不要求 API 响应携带 `version`、`generated_at`、`exported_from`、`source_of_truth` 和 `analysis`。
-3. 如果后续要让 API 直接返回完整快照，必须同步更新本文件、前端类型和后端测试。
+3. 行为分析、MITRE 映射和推理结果默认走第 8 节的 `/analysis/*` 接口；后续如需在图谱接口聚合分析结果，应新增显式参数或新接口。
+4. 如果后续要让 API 直接返回完整快照，必须同步更新本文件、前端类型和后端测试。
 
 图谱响应：
 

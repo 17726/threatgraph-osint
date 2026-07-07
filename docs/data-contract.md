@@ -11,7 +11,7 @@
 
 ```text
 SQLite：唯一事实源
-graph.json：导出格式、前端 mock、演示兜底、Neo4j 同步输入
+graph.json：导出格式、离线样例、演示兜底、Neo4j 同步输入
 Neo4j：增强阶段 / 优先级 P1 图查询增强，不保存唯一事实
 ```
 
@@ -103,7 +103,7 @@ extraction_result.json
   llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入
 
 graph.json
-  be 从 SQLite 正式图谱导出的快照，是前端 mock、演示兜底和 Neo4j 同步输入
+  be 从 SQLite 正式图谱导出的快照，是演示兜底和 Neo4j 同步输入；如用于前端 mock，需要先适配为 API 的轻量图谱视图
 ```
 
 边界：
@@ -111,7 +111,9 @@ graph.json
 1. `document.json` 只承载来源元信息和清洗正文，不承载最终实体 ID。
 2. `extraction_result.json` 只承载 LLM 候选结果，不承载最终 `entity_id` / `relation_id`。
 3. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
-4. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
+4. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
+5. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
+6. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
 
 ### 1.4 P0 文档清洗边界
 
@@ -741,6 +743,8 @@ data/graph/graph.json
       "id": "ev_apt28_mitre_001_a1b2",
       "doc_id": "apt28_mitre_001",
       "chunk_id": "apt28_mitre_001_c001",
+      "entity_id": "apt_group:apt28",
+      "relation_id": null,
       "source_url": "https://attack.mitre.org/groups/G0007/",
       "source_type": "knowledge_base",
       "source_name": "MITRE ATT&CK",
@@ -801,7 +805,7 @@ data/graph/graph.json
 3. `evidence` 来自 SQLite `evidence`。
 4. `analysis` 来自 SQLite 行为分析和推理表。
 5. `graph.json` 可以删除后重新生成，不影响事实源。
-6. 前端 mock 数据必须与该格式一致。
+6. `graph.json` 作为完整 GraphSnapshot，可用于离线演示兜底和 Neo4j 同步输入；前端模拟 `/api/v1/graph` 时仍按 `docs/api-contract.md` 的轻量 GraphView 返回。
 7. `schema_version` 变更前必须同步架构、后端、前端和 LLM。
 8. `evidence.text` 可以是原文短片段或人工清洗后的证据短句，但必须能通过 `doc_id`、`chunk_id`、`quote_start`、`quote_end` 回到原文。
 

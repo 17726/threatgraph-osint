@@ -29,7 +29,7 @@ LLM 接口：OpenAI-compatible API
 核心原则：
 
 1. SQLite 是唯一事实源。
-2. graph.json 是导出格式、前端 mock、演示兜底和 Neo4j 同步输入。
+2. graph.json 是导出格式、离线样例、演示兜底和 Neo4j 同步输入；前端默认通过 FastAPI 获取轻量图谱视图。
 3. Neo4j 是增强能力，不作为事实源。
 4. LLM 原始输出不能直接写入 Neo4j。
 5. 前端只调用 FastAPI，不直接读取 SQLite、graph.json 或 Neo4j。

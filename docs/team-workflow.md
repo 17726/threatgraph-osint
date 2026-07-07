@@ -152,7 +152,7 @@ confidence：置信度
 2. 使用 ECharts-for-React 展示关系图谱。
 3. 实现搜索、详情、证据展示、时间线、行为分析、报告展示。
 4. 对接 FastAPI，不直接读取数据库或 Neo4j。
-5. 按图谱查询、graph.json 消费和展示边界修改对应后端业务代码。
+5. 按图谱查询、API GraphView 消费和展示边界修改对应后端业务代码。
 
 关键产出：
 
@@ -161,7 +161,7 @@ frontend/src/api/*.ts
 frontend/src/types/*.ts
 frontend/src/components/*.tsx
 frontend/src/pages/*.tsx
-graph.json 消费和图谱交互验收记录
+API GraphView 消费和图谱交互验收记录
 ```
 
 页面建议：
@@ -225,7 +225,7 @@ data/evaluation/evaluation_result.json
 架构与数据规范组：负责后端骨架、目录结构、公共响应、契约和集成边界。
 数据与样本组：负责文档导入、采集、清洗和切块相关业务代码。
 LLM 抽取与分析组：负责抽取、分析、Prompt 调用和结果校验相关业务代码。
-图谱与前端组：负责图谱查询、路径查询、graph.json 消费和展示相关业务代码。
+图谱与前端组：负责图谱查询、路径查询、API GraphView 消费和展示相关业务代码。
 报告答辩与测试组：负责评测接口、验收脚本、报告数据输出和演示验证相关代码。
 ```
 
