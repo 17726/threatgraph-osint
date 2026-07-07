@@ -58,10 +58,10 @@ LLM 接口：OpenAI-compatible API
 
 ```text
 数据与样本组：docs/data-contract.md + docs/team-workflow.md
-LLM 与分析组：docs/data-contract.md + docs/architecture.md
-后端组：docs/api-contract.md + docs/data-contract.md
-前端组：docs/api-contract.md + docs/team-workflow.md
-报告测试组：docs/team-workflow.md + docs/reference-comparison.md + docs/references/course-requirements.md
+LLM 抽取与分析组：docs/data-contract.md + docs/architecture.md
+后端横向工作流：docs/api-contract.md + docs/data-contract.md + docs/team-workflow.md
+图谱与前端组：docs/api-contract.md + docs/team-workflow.md
+报告答辩与测试组：docs/team-workflow.md + docs/reference-comparison.md + docs/references/course-requirements.md
 ```
 
 ---
@@ -70,14 +70,15 @@ LLM 与分析组：docs/data-contract.md + docs/architecture.md
 
 详细分工见 [docs/team-workflow.md](docs/team-workflow.md)。
 
-| 组别             | 主要职责                                               | 关键产出                        |
-| ---------------- | ------------------------------------------------------ | ------------------------------- |
-| 架构与接口组     | 统一技术路线、数据契约、API 契约、目录结构             | 架构文档、接口文档、评审结论    |
-| 数据与样本组     | 收集三类情报源，整理原始文档和黄金测试集               | raw 数据、golden.json、来源索引 |
-| LLM 与行为分析组 | 实体关系抽取、MITRE 映射、行为分析、候选推理           | 抽取结果、行为模式、推理结果    |
-| 后端与数据层组   | FastAPI、SQLite、pipeline、graph.json 导出、Neo4j 同步 | API 服务、数据库、同步脚本      |
-| 图谱与前端组     | React 页面、图谱可视化、搜索、详情、报告展示           | 前端页面、图谱交互、演示界面    |
-| 报告测试与答辩组 | 评测、实验报告、PPT、演示脚本和录像                    | 评测结果、报告、PPT、答辩材料   |
+| 组别             | 缩写   | 主要职责                                               | 关键产出                        |
+| ---------------- | ------ | ------------------------------------------------------ | ------------------------------- |
+| 架构与数据规范组 | `arch` | 统一技术路线、数据契约、API 契约、目录结构、后端骨架   | 架构文档、接口文档、评审结论    |
+| 数据与样本组     | `data` | 收集三类情报源，整理原始文档和黄金测试集               | raw 数据、golden.json、来源索引 |
+| LLM 抽取与分析组 | `llm`  | 实体关系抽取、MITRE 映射、行为分析、候选推理           | 抽取结果、行为模式、推理结果    |
+| 图谱与前端组     | `fe`   | React 页面、图谱可视化、搜索、详情、报告展示           | 前端页面、图谱交互、演示界面    |
+| 报告答辩与测试组 | `qa`   | 评测、实验报告、PPT、演示脚本和录像                    | 评测结果、报告、PPT、答辩材料   |
+
+后端不是单独小组，而是横向工作流：FastAPI、SQLite、pipeline、graph.json 导出、Neo4j 同步等工作由架构与数据规范组牵头维护；数据与样本组、LLM 抽取与分析组、图谱与前端组、报告答辩与测试组可以按各自业务边界修改对应后端代码，但必须遵守 API 契约和数据契约。
 
 ---
 
