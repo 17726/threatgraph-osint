@@ -178,8 +178,8 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
 ```text
 阶段 1：离线文本入口
   假设已经拿到本地文本文件
-  数据组手动清洗为 document.json
-  LLM 组和后端组基于固定 JSON 契约并行开发
+  data 组手动清洗为 document.json
+  llm 组和 be 横向工作流基于固定 JSON 契约并行开发
 
 阶段 2：本地文档导入和集成 MVP
   支持 document.json 或本地文本导入
@@ -1020,9 +1020,9 @@ Neo4j Browser：http://localhost:7474
 
 ---
 
-## 11. 前端职责
+## 11. 图谱与前端组职责
 
-前端组负责：
+图谱与前端组 `fe` 负责：
 
 1. 调用 FastAPI。
 2. 展示图谱、详情、搜索、时间线、报告。

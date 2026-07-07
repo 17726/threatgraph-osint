@@ -14,28 +14,46 @@
 
 禁止直接在 `main` 分支开发。开始改文件前，必须确认当前分支不是 `main`。
 
-分支名默认使用下面两种结构：
+分支名推荐使用下面结构：
 
 ```text
-feat/<task-name>
-fix/<task-name>
+<type>/<group>/<task-name>
+```
+
+也允许任务较小时省略组别字段：
+
+```text
+<type>/<task-name>
 ```
 
 命名规范：
 
-1. 第一个字段默认使用 `feat` 或 `fix`。
-2. 第二个字段是任务名，推荐使用英文小写和连字符，例如 `graph-search`。
-3. 分支名避免使用中文、空格、下划线和大写字母。
-4. 当前阶段默认不加入组别字段；如果后续需要组别字段，再统一调整。
+1. 第一个字段使用 `feat`、`fix`、`docs`、`test`、`refactor` 或 `chore` 等类型。
+2. 第二个字段是可选组别缩写，只允许使用 `arch`、`data`、`llm`、`fe`、`qa`。
+3. 最后一个字段是任务名，推荐使用英文小写和连字符，例如 `graph-search`。
+4. 分支名避免使用中文、空格、下划线和大写字母。
+5. 后端不是单独小组，不使用独立 `be` 组别；后端横向工作按牵头或业务归属小组选择组别缩写。
+
+组别缩写：
+
+```text
+arch：架构与数据规范组
+data：数据与样本组
+llm：LLM 抽取与分析组
+fe：图谱与前端组
+qa：报告答辩与测试组
+```
 
 示例：
 
 ```text
+feat/arch/schema-v1
+feat/data/apt28-sample
+feat/llm/json-output
+feat/fe/graph-search
+test/qa/golden-eval
 feat/graph-search
-feat/report-api
-feat/api-contract
-fix/json-output
-fix/evaluation-script
+fix/report-api
 ```
 
 ## Git 流程
@@ -45,7 +63,7 @@ fix/evaluation-script
 ```bash
 git switch main
 git pull --ff-only origin main
-git switch -c feat/<task-name>
+git switch -c feat/arch/schema-v1
 ```
 
 完成开发后：
@@ -54,7 +72,7 @@ git switch -c feat/<task-name>
 git status
 git add <files>
 git commit -m "feat: 添加具体功能说明"
-git push -u origin feat/<task-name>
+git push -u origin feat/arch/schema-v1
 ```
 
 然后在 GitHub 上创建 MR / Pull Request，经过评审后才能合入 `main`。
@@ -108,7 +126,8 @@ chore: 添加 Prettier 配置
 5. 前端只调用 FastAPI，不直接读取 SQLite、`graph.json` 或 Neo4j。
 6. API 字段以 `docs/api-contract.md` 为准。
 7. 数据字段以 `docs/data-contract.md` 为准。
-8. 跨组字段变更必须先更新契约文档并提醒架构与接口组评审。
+8. 跨组字段变更必须先更新契约文档并提醒架构与数据规范组评审。
+9. 后端是横向工作流，不是单独小组；修改后端代码时必须遵守对应业务边界和契约。
 
 ## 验证要求
 
