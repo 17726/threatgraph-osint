@@ -10,15 +10,18 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
   const [showResults, setShowResults] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const results = query.length < 1 ? [] : nodes
-    .filter((n) => {
-      const q = query.toLowerCase();
-      const matchName = n.name?.toLowerCase().includes(q) ?? false;
-      const matchAlias = n.aliases?.some((a) => a?.toLowerCase().includes(q)) ?? false;
-      const matchType = n.type?.toLowerCase().includes(q) ?? false;
-      return matchName || matchAlias || matchType;
-    })
-    .slice(0, 8);
+  const results =
+    query.length < 1
+      ? []
+      : nodes
+          .filter((n) => {
+            const q = query.toLowerCase();
+            const matchName = n.name?.toLowerCase().includes(q) ?? false;
+            const matchAlias = n.aliases?.some((a) => a?.toLowerCase().includes(q)) ?? false;
+            const matchType = n.type?.toLowerCase().includes(q) ?? false;
+            return matchName || matchAlias || matchType;
+          })
+          .slice(0, 8);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -35,7 +38,10 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
       <input
         type="text"
         value={query}
-        onChange={(e) => { setQuery(e.target.value); setShowResults(true); }}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setShowResults(true);
+        }}
         placeholder="搜索实体..."
         style={{
           width: "100%",
@@ -49,19 +55,34 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
         }}
       />
       {showResults && results.length > 0 && (
-        <div style={{
-          position: "absolute", top: "100%", left: 0, right: 0,
-          marginTop: 4, background: "#ffffff",
-          border: "1px solid #d7dfdd", borderRadius: 8,
-          maxHeight: 280, overflowY: "auto",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)", zIndex: 20,
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            marginTop: 4,
+            background: "#ffffff",
+            border: "1px solid #d7dfdd",
+            borderRadius: 8,
+            maxHeight: 280,
+            overflowY: "auto",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            zIndex: 20,
+          }}
+        >
           {results.map((n) => (
             <div
               key={n.id}
-              onClick={() => { onSelect(n.id); setShowResults(false); setQuery(""); }}
+              onClick={() => {
+                onSelect(n.id);
+                setShowResults(false);
+                setQuery("");
+              }}
               style={{
-                padding: "10px 14px", cursor: "pointer", fontSize: 13,
+                padding: "10px 14px",
+                cursor: "pointer",
+                fontSize: 13,
                 borderBottom: "1px solid #e2e8e6",
               }}
               onMouseEnter={(e) => (e.currentTarget.style.background = "#f8faf9")}

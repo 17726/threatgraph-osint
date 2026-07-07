@@ -3,9 +3,15 @@ import type { EChartsOption } from "echarts";
 import type { GraphPayload } from "./types";
 
 const TYPE_COLORS: Record<string, string> = {
-  APT_GROUP: "#0f766e", MALWARE: "#be123c", TOOL: "#b45309",
-  CVE: "#7c3aed", TECHNIQUE: "#0369a1", PERSON: "#db2777",
-  COUNTRY: "#15803d", INDUSTRY: "#0d9488", CAMPAIGN: "#6d28d9",
+  APT_GROUP: "#0f766e",
+  MALWARE: "#be123c",
+  TOOL: "#b45309",
+  CVE: "#7c3aed",
+  TECHNIQUE: "#0369a1",
+  PERSON: "#db2777",
+  COUNTRY: "#15803d",
+  INDUSTRY: "#0d9488",
+  CAMPAIGN: "#6d28d9",
   ORGANIZATION: "#4b5563",
 };
 
@@ -26,7 +32,16 @@ export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EC
     tooltip: {
       trigger: "item",
       formatter: (params: unknown) => {
-        const data = (params as { data?: { name?: string; type?: string; value?: number; _raw?: { validation_status?: string } } }).data;
+        const data = (
+          params as {
+            data?: {
+              name?: string;
+              type?: string;
+              value?: number;
+              _raw?: { validation_status?: string };
+            };
+          }
+        ).data;
         if (!data?.name) {
           return "";
         }
@@ -100,9 +115,12 @@ export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EC
             source: edge.source,
             target: edge.target,
             name: edge.label,
-            lineStyle: highlightSet.size > 0
-              ? { opacity: pathEdge ? 1 : 0.08 }
-              : isInfer ? { opacity: 0.4, type: "dashed" as const, color: "#9ca3af" } : undefined,
+            lineStyle:
+              highlightSet.size > 0
+                ? { opacity: pathEdge ? 1 : 0.08 }
+                : isInfer
+                  ? { opacity: 0.4, type: "dashed" as const, color: "#9ca3af" }
+                  : undefined,
             _raw: edge,
           };
         }),

@@ -1,4 +1,4 @@
-import { useEffect, useState ,useMemo} from "react";
+import { useEffect, useState, useMemo } from "react";
 import { fetchPath } from "../api/client";
 import type { GraphNode } from "../types";
 
@@ -16,8 +16,8 @@ export default function PathTracking({ nodes, onPathFound, onPathClear }: PathTr
   const nodeIds = useMemo(() => new Set(nodes.map((n) => n.id)), [nodes]);
 
   useEffect(() => {
-    setFromId(prev => (prev && nodeIds.has(prev) ? prev : ""));
-    setToId(prev => (prev && nodeIds.has(prev) ? prev : ""));
+    setFromId((prev) => (prev && nodeIds.has(prev) ? prev : ""));
+    setToId((prev) => (prev && nodeIds.has(prev) ? prev : ""));
   }, [nodeIds]);
 
   const handleTrace = async () => {
@@ -42,26 +42,40 @@ export default function PathTracking({ nodes, onPathFound, onPathClear }: PathTr
   };
 
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 8,
-      padding: "6px 20px", background: "#ffffff",
-      borderTop: "1px solid #d7dfdd",
-      flexShrink: 0, fontSize: 12, color: "#64748b",
-    }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "6px 20px",
+        background: "#ffffff",
+        borderTop: "1px solid #d7dfdd",
+        flexShrink: 0,
+        fontSize: 12,
+        color: "#64748b",
+      }}
+    >
       <span>路径追踪:</span>
       <select
         value={fromId}
         disabled={traversing}
         onChange={(e) => setFromId(e.target.value)}
         style={{
-          padding: "4px 8px", background: "#ffffff",
-          border: "1px solid #d7dfdd", borderRadius: 4,
-          color: "#172026", fontSize: 12, outline: "none", maxWidth: 180,
+          padding: "4px 8px",
+          background: "#ffffff",
+          border: "1px solid #d7dfdd",
+          borderRadius: 4,
+          color: "#172026",
+          fontSize: 12,
+          outline: "none",
+          maxWidth: 180,
         }}
       >
         <option value="">起点</option>
         {nodes.map((n) => (
-          <option key={n.id} value={n.id}>{n.name}</option>
+          <option key={n.id} value={n.id}>
+            {n.name}
+          </option>
         ))}
       </select>
       <span style={{ color: "#0f766e", fontWeight: 700 }}>→</span>
@@ -70,14 +84,21 @@ export default function PathTracking({ nodes, onPathFound, onPathClear }: PathTr
         disabled={traversing}
         onChange={(e) => setToId(e.target.value)}
         style={{
-          padding: "4px 8px", background: "#ffffff",
-          border: "1px solid #d7dfdd", borderRadius: 4,
-          color: "#172026", fontSize: 12, outline: "none", maxWidth: 180,
+          padding: "4px 8px",
+          background: "#ffffff",
+          border: "1px solid #d7dfdd",
+          borderRadius: 4,
+          color: "#172026",
+          fontSize: 12,
+          outline: "none",
+          maxWidth: 180,
         }}
       >
         <option value="">终点</option>
         {nodes.map((n) => (
-          <option key={n.id} value={n.id}>{n.name}</option>
+          <option key={n.id} value={n.id}>
+            {n.name}
+          </option>
         ))}
       </select>
       <button
@@ -87,8 +108,11 @@ export default function PathTracking({ nodes, onPathFound, onPathClear }: PathTr
           padding: "4px 12px",
           opacity: traversing ? 0.5 : 1,
           cursor: traversing ? "not-allowed" : "pointer",
-          background: "#f4f7f6", border: "1px solid #d7dfdd",
-          borderRadius: 8, color: "#172026", fontSize: 12,
+          background: "#f4f7f6",
+          border: "1px solid #d7dfdd",
+          borderRadius: 8,
+          color: "#172026",
+          fontSize: 12,
         }}
       >
         {traversing ? "追踪中..." : "追踪"}
@@ -96,9 +120,13 @@ export default function PathTracking({ nodes, onPathFound, onPathClear }: PathTr
       <button
         onClick={onPathClear}
         style={{
-          padding: "4px 12px", cursor: "pointer",
-          background: "#f4f7f6", border: "1px solid #d7dfdd",
-          borderRadius: 8, color: "#172026", fontSize: 12,
+          padding: "4px 12px",
+          cursor: "pointer",
+          background: "#f4f7f6",
+          border: "1px solid #d7dfdd",
+          borderRadius: 8,
+          color: "#172026",
+          fontSize: 12,
         }}
       >
         清除
