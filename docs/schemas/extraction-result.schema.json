@@ -4,14 +4,7 @@
   "title": "ThreatGraph LLM Extraction Result",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "schema_version",
-    "run_id",
-    "doc_id",
-    "model_name",
-    "prompt_version",
-    "chunks"
-  ],
+  "required": ["schema_version", "run_id", "doc_id", "model_name", "prompt_version", "chunks"],
   "properties": {
     "schema_version": {
       "const": "1.0"
