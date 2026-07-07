@@ -7,35 +7,37 @@
 
 ## 1. 总体分工
 
-建议按 6 个方向分工。人数不足时可以合并相邻职责。
+项目按 5 个正式小组协作：
 
 ```text
-架构与接口组
-数据与样本组
-LLM 与行为分析组
-后端与数据层组
-图谱与前端组
-报告测试与答辩组
+arch：架构与数据规范组
+data：数据与样本组
+llm：LLM 抽取与分析组
+fe：图谱与前端组
+qa：报告答辩与测试组
 ```
+
+后端不是单独小组，而是横向工作流：FastAPI、SQLite、API、pipeline、归一化、导出和 Neo4j 同步等后端工作默认由 `arch` 牵头维护，其他组可以按各自业务边界修改对应后端代码。
 
 所有组必须遵守：
 
 1. 数据字段以 `docs/data-contract.md` 为准。
 2. API 字段以 `docs/api-contract.md` 为准。
-3. 任何字段变更必须先通知架构与接口组。
+3. 任何字段变更必须先通知架构与数据规范组。
 4. 所有模块都要保留证据链，不能只给自然语言结论。
 5. 演示链路优先于功能堆叠。
 
 ---
 
-## 2. 架构与接口组
+## 2. 架构与数据规范组 `arch`
 
 职责：
 
 1. 维护架构设计、数据契约、API 契约和目录结构。
-2. 审核跨组字段变更。
-3. 确认阶段范围和 P0 / P1 优先级。
-4. 组织每日集成检查。
+2. 维护 FastAPI / SQLite / pipeline 等后端骨架和跨组集成边界。
+3. 审核跨组字段变更。
+4. 确认阶段范围和 P0 / P1 优先级。
+5. 组织每日集成检查。
 
 关键产出：
 
@@ -45,6 +47,7 @@ docs/data-contract.md
 docs/api-contract.md
 docs/docker-runtime.md
 接口变更记录
+后端骨架和集成入口
 ```
 
 不负责：
@@ -52,11 +55,12 @@ docs/docker-runtime.md
 ```text
 不替每个组写完整业务代码
 不临时接受未经讨论的字段变更
+不把后端业务逻辑全部集中到架构组一个人身上
 ```
 
 ---
 
-## 3. 数据与样本组
+## 3. 数据与样本组 `data`
 
 职责：
 
@@ -64,6 +68,7 @@ docs/docker-runtime.md
 2. 覆盖三类来源：安全报告、新闻/公告、社媒/论坛整理文本。
 3. 整理原始文档，填充来源、标题、语言、发布时间等元数据。
 4. 维护小型黄金测试集 `golden.json`。
+5. 按数据导入和清洗边界修改对应后端业务代码。
 
 关键产出：
 
@@ -71,6 +76,7 @@ docs/docker-runtime.md
 data/raw/*.json
 data/evaluation/golden.json
 数据来源索引表
+数据导入和清洗相关实现
 ```
 
 golden.json 原则：
@@ -91,7 +97,7 @@ golden.json 原则：
 
 ---
 
-## 4. LLM 与行为分析组
+## 4. LLM 与行为分析组 `llm`
 
 职责：
 
@@ -99,6 +105,7 @@ golden.json 原则：
 2. 保证 LLM 输出合法 JSON。
 3. 做实体、关系候选结果质量检查。
 4. 实现 MITRE ATT&CK 映射、行为模式分析、候选推理。
+5. 按抽取、分析和报告生成边界修改对应后端业务代码。
 
 关键产出：
 
@@ -135,38 +142,7 @@ confidence：置信度
 
 ---
 
-## 5. 后端与数据层组
-
-职责：
-
-1. 搭建 FastAPI 服务。
-2. 初始化 SQLite 表结构。
-3. 实现文档导入、流水线、图谱查询、报告、评测接口。
-4. 导出 `data/graph/graph.json`。
-5. 优先级 P0 实现 SQLite BFS 基础路径追踪。
-6. 增强阶段 / 优先级 P1 实现 Neo4j 同步和 Cypher 多跳路径查询。
-
-关键产出：
-
-```text
-backend/
-scripts/run_pipeline.py
-scripts/export_graph_json.py
-scripts/sync_neo4j.py
-data/threatgraph_osint.db
-```
-
-不负责：
-
-```text
-不决定前端交互样式
-不随意修改 API 契约
-不让 Neo4j 成为事实源
-```
-
----
-
-## 6. 图谱与前端组
+## 5. 图谱与前端组 `fe`
 
 职责：
 
@@ -174,6 +150,7 @@ data/threatgraph_osint.db
 2. 使用 ECharts-for-React 展示关系图谱。
 3. 实现搜索、详情、证据展示、时间线、行为分析、报告展示。
 4. 对接 FastAPI，不直接读取数据库或 Neo4j。
+5. 按图谱查询、graph.json 消费和展示边界修改对应后端业务代码。
 
 关键产出：
 
@@ -182,6 +159,7 @@ frontend/src/api/*.ts
 frontend/src/types/*.ts
 frontend/src/components/*.tsx
 frontend/src/pages/*.tsx
+graph.json 消费和图谱交互验收记录
 ```
 
 页面建议：
@@ -204,7 +182,7 @@ Evaluation：评测结果
 
 ---
 
-## 7. 报告测试与答辩组
+## 6. 报告答辩与测试组 `qa`
 
 职责：
 
@@ -212,6 +190,7 @@ Evaluation：评测结果
 2. 根据 golden.json 计算实体、关系抽取指标。
 3. 整理实验报告、PPT、演示脚本和录像。
 4. 准备开源项目对比和创新点说明。
+5. 按评测、报告和演示验收边界修改对应脚本或后端业务代码。
 
 关键产出：
 
@@ -231,6 +210,30 @@ data/evaluation/evaluation_result.json
 不修改核心数据契约
 不等到最后一天才收集截图
 ```
+
+---
+
+## 7. 后端横向工作流 `be`
+
+`be` 是任务标签，不是正式小组。它表示 FastAPI、SQLite、API、pipeline、归一化、导出、Neo4j 同步等后端相关工作。
+
+归属原则：
+
+```text
+架构与数据规范组：负责后端骨架、目录结构、公共响应、契约和集成边界。
+数据与样本组：负责文档导入、采集、清洗和切块相关业务代码。
+LLM 与行为分析组：负责抽取、分析、Prompt 调用和结果校验相关业务代码。
+图谱与前端组：负责图谱查询、路径查询、graph.json 消费和展示相关业务代码。
+报告答辩与测试组：负责评测接口、验收脚本、报告数据输出和演示验证相关代码。
+```
+
+后端工作必须遵守：
+
+1. 不随意修改 API 契约。
+2. 不随意修改数据契约。
+3. 不让 Neo4j 成为事实源。
+4. 不绕过 SQLite canonical graph。
+5. 涉及跨组字段变更时必须先让 `arch` 评审。
 
 ---
 
@@ -259,19 +262,48 @@ data/evaluation/evaluation_result.json
 ## 9. 文件归属
 
 ```text
-docs/*：架构与接口组维护，其他组提交变更前先沟通
+docs/*：架构与数据规范组维护，其他组提交变更前先沟通
 data/raw/*：数据与样本组维护
-data/evaluation/*：报告测试与答辩组维护
-backend/*：后端与数据层组维护
+data/evaluation/*：报告答辩与测试组维护
+backend/*：后端横向工作流，arch 牵头，各组按业务边界修改
 frontend/*：图谱与前端组维护
-scripts/*：后端与数据层组维护，架构组参与审核
+scripts/*：后端横向工作流或报告测试相关脚本，按任务归属维护，arch 参与审核
 ```
 
 ---
 
-## 10. 提交规范
+## 10. 分支命名建议
 
-完整 Git 流程、分支命名、MR / Pull Request 和 Force Push 规则见 [开发规范与 Git 流程](development-guidelines.md)。
+完整 Git 流程、MR / Pull Request 和 Force Push 规则见 [开发规范与 Git 流程](development-guidelines.md)。
+
+分支名支持两种格式。推荐带组别缩写，方便观察每个组的进度；如果任务很小，也可以不带组别字段。
+
+```text
+<type>/<group>/<task-name>
+<type>/<task-name>
+```
+
+正式组别缩写：
+
+```text
+arch：架构与数据规范组
+data：数据与样本组
+llm：LLM 抽取与分析组
+fe：图谱与前端组
+qa：报告答辩与测试组
+```
+
+示例：
+
+```text
+feat/arch/schema-v1
+feat/data/apt28-sample
+feat/llm/json-retry
+feat/fe/graph-detail
+feat/qa/golden-eval
+feat/graph-search
+fix/report-api
+```
 
 提交信息使用 Conventional Commits 的轻量格式，类型前缀用英文，冒号后的说明默认中文：
 
