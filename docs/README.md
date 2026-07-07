@@ -9,7 +9,8 @@
 | [`data-contract.md`](data-contract.md) | 数据层契约（18 张表设计、字段、ID 规则） |
 | [`stage-roadmap.md`](stage-roadmap.md) | 阶段路线图（S0~S4）与优先级 |
 | [`team-workflow.md`](team-workflow.md) | 团队协作流程与分工规范 |
-| [`development-guidelines.md`](development-guidelines.md) | 开发规范与提交约定 |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | 开发规范与提交约定 |
+| [`pull_request_template.md`](pull_request_template.md) | PR 模板，创建拉取请求时自动填充 |
 | [`docker-runtime.md`](docker-runtime.md) | Docker 部署与运行说明 |
 | [`reference-comparison.md`](reference-comparison.md) | 开源项目对比分析 |
 | [`references/course-requirements.md`](references/course-requirements.md) | 课程实验要求（脱敏） |

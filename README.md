@@ -45,7 +45,7 @@ LLM 接口：OpenAI-compatible API
 | 1 | [`README.md`](README.md) | 项目概述与运行方式 |
 | 2 | [`TODO.md`](TODO.md) | 当前进度与下一步任务 |
 | 3 | [`AGENTS.md`](AGENTS.md) | AI Agent 行为约束 |
-| 4 | [`docs/development-guidelines.md`](docs/development-guidelines.md) | 开发规范与 Git 流程 |
+| 4 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | 开发规范与 Git 流程 |
 | 5 | [`docs/team-workflow.md`](docs/team-workflow.md) | 团队协作与组别职责 |
 | 6 | [`docs/stage-roadmap.md`](docs/stage-roadmap.md) | 阶段路线与优先级 |
 | 7 | [`docs/architecture.md`](docs/architecture.md) | 系统架构设计 |
