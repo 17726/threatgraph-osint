@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://threatgraph-osint.local/schemas/graph.schema.json",
+  "title": "ThreatGraph Graph Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "schema_version",
+    "generated_at",
+    "exported_from",
+    "source_of_truth",
+    "nodes",
+    "edges",
+    "evidence",
+    "analysis"
+  ],
+  "properties": {
+    "version": {
+      "const": "2.0"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exported_from": {
+      "type": "string",
+      "enum": ["sqlite"]
+    },
+    "source_of_truth": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "analysis": {
+      "$ref": "#/$defs/analysis"
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "type",
+        "aliases",
+        "description",
+        "confidence",
+        "source_count",
+        "first_seen",
+        "last_seen",
+        "tags",
+        "evidence_ids"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/$defs/entity_type" },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "description": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "source_count": { "type": "integer", "minimum": 0 },
+        "first_seen": { "type": ["string", "null"] },
+        "last_seen": { "type": ["string", "null"] },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source",
+        "target",
+        "type",
+        "label",
+        "confidence",
+        "source_count",
+        "evidence_count",
+        "first_seen",
+        "last_seen",
+        "validation_status",
+        "evidence_ids"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/$defs/relation_type" },
+        "label": { "type": "string", "minLength": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "source_count": { "type": "integer", "minimum": 0 },
+        "evidence_count": { "type": "integer", "minimum": 0 },
+        "first_seen": { "type": ["string", "null"] },
+        "last_seen": { "type": ["string", "null"] },
+        "validation_status": { "type": "string", "enum": ["valid", "invalid"] },
+        "evidence_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "doc_id",
+        "chunk_id",
+        "entity_id",
+        "relation_id",
+        "text",
+        "evidence_type",
+        "quote_start",
+        "quote_end",
+        "source_url",
+        "source_type",
+        "source_name",
+        "published_at",
+        "retrieved_at",
+        "source_reliability",
+        "language"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "doc_id": { "type": "string", "minLength": 1 },
+        "chunk_id": { "type": ["string", "null"] },
+        "entity_id": { "type": ["string", "null"] },
+        "relation_id": { "type": ["string", "null"] },
+        "text": { "type": "string", "minLength": 1 },
+        "evidence_type": {
+          "type": "string",
+          "enum": ["direct_quote", "summary", "inference_support"]
+        },
+        "quote_start": { "type": ["integer", "null"], "minimum": 0 },
+        "quote_end": { "type": ["integer", "null"], "minimum": 0 },
+        "source_url": { "type": "string", "minLength": 1 },
+        "source_type": { "type": "string", "minLength": 1 },
+        "source_name": { "type": "string", "minLength": 1 },
+        "published_at": { "type": ["string", "null"] },
+        "retrieved_at": { "type": "string", "minLength": 1 },
+        "source_reliability": { "type": "string", "enum": ["A", "B", "C", "D", "unknown"] },
+        "language": { "type": "string", "enum": ["zh", "en"] }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mitre_mappings", "behavior_patterns", "inferred_relations"],
+      "properties": {
+        "mitre_mappings": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        },
+        "behavior_patterns": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        },
+        "inferred_relations": {
+          "type": "array",
+          "items": { "type": "object", "additionalProperties": true }
+        }
+      }
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "APT_GROUP",
+        "ORGANIZATION",
+        "PERSON",
+        "MALWARE",
+        "TOOL",
+        "CVE",
+        "TECHNIQUE",
+        "TARGET",
+        "COUNTRY",
+        "REGION",
+        "INDUSTRY",
+        "TIME",
+        "EVENT",
+        "CAMPAIGN",
+        "BEHAVIOR_PATTERN"
+      ]
+    },
+    "relation_type": {
+      "type": "string",
+      "enum": [
+        "USES",
+        "TARGETS",
+        "EXPLOITS",
+        "ATTRIBUTED_TO",
+        "AFFILIATED_WITH",
+        "LOCATED_IN",
+        "HAPPENED_AT",
+        "PART_OF",
+        "LEADS_TO",
+        "RELATED_TO",
+        "DISCOVERED_BY",
+        "CAUSES",
+        "HAS_BEHAVIOR"
+      ]
+    }
+  }
+}

@@ -75,13 +75,13 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 
 目标：先不依赖爬虫平台，用本地文本或 `document.json` 跑通真实样本文档到候选抽取、正式图谱和前端展示的闭环。
 
-1. [ ] **S1.1 冻结三份并行开发契约**（arch / be / fe / llm）
-   - [ ] 确定 `document.json` 的必填字段、可选字段、`schema_version` 和样例文件。
-   - [ ] 确定 `extraction_result.json` 的候选实体、候选关系、候选状态、校验结果、证据文本和 `confidence` 字段。
-   - [ ] 确定 `graph.json` 的 `nodes`、`edges`、`evidence`、`analysis`、`exported_from` 和 `source_of_truth` 字段。
-   - [ ] 明确字段归属：哪些字段属于文档层、候选层、正式图谱层和分析层。
-   - [ ] 明确实体类型、关系类型和最小合法关系矩阵。
-   - [ ] 给每份 JSON 放入至少 1 个可直接复用的样例。
+1. [x] **S1.1 冻结三份并行开发契约**（arch / be / fe / llm）
+   - [x] 确定 `document.json` 的必填字段、可选字段、`schema_version` 和样例文件。
+   - [x] 确定 `extraction_result.json` 的候选实体、候选关系、候选状态、校验结果、证据文本和 `confidence` 字段。
+   - [x] 确定 `graph.json` 的 `nodes`、`edges`、`evidence`、`analysis`、`exported_from` 和 `source_of_truth` 字段。
+   - [x] 明确字段归属：哪些字段属于文档层、候选层、正式图谱层和分析层。
+   - [x] 明确实体类型、关系类型和最小合法关系矩阵。
+   - [x] 给每份 JSON 放入至少 1 个可直接复用的样例。
 
 2. [ ] **S1.2 准备第一份真实样本文档**（data / qa）
    - [ ] 选择 1 个目标组织作为首个样本，建议先用 APT28。
@@ -250,9 +250,9 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 ## 最近下一步
 
 1. [ ] **冻结 JSON 契约**（arch / be / fe / llm）
-   - [ ] 提交 `document.json` 样例。
-   - [ ] 提交 `extraction_result.json` 样例。
-   - [ ] 提交 `graph.json` 样例。
+   - [x] 提交 `document.json` 样例。
+   - [x] 提交 `extraction_result.json` 样例。
+   - [x] 提交 `graph.json` 样例。
 
 2. [ ] **准备首个真实样本文档**（data）
    - [ ] 选定第一个目标组织。

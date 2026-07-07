@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_apt28_mitre_001_001",
+  "doc_id": "apt28_mitre_001",
+  "model_name": "manual-mock",
+  "prompt_version": "extract-v1",
+  "chunks": [
+    {
+      "chunk_id": "apt28_mitre_001_c001",
+      "entities": [
+        {
+          "name": "APT28",
+          "type": "APT_GROUP",
+          "aliases": ["Fancy Bear", "Sofacy"],
+          "description": "公开资料追踪的 APT 组织。",
+          "mention_text": "APT28",
+          "evidence_text": "APT28 is a publicly tracked threat group also known as Fancy Bear and Sofacy.",
+          "char_start": 0,
+          "char_end": 77,
+          "confidence": 0.95,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "name": "X-Agent",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "公开报告中提到的恶意软件。",
+          "mention_text": "X-Agent",
+          "evidence_text": "Public reporting links APT28 activity to phishing techniques and malware such as X-Agent.",
+          "char_start": 78,
+          "char_end": 166,
+          "confidence": 0.87,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "name": "Phishing",
+          "type": "TECHNIQUE",
+          "aliases": ["T1566"],
+          "description": "钓鱼相关初始访问技术。",
+          "mention_text": "phishing techniques",
+          "evidence_text": "Public reporting links APT28 activity to phishing techniques and malware such as X-Agent.",
+          "char_start": 78,
+          "char_end": 166,
+          "confidence": 0.84,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "name": "government and military organizations",
+          "type": "TARGET",
+          "aliases": ["government organizations", "military organizations"],
+          "description": "APT28 相关公开资料中的目标类型。",
+          "mention_text": "government and military organizations",
+          "evidence_text": "Reports describe APT28 targeting government and military organizations, including activity related to Ukraine.",
+          "char_start": 167,
+          "char_end": 270,
+          "confidence": 0.82,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "name": "Ukraine",
+          "type": "COUNTRY",
+          "aliases": [],
+          "description": "公开资料提到的相关国家。",
+          "mention_text": "Ukraine",
+          "evidence_text": "Reports describe APT28 targeting government and military organizations, including activity related to Ukraine.",
+          "char_start": 167,
+          "char_end": 270,
+          "confidence": 0.8,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "X-Agent",
+          "tail_type": "MALWARE",
+          "evidence_text": "Public reporting links APT28 activity to phishing techniques and malware such as X-Agent.",
+          "char_start": 78,
+          "char_end": 166,
+          "confidence": 0.87,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Phishing",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Public reporting links APT28 activity to phishing techniques and malware such as X-Agent.",
+          "char_start": 78,
+          "char_end": 166,
+          "confidence": 0.84,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "government and military organizations",
+          "tail_type": "TARGET",
+          "evidence_text": "Reports describe APT28 targeting government and military organizations, including activity related to Ukraine.",
+          "char_start": 167,
+          "char_end": 270,
+          "confidence": 0.82,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        }
+      ]
+    }
+  ]
+}

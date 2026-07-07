@@ -55,6 +55,34 @@ LLM 输出 -> SQLite extracted_* 候选表
 7. `entities` / `relations` 保留 `first_seen`、`last_seen`、`tags_json`，便于时间线和来源统计。
 8. `graph.json` 是导出快照，需要带 `exported_from` 和 `source_of_truth`，明确它不是事实源。
 
+### 1.2 当前冻结的契约文件
+
+Schema 文件：
+
+```text
+docs/schemas/document.schema.json
+docs/schemas/extraction-result.schema.json
+docs/schemas/graph.schema.json
+docs/schemas/relationship-matrix.md
+```
+
+可复制样例：
+
+```text
+data/examples/document.apt28.example.json
+data/examples/extraction_result.apt28.example.json
+data/examples/graph.apt28.example.json
+data/examples/golden.apt28.example.json
+```
+
+使用规则：
+
+1. data 组提交真实样本时，复制 `document.apt28.example.json` 后替换正文、来源和 `content_hash`。
+2. llm 组提交候选抽取时，复制 `extraction_result.apt28.example.json` 后替换候选实体和候选关系。
+3. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.example.json`。
+4. qa 做人工标准答案时，先从 `golden.apt28.example.json` 扩展。
+5. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
+
 ---
 
 ## 2. SQLite 文件

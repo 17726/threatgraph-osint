@@ -1,0 +1,22 @@
+{
+  "doc_id": "apt28_mitre_001",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": ["APT28"],
+  "source_url": "https://attack.mitre.org/groups/G0007/",
+  "source_type": "security_report",
+  "source_name": "MITRE ATT&CK",
+  "title": "APT28 - MITRE ATT&CK",
+  "language": "en",
+  "raw_text": "APT28 is a publicly tracked threat group also known as Fancy Bear and Sofacy. Public reporting links APT28 activity to phishing techniques and malware such as X-Agent. Reports describe APT28 targeting government and military organizations, including activity related to Ukraine.",
+  "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "published_at": null,
+  "retrieved_at": "2026-07-08T10:00:00+08:00",
+  "source_reliability": "A",
+  "tlp": "TLP:CLEAR",
+  "tags": ["mitre", "apt", "security_report"],
+  "metadata": {
+    "collector": "data",
+    "notes": "示例文件用于字段对齐，data 组提交真实样本时需要替换 raw_text 和 content_hash。"
+  }
+}
