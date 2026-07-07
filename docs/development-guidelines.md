@@ -263,11 +263,11 @@ docs/team-workflow.md
 再根据任务范围阅读：
 
 ```text
-前端任务：docs/api-contract.md
-后端横向工作流任务：docs/api-contract.md + docs/data-contract.md + docs/team-workflow.md
-LLM 任务：docs/data-contract.md + docs/architecture.md
-测试任务：docs/team-workflow.md + docs/references/course-requirements.md
-架构任务：docs/architecture.md + docs/api-contract.md + docs/data-contract.md
+fe 任务：docs/api-contract.md
+be 任务：docs/api-contract.md + docs/data-contract.md + docs/team-workflow.md
+llm 任务：docs/data-contract.md + docs/architecture.md
+qa 任务：docs/team-workflow.md + docs/references/course-requirements.md
+arch 任务：docs/architecture.md + docs/api-contract.md + docs/data-contract.md
 ```
 
 提醒 Agent：
