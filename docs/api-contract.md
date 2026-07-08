@@ -68,7 +68,7 @@ POST /api/v1/collection-runs
 GET  /api/v1/collection-runs/{collection_run_id}
 ```
 
-第一阶段可以先跳过网络采集，通过本地文本或 `document.json` 导入文档。课程验收增强阶段再实现三类来源的最小自动采集闭环，并写入 SQLite。复杂定时调度、增量 checkpoint、复杂去重和新情报自动入图属于后续增强。
+第一阶段可以先跳过网络采集，通过本地文本或 `data/documents/<target_group>/*.json` 导入文档。课程验收增强阶段再实现三类来源的最小自动采集闭环，并写入 SQLite。复杂定时调度、增量 checkpoint、复杂去重和新情报自动入图属于后续增强。
 
 `POST /sources` 请求：
 

@@ -52,7 +52,7 @@ Step 0 的意义是证明“前后端和数据层能连起来”，但它还不�
 输入：
 
 ```text
-本地文本文件或 document.json
+本地文本文件或 data/documents/<target_group>/*.json
 ```
 
 输出：
@@ -89,7 +89,7 @@ data/graph/graph.json
 
 1. 至少 1 个目标组织端到端跑通。
 2. SQLite 作为唯一事实源。
-3. `document.json`、`extraction_result.json`、`graph.json` 契约稳定。
+3. `data/documents/<target_group>/*.json`、`extraction_result.json`、`graph.json` 契约稳定。
 4. LLM 候选层和正式图谱层分离。
 5. 实体类型、关系类型、证据字段完成基础校验。
 6. FastAPI 提供图谱、实体详情、报告接口。
@@ -134,7 +134,7 @@ P0 不等于 Step 0。P0 是最终必须完成的最小能力集合。
 
 P0 包含：
 
-1. 本地文档或 `document.json` 导入。
+1. 本地文档或 `data/documents/<target_group>/*.json` 导入。
 2. 文档、切块、候选抽取、正式图谱、证据链的 SQLite 存储。
 3. LLM 候选层和正式图谱层分离。
 4. 实体类型、关系类型和证据字段基础校验。
@@ -213,7 +213,7 @@ MVP 用来证明“团队可以交付和继续开发”。
 
 应当在开工前定清楚的点：
 
-1. `document.json`、`extraction_result.json`、`graph.json` 契约。
+1. `data/documents/<target_group>/*.json`、`extraction_result.json`、`graph.json` 契约。
 2. `documents`、`extracted_*`、`entities/relations/evidence` 的归属。
 3. LLM 输出只进入候选层，不能直接进入正式图谱。
 4. 实体类型、关系类型和关系合法性校验。
