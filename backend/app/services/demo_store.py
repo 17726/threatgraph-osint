@@ -134,7 +134,7 @@ DEMO_EVIDENCE = [
         "chunk_id": "apt28_demo_001_c001",
         "entity_id": "apt_group:apt28",
         "relation_id": None,
-        "evidence_text": "多份公开安全报告将 APT28 描述为长期活跃并偏好政府、军事等高价值目标的威胁组织。",
+        "evidence_text": "公开知识库（如 MITRE ATT&CK）将 APT28 描述为长期活跃并偏好政府、军事等高价值目标的威胁组织。",
         "source_url": "https://attack.mitre.org/groups/G0007/",
         "source_type": "knowledge_base",
         "source_name": "MITRE ATT&CK",

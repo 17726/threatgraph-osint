@@ -13,7 +13,7 @@
       "name": "XAgent",
       "type": "MALWARE",
       "aliases": ["SPLM", "CHOPSTICK"],
-      "canonical_id": "malware:xagent"
+      "canonical_id": "malware:x-agent"
     },
     {
       "name": "Zebrocy",

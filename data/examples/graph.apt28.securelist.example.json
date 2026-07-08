@@ -19,7 +19,7 @@
       "evidence_ids": ["ev_apt28_securelist_001_001"]
     },
     {
-      "id": "malware:xagent",
+      "id": "malware:x-agent",
       "name": "XAgent",
       "type": "MALWARE",
       "aliases": ["SPLM", "CHOPSTICK"],
@@ -73,9 +73,9 @@
   ],
   "edges": [
     {
-      "id": "rel:apt_group:apt28:USES:malware:xagent",
+      "id": "rel:apt_group:apt28:USES:malware:x-agent",
       "source": "apt_group:apt28",
-      "target": "malware:xagent",
+      "target": "malware:x-agent",
       "type": "USES",
       "label": "使用",
       "confidence": 0.9,
@@ -152,8 +152,8 @@
       "id": "ev_apt28_securelist_001_002",
       "doc_id": "apt28_securelist_masha_bears_001",
       "chunk_id": "apt28_securelist_masha_bears_001_c001",
-      "entity_id": "malware:xagent",
-      "relation_id": "rel:apt_group:apt28:USES:malware:xagent",
+      "entity_id": "malware:x-agent",
+      "relation_id": "rel:apt_group:apt28:USES:malware:x-agent",
       "text": "Cleaned sample summary links SPLM, CHOPSTICK, and XAgent as the same second-stage tool family used in Sofacy activity.",
       "evidence_type": "summary",
       "quote_start": null,
