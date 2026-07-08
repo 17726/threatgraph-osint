@@ -1,0 +1,24 @@
+{
+  "doc_id": "kimsuky_066",
+  "target_group": "kimsuky",
+  "source_url": "https://thehackernews.com/2024/05/north-korean-hackers-deploy-new-golang.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "North Korean Hackers Deploy New Golang Malware 'Durian' Against Crypto Firms",
+  "language": "en",
+  "raw_text": "The North Korean threat actor tracked as Kimsuky has been observed deploying a previously undocumented Golang-based malware dubbed\nDurian\nas part of highly-targeted cyber attacks aimed at two South Korean cryptocurrency firms.\n\"Durian boasts comprehensive backdoor functionality, enabling the execution of delivered commands, additional file downloads, and exfiltration of files,\" Kaspersky\nsaid\nin its APT trends report for Q1 2024.\nThe attacks, which occurred in August and November 2023, entailed the use of legitimate software exclusive to South Korea as an infection pathway, although the precise mechanism used to manipulate the program is currently unclear.\nWhat's known is that the software establishes a connection to the attacker's server, leading to the retrieval of a malicious payload that kicks off the infection sequence.\nThe first-stage serves as an installer for additional malware and a means to establish persistence on the host. It also paves the way for a loader malware that eventually executes Durian.\nDurian, for its part, is employed to introduce more malware, including\nAppleSeed\n, Kimsuky's staple backdoor of choice, a custom proxy tool known as LazyLoad, as well as other legitimate tools like ngrok and Chrome Remote Desktop.\n\"Ultimately, the actor implanted the malware to pilfer browser-stored data including cookies and login credentials,\" Kaspersky said.\nA notable aspect of the attack is the use of LazyLoad, which has been previously put to use by Andariel, a sub-cluster within the\nLazarus Group\n, raising the possibility of a potential collaboration or a tactical overlap between the two threat actors.\nThe\nKimsuky group\nis known to be active since at least 2012, with its malicious cyber activities also monitored under the names APT43, Black Banshee, Emerald Sleet (formerly Thallium), Springtail, TA427, and Velvet Chollima.\nIt is assessed to be a subordinate element to the 63rd Research Center, a department within the Reconnaissance General Bureau (RGB), the hermit kingdom's premier military intelligence organization.\n\"Kimsuky actors' primary mission is to provide stolen data and valuable geopolitical insight to the North Korean regime by compromising policy analysts and other experts,\" the U.S. Federal Bureau of Investigation (FBI) and the National Security Agency (NSA)\nsaid\nin an alert earlier this month.\n\"Successful compromises further enable Kimsuky actors to craft more credible and effective spear-phishing emails, which can then be leveraged against more sensitive, higher-value targets.\"\nThe nation-state adversary has also been linked to spear-phishing campaigns that deliver a C#-based remote access trojan and information stealer called\nTutorialRAT\n(aka TutRAT) that utilizes Dropbox as a \"base for their attacks to evade threat monitoring,\" Broadcom-owned Symantec\nsaid\n.\n\"This campaign appears to be an extension of APT43's\nBabyShark threat campaign\nand employs typical spear-phishing techniques, including the use of shortcut (LNK) files,\" it added.\nThe development comes as the AhnLab Security Intelligence Center (ASEC) detailed a campaign orchestrated by another North Korean state-sponsored hacking group called\nScarCruft\nthat's targeting South Korean users with Windows shortcut (LNK) files that\nculminate\nin the deployment of\nRokRAT\n.\nThe adversarial collective, also known as APT37, InkySquid, RedEyes, Ricochet Chollima, and Ruby Sleet, is said to be\naligned\nwith North Korea's Ministry of State Security (MSS) and tasked with covert intelligence gathering in support of the nation's strategic military, political, and economic interests.\n\"The recently confirmed shortcut files (*.LNK) are found to be targeting South Korean users, particularly those related to North Korea,\" ASEC\nsaid\n.\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2024-05-10",
+  "crawl_time": "2026-07-08T08:20:57Z",
+  "tags": [
+    "Advanced Persistent Threat",
+    "APT43",
+    "cyber espionage",
+    "FBI",
+    "Golang",
+    "Kimsuky",
+    "lazarus group",
+    "LazyLoad",
+    "Malware",
+    "South Korea"
+  ]
+}

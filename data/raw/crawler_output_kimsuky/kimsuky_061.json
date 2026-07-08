@@ -1,0 +1,24 @@
+{
+  "doc_id": "kimsuky_061",
+  "target_group": "kimsuky",
+  "source_url": "https://thehackernews.com/2023/12/n-korean-kimsuky-targeting-south-korean.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "N. Korea's Kimsuky Targeting South Korean Research Institutes with Backdoor Attacks",
+  "language": "en",
+  "raw_text": "The North Korean threat actor known as\nKimsuky\nhas been observed targeting research institutes in South Korea as part of a spear-phishing campaign with the ultimate goal of distributing backdoors on compromised systems.\n\"The threat actor ultimately uses a backdoor to steal information and execute commands,\" the AhnLab Security Emergency Response Center (ASEC)\nsaid\nin an analysis posted last week.\nThe attack chains commence with an import declaration lure that's actually a malicious JSE file containing an obfuscated PowerShell script, a Base64-encoded payload, and a decoy PDF document.\nThe next stage entails opening the PDF file as a diversionary tactic, while the PowerShell script is executed in the background to launch the backdoor.\nThe malware, for its part, is configured to collect network information and other relevant data (i.e., host name, user name, and operating system version) and transmit the encoded details to a remote server.\nIt's also capable of running commands, executing additional payloads, and terminating itself, turning it into a backdoor for remote access to the infected host.\nKimsuky, active since at least 2012, started off targeting South Korean government entities, think tanks, and individuals identified as experts in various fields, before expanding its victimology footprint to encompass Europe, Russia, and the U.S.\nEarlier this month, the U.S. Treasury Department\nsanctioned\nKimsuky for gathering intelligence to support North Korea's strategic objectives, including geopolitical events, foreign policy, and diplomatic efforts.\n\"Kimsuky has focused its intelligence collection activities on foreign policy and national security issues related to the Korean peninsula, nuclear policy, and sanctions,\" cybersecurity firm ThreatMon\nnoted\nin a recent report.\nThe state-sponsored group has also been observed leveraging booby-trapped URLs that, when clicked, download a bogus ZIP archive masquerading as an update for the Chrome browser to deploy a malicious VBScript from Google Drive that employs the cloud storage as a conduit for data exfiltration and command-and-control (C2).\nLazarus Group Goes Phishing on Telegram\nThe development comes as blockchain security company SlowMist implicated the notorious North Korea-backed outfit called the Lazarus Group in a widespread phishing campaign on Telegram targeting the cryptocurrency sector.\n\"More recently, these hackers have escalated their tactics by posing as reputable investment institutions to execute phishing scams against various cryptocurrency project teams,\" the Singapore-based firm\nsaid\n.\nAfter establishing rapport, the targets are deceived into downloading a malicious script under the guise of sharing an online meeting link that facilitates crypto theft.\nIt also follows a report from the Seoul Metropolitan Police Agency (SMPA) that\naccused\nthe Lazarus sub-cluster codenamed\nAndariel\nof stealing technical information about anti-aircraft weapon systems from domestic defense companies and laundering ransomware proceeds back to North Korea.\nIt is estimated that more than 250 files amounting to 1.2 terabytes have been stolen in the attacks. To cover up the tracks, the adversary is said to have used servers from a local company that \"rents servers to subscribers with unclear identities\" as an entry point.\nIn addition, the group extorted 470 million won ($356,000) worth of bitcoin from three South Korean firms in ransomware attacks and laundered them through virtual asset exchanges such as Bithumb and Binance. It's worth noting that Andariel has been linked to the deployment of\nMaui ransomware\nin the past.\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2023-12-08",
+  "crawl_time": "2026-07-08T08:21:20Z",
+  "tags": [
+    "AhnLab",
+    "Blockchain",
+    "cryptocurrency",
+    "cyber espionage",
+    "Cyber Threat",
+    "data exfiltration",
+    "Kimsuky",
+    "lazarus group",
+    "ransomware",
+    "Spear Phishing"
+  ]
+}

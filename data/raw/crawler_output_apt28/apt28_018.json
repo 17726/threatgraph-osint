@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_018",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/articles/system/289042.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "apt28样本大乱调",
+  "language": "zh",
+  "raw_text": "背景介绍\n\nAPT28是一个疑似具有俄罗斯政治背景的APT组织。情报如下图（https://www.yuque.com/p1ut0/qtmgyx/iuzruy#fCnk4）\n\n样本来源于沙箱app.any.run:https://app.any.run/tasks/d6a8d1db-52c8-4371-b6d3-bf740408bb10/\n\n文件pe信息\n\n火绒剑和网络流量捕获\n火绒剑\n\n打开界面如下\n\n过滤->进程过滤->添加进程->开始监控，运行病毒样本\n\n执行监控\n\n文件监控\n\n注册表监控\n\n网络流量捕获\n\n这里所用为fakenet，右键->管理员身份运行，部分流量如下\n\n动态调试&静态分析\nDropper分析\n\nloc_40140C\n\nsub_1301DEF执行自解密模块，会解密出 system32等字符串，同时解密出RtlGetCompressionWorkSpaceSize、RtlDecompressBuffer两个函数。\n\n14b9\n\n1e34\n\n对应的静态代码如下\n\n随后利用loadLibrary加载库文件然后进行相关地址的获取\n\nloadLibrary运行结果如下\n\nGetProcAddress执行结果如下\n\n随后调用上面获取的函数地址\n\n接着调用了RtlDecompressBuffer释放pe文件，执行前\n\n接着调用了RtlDecompressBuffer释放pe文件，执行前\n\n执行后\n\n该函数主要完成pe文件的释放操作\n\n155B\n\n函数主要做if判断后然以后跳转到对应位置进行执行\n\n函数在401571位置处执行call函数后调用LoadLibraryW函数加载dll函数\n\n264c\n\n函数内部调用1def进行解密处理，首次处理结果如下\n\n为rundll32.exe\n\n第二次进行解密结果\n\n第三次解密结果\n\n第四次\n\n第五次\n\n第六次\n\n第七次\n\n278E\n\n这里执行结果为 RegOpenKeyExW操作注册表函数\n\n调用createFileA进行文件的创建\n\n创建的文件名如下\n\n写入的文件内容如下\n\n收尾函数，获取启动相关进程分配堆块，然后进行销毁\n\n函数返回后进行字符串拼接\n\n写入注册表\n\n释放文件的pe文件的dos头\n\n创建注册表UserInitMprlogonScript\n\n该函数最后主要完成写入注册表操作，完成免杀。\n\n1707\n\n该处有个关于1707的调用\n\n内部调用三次1def函数进行解密，结果如下\n\n1d09\n\n内部函数如下，获取进程的执行权限\n\n获取执行权限后，带参数执行如下\n\n后通过deletefile函数清除文件\n\nDll文件静态分析\n\n首先文件内执行的内容为\n\n接着分析cdnver.dll文件内，我们首先考虑寻找特定字符串cdnver，相关函数部分如下\n\n创建进程前压入了sub_10002CA0，相关参数解释为远程进程中线程过程的起始地址，该处为相关马的入口\n\n2CA0\n\n函数进入以后会调用如下函数\n\n2cfd\n\n函数内如下\n\n函数执行流程如下\n\n获取调试信息\n\n读入dll文件\n\nLoadLibraryExA加载文件\n\n解密函数部分\n\n20c0\n\n函数如下\n\n解密结果\n\nGethostname\n\n获取主机信息\n\nGetVolumeinfomationW\n\n获取磁盘信息\n\n36FB\n\n请求头\n\n5262\n\n操作注册表\n\n写入Domain\n\n52f3\n\n访问网络\n\n548c\n\n解密cdnverify.net\n\n威胁情报查询\n\n586a\n\n函数内进行加密\n\n跳转到2d8f进行加密base64加密\n\nTW96aWxsYS80LjAgKGNvbXBhdGlibGU7IE1TSUUgNy4wOyBXaW5kb3dzIE5UIDYuMTsgV09XNjQ7IFRyaWRlbnQvNC4wOyBTTEND\n\n进行网络请求相关函数\n\n第一个\n\n第二个\n\n收集的信息\n\n提交数据方式\n\n文章参考：\n\n一例APT28(Fancybear)样本详细分析 https://www.yuque.com/p1ut0/qtmgyx/iuzruy#17RRg",
+  "published_date": "2021-09-17",
+  "crawl_time": "2026-07-07T16:21:30Z",
+  "tags": [
+    "系统安全"
+  ]
+}

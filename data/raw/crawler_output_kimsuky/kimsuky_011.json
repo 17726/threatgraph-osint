@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_011",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/news/253969.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "朝鲜黑客组织Kimsuky战术披露，曝迄今未记录的恶意组件",
+  "language": "zh",
+  "raw_text": "APT组织“ Kimsuky”，据悉最早于2012年开始活动。该组织因为全球性的广泛攻击行动而臭名昭著，主要针对韩国智囊团、美国、俄罗斯和欧洲各个国家。\n\n目前，Kimsuky已与多达三种迄今未记录的恶意软件相关联，其中包括一个信息窃取程序，一个配备了恶意软件反分析功能的工具，以及一个新的服务器基础设施（与旧的间谍框架有很大的重叠）。\n\n技术细节\n\n上周，联邦调查局与国防部和国土安全部联合发布了一份备忘录，详细介绍了Kimsuky的技术细节。\n\n初始访问\n\n大多数情况下，Kimsuky利用鱼叉式网络钓鱼和社会工程学的技巧来获得对受害者网络的初步访问。此外，还会利用以安全警报为主题的网络钓鱼电子邮件、水坑攻击，通过torrent共享站点分发恶意软件，以及指示受害者安装恶意浏览器扩展程序等获取访问权限的手段。\n\n执行\n\n获得初始访问权限后，Kimsuky使用BabyShark恶意软件和PowerShell或Windows Command Shell执行。其中，BabyShark是基于Visual Basic脚本（VBS）的恶意软件，往往通过包含链接或附件的电子邮件传递。\n\n维持权限\n\nKimsuky通过使用恶意浏览器扩展，修改系统进程，操纵执行，使用远程桌面协议（RDP）以及更改应用程序的默认文件关联等手段，从而获取登录名和密码信息，或在某些应用程序允许列表解决方案之外启动恶意软件。\n\n特权提升\n\n在特权提升方面，Kimsuky使用的是众所周知的方法：将脚本放入Startup文件夹，创建和运行新服务，更改默认文件关联以及注入恶意代码。\n\n防御规避\n\n包括禁用安全工具，删除文件以及使用Metasploit等。\n\n凭证访问\n\nKimsuky使用合法工具和网络嗅探器从Web浏览器、文件和键盘记录器中收集相关凭证。\n\n发送嵌入BabyShark恶意软件的电子邮件\n\n新的恶意组件\n\n近几个月来，Kimsuky被归因于许多以冠状病毒为主题的邮件攻击活动，以邮件中包含的武器化Word文档为其感染媒介，在受害者计算机上发起恶意软件攻击。\n\n现在，据Cybereason称，名为“ KGH_SPY”的模块化间谍软件套件有了新功能，可以对目标网络进行侦察，捕获击键并窃取敏感信息。\n\n除此之外，KGH_SPY后门还可以从C2服务器下载辅助负载，通过cmd.exe或PowerShell执行任意命令，甚至可以从Web浏览器，Windows凭据管理器，WINSCP和邮件客户端中获取凭据。\n\n同样值得注意的是，还发现了一种名为“ CSPY Downloader”的新恶意软件，该恶意软件旨在逃避分析和下载额外有效负载的工具。\n\n最后，研究人员还发现了在2019-2020年之间注册的新工具集基础架构，该基础架构与该组织的BabyShark恶意软件重叠。\n\n不同Kimsuky域的基础结构图及其之间的重叠\n\n最后，虽然这次活动的受害者仍不清楚，但有线索表明，这些基础设施针对的是处理侵犯人权行为的组织。未来，Kimsuky可能会针对许多行业、组织和个人进行攻击。\n\n参考来源\n\nhttps://us-cert.cisa.gov/ncas/alerts/aa20-301a\n\nhttps://thehackernews.com/2020/11/new-kimsuky-module-makes-north-korean.html",
+  "published_date": "2020-11-04",
+  "crawl_time": "2026-07-07T17:20:51Z",
+  "tags": [
+    "资讯"
+  ]
+}

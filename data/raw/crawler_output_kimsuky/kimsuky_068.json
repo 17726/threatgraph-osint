@@ -1,0 +1,22 @@
+{
+  "doc_id": "kimsuky_068",
+  "target_group": "kimsuky",
+  "source_url": "https://thehackernews.com/2024/05/nsa-fbi-alert-on-n-korean-hackers.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "NSA, FBI Alert on N. Korean Hackers Spoofing Emails from Trusted Sources",
+  "language": "en",
+  "raw_text": "The U.S. government on Thursday published a new cybersecurity advisory warning of North Korean threat actors' attempts to send emails in a manner that makes them appear like they are from legitimate and trusted parties.\nThe joint bulletin was published by the National Security Agency (NSA), the Federal Bureau of Investigation (FBI), and the Department of State.\n\"The DPRK [Democratic People's Republic of Korea] leverages these spear-phishing campaigns to collect intelligence on geopolitical events, adversary foreign policy strategies, and any information affecting DPRK interests by gaining illicit access to targets' private documents, research, and communications,\" the NSA\nsaid\n.\nThe technique specifically concerns exploiting improperly configured DNS Domain-based Message Authentication, Reporting, and Conformance (\nDMARC\n) record policies to conceal social engineering attempts. In doing so, the threat actors can send spoofed emails as if they are from a legitimate domain's email server.\nThe abuse of weak DMARC policies has been attributed to a North Korean activity cluster tracked by the cybersecurity community under the name\nKimsuky\n(aka APT43, Black Banshee, Emerald Sleet, Springtail, TA427, and Velvet Chollima), which is a sister collective to the Lazarus Group and is affiliated with the Reconnaissance General Bureau (RGB).\nProofpoint, in a\nreport\npublished last month, said that Kimsuky began to incorporate this method in December 2023 as part of broader efforts to target foreign policy experts for their opinions on topics related to nuclear disarmament, U.S.-South Korea policies, and sanctions.\nDescribing the adversary as a \"savvy social engineering expert,\" the enterprise security firm said the hacking group is known to engage its targets for extended periods of time through a series of benign conversations to build trust with them using various aliases that impersonate DPRK subject matter experts in thinks tanks, academia, journalism, and independent research.\n\"Targets are often requested to share their thoughts on these topics via email or a formal research paper or article,\" Proofpoint researchers Greg Lesnewich and Crista Giering said.\n\"Malware or credential harvesting are never directly sent to the targets without an exchange of multiple messages, and [...] rarely utilized by the threat actor. It is possible that TA427 can fulfill its intelligence requirements by directly asking targets for their opinions or analysis rather than from an infection.\"\nThe company also noted that many of the entities that TA427 has spoofed either did not enable or enforce DMARC policies, thus allowing such email messages to get around security checks and ensure delivery even if those checks fail.\nFurthermore, Kimsuky has been observed using \"free email addresses spoofing the same persona in the reply-to field to convince the target that they are engaging with legitimate personnel.\"\nIn one email highlighted by the U.S. government, the threat actor posed as a legitimate journalist seeking an interview from an unnamed expert to discuss North Korea's nuclear armament plans, but openly noted that their email account would be blocked temporarily and urged the recipient to respond to them on their personal email, which was a fake account mimicking the journalist.\nThis indicates that the phishing message was originally sent from the journalist's compromised account, thus increasing the chances that the victim would reply to the alternative fake account.\nOrganizations are recommended to update their DMARC policies to instruct their email servers to treat email messages that fail the checks as suspicious or spam (i.e.,\nquarantine or reject\n) and receive aggregate feedback reports by setting up an email address in the\nDMARC record\n.\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2024-05-03",
+  "crawl_time": "2026-07-08T08:21:00Z",
+  "tags": [
+    "Credential Harvesting",
+    "cybersecurity",
+    "DMARC",
+    "Kimsuky",
+    "Malware",
+    "North Korean hackers",
+    "Proofpoint",
+    "social engineering"
+  ]
+}

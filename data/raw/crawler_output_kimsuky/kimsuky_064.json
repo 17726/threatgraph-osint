@@ -1,0 +1,21 @@
+{
+  "doc_id": "kimsuky_064",
+  "target_group": "kimsuky",
+  "source_url": "https://thehackernews.com/2024/03/n-korea-linked-kimsuky-shifts-to.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "N. Korea-linked Kimsuky Shifts to Compiled HTML Help Files in Ongoing Cyberattacks",
+  "language": "en",
+  "raw_text": "The North Korea-linked threat actor known as\nKimsuky\n(aka Black Banshee, Emerald Sleet, or Springtail) has been observed shifting its tactics, leveraging Compiled HTML Help (CHM) files as vectors to deliver malware for harvesting sensitive data.\nKimsuky, active since at least 2012, is known to target entities located in South Korea as well as North America, Asia, and Europe.\nAccording to Rapid7, attack chains have leveraged weaponized Microsoft Office documents, ISO files, and Windows shortcut (LNK) files, with the group also employing CHM files to\ndeploy malware\non\ncompromised hosts\n.\nThe cybersecurity firm has attributed the activity to Kimsuky with moderate confidence, citing similar tradecraft observed in the past.\n\"While originally designed for help documentation, CHM files have also been exploited for malicious purposes, such as distributing malware, because they can execute JavaScript when opened,\" the company\nsaid\n.\nThe CHM file is propagated within an ISO, VHD, ZIP, or RAR file, opening which executes a Visual Basic Script (VBScript) to set up persistence and reach out to a remote server to fetch a next-stage payload responsible for gathering and exfiltrating sensitive data.\nRapid7 described the attacks as ongoing and evolving, targeting organizations based in South Korea. It also identified an alternate infection sequence that employs a CHM file as a starting point to drop batch files tasked with harvesting the information and a PowerShell script to connect to the C2 server and transfer the data.\n\"The modus operandi and reusing of code and tools are showing that the threat actor is actively using and refining/reshaping its techniques and tactics to gather intelligence from victims,\" it said.\nThe development comes as Broadcom-owned Symantec revealed that the Kimsuky actors are distributing malware\nimpersonating an application\nfrom a legitimate Korean public entity.\n\"Once compromised, the dropper installs an Endoor backdoor malware,\" Symantec\nsaid\n. \"This threat enables attackers to collect sensitive information from the victim or install additional malware.\"\nIt's worth noting that the Golang-based Endoor, alongside Troll Stealer (aka TrollAgent), has been recently deployed\nin connection with cyber attacks\nthat target users downloading security programs from a Korean construction-related association's website.\nThe findings also arrive amid a probe initiated by the United Nations into 58 suspected cyber attacks carried out by North Korean nation-state actors between 2017 and 2023 that\nnetted $3 billion in illegal revenues\nto help it further\ndevelop its nuclear weapons program\n.\n\"The high volume of cyber attacks by hacking groups subordinate to the Reconnaissance General Bureau reportedly continued,\" the report\nsaid\n. \"Trends include targeting\ndefense companies\nand supply chains and, increasingly, sharing infrastructure and tools.\"\nThe Reconnaissance General Bureau (RGB) is North Korea's primary foreign intelligence service, comprising the\nthreat clusters\nwidely tracked as the Lazarus Group – and its subordinate elements, Andariel and BlueNoroff – and Kimsuky.\n\"Kimsuky has shown interest in using generative artificial intelligence, including large language models, potentially for coding or writing phishing emails,\" the report further added. \"Kimsuky has been observed using ChatGPT.\"\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2024-03-24",
+  "crawl_time": "2026-07-08T08:21:03Z",
+  "tags": [
+    "artificial intelligence",
+    "cyber espionage",
+    "Generative AI",
+    "information technology",
+    "Kimsuky",
+    "Malware",
+    "rapid7"
+  ]
+}

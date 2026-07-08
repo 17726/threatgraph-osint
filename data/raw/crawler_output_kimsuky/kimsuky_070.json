@@ -1,0 +1,23 @@
+{
+  "doc_id": "kimsuky_070",
+  "target_group": "kimsuky",
+  "source_url": "https://thehackernews.com/2024/09/n-korean-hackers-deploy-new-klogexe-and.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "N. Korean Hackers Deploy New KLogEXE and FPSpy Malware in Targeted Attacks",
+  "language": "en",
+  "raw_text": "Threat actors with ties to North Korea have been observed leveraging two new malware strains dubbed KLogEXE and FPSpy.\nThe activity has been attributed to an adversary tracked as\nKimsuky\n, which is also known as APT43, ARCHIPELAGO, Black Banshee, Emerald Sleet (formerly Thallium), Sparkling Pisces, Springtail, and Velvet Chollima.\n\"These samples enhance Sparkling Pisces' already extensive arsenal and demonstrate the group's continuous evolution and increasing capabilities,\" Palo Alto Networks Unit 42 researchers Daniel Frank and Lior Rochberger\nsaid\n.\nActive since at least 2012, the threat actor has been called the \"king of spear-phishing\" for its ability to trick victims into downloading malware by\nsending emails\nthat make it seem like they are from trusted parties.\nUnit 42's analysis of Sparkling Pisces' infrastructure has uncovered two new portable executables referred to as KLogEXE and FPSpy.\n\"These malware strains are known to be delivered primarily via spear-phishing attacks,\" Assaf Dahan, Director of Threat Research at Unit 42, Palo Alto Networks, told The Hacker News via email.\n\"Based on the information available to us, it appears that the operators of Sparkling Pisces in this campaign favor social engineering attacks in the form of spear-phishing emails sent to their targets.\"\n\"These carefully crafted emails have a language designed to lure the targets into downloading a ZIP file attached to the email. The targets are often encouraged to extract malicious files, which upon execution invoke the infection chain – eventually delivering these malware strains.\"\nKLogExe is a C++ version of the PowerShell-based keylogger named InfoKey that was\nhighlighted\nby JPCERT/CC in connection with a Kimsuky campaign targeting Japanese organizations.\nThe malware comes equipped with capabilities to collect and exfiltrate information about the applications currently running on the compromised workstation, keystrokes typed, and mouse clicks.\nOn the other hand, FPSpy is said to be a variant of the backdoor that AhnLab\ndisclosed\nin 2022, with overlaps identified to a malware that Cyberseason documented under the name\nKGH_SPY\nin late 2020.\nFPSpy, in addition to keylogging, is also engineered to gather system information, download and execute more payloads, run arbitrary commands, and enumerate drives, folders, and files on the infected device.\nUnit 42 said it was also able to identify points of similarities in the source code of both KLogExe and FPSpy, suggesting that they are likely the work of the same author.\n\"While Sparkling Pisces (aka Kimsuky) has previously attacked multiple regions and industries, their primary targets in this campaign appear to be Japanese and South Korean organizations,\" Dahan said.\n\"Due to the nature of these campaigns, which is considered to be targeted and handpicked, we assess that it is not likely vastly widespread, but rather contained to a few select countries (mainly Japan and South Korea) and a handful of industries.\"\n(The story was updated after publication to include responses from Palo Alto Networks Unit 42.)\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2024-09-26",
+  "crawl_time": "2026-07-08T08:20:47Z",
+  "tags": [
+    "Advanced Persistent Threat",
+    "APT Threat",
+    "Cyber Attack",
+    "cybersecurity",
+    "keylogger",
+    "Kimsuky",
+    "Malware",
+    "North Korea",
+    "Phishing"
+  ]
+}

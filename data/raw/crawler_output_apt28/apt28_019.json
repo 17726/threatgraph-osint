@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_019",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/news/379281.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "无人机操作手册成诱饵？乌克兰军事实体遭遇钓鱼攻击",
+  "language": "zh",
+  "raw_text": "The Hacker News 网站披露，乌克兰军事实体组织近期成为一起网络钓鱼攻击活动的目标，某些网络犯罪分子利用无人机服务手册为诱饵，传播一种名为 Merlin 的工具包（基于 Go 语言开发）。\n\n网络安全公司 Securonix 研究人员 Den Iuzvyk、Tim Peck 和 Oleg Kolesnikov 向 The Hacker News 透露，无人机/无人驾驶飞行器（UAV）一直以来都是乌克兰军方惯用的军事手段，因此以 UAV 服务手册为主题的恶意软件“引诱文件”，就成为网络攻击者常用的方式之一。\n\n目前， Securonix 正在以 STARK#VORTEX 为名追踪这一网络攻击活动。\n\n经过安全研究人员分析，此次钓鱼攻击从一个微软编译的 HTML帮助（CHM）文件开始发起，一旦打开后，便会运行嵌入在其中一个 HTML 页面中的恶意 JavaScript，然后执行旨在联系远程服务器获取混淆二进制文件的 PowerShell 代码。\n\n随后，解码基于 Windows 的有效载荷，提取 Merlin Agent，Merlin Agent 又被配置为与命令与控制 (C2) 服务器通信，以方便网络攻击者进行后期开发行动，从而有效夺取主机控制权。\n\n研究人员强调虽然本次攻击的攻击链相当简单，但网络攻击者利用了一些相当复杂的技术手段和混淆方法来逃避检测。\n\n值得一提的是，2023 年 8 月初，乌克兰计算机应急小组（CERT-UA）曾披露了一个类似的攻击链，网络攻击者利用 CHM 文件作为诱饵，用开源工具感染受害者计算机系统。\n\nCERT-UA 将攻击活动归咎于其监控的一个名为 UAC-0154 的网络攻击组织。\n\n研究人员指出攻击链中使用的文件和文档能够很好地绕过防御系统，通常情况下，通过互联网接收微软帮助文件会被认为极不寻常。\n\n最后，CERT-UA 表示其在几周前，检测到了俄罗斯国家支持的名为 APT28 的组织对该国一个未命名的关键能源基础设施发动了网络攻击，但未获成功。\n\n文章来源：\n\nhttps://thehackernews.com/2023/09/ukrainian-military-targeted-in-phishing.html",
+  "published_date": "2023-09-26",
+  "crawl_time": "2026-07-07T16:22:05Z",
+  "tags": [
+    "资讯"
+  ]
+}

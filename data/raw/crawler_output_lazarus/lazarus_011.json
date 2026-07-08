@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_011",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/articles/system/218901.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "疑似Lazarus针对双平台的攻击活动披露",
+  "language": "zh",
+  "raw_text": "概括\n\nLazarus APT组织是一个长期活跃的组织，因为2014年攻击索尼影业而开始受到广泛关注，该组织早期主要针对韩国，美国等国家的政府机构进行攻击活动，以窃取情报等信息为目的。自2014年后，该组织开始针对全球金融机构，加密交易机构等为目标，进行敛财活动。\n\n近期，奇安信威胁情报中心红雨滴团队在日常的APT样本追踪中，捕获一例利用心理测验为诱饵的Lazarus攻击样本，该样本通过宏释放powershell脚本执行,从而控制受害者计算机。奇安信威胁情报中心通过溯源关联，捕获另一例针对Macos的攻击样本，并在发现此次攻击活动的第一时间通过社交媒体进行预警。\n\n样本分析\n诱饵文档\nMD5\t6850189bbf5191a76761ab20f7c630ef\n作者\tWindows User\n修改时间\t2019:10:22 02:53:14\n\n本次攻击活动攻击者使用心里测验相关内容为诱饵，诱导用户启用宏：\n\n启用宏需点击笑脸，从而执行恶意宏代码：\n\n之后将powershell代码写入到%temp%目录下并通过powershell.exe执行：\n\nPowershell\n\n释放的powershell脚本是一个后门，硬编码了三个c2：\n\n执行后与内置的c2服务器进行通信，若通信失败，则休眠一段事件尝试连接其他c2：\n\n从c2获取命令执行，根据不同的命令执行不同功能：\n\n支持的命功能如下表所示：\n\n命令\t功能\n2\t设置休眠时间\n3\t结束本进程\n11\t获取本机基本信息上传\n12\t检查恶意程序当前状态\n14\t显示当前恶意程序配置\n15\t更新恶意程序c2等配置\n18\t通过cmd执行命令\n20\t上传指定文件\n21\t下载文件保存到指定文件\n24\t执行命令\n\n获取本机计算机名，ip地址，系统版本号等信息上传：\n\n通过cmd执行c2命令：\n\n更新c2服务器配置：\n\n上传指定文件：\n\n下载文件保存到指定位置：\n\nMacos Backdoor\n\n经关联分析，奇安信威胁情报中心关联使用相同c2针对MacOS 平台的攻击样本，样本基本信息如下：\n\n文件名\tAlbum.app.zip\nMD5\ta8096ddf8758a79fdf68753190c6216a\n\n该文件包含一个正常的.FlashPlayer文件，而恶意程序隐藏在Flash Player中：\n\n运行后首先从偏移1340，截取大小0x6c74的数据保存到.FlashUpdateCheck：\n\n之后写入配置文件com.adobe.macromedia.flash.plist，并通过launchctl load加载配置文件，从而使配置文件生效实现.FlashUpdateCheck的自启动：\n\n使用chmod命令提升.FlashUpdateCheck权限：\n\n文件名\t.FlashUpdateCheck\nMD5\tbac54e7199bd85afa5493e36d3f193d2   \n\n该文件具有后门功能，功能与powershell后门基本一致。同样硬编码了三个c2：\n\n运行后与c2通信获取c2指令：\n\n之后根据c2指令执行不同功能：\n\n功能列表如下：\n\n命令\t功能\n2\t设置休眠时间\n3\t结束本进程\n11\t获取本机基本信息上传\n12\t检查恶意程序当前状态\n14\t显示当前恶意程序配置\n15\t更新恶意程序c2等配置\n18\t通过bash执行命令\n19\t执行其他命令\n20\t上传指定文件\n21\t下载文件\n24\t通过system执行\n25\t通过system执行\n溯源关联\n\n通过对本次攻击活动的后门以及ttps分析，奇安信威胁情报中心判断本次攻击活动的幕后黑手是Lazarus。\n\n相似的后门\n\nPowershell基本一致：\n\nMacos 样本主要流程基本一致：\n\n且c2在奇安信威胁情报大数据平台（ti.qianxin.com）已打上Lazarus标签：\n\n综上，本次捕获的攻击样本应该是出自臭名昭著的Lazarus APT团伙。\n\n总结\n\nLazarus 团伙是一个长期活跃的APT组织，武器库十分强大，拥有对多平台进行攻击的能力，近年来，该团伙多次被安全厂商披露，但从未停止进攻的脚本，反而越发活跃，攻击目标也越发广泛。同时，该团伙也多次针对国内进行攻击活动，企业用户在日常的工作中，切勿随意打开来历不明的邮件附件。\n\n目前，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括奇安信威胁情报平台（TIP）、天擎、天眼高级威胁检测系统、奇安信NGSOC等，都已经支持对此类攻击的精确检测。\n\nIOC\n\n6850189bbf5191a76761ab20f7c630ef\n\na8096ddf8758a79fdf68753190c6216a\n\nhxxps://crabbedly.club/board.php\n\nhxxps://craypot.live/board.php\n\nhtxxps://indagator.club/board.php\n\n参考链接：\n\nhttps://securelist.com/cryptocurrency-businesses-still-being-targeted-by-lazarus/90019/\n\n*本文作者：奇安信威胁情报中心，转载请注明来自FreeBuf.COM",
+  "published_date": "2019-11-16",
+  "crawl_time": "2026-07-07T16:57:28Z",
+  "tags": [
+    "系统安全"
+  ]
+}

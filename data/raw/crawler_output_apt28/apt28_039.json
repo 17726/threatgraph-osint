@@ -1,0 +1,21 @@
+{
+  "doc_id": "apt28_039",
+  "target_group": "apt28",
+  "source_url": "https://thehackernews.com/2023/12/russian-apt28-hackers-targeting-13.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "Russian APT28 Hackers Targeting 13 Nations in Ongoing Cyber Espionage Campaign",
+  "language": "en",
+  "raw_text": "The Russian nation-state threat actor known as\nAPT28\nhas been observed making use of lures related to the ongoing Israel-Hamas war to facilitate the delivery of a custom backdoor called HeadLace.\nIBM X-Force is tracking the adversary under the name ITG05, which is also known as BlueDelta, Fancy Bear, Forest Blizzard (formerly Strontium), FROZENLAKE, Iron Twilight, Sednit, Sofacy, and TA422.\n\"The newly discovered campaign is directed against targets based in at least 13 nations worldwide and leverages authentic documents created by academic, finance and diplomatic centers,\" security researchers Golo Mühr, Claire Zaboeva, and Joe Fasulo\nsaid\n.\n\"ITG05's infrastructure ensures only targets from a single specific country can receive the malware, indicating the highly targeted nature of the campaign.\"\nTargets of the campaign include Hungary, Türkiye, Australia, Poland, Belgium, Ukraine, Germany, Azerbaijan, Saudi Arabia, Kazakhstan, Italy, Latvia, and Romania.\nThe campaign involves the use of decoys that are designed to primarily single out European entities with a \"direct influence on the allocation of humanitarian aid,\" leveraging documents associated with the United Nations, the Bank of Israel, the U.S. Congressional Research Service, the European Parliament, a Ukrainian think tank, and an Azerbaijan-Belarus Intergovernmental Commission.\nSome of the attacks have been found to employ RAR archives exploiting the WinRAR flaw called CVE-2023-38831 to propagate\nHeadLace\n, a backdoor that was first disclosed by the Computer Emergency Response Team of Ukraine (CERT-UA) in attacks aimed at critical infrastructure in the country.\nIt's worth noting that Zscaler\nrevealed\na similar campaign named Steal-It in late September 2023 that enticed targets with adult-themed content to trick them into parting with sensitive information.\nThe reliance on official documents as lures, therefore, marks a deviation from previously observed activity, \"indicative of ITG05's increased emphasis on a unique target audience whose interests would prompt interaction with material impacting emerging policy creation.\"\nThe disclosure comes a week after Microsoft, Palo Alto Networks Unit 42, and Proofpoint\ndetailed\nthe threat actor's exploitation of a critical security flaw of Microsoft Outlook (CVE-2023-23397, CVSS score: 9.8) to gain unauthorized access to victims' accounts within Exchange servers.\n\"It is highly likely the compromise of any echelon of global foreign policy centers may aid officials' interests with advanced insight into critical dynamics surrounding the International Community's (IC) approach to competing priorities for security and humanitarian assistance,\" the researchers said.\nThe development also follows a new advisory in which CERT-UA\nlinked\nthe threat actor known as\nUAC-0050\nto a massive email-based phishing attack against Ukraine and Poland using Remcos RAT and\nMeduza Stealer\n.\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2023-12-12",
+  "crawl_time": "2026-07-08T08:01:52Z",
+  "tags": [
+    "APT28",
+    "cyber espionage",
+    "cybersecurity",
+    "email hacking",
+    "Malware",
+    "Microsoft Outlook",
+    "Phishing"
+  ]
+}

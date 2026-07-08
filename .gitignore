@@ -23,7 +23,6 @@ frontend/vite.config.d.ts
 data/*.db
 data/*.sqlite
 data/sources/*
-data/raw/*
 data/cleaned/*
 data/extracted/*
 data/graph/*

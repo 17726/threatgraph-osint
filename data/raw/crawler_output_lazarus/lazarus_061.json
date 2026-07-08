@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_061",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/articles/network/426213.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "Lazarus Group\"虚假面试\"行动：针对Windows与macOS用户的加密货币求职陷阱",
+  "language": "zh",
+  "raw_text": "朝鲜国家支持的黑客组织\"拉撒路集团\"（Lazarus Group）近期发起代号为\"虚假面试\"（ClickFake Interview）的新攻击行动，专门针对加密货币行业的求职者。该组织通过伪造的面试网站，在Windows和macOS系统上部署基于Go语言的后门程序\"GolangGhost\"。\n\n此次行动是此前已曝光的\"传染性面试\"（Contagious Interview）攻击活动的升级版，显示出该组织对加密货币生态系统的持续关注与战术进化。拉撒路集团自2009年起活跃至今，长期从事网络间谍和金融犯罪活动，为朝鲜导弹与核计划提供资金支持。2017年后，该组织显著加强了对加密货币实体的攻击，采用恶意软件、供应链攻击、木马化应用程序及虚假职位招聘等多种手段。\n\n2025年3月，该组织从阿联酋交易所Bybit窃取15亿美元，制造了加密货币史上最大规模的黑客事件，凸显其攻击手段日趋成熟。\n\n\"虚假面试\"攻击手法解析\n\n\"虚假面试\"行动沿用了\"传染性面试\"的战术框架——后者曾通过LinkedIn或X（原Twitter）等平台，以虚假面试为诱饵针对软件开发人员发起攻击。\n\n在新攻击中，攻击者使用ReactJS构建高度仿真的面试网站，通过动态加载JavaScript文件模拟正规招聘流程。受害者被要求填写表格、回答加密货币相关问题，并开启摄像头进行\"面试\"。在关键环节，网站会弹出错误提示，诱骗用户下载所谓的驱动程序或脚本，从而触发感染链。\n\n感染链根据操作系统存在差异：\n\nWindows系统：通过Visual Basic脚本（VBS）下载基于NodeJS的恶意负载（nvidia.js），将恶意组件释放至临时目录。后门程序通过注册表键值实现持久化，最终由批处理文件静默启动GolangGhost后门。\nmacOS系统：Bash脚本（coremedia.sh）在下载恶意文件的同时，会创建启动代理plist文件实现持久化。在部署GolangGhost前，名为\"FrostyFerret\"的信息窃取程序会通过仿冒Chrome界面窃取系统密码。\n\nGolangGhost后门具备跨平台的远程控制与数据窃取能力，可执行Shell命令、上传下载文件、通过HackBrowserData窃取浏览器数据，以及收集系统凭证等敏感信息。该恶意软件使用RC4加密与C2服务器通信，并通过临时文件存储唯一标识符确保单实例运行。\n\n集中式金融平台成主要目标\n\n对伪造面试网站的分析显示，拉撒路集团主要针对Coinbase、Kraken、Bybit和Robinhood等集中式金融（CeFi）平台。与早期侧重去中心化金融（DeFi）的攻击不同，这一转变符合朝鲜黑客组织对依赖中介交易的CeFi平台日益增长的兴趣。\n\n值得注意的是，这些虚假招聘广告专门针对非技术岗位（如业务发展经理、资产管理专员等），这类人员通常在面试过程中更难察觉异常。攻击链高度依赖短时间内连续执行的命令序列，可通过Sigma关联规则或Sekoia操作语言（SOL）查询等工具监测异常脚本执行行为进行防御。例如：\n\ntext`events | where timestamp >= ago(7d) | where process.command_line contains~ \"temp\" | where process.name in [\"curl.exe\", \"powershell.exe\", \"wscript.exe\"] | aggregate cmd_line = make_set(process.command_line) by host.name, process.parent.pid `\n\n\n此外，检查注册表中是否存在包含cmd.exe的可疑键值也有助于识别受感染系统。\n\n\"虚假面试\"行动再次证明了拉撒路集团针对加密货币实体的攻击适应能力。通过虚假招聘和\"ClickFix\"等新型攻击手法，该组织持续对全球集中式金融平台构成重大威胁。\n\n其针对非技术员工的新策略，显示出该组织正试图通过安全意识较弱的目标实现攻击突破，同时保持为朝鲜政权获取资金的终极目标。\n\n参考来源：\n\nClickFake Interview – Lazarus Hackers Exploit Windows and macOS Users Fake Job Campaign",
+  "published_date": "2025-03-31",
+  "crawl_time": "2026-07-07T16:56:18Z",
+  "tags": [
+    "基础安全"
+  ]
+}

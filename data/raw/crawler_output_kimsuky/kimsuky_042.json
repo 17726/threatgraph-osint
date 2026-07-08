@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_042",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/ics-articles/458514.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "朝鲜黑客组织Kimsuky与Lazarus联手利用0Day漏洞攻击全球关键行业",
+  "language": "zh",
+  "raw_text": "朝鲜两个最危险的黑客组织Kimsuky和Lazarus已联手发起协同攻击行动，威胁全球组织机构安全。这两个组织通过将社会工程学与0Day漏洞利用相结合的系统性攻击手段，窃取敏感情报和加密货币。\n\n攻击模式升级：从单兵作战到协同行动\n\n这种合作标志着国家支持的黑客组织运作方式发生重大转变——从孤立攻击转向精心协调的联合行动。攻击始于Kimsuky通过伪装成学术会议邀请或研究合作请求的钓鱼邮件进行侦察。这些邮件包含HWP或MSC格式的恶意附件，打开后会部署FPSpy后门程序。安装完成后，后门会激活名为KLogEXE的键盘记录器，窃取密码、邮件内容和系统信息。该情报收集阶段会绘制目标网络架构图并识别高价值资产，随后将控制权移交给Lazarus。\n\n漏洞武器化与权限提升\n\nCN-SEC安全研究人员指出，Lazarus随后会利用0Day漏洞获取对已入侵系统的深度访问权限。该组织已将Windows权限提升漏洞（CVE-2024-38193）武器化，用于部署看似合法的恶意Node.js软件包。当这些软件包执行时，攻击者将获得SYSTEM级权限并安装InvisibleFerret后门程序，该后门通过Fudmodule恶意软件组件绕过终端检测工具。\n\nInvisibleFerret后门技术分析\n\nInvisibleFerret后门在规避检测能力方面取得重大突破。其网络流量伪装成正常的HTTPS网络请求，使得安全团队极难通过流量分析发现异常。该恶意软件专门针对区块链钱包，通过扫描系统内存获取浏览器扩展和桌面应用程序中存储的私钥及交易数据。有记录显示，攻击者曾在48小时内转移价值3200万美元的加密货币而未触发安全警报。\n\n该后门通过加密通道与命令控制服务器通信，采用每日轮换的域名轮询策略。每个C2域名都伪装成合法的电子商务或新闻网站以避免怀疑。完成攻击目标后，两个组织会通过共享基础设施协同清除攻击证据——用合法系统进程覆盖恶意文件并删除攻击日志。国防、金融、能源和区块链行业机构面临最高风险。\n\n参考来源：\n\nNorth Korean Kimsuky and Lazarus Join Forces to Exploit Zero-Day Vulnerabilities Targeting Critical Sectors Worldwide",
+  "published_date": "2025-11-21",
+  "crawl_time": "2026-07-07T17:17:34Z",
+  "tags": [
+    "关基安全"
+  ]
+}

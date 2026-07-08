@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_040",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/ai-security/448767.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "朝鲜黑客组织Kimsuky利用ChatGPT伪造军人证件实施新型攻击",
+  "language": "zh",
+  "raw_text": "网络安全公司Genians Security Center（GSC）发出警告，朝鲜臭名昭著的黑客组织Kimsuky正在使用人工智能（AI）工具生成的伪造军人证件开展新型钓鱼攻击。这标志着该组织已从过去的ClickFix攻击手法转向更复杂的欺骗手段。\n\nAI深度伪造技术应用升级\n\n2025年7月首次监测到的攻击活动中，攻击者伪装成韩国合法国防机构发送电子邮件。这些邮件以\"军人新版证件\"为诱饵，内含一个ZIP压缩文件，其中包含看似真实的军人证件草案。但证件照片实为AI生成的深度伪造图像，经检测伪造置信度高达98%，使用的是ChatGPT等常见AI工具。\n\n\n攻击者发送的原始钓鱼邮件（来源：GSC）\n\n\nAI生成的伪造军人证件（来源：GSC）\n\n多重隐蔽攻击链设计\n\n当受害者打开文件时，隐藏的恶意程序立即在后台运行。为避免检测，程序会延迟数秒后从远程服务器jiwooeng.co.kr秘密下载名为LhUdPC3G.bat的恶意文件。攻击者组合使用批处理文件和AutoIt脚本，创建名为HncAutoUpdateTaskMachine的恶意计划任务，伪装成韩文办公软件Hancom Office的更新程序，每7分钟执行一次。研究人员发现，攻击代码中包含\"Start_juice\"和\"Eextract_juice\"等特征字符串，与历史攻击存在关联。\n\n社会工程学攻击趋势加剧\n\n此次使用深度伪造军人证件的攻击活动，表明Kimsuky组织正持续升级其社会工程学手段。通过更逼真的诱饵诱导受害者运行恶意脚本，最终实现计算机入侵。这并非该组织首次滥用AI技术——2025年6月，OpenAI曾披露朝鲜黑客利用AI伪造身份通过技术职位面试。俄罗斯和伊朗的黑客组织也多次被曝滥用ChatGPT等AI工具实施类似活动。\n\n终端防护系统重要性凸显\n\nGSC强调，针对此类依赖混淆脚本隐藏恶意行为的攻击，终端检测与响应（EDR，Endpoint Detection and Response）系统至关重要。安全团队需部署更先进的防护方案，才能有效检测和阻断不断演变的AI辅助攻击。\n\n参考来源：\n\nNorth Korea’s Kimsuky Group Uses AI-Generated Military IDs in New Attack",
+  "published_date": "2025-09-15",
+  "crawl_time": "2026-07-07T17:17:49Z",
+  "tags": [
+    "AI安全"
+  ]
+}

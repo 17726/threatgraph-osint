@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_002",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/network/228929.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "疑似Kimsuky APT组织利用新冠肺炎相关信息进行攻击活动",
+  "language": "zh",
+  "raw_text": "近期，新冠肺炎在韩国大爆发，不过某些思密达们好像不是很在意，一句哈利路亚，23333\n\n\n\n\n\n而一些长期针对韩国的APT组织也开始利用疫情相关新闻开始搞事，安全研究人员发现一例kimsuky利用疫情搞事情的样本。\n\n\n\n\n样本相关信息如下\n\n文件名\t코로나바이러스 대응.doc_（冠状病毒对应）\nMD5\ta9dac36efd7c99dc5ef8e1bf24c2d747\n利用方式\t宏\n后续链接\tvnext.mireene[.]com/theme/basic/skin/member/basic/upload/search.hta\n样本地址\thttps://app.any.run/tasks/bac5cebf-30df-457c-aa56-511a58d01e63/\n\n样本运行后显示如下内容诱导受害者启用宏\n\n\n\n\n当受害者启用宏之后，便会显示疫情相关文档迷惑受害者\n\n\n\n\n而恶意宏会从vnext.mireene[.]com/theme/basic/skin/member/basic/upload/search.hta下载Hta文件执行\n\n但发现时已经无法获取Hta文件了。\n\n\n\n\n不过有兴趣的大佬可以分析分析之前的同源样本\n\nmd5\t50416931926754d867c9e5f418a4d08a\n利用方式\t宏\n后续地址\thttp://kiseong[.]co[.]kr/m/public/navi/rabin/pop[.]hta\n样本地址\thttps://app.any.run/tasks/a08e3d24-e6b8-4695-a6d9-af7823499514/\n\n在anyrun沙箱还可以看到hta文件",
+  "published_date": "2020-03-02",
+  "crawl_time": "2026-07-07T17:21:38Z",
+  "tags": [
+    "基础安全"
+  ]
+}

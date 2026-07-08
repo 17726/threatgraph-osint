@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_036",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/endpoint/442829.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "揭秘KimSuky组织：远程控制样本的深度剖析",
+  "language": "zh",
+  "raw_text": "1.基本信息\n\n名称：eset_update.exe\n\n文件大小：353KB\n\nMD5：ae986dd436082fb9a7fec397c8b6e717\n\nSHA256：3110f00c1c48bbba24931042657a21c55e9a07d2ef315c2eae0a422234623194\n\n2.行为分析\n\n双击运行后弹窗，点击确认之后没有特别让人注意的行为\n\n将样本拖到火绒剑中，发现一出高亮行为，将样本添加到开机启动项。\n\n3.文件查壳\n\n扔到PEID里，无壳，插件发现有Base64加密和CRC32校验\n\n4.导入表分析\n\nWININET.dll 和 URLMON.dll 主要提供与网络连接相关的 API 函数，用于实现 HTTP/FTP 请求处理和 URL 数据读取；ADVAPI32.dll 包含操作注册表、服务控制及安全接口的相关函数；SHELL32.dll 中的 SHGetFolderPath 函数用于获取系统特殊文件夹路径（如“我的文档”、临时目录等）；IPHLPAPI.dll 中的 GetAdaptersInfo 函数用于获取本地网络适配器配置信息及 IP 地址；KERNEL32.dll 则提供了核心系统功能，包括文件操作、内存分配、进程线程管理以及反调试等关键 API，广泛用于程序运行与系统交互。\n\n5.程序分析\n\n打开IDA定位到WinMain上，一段创建互斥体保证单一运行的的代码，如果存在互斥体则关闭。这儿GetLastError == 0x563查MSDN意思为指定的本地组已经存在。\n\n下面分别对Sub_403600、Sub_401580、Sub_401770、Sub_402790、子线程进行分析",
+  "published_date": "2025-08-04",
+  "crawl_time": "2026-07-07T17:18:09Z",
+  "tags": [
+    "终端安全"
+  ]
+}

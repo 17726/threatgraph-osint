@@ -1,0 +1,20 @@
+{
+  "doc_id": "apt28_035",
+  "target_group": "apt28",
+  "source_url": "https://thehackernews.com/2020/12/russian-apt28-hackers-using-covid-19-as.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "Russian APT28 Hackers Using COVID-19 as Bait to Deliver Zebrocy Malware",
+  "language": "en",
+  "raw_text": "A Russian threat actor known for its malware campaigns has reappeared in the threat landscape with yet another attack leveraging COVID-19 as phishing lures, once again indicating how adversaries are adept at repurposing the current world events to their advantage.\nLinking the operation to a sub-group of APT28 (aka Sofacy, Sednit, Fancy Bear, or STRONTIUM), cybersecurity firm\nIntezer\nsaid the pandemic-themed phishing emails were employed to deliver the Go version of\nZebrocy\n(or Zekapab) malware.\nThe cybersecurity firm told The Hacker News that the campaigns were observed late last month.\nZebrocy is delivered primarily via phishing attacks that contain decoy Microsoft Office documents with macros as well as executable file attachments.\nFirst spotted in the wild in\n2015\n, the operators behind the malware have been found to overlap with\nGreyEnergy\n, a threat group believed to be the successor of BlackEnergy aka\nSandworm\n, suggesting its role as a sub-group with links to Sofacy and GreyEnergy.\nIt operates as a backdoor and downloader capable of collecting system information, file manipulation, capturing screenshots, and executing malicious commands that are then exfiltrated to an attacker-controlled server.\nWhile Zebrocy was originally written in Delphi (called Delphocy), it has since been implemented in half a dozen languages, including AutoIT, C++, C#, Go, Python, and VB.NET.\nThis specific campaign spotted by Intezer uses the Go version of the malware, first documented by\nPalo Alto Networks\nin October 2018 and later by\nKaspersky\nin early 2019, with the lure delivered as part of a Virtual Hard Drive (VHD) file that requires victims to use Windows 10 to access the files.\nOnce mounted, the VHD file appears as an external drive with two files, one a PDF document that purports to contain presentation slides about Sinopharm International Corporation, a China-based pharmaceutical company whose\nCOVID-19 vaccine\nhas been found to be 86% effective against the virus in late-stage clinical trials.\nThe second file is an executable that masquerades as a Word document that, when opened, runs the Zebrocy malware.\nIntezer said it also observed a separate attack likely targeting Kazakhstan with phishing lures impersonating an evacuation letter from India's Directorate General of Civil Aviation.\nPhishing campaigns delivering Zebrocy have been spotted several times in the wild in recent months.\nIn September last year,\nESET\ndetailed Sofacy's intrusive activities targeting the Ministries of Foreign Affairs in Eastern European and Central Asian countries.\nThen earlier this August,\nQuoIntelligence\nuncovered a separate campaign aimed at a government body in Azerbaijan under the pretense of sharing NATO training courses to distribute the Zebrocy Delphi variant.\nThe Golang version of the Zebrocy backdoor also caught the attention of the US Cybersecurity and Infrastructure Security Agency (CISA), which released an\nadvisory\nin late October, cautioning that the malware is \"designed to allow a remote operator to perform various functions on the compromised system.\"\nTo thwart such attacks, CISA recommends exercising caution when using removable media and opening emails and attachments from unknown senders, and scanning for suspicious email attachments, and ensuring the extension of the scanned attachment matches the file header.\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2020-12-09",
+  "crawl_time": "2026-07-08T08:02:05Z",
+  "tags": [
+    "APT28",
+    "Coronavirus",
+    "COVID-19",
+    "cybersecurity",
+    "Malware",
+    "Zebrocy"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_021",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/articles/ics-articles/431977.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "俄罗斯军总参情报局APT28组织瞄准援乌后勤供应链发起全球网络攻击",
+  "language": "zh",
+  "raw_text": "2025年5月，由美国、英国、欧盟和北约网络安全与情报机构联合发布的最新网络安全公告披露，俄罗斯军总参情报局（GRU）第85特别服务中心第26165部队（又称APT28、Fancy Bear、Forest Blizzard和BlueDelta）正持续攻击支持乌克兰防务的全球物流与科技企业。\n\n攻击背景与目标\n\n公告指出：\"这份联合网络安全公告（CSA）揭示了俄罗斯国家支持的网络攻击活动，其目标是西方物流实体和科技公司。\"该行动自2022年初持续至今，重点窃取协调、运输和交付对乌国际援助相关系统的数据，并维持长期访问权限。\n\n与俄罗斯GRU关联的知名威胁组织APT28，综合运用暴力破解、凭证钓鱼、零日漏洞利用和\"就地取材\"（Living-off-the-Land）技术，持续渗透北约成员国系统。主要攻击目标包括：\n\n交通运输（铁路、航空、海运）\nIT服务与供应链\n国防承包商\n关键基础设施\n\n公告特别指出：\"攻击者还入侵乌克兰边境的联网摄像头，用于监控援助物资运输。\"\n\n攻击手法与技术特征\n\nAPT28采用的多阶段攻击技术包括：\n\n通过匿名基础设施（Tor、VPN）实施凭证暴力破解\n使用多语言诱饵和伪造登录页面进行鱼叉式钓鱼\n利用CVE-2023-38831漏洞（WinRAR）通过恶意压缩包投递恶意软件\n滥用邮箱权限实施长期邮件监控\n利用CVE-2023-23397漏洞（Outlook NTLM认证缺陷）窃取凭证\n针对Roundcube等网页邮件服务的零日漏洞利用\n通过RTSP协议暴力破解和默认凭证劫持IP摄像头\n\n公告强调：\"攻击者持续渗透可获取运输敏感信息的账户，包括列车时刻表和货运清单。\"\n\n恶意工具集分析\n\n主要攻击工具链包含：\n\nHEADLACE：凭证窃取与远程访问工具\nMASEPIE：基于Python的自定义后门，用于数据外传与控制\nOCEANMAP与STEELHOOK：曾在欧洲行动中使用的间谍载荷\n\n攻击者还滥用系统原生工具（LOLBins）如ntdsutil、wevtutil和schtasks来规避检测。\n\n国际响应与防护建议\n\n该公告获得美、英、德、法等20余国机构联署，证实受攻击国家包括乌克兰、波兰、德国、法国、罗马尼亚、荷兰、捷克、斯洛伐克、意大利、希腊、保加利亚和美国。\n\n基于MITRE ATT&CK和D3FEND框架的防护建议：\n\n实施零信任架构\n部署硬件令牌的多因素认证（MFA）\n拦截来自已知VPN和公共IP的登录尝试\n对关键基础设施实施网络分段隔离\n加固IP摄像头安全配置，清除默认凭证\n审计Active Directory和邮箱权限变更\n监控Impacket、Certipy和PsExec等工具的异常使用\n\n公告总结指出：\"攻击者利用外传数据的长时间间隔、可信协议和本地基础设施，使敏感数据的长期窃取难以被发现。\"建议物流、国防和科技领域企业提升安全防护等级，预设自身已成为高价值目标。\n\n参考来源：\n\nRussian GRU’s APT28 Targets Global Logistics Supporting Ukraine Defense",
+  "published_date": "2025-05-21",
+  "crawl_time": "2026-07-07T16:19:52Z",
+  "tags": [
+    "关基安全"
+  ]
+}

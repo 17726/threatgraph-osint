@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_013",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/articles/network/223677.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "APT28样本分析",
+  "language": "zh",
+  "raw_text": "1 背景\n\n奇幻熊组织又被人们称为APT28，他是俄罗斯的间谍组织，2019年，奇幻熊组织的活动异常频繁。从今年年初的智囊团入侵事件，到随后的大小攻击，都有APT28的身影。奇幻熊的历史已经非常悠久，2016年，该组织因为入侵美国民主党全国委员会的电子邮件，试图影响美国总统大选而闻名于世。鱼叉式网络钓鱼、0Day攻击是该组织惯用的攻击方法，并且他们使用的工具非常迅速的更新。在2015年一年中，使用了不少于6种不同的0Day漏洞，这是一个相当大的工程，需要大量安全人员在常用的软件中寻找大量的未知漏洞。\n\n本次样本分析的样本来自于我单位捕获到的样本数据，经过分析为Zepakab下载器。在此做一个简单的分析，以窥探Zepakab的技术秘密。\n\n2 样本分析\n\n首先，我们对样本稍作分析就可以知道，该样本使用了UPX加了一层壳，不过并没有做更多的处理。使用UPX即可以正常将其解压，生成正常的样本。\n\n \n\n在解压后的样本中，我们可以从资源RCData/SCRIPT中看到”AU3!”的字样，并且在其代码中可以看到一系列的证据，都可以表明，该样本是由AutoIt编译而来。AutoIt是使用类似BASIC的语言，主要用于设计和Windows图形界面自动化交互的程序。使用这样的语言来开发恶意程序，可以很容易的躲避杀毒软件的检测。\n\n \n\n \n\n\n\n然后，我们将Zepakab中的AutoIt代码反编译，提取出其中的源码。可以看到，”main”函数是Zepakab的主要例程。Zepakab的主要功能是不断的在一个循环中获取系统信息，截取屏幕快照，发送给服务器。并且在需要的时候下载恶意样本驻留在系统中。\n\n \n\n系统信息的收集是在”info”函数内完成的，info调用了”_computergetoss”函数。”_computergetoss”使用了Windows管理规范(WMI)的AutoIt接口，使用了查询语句”SELECT * FROM Win32_OperatingSystem”来查询系统信息。\n\n \n\n \n\n该恶意软件通过下面的scr函数将桌面屏幕快照保存到”％TEMP％\\ tmp.jpg”中。\n\n\n\n\n在从服务器上下载了有效负载后，Zepakab会将它同过”crocodile”函数保存到”C:\\ ProgramData\\Windows\\Microsoft\\Settings\\srhost.exe”中。\n\n \n\n\n\n除了上述的一些主要功能外，Zepakab还有一些比较只能化的功能。例如反虚拟机，它会查找一些当前比较重要的虚拟机文件、进程以及通过特别算法计算的标识，从而实现虚拟机逃逸。\n\n \n\n此外，”_sofware”函数通过注册表\n\n\"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\"\n\n解析已安装的软件。同时通过systeminfo系统命令输出系统信息，并检索进程并将其纳入到系统信息中。\n\n \n\n\n\n这份代码，并没有使用复杂的混淆技术，所以可以轻松的看到Downloader的服务器地址是185.236.203.53，uri是”locale/protocol/volume.php”。Downloader使用HTTP方式和服务器通信，并且使用base64编码和加密的方式发送和接受数据。\n\n \n\n\n\n\n3 总结\n\nZepakab在整个2019年是异常活跃的，虽然其开发方式非常简单，但是其危害程度并不低，而且APT28组织也异常快速地更新他们的武器。正因为简单的开发方式，其更新速度才得以更快。奇幻熊仍然更多地使用他们惯用的方法，鱼叉式攻击，0Day漏洞等等。在这种低成本的开发方式下，奇幻熊组织得以更有效地进行他们的网络攻击。",
+  "published_date": "2019-12-24",
+  "crawl_time": "2026-07-07T16:21:17Z",
+  "tags": [
+    "基础安全"
+  ]
+}

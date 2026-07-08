@@ -1,0 +1,23 @@
+{
+  "doc_id": "apt28_044",
+  "target_group": "apt28",
+  "source_url": "https://thehackernews.com/2024/03/apt28-hacker-group-targeting-europe.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "APT28 Hacker Group Targeting Europe, Americas, Asia in Widespread Phishing Scheme",
+  "language": "en",
+  "raw_text": "The Russia-linked threat actor known as\nAPT28\nhas been linked to multiple ongoing phishing campaigns that employ lure documents imitating government and non-governmental organizations (NGOs) in Europe, the South Caucasus, Central Asia, and North and South America.\n\"The uncovered lures include a mixture of internal and publicly available documents, as well as possible actor-generated documents associated with finance, critical infrastructure, executive engagements, cyber security, maritime security, healthcare, business, and defense industrial production,\" IBM X-Force\nsaid\nin a report published last week.\nThe tech company is tracking the activity under the moniker\nITG05\n, which is also known as Blue Athena, BlueDelta, Fancy Bear, Fighting Ursa, Forest Blizzard (formerly Strontium), FROZENLAKE, Iron Twilight, Pawn Storm, Sednit, Sofacy, TA422, and UAC-028.\nThe disclosure comes more than three months after the adversary was spotted using decoys related to the ongoing Israel-Hamas war to deliver a custom backdoor dubbed\nHeadLace\n.\nAPT28 has since also targeted Ukrainian government entities and Polish organizations with phishing messages designed to deploy bespoke implants and information stealers like\nMASEPIE, OCEANMAP, and STEELHOOK\n.\nOther campaigns have entailed the\nexploitation of security flaws\nin Microsoft Outlook (\nCVE-2023-23397\n, CVSS score: 9.8) to plunder NT LAN Manager (NTLM) v2 hashes, raising the possibility that the threat actor may leverage other weaknesses to exfiltrate NTLMv2 hashes for use in relay attacks.\nThe latest campaigns observed by IBM X-Force between late November 2023 and February 2024 take advantage of the\n\"search-ms:\" URI protocol handler\nin Microsoft Windows to trick victims into downloading malware hosted on actor-controlled WebDAV servers.\nThere is evidence to suggest that both the WebDAV servers, as well as the MASEPIE C2 servers, may be hosted on\ncompromised Ubiquiti routers\n, a botnet comprising which was taken down by the U.S. government last month.\nThe phishing attacks impersonate entities from several countries such as Argentina, Ukraine, Georgia, Belarus, Kazakhstan, Poland, Armenia, Azerbaijan, and the U.S., putting to use a mix of authentic publicly available government and non-government lure documents to activate the infection chains.\n\"In an update to their methodologies, ITG05 is utilizing the freely available hosting provider, firstcloudit[.]com to stage payloads to enable ongoing operations,\" security researchers Joe Fasulo, Claire Zaboeva, and Golo Mühr said.\nThe climax of APT28's elaborate scheme ends with the execution of MASEPIE, OCEANMAP, and STEELHOOK, which are designed to exfiltrate files, run arbitrary commands, and steal browser data. OCEANMAP has been characterized as a more capable version of CredoMap, another backdoor previously identified as used by the group.\n\"ITG05 remains adaptable to changes in opportunity by delivering new infection methodologies and leveraging commercially available infrastructure, while consistently evolving malware capabilities,\" the researchers concluded.\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2024-03-18",
+  "crawl_time": "2026-07-08T08:01:37Z",
+  "tags": [
+    "APT28",
+    "botnet",
+    "Cyber warfare",
+    "cybersecurity",
+    "Malware",
+    "NTLMv2",
+    "phishing attack",
+    "Spear Phishing",
+    "WebDAV"
+  ]
+}

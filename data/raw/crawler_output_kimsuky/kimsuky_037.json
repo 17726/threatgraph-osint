@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_037",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/database/444015.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "朝鲜攻击组织Kimsuky内部数据泄露，攻击基础设施全曝光",
+  "language": "zh",
+  "raw_text": "疑似内部人员在线泄露了朝鲜国家支持的黑客组织Kimsuky（APT37）的大量内部工具、后门程序及情报收集资料。这批34,000页的泄露数据曝光了正在使用的钓鱼攻击基础设施、内核级后门、Cobalt Strike攻击载荷以及窃取的政府证书。\n\n核心发现\n泄露包含Kimsuky针对韩国国防情报司令部(dcc.mil.kr)的完整钓鱼工具包\n发现Tomcat内核LKM后门及定制版Cobalt Strike信标\n泄露内容包含被盗的GPKI证书、韩国外交部邮件系统代码及韩国政府内网SSO访问权限\n钓鱼攻击基础设施全曝光\n\n网络安全研究员Saber（\"cyborg\"）分析指出，该档案包含针对韩国国防情报司令部(dcc.mil.kr)的定制钓鱼平台完整源代码。泄露文件包括generator[.]php和config[.]php等关键组件：\n\nconfig.php中的IP黑名单会阻止趋势科技、谷歌等安全厂商的扫描器检测伪造网站。受害者在虚假HTTPS域名输入凭证后，会被立即重定向回合法的https://dcc.mil[.]kr网址，同时触发登录错误提示，以此掩盖凭证窃取行为。\n\n内核级后门与定制攻击工具\n\n泄露资料中包含一个Tomcat远程内核后门(LKM)，该后门通过检测特定的TCP序列号和IP ID\"敲门\"信号来激活隐藏的master.c进程：\n\n激活后，该模块会在攻击者与受害者之间建立SSL加密通道。值得注意的是，所有部署中使用的硬编码主密码均为\"Miu2jACgXeDsxd\"。\n\n此外还发现一个用Java编写的私有版Cobalt Strike信标，其配置参数包括：\n\n信标类型：HTTP\n端口：8172\n休眠时间：60842毫秒\n用户代理：Mozilla/5.0 (兼容；MSIE 9.0...)\n\n源代码目录(.idea/workspace.xml)显示该工具最近一次开发活动发生在2024年6月。\n\n政府系统长期渗透证据\n\n泄露内容包含韩国外交部邮件服务器代码完整转储(mofa.go.kr[.]7z)，以及通过破解Java工具(cert.java)获取的被盗政府公钥基础设施(GPKI)证书。暴力破解日志显示攻击者曾对unification.go.kr和spo.go[.]kr进行大量密码尝试(记录达5697452641次)。\n\n开发者还植入名为onnara_sso的SSO工具，其代码中引用了onnara9.saas.gcloud.go.kr，表明攻击者已获得韩国政府内部门户的持久访问权限。\n\n此次史无前例的数据泄露为防御者提供了深入了解Kimsuky战术、技术与程序(TTPs)的机会，包括端口敲门、内存内核植入、定制C2框架以及被盗证书滥用等。韩国及盟国组织应立即审计暴露的代码模式，撤销被盗证书，并在网络层面部署针对异常TCP序列号/IP ID组合的检测机制。\n\n参考来源：\n\nNorth Korean Kimsuky Hackers Data Breach – Insiders Published the Data Online",
+  "published_date": "2025-08-12",
+  "crawl_time": "2026-07-07T17:18:01Z",
+  "tags": [
+    "数据安全"
+  ]
+}

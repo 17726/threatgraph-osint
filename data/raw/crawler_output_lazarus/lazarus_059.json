@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_059",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/articles/network/424295.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "朝鲜 Lazarus 黑客通过 npm 包感染数百名用户",
+  "language": "zh",
+  "raw_text": "近日，Node 包管理器（npm）上发现了六个与臭名昭著的朝鲜黑客组织 Lazarus 相关的恶意软件包。这些软件包已被下载 330 次，其设计目的是窃取账户凭证、在受感染系统上部署后门，并提取敏感的加密货币信息。\n\nLazarus 组织通过 npm 包发起供应链攻击\n\nSocket 研究团队发现了此次攻击活动，并将其与 Lazarus 组织此前已知的供应链攻击操作关联。Lazarus 以向 npm 等软件注册表推送恶意软件包而闻名，这些注册表被数百万 JavaScript 开发者使用，攻击者通过这种方式被动地感染系统。\n\n类似的攻击活动也曾在 GitHub 和 Python 包索引（PyPI）上被发现。这种策略通常使他们能够初步访问高价值网络，并发起大规模破纪录的攻击，例如最近从 Bybit 交易所窃取 15 亿美元加密货币的事件。\n\n恶意 npm 包利用“错名攻击”欺骗开发者\n\n此次发现的六个 Lazarus 相关软件包均采用了“错名攻击”（typosquatting）策略，诱骗开发者误装恶意软件：\n\nis-buffer-validator– 模仿流行的 is-buffer 库，用于窃取凭据。\nyoojae-validator– 假冒验证库，用于从受感染系统中提取敏感数据。\nevent-handle-package– 伪装成事件处理工具，但部署了用于远程访问的后门。\narray-empty-validator–设计用于收集系统和浏览器凭据的欺诈性软件包。\nreact-event-dependency– 假冒 React 工具，但通过执行恶意软件入侵开发者环境。\nauth-validator– 模仿身份验证工具，窃取登录凭据和 API 密钥。\n恶意软件窃取加密货币和浏览器数据\n\n这些软件包包含恶意代码，旨在窃取敏感信息，例如加密货币钱包和包含存储密码、Cookie 以及浏览历史的浏览器数据。此外，它们还加载了 BeaverTail 恶意软件和 InvisibleFerret 后门程序，这些程序此前被朝鲜黑客用于虚假招聘信息中，导致受害者安装恶意软件。\n\n下载恶意软件载荷的代码片段来源：Socket\n\nSocket 报告解释道：“代码旨在收集系统环境详细信息，包括主机名、操作系统和系统目录。它系统性地遍历浏览器配置文件，定位并提取敏感文件，例如 Chrome、Brave 和 Firefox 中的‘Login Data’文件，以及 macOS 上的钥匙串存档。值得注意的是，该恶意软件还针对加密货币钱包，专门提取 Solana 的id.json和 Exodus 的exodus.wallet。”\n\n威胁仍在持续，建议开发者加强防范\n\n目前，这六个 Lazarus 相关软件包仍可在 npm 和 GitHub 仓库中找到，威胁尚未解除。建议软件开发者在项目中使用软件包时仔细检查，并持续审查开源软件中的代码，寻找诸如混淆代码和调用外部服务器等可疑迹象。\n\n\n\n\n参考来源：\n\nNorth Korean Lazarus hackers infect hundreds via npm packages",
+  "published_date": "2025-03-11",
+  "crawl_time": "2026-07-07T16:56:40Z",
+  "tags": [
+    "基础安全"
+  ]
+}

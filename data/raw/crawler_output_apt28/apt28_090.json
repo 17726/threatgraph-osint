@@ -1,0 +1,13 @@
+{
+  "doc_id": "apt28_090",
+  "target_group": "apt28",
+  "source_url": "https://www.paloaltonetworks.com/resources/research/unit-42-incident-response-report",
+  "source_type": "threat_report",
+  "source_name": "Palo Alto Unit 42",
+  "title": "2026 Unit 42 Global Incident Response Report - Palo Alto Networks",
+  "language": "en",
+  "raw_text": "Incident Response Report - 2026\n\nGlobal\nIncident\nResponse\nReport 2026\n\nDownload the report\nWatch the on-demand webinar",
+  "published_date": "2026-05-13",
+  "crawl_time": "2026-07-07T16:48:09Z",
+  "tags": []
+}

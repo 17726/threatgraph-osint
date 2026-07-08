@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_017",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/articles/system/266984.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "疑似APT28利用高碳铬铁生产商登记表为诱饵的攻击活动分析",
+  "language": "zh",
+  "raw_text": "概述\n\n近日，奇安信红雨滴团队在日常高价值威胁挖掘过程中，捕获两例哈萨克斯坦地区上传样本，样本以哈萨克斯坦Kazchrome企业信息为诱饵，Kazchrome据称是全球最大的高碳铬铁生产商。诱导受害者启用恶意宏，一旦宏被启用后，恶意宏将释放执行远控木马到计算机执行，经分析溯源发现，释放执行的木马疑似是奇幻熊组织常用Zebrocy变种。\n\n奇幻熊组织，业界对其有各种别名：APT28、Sednit、Pawn Storm、Sofacy Group、STRONTIUM，主要针对高加索地区和北约组织成员国开展网络攻击活动，近期其目标越来越多地出现在中亚地区，主要攻击领域为对政府、军事和安全组织。\n\n样本分析\n基本信息\n\n捕获的样本诱饵名均是俄语，且都采用相同的恶意宏进行攻击，基本信息如下：\n\nMD5\n\n\t\n\n49696043b51acca6ced2ab213bd4abef\n\n\n\n\n文件创建时间\n\n\t\n\n2021-02-16 10:40:00\n\n\n\n\n文件名\n\n\t\n\nФ 4755.015-09 Форма докладной (служебной) записки.doc\n\n\n\n\nMD5\n\n\t\n\nc9a43fd6623bf0bc287012b6ee10a98e\n\n\n\n\n文件创建时间\n\n\t\n\n2021-02-05 16:34:00\n\n\n\n\n文件名\n\n\t\n\nАвансовый отчет(новый).doc\n\n诱饵类型伪装成备忘录以及高碳铬铁生产商Kazchrome登记表以诱导受害者启用宏。诱饵信息如下图所示。\n\nc9a43fd6623bf0bc287012b6ee10a98e             49696043b51acca6ced2ab213bd4abef\n\n详细分析\n\n以c9a43fd6623bf0bc287012b6ee10a98e样本为例，利用奇安信威胁情报中心自研文件深度解析引擎OWL对样本进行解析，解析后可见样本中存在宏，如下图所示。\n\n该恶意宏脚本将放置在VBA窗口textbox控件中的数据经过base64解码后的PE文件释放到%temp%目录执行。\n\nTextbox控件数据如下所示，释放文件的文件名从控件的标题中获取。\n\n释放执行的PE文件信息如下：\n\n文件名\n\n\t\n\nwininition.exe\n\n\n\n\nMD5\n\n\t\n\ndf6c6ee05898ce35ce5963ff0ae2344d\n\n\n\n\n时间戳\n\n\t\n\n2021:02:05 05:40:15+00:00\n\n该文件执行后首先会创建一个全局消息钩子来进行键盘记录，并将记录用户的键盘输入保存在%ALLUSERSPROFILE%\\Cache\\arial-debug.log文件中。\n\n\n\n\n记录的信息如下：\n\n同时会启动一个线程与C2进行通讯进行上传键盘记录的内容以及获取后续命令执行：\n\n在temp目录生成随机16个字母为名字的文件作为标识：\n\n每次dispatch_function都会将键盘记录的内容以如下格式发送：\n\n\n\n\n其中IB=0表示当前的访问计数，每次访问C2失败或者返回状态码分发异常时候就会使访问计数增加1，当访问计数在0-5时候数据以POST方式上传至C2：https[:]//www[.]xbhp.com/dominargreatasianodyssey/wp-content/plugins/akismet/style.php，当访问计数在6-15时候数据上传至C2，当访问次数为16时候则清零访问计数，并使用第一个C2上传数据。\n\n后面的16个字母为之前随机生成的，作为当前电脑的标识，接着log=URL编码后键盘记录的文本内容。\n\n后续根据http请求的返回值来进行命令分发：\n\n指令与对应功能如下表所示：\n\n200\n\n\t\n\n继续执行dispatch_function，上传键盘记录以及功能分发\n\n\n\n\n300\n\n\t\n\n执行cmd命令，以”cmd=执行结果”上传\n\n\n\n\n400\n\n\t\n\n设置最低延时2分钟\n\n\n\n\n500\n\n\t\n\n设置最低延时30分钟\n\n\n\n\n555\n\n\t\n\n截图，将结果以”Pre=xxx”上传\n\n\n\n\n666\n\n\t\n\n结束退出\n\n溯源关联\n\n红雨滴安全研究员关联发现本次样本与2019年疑似该组织的样本存在相似代码，并且本次的C2也是使用十六进制字符串存放，与之前的APT28常用手法类似，综上所述，我们判定此次攻击活动幕后黑手疑似APT28组织来源。\n\n总结\n\nAPT28组织近年一直活跃，它的攻击目标越来越集中于中亚地区的独联体国家，其Zebrocy家族木马包括Delphi、GO、AutoIT等多个语言版本。攻击手法复杂多变，是一个技术水平极高的攻击组织。\n\n此次捕获的样本主要针对南亚某国开展攻击活动，暂未发现影响国内用户。但防范之心不可无，奇安信威胁情报中心再次提醒各企业用户，加强员工的安全意识培训是企业信息安全建设中最重要的一环，如有需要，企业用户可以建设态势感知，完善资产管理及持续监控能力，并积极引入威胁情报，以尽可能防御此类攻击。\n\nIOC\n\n49696043b51acca6ced2ab213bd4abef\n\nc9a43fd6623bf0bc287012b6ee10a98e\n\ndf6c6ee05898ce35ce5963ff0ae2344d\n\nhttps[:]//www[.]xbhp.com/dominargreatasianodyssey/wp-content/plugins/akismet/style.php",
+  "published_date": "2021-03-22",
+  "crawl_time": "2026-07-07T16:21:54Z",
+  "tags": [
+    "系统安全"
+  ]
+}

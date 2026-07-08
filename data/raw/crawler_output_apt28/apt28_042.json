@@ -1,0 +1,22 @@
+{
+  "doc_id": "apt28_042",
+  "target_group": "apt28",
+  "source_url": "https://thehackernews.com/2024/02/microsoft-openai-warn-of-nation-state.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "Microsoft, OpenAI Warn of Nation-State Hackers Weaponizing AI for Cyber Attacks",
+  "language": "en",
+  "raw_text": "Nation-state actors associated with Russia, North Korea, Iran, and China are experimenting with artificial intelligence (AI) and large language models (LLMs) to complement their ongoing cyber attack operations.\nThe findings come from a report published by Microsoft in collaboration with OpenAI, both of which\nsaid\nthey disrupted efforts made by five state-affiliated actors that used its AI services to perform malicious cyber activities by terminating their assets and accounts.\n\"Language support is a natural feature of LLMs and is attractive for threat actors with continuous focus on social engineering and other techniques relying on false, deceptive communications tailored to their targets' jobs, professional networks, and other relationships,\" Microsoft\nsaid\nin a report shared with The Hacker News.\nWhile no significant or novel attacks employing the LLMs have been detected to date, adversarial exploration of AI technologies has transcended various phases of the attack chain, such as reconnaissance, coding assistance, and malware development.\n\"These actors generally sought to use OpenAI services for querying open-source information, translating, finding coding errors, and running basic coding tasks,\" the AI firm said.\nFor instance, the Russian nation-state group tracked as\nForest Blizzard\n(aka APT28) is said to have used its offerings to conduct open-source research into satellite communication protocols and radar imaging technology, as well as for support with scripting tasks.\nSome of the other notable hacking crews are listed below -\nEmerald Sleet\n(aka Kimusky), a North Korean threat actor, has used LLMs to identify experts, think tanks, and organizations focused on defense issues in the Asia-Pacific region, understand publicly available flaws, help with basic scripting tasks, and draft content that could be used in phishing campaigns.\nCrimson Sandstorm\n(aka Imperial Kitten), an Iranian threat actor who has used LLMs to create code snippets related to app and web development, generate phishing emails, and research common ways malware could evade detection\nCharcoal Typhoon\n(aka Aquatic Panda), a Chinese threat actor which has used LLMs to research various companies and vulnerabilities, generate scripts, create content likely for use in phishing campaigns, and identify techniques for post-compromise behavior\nSalmon Typhoon\n(aka Maverick Panda), a Chinese threat actor which has used LLMs to translate technical papers, retrieve publicly available information on multiple intelligence agencies and regional threat actors, resolve coding errors, and find concealment tactics to evade detection\nMicrosoft said it's also formulating a set of principles to\nmitigate the risks\nposed by the malicious use of AI tools and APIs by nation-state advanced persistent threats (APTs), advanced persistent manipulators (APMs), and cybercriminal syndicates and conceive effective guardrails and safety mechanisms around its models.\n\"These principles include identification and action against malicious threat actors' use notification to other AI service providers, collaboration with other stakeholders, and transparency,\" Redmond said.\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2024-02-14",
+  "crawl_time": "2026-07-08T08:01:47Z",
+  "tags": [
+    "APT28",
+    "artificial intelligence",
+    "Cyber Attack",
+    "Large Language Models",
+    "Malware",
+    "Microsoft",
+    "OpenAI",
+    "technology"
+  ]
+}

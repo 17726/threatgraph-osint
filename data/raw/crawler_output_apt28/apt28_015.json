@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_015",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/news/251224.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "疑似APT28最新键盘记录器样本分析",
+  "language": "zh",
+  "raw_text": "1 概述\n\n9月初，威胁分析高级专家Alexey Vishnyakov在twitter上发布使用Nim语言编写的疑似APT28的键盘记录器类样本。白泽安全实验室获取Alexey Vishnyakov提供的样本进行分析，经分析，该类样本使用Nim语言编写，这似乎符合APT28近期恶意代码开发风格，而且该类键盘记录器样本似乎正在开发中，并没有嵌入C&C，这和Alexey Vishnyakov在twitter上阐述的信息基本一致。\n\n以下是白泽安全实验室对疑似APT28的键盘记录器类样本进行的详细分析。\n\n2 样本分析\n\n由于6个样本均是Nim语言编写键盘记录器且代码相似度非常高，因此只对其中一个样本进行分析，以下是样本详细分析。\n\n将自身复制到%AppData%/Roaming/，复制后的名字为explorer.exe；其他样本自身复制后名称均不同。\n\n打开“HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run”将上文创建的explorer.exe写入，名称为Windows Explorer，将explorer.exe设置为开机启动。\n\n在新的线程里进行键盘记录，对WH_KEYBOARD_LL进行Hook。\n\n获取到消息后，由keyboardHandler函数进行处理，进行键盘记录与写入，猜测再调用sendimpl函数将键盘记录发送到C2，但是这批样本似乎正处于开发中，并未嵌入C2。\n\n3 参考链接\n\nTwitter：https://twitter.com/Vishnyak0v/status/1300704689865060353\n\n文章地址：https://mp.weixin.qq.com/s/Cgbqoo0NelZX6ZebiNZQDw",
+  "published_date": "2020-10-12",
+  "crawl_time": "2026-07-07T16:21:36Z",
+  "tags": [
+    "资讯"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_033",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/es/437268.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "揭秘ClickFix：朝鲜Kimsuky组织如何将PowerShell转化为心理欺骗武器",
+  "language": "zh",
+  "raw_text": "\"BabyShark\"威胁系列示意图 | 图片来源：Genians\n\nGenians安全中心(GSC)最新威胁情报报告揭示了朝鲜网络行动的新演变——将社会工程学武器化到令人不寒而栗的程度。报告披露了名为\"ClickFix\"的欺骗性策略被扩大使用，该策略被归因于朝鲜国家支持的APT（高级持续威胁）组织Kimsuky，该组织一直通过鱼叉式钓鱼、虚假招聘门户和混淆的PowerShell命令积极针对专家和机构。\n\n心理操控的精密陷阱\n\n\"ClickFix是一种欺骗性策略，诱使用户在不知情的情况下自行参与攻击链，\"报告警告称。\"ClickFix\"一词最早于2024年4月通过Proofpoint的研究出现，描述了一种攻击方式：用户以为自己在修复浏览器错误，从虚假的Chrome错误消息中复制PowerShell命令——无意中释放了恶意软件。\n\n到2025年初，GSC确认Kimsuky已将这种技术武器化，并将其整合到他们长期运行的\"BabyShark\"威胁活动中。ClickFix的精妙之处——也是其危险之处——在于其隐蔽性。与充满危险信号的典型钓鱼邮件不同，ClickFix通过熟悉感建立信任。它伪装成：\n\n包含多语言说明的PDF手册\n面向国防研究人员的求职网站\n韩国门户网站的伪造安全设置页面\n\n\n访问安全文档的说明手册 | 图片来源：Genians\n\n多管齐下的攻击手法\n\n2025年3月的一起钓鱼案例中，攻击者冒充美国国家安全助理，要求目标使用文本文件中的\"认证码\"访问\"安全文档\"。陷阱在于：该代码实际上是经过反向混淆的PowerShell命令，视觉上被打乱以避免怀疑：\n\n$req_value=-join $value.ToCharArray()[-1..-$value.Length];\ncmd /c $req_value;\nexit;\n\n\n执行后，该命令将受害者的机器连接到命令与控制(C2)服务器，建立持久性并收集敏感信息。GSC报告强调了多种传播方法：\n\n基于VBS的鱼叉式钓鱼：以面试邀请为诱饵，通过pCloud发送恶意VBS文件，启动数据外泄至C2域名konamo[.]xyz\n基于网络的漏洞利用：虚假招聘门户诱使用户安装Chrome远程桌面，为攻击者提供基于SSH的远程访问\n验证码欺骗：伪造门户网站要求用户完成验证码，实则执行伪装成常规安全行为的PowerShell代码\n语言指纹与基础设施\n\n所有变种都导致类似结果：通过HncUpdateTray.exe等熟悉名称实现完全系统入侵，这是一个被重新用于数据窃取的AutoIt脚本。除了基础设施重叠和恶意软件重用外，GSC报告还揭示了更微妙之处：语言指纹。\n\n在钓鱼信息中，朝鲜式词汇如使用\"래일\"而非\"내일\"(明天)，以及\"지령\"(命令)、\"체계 정보\"(系统信息)等术语暴露了来源。这种语言分析与重复出现的C2地址和代码模式等技术标记相结合，强化了对Kimsuky的归因。\n\nKimsuky的基础设施横跨raedom[.]store、securedrive.fin-tech[.]com和kida.plusdocs.kro[.]kr等域名，通常托管在韩国和美国服务器上。追踪到中国和越南的IP也参与其中，表明这是一个地理分布广泛的操作。\n\n防御建议\n\n感染链经常使用Proton Drive或Google Drive进行文件传递，进一步将恶意文件伪装成合法文件。GSC提供的MD5哈希和变体信息表明其快速迭代和针对性部署。\n\n\"ClickFix本质上是一种心理操控策略，引导用户在不知不觉中一步步运行恶意命令，而无法识别威胁，\"GSC报告强调。为应对此类高级威胁，安全团队必须：\n\n部署端点检测与响应(EDR)工具识别异常命令行行为\n投资安全意识培训——特别是突出真实攻击模拟\n强化浏览器安全，为非管理员用户禁用不必要的PowerShell访问\n\n参考来源：\n\nClickFix Unmasked: How North Korea’s Kimsuky Group Turned PowerShell into a Weapon of Psychological Deception",
+  "published_date": "2025-07-01",
+  "crawl_time": "2026-07-07T17:18:18Z",
+  "tags": [
+    "企业安全"
+  ]
+}

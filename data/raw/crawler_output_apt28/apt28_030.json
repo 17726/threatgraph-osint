@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_030",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/articles/472065.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "APT28黑客组织在微软2026年2月补丁日前利用MSHTML框架0Day漏洞",
+  "language": "zh",
+  "raw_text": "漏洞概况\n\n微软HTML（MSHTML）框架中存在一个0Day漏洞（CVE-2026-21513），该漏洞允许攻击者绕过安全功能并执行任意文件。这个CVSS评分为8.8的高危漏洞影响所有Windows版本。\n\nAkamai安全研究人员发现，俄罗斯国家支持的黑客组织APT28在微软2026年2月补丁发布前就已在利用此漏洞。\n\n技术分析\n\nAkamai研究人员使用多Agent AI系统PatchDiff-AI进行自动化根因分析，发现漏洞存在于ieframe.dll的_AttemptShellExecuteForHlinkNavigate函数中，该函数负责处理超链接导航。\n\n特征\t详情\nCVE编号\tCVE-2026-21513\nCVSS评分\t8.8（高危）\n受影响组件\tMSHTML框架（ieframe.dll）\n影响\t安全功能绕过、任意代码执行\n补丁日期\t2026年2月补丁日\n\n漏洞源于对目标URL验证不足，导致攻击者控制的输入能够到达调用ShellExecuteExW的代码路径，从而在浏览器安全上下文之外执行本地或远程资源。\n\n攻击活动\n\n研究人员将漏洞代码路径与公开威胁情报相关联，发现VirusTotal在2026年1月30日提交的恶意样本document.doc.LnK.download。该样本与APT28相关基础设施关联，使用特制的Windows快捷方式（.lnk）文件，在标准LNK结构后嵌入HTML文件。\n\n执行时，LNK文件会连接至APT28多阶段攻击活动中使用的域名wellnesscaremed[.]com。Akamai分析显示，该漏洞利用嵌套iframe和多个文档对象模型（DOM）上下文来操纵信任边界。\n\n该技术绕过了网络标记（MotW）和Internet Explorer增强安全配置（IE ESC），通过降级安全上下文，攻击者可触发易受攻击的导航流并执行任意代码。\n\n修复措施\n\n微软在2026年2月补丁日更新中修复了该漏洞，引入了对超链接协议的更严格验证，确保file://、http://和https://等支持的协议在浏览器上下文中执行，而非直接传递给ShellExecuteExW。\n\n入侵指标（IOC）\n\nAkamai研究人员提供了以下IOC以协助网络防御：\n\n名称\t指标\ndocument.doc.LnK\taefd15e3c395edd16ede7685c6e97ca0350a702ee7c8585274b457166e86b1fa\n域名\twellnesscaremed...com\nMITRE技术\tT1204.001, T1566.001\n\nAkamai警告称，虽然观察到的攻击使用了特定的恶意.LNK文件活动，但任何嵌入MSHTML的组件都可能触发该漏洞。建议组织应用2026年2月的安全更新以降低风险，并对其他可能的传播方式保持警惕。\n\n参考来源：\n\nMSHTML Framework 0-Day Exploited by APT28 Hackers Before Feb 2026’s Patch Tuesday Update",
+  "published_date": "2026-03-02",
+  "crawl_time": "2026-07-07T16:18:37Z",
+  "tags": [
+    "技术"
+  ]
+}

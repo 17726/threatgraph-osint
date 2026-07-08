@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_019",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/network/321702.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "Kimsuky 正在使用 xRAT 进行窃密",
+  "language": "zh",
+  "raw_text": "近日，ASEC 分析人员发现 Kimsuky 组织正在使用 xRAT（基于 Quasar RAT 定制的开源 RAT）恶意软件。\n\n根据 AhnLab 收集到的日志，在 1 月 24 日攻击者在失陷主机上部署了 Gold Dragon 的变种。判断是 Gold Dragon 的依据如下：\n\n样本注入方式与 Gold Dragon 的方法相同，都是在 iexplore.exe、svchost.exe 等进程上执行 process hollowing\n\n通过 49B46336-BA4D-4905-9824-D282F05F6576 终止 AhnLab 产品\n\n终止 Daum Cleaner (daumcleaner.exe) 进程\n\n攻击者通过专属安装程序 installer_sk5621.com.co.exe安装 Gold Dragon，程序通过 C&C 服务器下载 Gzip 压缩的 Gold Dragon 样本并在 %temp%路径中将其解压为 in[random 4 numbers].tmp，再通过 rundll32.exe 执行。\n\n本次发现的 Gold Dragon 有四个导出函数：\n\nPerform\n\nProcess\n\nStart\n\nWork\n\n安装程序通过 Start参数执行 Gold Dragon。在执行 Start导出函数后，Gold Dragon 会复制自身到指定位置并设置 DLL 文件持久化，注册表项中使用了 Perform参数。\n\n注册表\n\n发现的变种文件使用系统命令获取相关信息，这才过往的样本中并未发现。这意味着攻击者可能使用了模块化加载，攻击者可以通过 C&C 服务器下载其他模块获得更多功能。\n\ncmd.exe /c ipconfig/all >>”%s” & arp -a >>”%s”\ncmd.exe /c systeminfo >>”%s”\ncmd.exe /c tasklist >>”%s”\n\n攻击者通过安装 xRAT（cp1093.exe）来为远程控制提供便利。样本执行后会复制正常的 PowerShell 进程（powershell_ise.exe）到 C:\\ProgramData\\路径并通过 process hollowing 执行。\n\nxRAT\n\n攻击者为了清除攻击痕迹，还开发了额外的程序（UnInstall_kr5829.co.in.exe）随着 xRAT 一起下发。\n\n清除痕迹代码\n\nIOC\n\n40b428899db353bb0ea244d95b5b82d9\n4ea6cee3ecd9bbd2faf3af73059736df\n070f0390aad17883cc8fad2dc8bc81ba\nb841d27fb7fee74142be38cee917eda5\n\n参考来源\n\nASEC",
+  "published_date": "2022-02-11",
+  "crawl_time": "2026-07-07T17:19:38Z",
+  "tags": [
+    "基础安全"
+  ]
+}

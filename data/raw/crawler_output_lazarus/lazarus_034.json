@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_034",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/news/286810.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "Lazarus组织针对加密货币行业的社工攻击",
+  "language": "zh",
+  "raw_text": "事件背景\n\n近期深信服安全团队捕获到了Lazarus组织针对加密货币相关行业的社工攻击活动，该组织在寻找到攻击目标信息后，疑似通过即时通讯软件主动和目标取得联系，并发送修改过的开源PDF软件(Secure PDF Viewer.exe)和携带加密payload的恶意PDF文件(Android Hardware Wallet.pdf)。单独打开”Secure PDF Viewer.exe”无恶意行为，”Android Hardware Wallet.pdf”无法用常规软件打开，所以该组织会利用社工的方式，诱使攻击目标使用exe文件查看pdf文件，最终解密出后台恶意程序执行，达到远控和窃取信息的目的。\n\n对比了2021年初Google披露的Lazarus组织针对安全研究人员的攻击活动，发现本次活动有以下特征：\n\n对加密货币相关目标发起攻击，符合Lazarus组织的一贯的“搞钱”目标;\n\n本次出现的组件其执行与加载方式与2021年初披露Lazarus组织组件加载方式一致，都是”exe 文件名 函数名 16字节校验数据 4位未知数字”;\n\nC2格式与2021年初披露的C2格式一致,  形如“image/upload/upload.asp”;\n\n攻击流程如下：\n\n详细分析\n\n诱饵pdf文件Android Hardware Wallet.pdf打开后内容如下，可根据内容和文件名判断为针对加密货币行业的攻击活动\n\n其社工攻击发送文件如下，其中”Secure PDF Viewer.exe”为为攻击者修改过的PDF开源软件，”Android Hardware Wallet.pdf” 为恶意PDF文件\n\n“Secure PDF Viewer.exe”其在文件处理逻辑部分加入了恶意代码，用于解密与执行恶意文档中的第一阶段payload\n\n首先，创建“C:\\\\Programdata\\\\WindowsUpdate”路径，并且读取打开文档最后4个字节数据是否存在标记0x78563412，如果存在该标记则该文档为恶意文档\n\n读取恶意文档尾部0x208字节数据，并且使用xor解密（xor解密秘钥为0xE4）出相关数据data1\n\n解密出的数据data1如下图，解密出的数据为第一阶段payload的相关执行参数，分别为函数名、16字节校验数据以及未知数字\n\n该文件读取诱饵pdf文件大小，并解密该诱饵文件释放到“%appdata%”下同名文件\n\n接着会解密第二阶段payload数据，将第二阶段payload数据写入文件C:\\ProgramData\\WindowsUpdate\\MSCache.cpl并通过rundll32.exe调用执行\n\n其释放的第二阶段payload相关信息如下\n\n描述\n\n\t\n\n详细信息\n\n\n\n\n名称\n\n\t\n\nMSCache.cpl/CAST.dll\n\n\n\n\n文件大小\n\n\t\n\n110080 bytes\n\n\n\n\n文件类型\n\n\t\n\nexe\n\n\n\n\n文件功能\n\n\t\n\ndropper\n\n\n\n\n编译时间\n\n\t\n\n2021-04-07 00:15:37 (UTC+0)\n\n\n\n\n开发平台及语言\n\n\t\n\nwin/c++\n\n\n\n\nPdb\n\n\t\n\n/\n\n\n\n\n是否加壳\n\n\t\n\n否\n\n\n\n\nmd5\n\n\t\n\nd33bceb356a04b敏5感8ce8cf5baea860239\n\n其原名为CAST.dll最终会调用CAST_encryptW导出函数执行后续动作。\n\n接着内存加密第三阶段payload数据，并在内存展开并执行\n\n其第三阶段payload相关信息如下\n\n描述\n\n\t\n\n详细信息\n\n\n\n\n名称\n\n\t\n\nDll.dll\n\n\n\n\n文件大小\n\n\t\n\n460960 bytes\n\n\n\n\n文件类型\n\n\t\n\nexe\n\n\n\n\n文件功能\n\n\t\n\ndownloader\n\n\n\n\n编译时间\n\n\t\n\n2021-04-07 00:15:37 (UTC+0)\n\n\n\n\n开发平台及语言\n\n\t\n\nwin/c++\n\n\n\n\nPdb\n\n\t\n\n/\n\n\n\n\n是否加壳\n\n\t\n\n否\n\n\n\n\nmd5\n\n\t\n\n93d04c28e2f1448a273a8e554260bd9d\n\n第三阶段payload为一个下载器，首先会初始化相关网络请求数据\n\n接着尝试向C2下载第四阶段payload并反射执行，目前C2已经无法通信，无法获取第四阶段payload数据\n\n溯源关联\n\n本次出现的组件其执行与加载方式与2021年初披露Lazarus组织组件加载方式一致，都是”rundll32.exe 文件名 函数名 16字节校验数据 4位未知数字”\n\n其C2格式与2021年初披露的C2格式一致，形如”image/upload/upload.asp”\n\n基于攻击目标和技术特征多种关联结果，确定本次攻击事件其相关组织为Lazarus组织。\n\nIOC\n\nmd5\n\n\t\n\n1a00ef6c4cc9ae09f3f7d59cd726add1\n\n\n\n\n819edb8646bf2f877ab636a8b27caafd\n\n\n\n\nurl\n\n\t\n\nhttps://www.smartaudpor[.]com/image/upload/upload.asp\n\n\n\n\ndomain\n\n\t\n\nwww.smartaudpor[.]com\n\n参考链接\n\n【2021年谷歌年初披露的Lazarus报告】https://blog.google/threat-analysis-group/new-campaign-targeting-security-researchers\n\n【深信服2021年年初披露的Lazarus分析报告】\n\nhttps://mp.weixin.qq.com/s/8hLNDgrRcbvP3W0ASrwOwQ﻿",
+  "published_date": "2021-08-30",
+  "crawl_time": "2026-07-07T16:59:04Z",
+  "tags": [
+    "资讯"
+  ]
+}

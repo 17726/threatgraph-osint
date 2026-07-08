@@ -1,0 +1,24 @@
+{
+  "doc_id": "apt28_050",
+  "target_group": "apt28",
+  "source_url": "https://thehackernews.com/2025/06/critical-10-year-old-roundcube-webmail.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "Critical 10-Year-Old Roundcube Webmail Bug Allows Authenticated Users Run Malicious Code",
+  "language": "en",
+  "raw_text": "Cybersecurity researchers have disclosed details of a critical security flaw in the Roundcube webmail software that has gone unnoticed for a decade and could be exploited to take over susceptible systems and execute arbitrary code.\nThe vulnerability, tracked as\nCVE-2025-49113\n, carries a CVSS score of 9.9 out of 10.0. It has been described as a case of post-authenticated remote code execution via PHP object deserialization.\n\"Roundcube Webmail before 1.5.10 and 1.6.x before 1.6.11 allows remote code execution by authenticated users because the _from parameter in a URL is not validated in program/actions/settings/upload.php, leading to PHP Object Deserialization,\" reads the\ndescription\nof the flaw in the NIST's National Vulnerability Database (NVD).\nThe shortcoming, which affects all versions of the software before and including 1.6.10, has been\naddressed in 1.6.11 and 1.5.10 LTS\n. Kirill Firsov, founder and CEO of FearsOff, has been credited with discovering and reporting the flaw.\nThe Dubai-based cybersecurity company\nnoted\nin a brief advisory that it intends to make public additional technical details and a proof-of-concept (PoC) \"soon\" so as to give users sufficient time to apply the necessary patches.\nPreviously disclosed security vulnerabilities in Roundcube have been a lucrative target for nation-state threat actors like APT28 and Winter Vivern. Last year, Positive Technologies revealed that unidentified hackers\nattempted\nto exploit a Roundcube flaw (CVE-2024-37383) as part of a phishing attack designed to steal user credentials.\nThen a couple of weeks ago, ESET\nnoted\nthat APT28 had leveraged cross-site scripting (XSS) vulnerabilities in various webmail servers such as Roundcube, Horde, MDaemon, and Zimbra to harvest confidential data from specific email accounts belonging to governmental entities and defense companies in Eastern Europe.\nPositive Technologies Reproduces CVE-2025-49113\nPositive Technologies, in a post published on X, said it was able to reproduce CVE-2025-49113, urging users to update to the latest version of Roundcube as soon as possible.\n\"This vulnerability allows authenticated users to execute arbitrary commands via PHP object deserialization,\" the Russian cybersecurity company\nadded\n.\nCVE-2025-49113 PoC Released Amid Exploitation Attempts\nFearsOff has\nreleased\ntechnical details of CVE-2025-49113 and a proof-of-concept (PoC) after reports of \"active exploitation and evidence of the\nexploit being sold\nin underground forums.\" Describing it as an \"email armageddon,\" the company said the vulnerability affects over 53 Million hosts.\nThe problem, according to Firsov, is rooted in the fact that starting a session variable name with an exclamation mark causes a session to get corrupted and the \"$_GET['_from']\" parameter used during image uploads for\nmanaging sender identities\nin Roundcube lacks as any sanitization, allowing an attacker to inject a malicious payload into the current session.\n\"This vulnerability is now known, exploitable, and being sold,\" Firsov\nsaid\n. \"Consider monitoring file uploads, session activity, and other indicators tied to this attack vector.\"\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2025-06-03",
+  "crawl_time": "2026-07-08T08:01:21Z",
+  "tags": [
+    "APT28",
+    "cybersecurity",
+    "email security",
+    "Malware",
+    "PHP",
+    "remote code execution",
+    "Roundcube",
+    "Threat Intelligence",
+    "Vulnerability",
+    "Webmail"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_037",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/consult/306485.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "Lazarus又作妖，近期疑似利用漏洞文档针对韩国航空业展开定向攻击",
+  "language": "zh",
+  "raw_text": "一、概述\n\nLazarus是来自境外的大型APT组织，该组织常年持续针对政府、科研、金融、航天、加密货币等机构进行定向攻击活动，其主要目的为窃取重要情报信息及获取经济利益。该组织经常以各种社会工程学方法对目标进行渗透攻击。\n\n微步情报局近期通过威胁狩猎系统监测到疑似Lazarus组织针对航空业的定向攻击活动，分析有如下发现：\n\n攻击者以“仁川国际机场求职信”等为主题向目标投递诱饵文档进行鱼叉攻击；\n\n所投递文档为使用漏洞CVE-2017-11882的RTF文档；\n\n漏洞触发之后将会从C2服务器下载执行下阶段恶意载荷，最终实现远程控制；\n\n通过关联分析，发现攻击者复用了以往的攻击手法及网络资产，在近期策划了疑似针对韩国航空公司“仁川国际机场”的定向攻击活动；\n\n微步在线通过对相关样本、IP 和域名的溯源分析，提取多条相关 IOC ，可用于威胁情报检测。微步在线威胁感知平台 TDP 、本地威胁情报管理平台 TIP 、威胁情报云 API 、互联网安全接入服务 OneDNS 、主机威胁检测与响应平台 OneEDR 、威胁捕捉与诱骗系统 HFish 蜜罐等均已支持对此次攻击事件和团伙的检测。\n\n二、详情\n\n攻击者向目标发送精心构造的求职信诱饵文档，其中有诱饵文档以“仁川国际机场公司求职信“为主题，疑似针对韩国航空公司”仁川国际机场公司“的定向攻击活动，下图为诱饵文档示例：\n\n\t\n\n\n\n\n인천국제공항공사 자소서_.rtf\n\n(仁川国际机场公司求职信)\n\n\t\n\n경도공.rtf\n\n(硬度工)\n\n攻击者所发送的诱饵文档为RTF类型文档，均利用漏洞CVE-2017-11882进行攻击，漏洞触发后将会在内存中执行payload，从服务器下载下阶段模块执行，最终实现远程控制。\n\n三、样本分析\n\n诱饵文档漏洞触发之后将会在shellcode中寻找系统进程explorer.exe，并将所携带payload注入执行。\n\n注入的payload共分为两段，第一段为执行代码，第二段为配置数据，紧跟在执行代码后面。下图即为配置数据片段，其中包含C2地址等配置信息。\n\n随后检查系统架构类型，根据x86或x64连接不同的URL：\n\nx86：https://gozdeelektronik.net/wp-content/themes/0111/movie.png\n\nx64：https://gozdeelektronik.net/wp-content/themes/0111/movie.jpg\n\n从服务器下载数据。\n\n下载成功后进行异或解密，截止分析时，服务器已无法正常响应。\n\n最后检查解密后的数据是否是PE文件数据，并在内存中加载执行。\n\n四、关联分析\n\n攻击者所使用的C2地址早在2019年就已经被批露过（https://blog.alyac.co.kr/2377?category=957259），当时攻击目标为加密货币机构，且其使用的URL格式与本次发现的完全一致。\n\n所使用C2地址可能在2020年到期后被重新注册，分析到这里时，不排除样本为以往攻击活动样本的可能性。\n\n但继续关联分析后，发现有另外一个名为“test.hwp“的攻击样本（2bfdfc2d3e8e8ec96c0426f932be22562d6d78b99de2ef6dd91aef58184419e3）使用了同样的C2，该样本于2021年10月5日首次上传到VirusTotal。\n\n此样本为HWP文档格式，主题为“COVID-19 紧急灾害基金“申请表。\n\n与以往攻击活动类似（https://blog.alyac.co.kr/2377?category=957259），其甚至使用了相同的密钥{D07F2B6A91605BA7BA8C259D1CDE0A9B}进行payload解密，该样本使用的C2服务器同样为gozdeelektronik.net，可以判定与以上样本为同一攻击者所有。\n\n在韩国相关网站查询相关信息（https://news.seoul.go.kr/welfare/archives/534906），可以看到“COVID-19 紧急灾害基金“为韩国政府近期政策，其申请时间为2021. 09.0 6~ 10. 29。以此HWP文档样本信息来看，此次所发现的样本应为攻击者近期所使用的攻击样本。\n\n从以上信息可以看到，虽然攻击者使用了以往的攻击手法以及网络资产，但其应在近期策划了疑似针对韩国航空公司“仁川国际机场”的攻击活动，从样本层面和执行流程上看，均与Lazarus过往攻击活动高度吻合；从过往攻击目标看，该组织亦长期针对航空业公司进行攻击活动，故判断Lazarus复用了以往的攻击手法及网络资产，近期疑似针对韩国航空业进行定向攻击活动。\n\n附录 - IOC\nC2\n\ngozdeelektronik.net\n\nURL\n\nhttps://gozdeelektronik.net/wp-content/themes/0111/movie.png\n\nhttps://gozdeelektronik.net/wp-content/themes/0111/movie.jpg\n\nHash\n\n5adf2dffd89b18ef6dd29ed499746d6932c9f71abd0e4db7d196a071ab13548e\n\nef1f599442fc42245a87ee927eacc359552e99154134ed4c5964ac7c03884229\n\nce387b6fab6fe0ce46d3b4b14560e7cab7c9dae72fbe679493c2e670f2bea549\n\n2bfdfc2d3e8e8ec96c0426f932be22562d6d78b99de2ef6dd91aef58184419e3\n\n附录-参考链接\n\nhttps://blog.alyac.co.kr/2377?category=957259",
+  "published_date": "2021-11-30",
+  "crawl_time": "2026-07-07T17:01:20Z",
+  "tags": [
+    "咨询"
+  ]
+}

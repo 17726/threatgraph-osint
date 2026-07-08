@@ -1,0 +1,15 @@
+{
+  "doc_id": "kimsuky_041",
+  "target_group": "kimsuky",
+  "source_url": "https://www.freebuf.com/articles/455455.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "朝鲜APT组织Kimsuky和Lazarus升级攻击武器库",
+  "language": "zh",
+  "raw_text": "Gen Threat Labs研究人员发现朝鲜国家支持的黑客组织正在使用两套新型工具集，这表明该国持续投入资源发展高级网络间谍和入侵能力。研究发现Kimsuky组织部署了一个名为\"HttpTroy\"的新型隐秘后门，而臭名昭著的Lazarus组织则被观察到使用其BLINDINGCAN远程访问工具(RAT)的升级变种。\n\n报告指出，这两起攻击活动\"揭示了相同的底层模式：隐秘代码和分层混淆\"。这两个与朝鲜有关的组织似乎正在完善其工具链，以实现在全球目标（包括韩国和加拿大的受害者）上的持久化、数据窃取和隐蔽命令执行。\n\nKimsuky攻击链：从钓鱼邮件到HttpTroy后门\n\nKimsuky组织的攻击始于伪装成VPN服务发票的钓鱼诱饵。这个名为\"250908_A_HK이노션_SecuwaySSL VPN Manager U100S 100user_견적서\"的ZIP压缩包包含一个.scr可执行文件，启动了导致最终HttpTroy后门的多阶段感染链。\n\nGen Threat Labs解释道：\"Kimsuky的攻击针对韩国的一个受害者，始于一个看似VPN发票的ZIP文件，然后悄悄安装工具，让攻击者能够移动文件、截取屏幕截图和运行命令。\"\n\n第一阶段：MemLoad_V3加载器\n\n该投放器包含三个用XOR密钥0x39加密的嵌入式文件。执行时，它会显示一个诱饵PDF（伪造的VPN账单），同时通过regsvr32.exe静默部署MemLoad_V3.dll加载器。\n\n该加载器具有两个功能：\n\n持久化：重新创建一个名为\"AhnlabUpdate\"的计划任务（模仿合法的杀毒软件任务），并配置其每分钟使用命令regsvr32.exe /s <当前文件名>运行。\n有效载荷解密：使用RC4加密解密最终阶段的有效载荷，直接在内存中执行HttpTroy后门。\n第二阶段：HttpTroy后门\n\nHttpTroy赋予攻击者对受感染系统的完全控制权，支持文件传输、命令执行、反向shell、屏幕截图捕获和进程终止。该恶意软件的复杂性在于其规避技术——API调用隐藏在自定义哈希后面，字符串使用XOR和SIMD指令进行混淆。\n\n报告指出：\"该后门避免重复使用API哈希和字符串。相反，它在运行时使用算术和逻辑运算的不同组合动态重建它们，进一步复杂化了静态分析。\"\n\n与命令控制(C2)服务器的通信通过HTTP POST请求进行，所有数据都使用XOR(0x56)和Base64编码加密。后门可以接收诸如down、exec或shell等命令，并报告\"ok\"、\"fail\"或\"connect ok\"等状态消息。\n\nLazarus组织活动：新版BLINDINGCAN RAT\n\n在另一起平行攻击活动中，Lazarus组织被观察到使用其Comebacker投放器的新版本，最终部署重新设计的BLINDINGCAN RAT。加拿大的两台受感染主机在攻击链中被捕获，恶意软件已经绕过了初始访问阶段——很可能是通过钓鱼邮件。\n\n研究人员发现了两种Comebacker变体：\n\n作为Windows服务执行的DLL样本(NetSvcInst_v1_Rundll32.dll)\n通过cmd.exe启动的EXE样本(ssh.bin)\n\n尽管格式不同，但两种变体执行相同的操作：解密有效载荷、创建注册表项并投放下一阶段的服务DLL。Gen Threat Labs观察到\"执行受特定命令行参数控制\"(DLL使用up45V3FR9ee9，EXE使用760H33ls9L5S)，确保激活的隐秘性和控制。\n\n最终有效载荷T_DLL64.dll标志着Lazarus恶意软件工程的重大进步。这个新的BLINDINGCAN变体增加了多层加密、运行时配置和扩展的命令支持。\n\n该恶意软件首先通过基于RSA的多步握手向其C2服务器进行身份验证，然后进行AES加密通信。一旦激活，它可以窃取文件、操作文件系统、截取屏幕截图，甚至使用COM接口从连接的网络摄像头拍摄照片。\n\n报告称：\"该后门作为攻击者的完整套件，为他们提供了执行任何所需操作的可能性。\"\n\n新版BLINDINGCAN支持27种独特命令，包括：\n\n文件窃取和安全删除\n命令行执行(通过CreateProcessW和CreateProcessAsUserW)\n系统枚举(操作系统、MAC地址、CPU、区域设置信息)\n屏幕截图和网络摄像头捕获\n内存PE加载和配置更新\n\n研究人员确认通信使用AES-128-CBC加密和MD5完整性验证，结合XOR和Base64编码的混淆层。\n\nGen Threat Labs总结道：\"Kimsuky和Lazarus继续完善他们的工具，表明与朝鲜有关的攻击者不仅维持着他们的武器库，还在重新发明它们。\"\n\n参考来源：\n\nNorth Korean APTs Upgrade Arsenal: Kimsuky Uses Stealthy HttpTroy, Lazarus Deploys New BLINDINGCAN RAT",
+  "published_date": "2025-11-03",
+  "crawl_time": "2026-07-07T17:17:41Z",
+  "tags": [
+    "技术"
+  ]
+}

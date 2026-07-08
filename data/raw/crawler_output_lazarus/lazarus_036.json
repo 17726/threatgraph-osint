@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_036",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/news/304518.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "朝鲜APT组织Lazarus又又又对安全人员发起攻击",
+  "language": "zh",
+  "raw_text": "摘要\n\n2021年11月10日，国外安全厂商ESET发布推文，曝光朝鲜APT组织Lazarus的最新攻击活动，该组织在分发IDA Pro 7.5软件安装包中植入两个恶意组件，意图针对安全研究人员。\n\n此前，猎影实验室也发现了该组织相关账户的一些攻击活动，并发现该组织利用漏洞研究相关内容建立账户信任感，以进一步圈定攻击目标，发起攻击。其中，我们在今年5月观察到的0Day漏洞CVE-2021-33739就是一个十分诱人的素材。\n\n简况\n\nLazarus组织长期以来一直利用后门和远程访问木马来攻击安全研究人员。2021年年初，研究人员曾披露Lazarus组织以漏洞研究合作为幌子，针对安全研究人员的网络攻击活动。近日，Lazarus再次试图针对安全研究人员展开攻击，而这次使用的诱饵是流行的 IDA Pro逆向工程应用程序的木马化版本。\n\nIDA Pro 是一种静态反编译应用程序，安全研究人员和程序员可以使用 IDA 来分析合法软件的漏洞。由于IDA Pro费用昂贵，因此一些研究人员会下载盗版破解版程序。11月10日，ESET披露了针对安全研究人员分发的IDA Pro 7.5的恶意版本。\n\n攻击过程\n\nIDA Pro安装包里的 idahelper.dll 和 win_fw.dll 文件已被攻击者修改为恶意DLL。这两个恶意组件将在安装程序中执行。修改的恶意DLL如下图：\n\n恶意win_fw.dll 会在Windows 任务计划程序中创建一个计划任务，然后从 IDA Plugins插件文件夹中执行 idahelper.dll恶意组件。\n\n一旦启动，idahelper.dll 会尝试从 https://www[.]devguardmap[.]org/board/board_read.asp?boardid=01 下载执行下一阶段的payload。\n\n\n\n\n该payload被认为是Lazarus组织之前使用的NukeSped RAT远控木马，攻击者可以通过安装的 RAT 访问研究人员的设备，从而窃取文件、截取屏幕截图、记录击键或执行进一步的命令。\n\n\n\n\n最后，ESET团队基于网络指标和攻击中使用的恶意软件，以及谷歌和微软的报告，将本次攻击归因到Lazarus组织。\n\n\n\n\n\n\n\n关联分析\n\n猎影实验室在5月捕获一个未知windows内核0day样本（也就是后来的CVE-2021-33739）的时候就发现，名为“mavillon1”的用户就曾在github发布过一个类似代码，当时我们就对用户“mavillon1”产生了怀疑。\n\n而在今年8月初，，ID为“mavillon1”的推特用户在转发盗版IDA Pro 7.6的时，又再一次引起我们的注意。\n\n目前，推特用户mavillon1已暂停使用。\n\n综上所述，猎影实验室以高置信度将2021年5月的CVE-2021-33739野外漏洞利用攻击活动归因到Lazarus组织，关于该漏洞的详细分析可移步至参考链接。\n\n总结\n\nLazarus组织长期以来就有针对安全研究人员的攻击历史，其目的可能是想窃取未公开的漏洞研究成果，以升级其武器库。并且通过一些漏洞研究、POC、EXP内容吸引研究者，这些攻击都展现出其针对性以及迷惑性。我们也怀疑该组织在以往攻击中成功偷盗了一些比较有价值的漏洞研究相关的内容。安全研究人员在日常的研究及互联网社交中，应保持警惕。\n\nIOC\n\nA8EF73CC67C794D5AA860538D66898868EE0BEC0（win_fw.dll）\n\nDE0E23DB04A7A780A640C656293336F80040F387（idahelper.dll）\n\ndevguardmap[.]org\n\nhttps://www[.]devguardmap[.]org/board/board_read.asp?boardid=01\n\n文章参考\n\nESET厂商推文链接\n\nhttps://twitter.com/esetresearch/status/1458438155149922312\n\n《又捕获到一个0day！安恒威胁情报中心再次发力，漏洞可影响最新版WIN10》\n\nhttps://mp.weixin.qq.com/s/ZjJ4kXOCTSez2erVKYzKbg",
+  "published_date": "2021-11-12",
+  "crawl_time": "2026-07-07T17:00:15Z",
+  "tags": [
+    "资讯"
+  ]
+}

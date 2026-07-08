@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_035",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/consult/304510.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "朝鲜APT组织使用带后门IDA软件攻击安全研究人员",
+  "language": "zh",
+  "raw_text": "2021年初，朝鲜APT组织Lazarus通过养推特大V账号，配合定制开发的恶意软件+0day漏洞针对安全研究人员进行了一系列的网络攻击活动，详细可见：通过社交媒体针对安全研究人员的社会工程学攻击活动。\n\n而就在2021年11月10日，国外安全厂商ESET曝光了该组织的另一起攻击活动，在该活动中，Lazarus组织使用了带有两个后门文件的IDA Pro 7.5软件，针对安全研究人员进行攻击。IDA（Interactive Disassembler）是Hex-Rayd公司的一款世界顶级的交互式反汇编工具，被安全研究人员常用于二进制分析逆向等用途。\n\n攻击者用恶意 DLL 文件替换了在IDA Pro 安装期间执行的内部组件 win_fw.dll。\n\n恶意 win_fw.dll 会创建一个 Windows 计划任务，该任务会从 IDA 插件文件夹中启动第二个恶意组件 idahelper.dll。\n\n启动idahelper.dll 后，其会尝试从\n\nhttps://www[.]devguardmap[.]org/board/board_read.asp?boardid=01 下载并执行下一阶段的恶意Payload。\n\n以上图片均来自推特@ESETresearch\n\n请装有泄露版IDA的同学自行检查\n\nwin_fw.dll\n\nA8EF73CC67C794D5AA860538D66898868EE0BEC0\n\nidahelper.dll\n\nDE0E23DB04A7A780A640C656293336F80040F387\n\n在本地中定期捕获流量数据包查询是否有访问相关攻击使用的域名\n\ndevguardmap[.]org\n\n在本次活动中使用的域名在2021年3月就已经曝光，而此后也一直无法对该域名进行访问连接，有理由怀疑本次活动中涉及到的恶意软件为老版本，因此对于近期网络上泄露的IDA Pro新版软件也需要多加小心，防止被\"黑吃黑\"。\n\n除此之外，黑鸟回忆起有一个曾经在推特发布过泄露版IDA软件的推特ID，与在2021年10月推特封禁的两个新的朝鲜APT组织养的推特账号有相似之处，账号均以漏洞研究为噱头进行吸粉，提高信誉后再攻击研究人员的操作。\n\n翻看后发现，Lagal1990在改名之前叫做mavillon1，目前mavillon1账号也已经被冻结。\n\n黑鸟通过群组聊天记录找到了当时mavillon1账号发布的推文，犹记当时圈内传的火热，建议当时本地安装的同学自查一二。\n\n由于Lazarus组织作为黑客组织本身也非常了解黑客群体，因此有理由怀疑除了IDA外，其他安全分析工具也可能惨遭毒手，因此如果有同学使用了非官方渠道分发的安全工具或软件（例如BurpSuite），甚至是泄露的远控（例如Cobaltstrike），请务必自行检查，防止被黑客潜伏多年而不自知。\n\n参考链接：\n\nhttps://twitter.com/ESETresearch/status/1458438155149922312\n\nhttps://github.com/blackorbird/APT_REPORT/blob/master/lazarus/README.MD\n\n通过社交媒体针对安全研究人员的社会工程学攻击活动",
+  "published_date": "2021-11-11",
+  "crawl_time": "2026-07-07T17:03:16Z",
+  "tags": [
+    "咨询"
+  ]
+}

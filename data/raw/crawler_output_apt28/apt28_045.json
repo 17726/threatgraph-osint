@@ -1,0 +1,23 @@
+{
+  "doc_id": "apt28_045",
+  "target_group": "apt28",
+  "source_url": "https://thehackernews.com/2024/05/kremlin-backed-apt28-targets-polish.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "Kremlin-Backed APT28 Targets Polish Institutions in Large-Scale Malware Campaign",
+  "language": "en",
+  "raw_text": "Polish government institutions have been targeted as part of a large-scale malware campaign orchestrated by a Russia-linked nation-state actor called\nAPT28\n.\n\"The campaign sent emails with content intended to arouse the recipient's interest and persuade him to click on the link,\" the computer emergency response team, CERT Polska,\nsaid\nin a Wednesday bulletin.\nClicking on the link redirects the victim to the domain run.mocky[.]io, which, in turn, is used to redirect to another legitimate site named webhook[.]site, a\nfree service\nthat allows developers to inspect data that's being sent via a webhook, in an effort to evade detection.\nThe next step involves the download of a ZIP archive file from webhook[.]site, which contains the Windows Calculator binary that masquerades as a JPG image file (\"IMG-238279780.jpg.exe\"), a hidden batch script file, and another hidden DLL file (\"WindowsCodecs.dll\").\nShould a victim run the application, the malicious DLL file is side-loaded by means of a technique called DLL side-loading to ultimately run the batch script, while images of an \"actual woman in a swimsuit along with links to her real accounts on social media platforms\" are displayed in a web browser to maintain the ruse.\nThe batch script simultaneously downloads a JPG image (\"IMG-238279780.jpg\") from webhook[.]site that's subsequently renamed to a CMD script (\"IMG-238279780.cmd) and executed, following which it retrieves the final-stage payload to gather information about the compromised host and send the details back.\nCERT Polska said the attack chain bears similarities to a previous campaign that propagated a custom backdoor called\nHeadLace\n.\nIt's worth noting that the abuse of legitimate services like Mocky and webhook[.]site is a tactic\nrepeatedly adopted\nby\nAPT28 actors\nso as to sidestep detection by security software.\n\"If your organization does not use the above-mentioned services, we recommend that you consider blocking the above-mentioned domains on edge devices,\" it added.\n\"Regardless of whether you use the above-mentioned websites, we also recommend filtering emails for links in webhook.site and run.mocky.io, because cases of their legitimate use in the email content are very rare.\"\nThe development comes days after NATO countries\naccused\nthe Kremlin-backed group of conducting a long-term cyber espionage campaign targeting their political entities, state institutions, and critical infrastructure.\nAPT28's malicious activities have also expanded to target iOS devices with the XAgent spyware, which was\nfirst detailed\nby Trend Micro in connection with a campaign dubbed Operation Pawn Storm in February 2015.\n\"Primarily targeting political and government entities in Western Europe, XAgent possesses capabilities for remote control and data exfiltration,\" Broadcom-owned Symantec\nsaid\n.\n\"It can gather information on users' contacts, messages, device details, installed applications, screenshots, and call records. This data could potentially be used for social engineering or spear-phishing campaigns.\"\nNews of APT28's attacks on Polish entities also follows a\nspike in financially motivated attacks\nby Russian e-crime groups like\nUAC-0006\ntargeting Ukraine in the second half of 2023, even as organizations in Russia and Belarus have been targeted by a nation-state actor known as\nMidge\nto deliver malware capable of plundering sensitive information.\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2024-05-09",
+  "crawl_time": "2026-07-08T08:01:30Z",
+  "tags": [
+    "APT28",
+    "Cyber Attack",
+    "cyber espionage",
+    "cybersecurity",
+    "Geopolitics",
+    "Malware",
+    "mobile security",
+    "Threat Intelligence",
+    "Webhook"
+  ]
+}

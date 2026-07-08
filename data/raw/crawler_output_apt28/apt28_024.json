@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_024",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/articles/ai-security/440247.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "首款AI驱动的恶意软件LameHug问世，与俄罗斯APT28组织存在关联",
+  "language": "zh",
+  "raw_text": "恶意软件利用AI生成数据窃取指令\n\n乌克兰计算机应急响应小组（CERT-UA）近日发出警告，发现一款名为LameHug的新型恶意软件，该软件利用大语言模型（LLM）在受感染的Windows系统上生成并执行恶意指令。乌克兰专家将其归因于与俄罗斯有关的APT28黑客组织（又名UAC-0001、Fancy Bear、Pawn Storm等）。\n\nCERT-UA在警报中指出：\"LAMEHUG的显著特征是使用了LLM（大语言模型），根据文本描述生成可执行命令。我们有中等把握认为该活动与UAC-0001（APT28）组织有关。\"\n\n钓鱼攻击传播途径\n\n2025年7月10日，CERT-UA发现一起针对政府部门的钓鱼攻击活动，攻击者通过伪装成政府文件的ZIP压缩包进行传播。\n\n该压缩包内含伪装成.pif文件的LAMEHUG恶意软件，该软件使用Python编写并通过PyInstaller打包。研究人员发现存在两种不同数据窃取方式的变体。攻击者使用被入侵的电子邮箱账户，并将基础设施托管在合法但已被攻陷的平台上。\n\nAI技术实现攻击自动化\n\nLAMEHUG通过huggingface[.]co服务API调用Qwen 2.5-Coder-32B-Instruct模型，基于静态输入的文本描述生成攻击指令。Qwen 2.5-Coder-32B-Instruct是由阿里巴巴Qwen团队开发的开源大语言模型，专门针对编程任务进行了优化。\n\n该恶意软件会收集系统信息，并在常见文件夹中搜索Office、PDF和TXT文档。收集的数据先存储在本地，然后通过SFTP或HTTP POST方式外传。\n\n警报中详细说明：\"该软件会收集计算机基本信息（硬件配置、进程、服务、网络连接）并存储在'%PROGRAMDATA%\\info\\info.txt'文件中，同时递归搜索'文档'、'下载'和'桌面'目录中的Microsoft Office文档（包括TXT和PDF文件），将其复制到'%PROGRAMDATA%\\info'文件夹。不同版本的程序会使用SFTP或HTTP POST请求外传获取的信息和文件。\"\n\n首例AI驱动的恶意软件\n\nLameHug是已知首款利用LLM生成攻击指令的恶意软件，使威胁行为者能够根据实际需求动态调整攻击链。该报告还包含了相关网络威胁指标。\n\n参考来源：\n\nLameHug: first AI-Powered malware linked to Russia’s APT28",
+  "published_date": "2025-07-18",
+  "crawl_time": "2026-07-07T16:19:21Z",
+  "tags": [
+    "AI安全"
+  ]
+}

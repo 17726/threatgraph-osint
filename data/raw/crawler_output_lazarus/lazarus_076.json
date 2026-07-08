@@ -1,0 +1,17 @@
+{
+  "doc_id": "lazarus_076",
+  "target_group": "lazarus",
+  "source_url": "https://ti.qianxin.com/blog/articles/analysis-of-lazarus-apt-oriented-attack-event",
+  "source_type": "threat_report",
+  "source_name": "奇安信威胁情报中心",
+  "title": "Lazarus APT组织使用西方某航空巨头招聘等信息针对特定国家的定向攻击事件分析",
+  "language": "zh",
+  "raw_text": "概述\nLazarus APT组织是疑似具有东北亚背景的APT团伙，该组织攻击活动最早可追溯到2007年，其早期主要针对韩国、美国等政府机构，以窃取敏感情报为目的。自2014年后，该组织开始针对全球金融机构 、虚拟货币交易所等为目标，进行以敛财为目的的攻击活动。\n据公开情报显示，2014 年索尼影业遭黑客攻击事件，2016 年孟加拉国银行数据泄露事件，2017年美国国防承包商、美国能源部门及英国、韩国等比特币交易所被攻击等时间都出自Lazarus之手。\n4月中旬，奇安信红雨滴团队披露了Lazarus组织利用特殊文件格式-hwp文件针对韩国的定向攻击活动，近日，红雨滴团队和奇安信APT实验室又监测到该组织利用敏感国家外交关系，西方某航空航天巨头招聘等信息开展新一轮攻击活动。此次活动中，该组织采用模板注入的方式从远程服务器获取带有恶意宏的文档执行，从而绕过杀软检测，值得注意的是第一次上传VirusTotal时仅有一家杀软成功检出。\n样本分析\n诱饵文档\n此次捕获的样本以敏感国家外交关系、西方某航空航天巨头公司招聘为诱饵，相关信息如下\n文件名\nMD5\n模板注入地址\n修改时间\nMzBfMjA1Njc0ODhf\n4c239a926676087e31d82e79e838ced1\nhttps://od.lk/d/MzBfMjA1Njc0ODdf/pubmaterial.dotm\n2020:04:06 08:49:00Z\nBoeing_PMS.docx\n183ad96b931733ad37bb627a958837db\nhttps://www.sanlorenzoyacht.com/newsl/uploads/docs/43.dotm\n2020:04:24 05:27:00Z\n样本均采用模板注入技术执行后续payload，此方式能起到极好的免杀效果，通过奇安信新一代反病毒引擎可精确检测除模板注入地址\n模板注入虽具有极强的免杀效果，但当受害者打开文档时，文档打开页面会显示远程链接地址\n文档打开后，将显示美韩关系，西方某航空航天巨头公司相关的一个封面图，以诱导受害者启用宏获取完整内容\nBoeing_PMS.docx\nMzBfMjA1Njc0ODhf\n宏文档\n嵌入的远程文档均为宏利用样本，基本信息如下\n文件名\nMD5\npubmaterial.dotm\n2efbe6901fc3f479bc32aaf13ce8cf12\n43.dotm\n65df11dea0c1d0f0304b376787e65ccb\n恶意宏被执行起来后，首先获取两个路径用于释放保存后续恶意Dll和正常的诱饵文档\n之后从窗体userforms1中获取后续dll和文档写入到文件，窗体中包含32位和64位的dll，将通过判断系统位数进行选择释放执行，数据采用两层base64编码进行保存\n之后将展示完整的诱饵文件迷惑受害者，诱饵文件内容如下\n恶意DLL\n文件名\nMD5\nonenote.db（32）\n11FDC0BE9D85B4FF1FAF5CA33CC272ED\nonenote.db（64）\nF4B55DA7870E9ECD5F3F565F40490996\nwsuser.db（32）\nF6D6F3580160CD29B285EDF7D0C647CE\nwsuser.db（64）\n2B02465B65024336A9E15D7F34C1F5D9\n释放的恶意dll功能行为基本一致，这里以onenote.db(32位)为例，恶意宏将会以参数“原始文件名，\"S-6-38-4412-76700627-315277-3247\", \"18\"”调用其导出函数CoContentInfo。\n该dll被加载起来后，首先创建线程将原始文档删除\n之后利用rundll32.exe以参数S-6-38-4412-76700627-315277-3247 0 0 18 1加载onenote.db并调用其导出函数CMS_ContentInfo，同时在启动目录下创建onenote.lnk用于实现持久化\n创建lnk文件信息如下\n利用rundll32.exe加载起来的onenote.db将调用CMS_ContentInfo函数，首先检查参数个数，若不存在或参数个数不匹配，则终止程序\n参数符合要求后，获取计算机相关信息，例如获取计算机用户名，计算机名\n遍历磁盘，获取磁盘剩余容量等信息\n获取当前系统正在运行的进程信息\n最后将获取的信息处理后与c2通信，获取后续执行\n遗憾的是，在捕获样本时没有获取到后续木马\n溯源关联\n通过奇安信ALPHA威胁分析平台等内部数据和公开威胁情报信息,发现此次攻击活动与Telsy 在2019年11月披露的Lazarus活动基本一致。\n1.相似的宏代码\n宏利用样本中的恶意宏代码基本相，均从窗体获取两次base64编码的数据并释放到对应目录执行\n2.相似的恶意dll\n同时释放执行的恶意dll代码逻辑也基本一致，均为加载起来后创建线程删除原始文档，并在启动项目录下创建lnk以实现持久化\n综合上述信息，此次攻击活动的幕后黑手应为Lazarus组织，其采用了以往活动中相似的宏以及后门进行攻击，只是加入模板注入文档加载执行宏文档，以此躲避杀软检测。\n总结\n2020年以来，疫情肆虐全球，同时网络空间的攻击活动也越发频繁，近期，东亚形势备受关注，而具有该国背景的APT组织近期也活动频繁。\n奇安信红雨滴团队提醒广大用户，切勿打开社交媒体分享的来历不明的链接，不点击执行未知来源的邮件附件，不运行夸张的标题的未知文件，不安装非正规途径来源的APP。做到及时备份重要文件，更新安装补丁\n若需运行，安装来历不明的应用，可先通过奇安信威胁情报文件深度分析平台（https://sandbox.ti.qianxin.com/sandbox/page）进行简单判别。目前已支持包括Windows、安卓平台在内的多种格式文件深度分析。\nIOC\nMD5\n4c239a926676087e31d82e79e838ced1\n183ad96b931733ad37bb627a958837db\n2efbe6901fc3f479bc32aaf13ce8cf12\n65df11dea0c1d0f0304b376787e65ccb\n11FDC0BE9D85B4FF1FAF5CA33CC272ED\n2B02465B65024336A9E15D7F34C1F5D9\nF6D6F3580160CD29B285EDF7D0C647CE\nF4B55DA7870E9ECD5F3F565F40490996\nC2\nhttps://www.elite4print.com/admin/order/batchPdfs.asp\n参考文章\nhttps://blog.telsy.com/lazarus-gate/",
+  "published_date": "2020-04-30",
+  "crawl_time": "2026-07-08T07:40:10Z",
+  "tags": [
+    "LAZARUS",
+    "APT",
+    "事件追踪"
+  ]
+}

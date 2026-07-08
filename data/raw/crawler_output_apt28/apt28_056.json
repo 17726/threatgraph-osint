@@ -1,0 +1,21 @@
+{
+  "doc_id": "apt28_056",
+  "target_group": "apt28",
+  "source_url": "https://thehackernews.com/2026/02/apt28-targeted-european-entities-using.html",
+  "source_type": "news_article",
+  "source_name": "The Hacker News",
+  "title": "APT28 Targeted European Entities Using Webhook-Based Macro Malware",
+  "language": "en",
+  "raw_text": "The Russia-linked\nstate-sponsored threat actor\ntracked as\nAPT28\nhas been attributed to a new campaign targeting specific entities in Western and Central Europe.\nThe activity, per S2 Grupo's LAB52 threat intelligence team, was active between September 2025 and January 2026. It has been codenamed\nOperation MacroMaze\n. \"The campaign relies on basic tooling and the exploitation of legitimate services for infrastructure and data exfiltration,\" the cybersecurity company\nsaid\n.\nThe attack chains employ spear-phishing emails as a starting point to distribute lure documents that contain a common structural element within their XML, a field named \"INCLUDEPICTURE\" that points to a webhook[.]site URL that hosts a JPG image. This, in turn, causes the image file to be fetched from the remote server when the document is opened.\nPut differently, this mechanism acts as a beacon akin to a tracking pixel that triggers an outbound HTTP request to the webhook[.]site URL upon opening the document. The server operator can log metadata associated with the request, confirming that the document was indeed opened by the recipient.\nLAB52 said it identified multiple documents with slightly tweaked macros between late September 2025 and January 2026, all of which function as a dropper to establish a foothold on the compromised host and deliver additional payloads.\n\"While the core logic of all the macros detected remains consistent, the scripts show an evolution in evasion techniques, ranging from 'headless' browser execution in the older version to the use of keyboard simulation (SendKeys) in the newer versions to potentially bypass security prompts,\" the Spanish cybersecurity company explained.\nThe macro is designed to execute a Visual Basic Script (VBScript) to move the infection to the next stage. The script, for its part, runs a CMD file to establish persistence via scheduled tasks and launch a batch script for rendering a small Base64-encoded HTML payload in Microsoft Edge in headless mode to evade detection, retrieve a command from the webhook[.]site endpoint, execute it, capture its out, and exfiltrate it to another webhook[.]site instance in the form of an HTML file.\nA second variant of the batch script has been found to eschew headless execution in favor of moving the browser window off-screen, followed by aggressively terminating all other Edge browser processes to ensure a controlled environment.\n\"When the resulting HTML file is rendered by Microsoft Edge, the form is submitted, causing the collected command output to be exfiltrated to the remote webhook endpoint without user interaction,\" LAB52 said. \"This browser-based exfiltration technique leverages standard HTML functionality to transmit data while minimizing detectable artifacts on disk.\"\n\"This campaign proves that simplicity can be powerful. The attacker uses very basic tools (batch files, tiny VBS launchers and simple HTML) but arranges them with care to maximise stealth: Moving operations into hidden or off-screen browser sessions, cleaning up artifacts, and outsourcing both payload delivery and data exfiltration to widely used webhook services.\"\nFound this article interesting? Follow us on\nGoogle News\n,\nTwitter\nand\nLinkedIn\nto read more exclusive content we post.",
+  "published_date": "2026-02-23",
+  "crawl_time": "2026-07-08T08:00:59Z",
+  "tags": [
+    "APT28",
+    "cybersecurity",
+    "data exfiltration",
+    "Malware",
+    "Microsoft Edge",
+    "Threat Intelligence",
+    "Webhook"
+  ]
+}

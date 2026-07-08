@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_016",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/news/253332.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "APT28针对IOT设备(网络)的攻击和控制方式",
+  "language": "zh",
+  "raw_text": "1 综合性总结\n1.1 基本信息整合\n\n2019年8月5日，微软安全响应中心发布报告称捕获APT28入侵IOT设备的攻击活动，并公布5个C2，分别是167.114.153.55、94.237.37.28、82.118.242.171、31.220.61.251和128.199.199.187。\n\n2020年8月13日，美国国家安全局(NSA)和联邦调查局(FBI)发布了有关APT28的以前未公开的Linux rootkit样本，称为“Drovorub”的网络安全报告。该报告详细阐述了Drovorub各个组件以及详细的技术细节。\n\n2020年8月20日，ThreatRavens根据微软报告以及NSA和FBI发布的联合报告确认了四个相关样本，分别是92572b240aea1a9952f4ee3f24bd6b4e、c709e0963ad64f87d9c7a05ddd2eb7c5、af11bff029977b28c62224ceb2c271a8和6842f2f69237699fb954e8f53723e4ec。前三个样本是shell脚本，用以在网络上建立持久性，所连C2均是167.114.153.55，也正是微软报告中声称的shell脚本；最后一个样本是C++类型文本，其内容中包含82.118.242.171等多个C2。\n\n1.2 关于入侵活动的具体细节\n\n微软报告中提到的活动目标是几个第三方客户。在攻击活动中，APT28入侵了三个设备。视频解码器以及VOIP电话通过默认口令进入，打印机通过漏洞进入。\n\n在侦察阶段，入侵者发现目标服务账户没有多因素认证，因为它们广泛用于自动化和日常任务中。之后在入侵中，连接到internet的视频解码器具有默认口令，入侵者通过默认口令登录并与目标网络建立连接②；通过漏洞控制打印机，并且使用默认口令登录VOIP电话设备，入侵之之后使用这两类设备扫描目标网络③；通过外部VPN登录到与IOT相关IP地址的泄露账户④，之后再针对目标展开内网渗透。入侵者运行了tcpdump嗅探本地流量，在横向移动时使用shell脚本建立持久性，该shell脚本通过openssl与C2建立连接。\n\n1.3 FBI/NSA将Drovorub归属为APT28\n\n根据FBI/NSA的联合报告显示，2019年4月，FBI/NSA确认了82.118.242.171访问了Drovorub的C2(185.86.149.125)。2019年8月5日，微软确认82.118.242.171为APT28基础设施。因此将Drovorub归结为APT28的恶意软件。同样，ThreatRavens也将6842f2f69237699fb954e8f53723e4ec(C++类型)样本根据IP归档为APT28。\n\n白泽安全实验室猜想微软捕获的攻击活动为杀伤链前半部分，而FBI/NSA捕获的Drovorub为杀伤链后半部分，二者综合可以构成完整杀伤链与攻击活动。\n\n2 Drovorub概述\n\nDrovorub是一种Linux恶意软件工具集，由植入物、内核模块rootkit、文件传输和端口转发工具以及命令控制(C2)服务器组成。当部署在受害机器上时，Drovorub植入物(客户端)将提供与C2通信、文件下载和上传、以“root”身份执行任意命令以及利用端口转发将网络流量转发到C2或其他主机等功能。内核模块rootkit使用多种方法来隐藏自身和其他植入物，并通过重新启动受害机器来达到持久化目的。\n\nDrovorub恶意软件套件由四个独立的可执行组件组成：Drovorub-agent、Drovorub-client、Drovorub-server和Drovorub-kernel模块。组件之间的通信是通过WebSockets上的JSON进行的，Drovorub-agent、Drovorub-client和Drovorub-server需要配置文件和RSA公钥或私钥来通信。\n\nDrovorub-client\n\n\t\n\n植入物\n\n\t\n\n入侵者将Drovorub-client(客户端)安装在目标端点上。该组件从远程Drovorub-server(服务器)接收命令，并提供与受害者之间的文件传输、端口转发和远程shell功能。Drovorub-client与Drovorub-kernel打包在一起。\n\n\n\n\nDrovorub-kernel\n\n\t\n\nRootkit\n\n\t\n\nDrovorub-kernel(内核)实现了用于在受害者空间隐藏自身和各种工件(指定文件和目录、网络端口和会话、Drovorub-client进程及其子进程)的基本功能。\n\n\n\n\nDrovorub-agent\n\n\t\n\n端口转发和文件传输工具\n\n\t\n\nDrovorub-agent(代理)安装在联网主机或入侵者控制的基础结构上，从Drovorub-server(服务器)接收命令，目的是将文件下载到Drovorub-client(客户端)或者从客户端上传文件，以及通过端口中继转发网络流量。它包括与Drovorub-client相同的功能。\n\n\n\n\nDrovorub-server\n\n\t\n\nC2\n\n\t\n\n安装在入侵者控制的基础结构上的Drovorub-server(服务器)为Drovorub-agent(代理)和Drovorub-client(客户端)启动C2。它使用MySQL来管理连接的客户端和代理，该数据库用于存储客户端和代理的注册、身份验证和任务分配的数据。\n\n3 参考链接\n\nhttps://media.defense.gov/2020/Aug/13/2002476465/-1/-1/0/CSA_DROVORUB_RUSSIAN_GRU_MALWARE_AUG_2020.PDF\n\nhttps://msrc-blog.microsoft.com/2019/08/05/corporate-iot-a-path-to-intrusion/\n\nhttps://threatravens.com/drovorub-linux-rootkit-iocs/\n\n4 白泽安全实验室\n\n原文地址：https://mp.weixin.qq.com/s/5zIoWpwzgMgML7tw8l5Nqg\n\n公众号搜索：白泽安全实验室",
+  "published_date": "2020-10-28",
+  "crawl_time": "2026-07-07T16:21:42Z",
+  "tags": [
+    "资讯"
+  ]
+}

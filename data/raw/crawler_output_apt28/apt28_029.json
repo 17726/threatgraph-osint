@@ -1,0 +1,15 @@
+{
+  "doc_id": "apt28_029",
+  "target_group": "apt28",
+  "source_url": "https://www.freebuf.com/articles/472016.html",
+  "source_type": "news_article",
+  "source_name": "FreeBuf",
+  "title": "APT28组织利用MSHTML框架0Day漏洞（CVE-2026-21513）在微软补丁发布前实施攻击",
+  "language": "zh",
+  "raw_text": "Akamai最新研究发现，与俄罗斯有关联的国家级威胁组织APT28可能已利用微软近期修补的一个安全漏洞实施攻击。该漏洞编号为CVE-2026-21513（CVSS评分：8.8），属于MSHTML框架安全功能绕过漏洞，危害等级为高危。\n\n微软在漏洞公告中指出：\"MSHTML框架的保护机制失效，可使未经授权的攻击者通过网络绕过安全功能。\"微软已在2026年2月补丁星期二更新中修复该漏洞。但微软同时确认，该漏洞在现实攻击中已被作为0Day利用，并感谢微软威胁情报中心（MSTIC）、微软安全响应中心（MSRC）、Office产品组安全团队以及谷歌威胁情报小组（GTIG）的报告。\n\n攻击技术分析\n\n在典型攻击场景中，攻击者会诱骗受害者打开通过链接或邮件附件传送的恶意HTML文件或快捷方式（LNK）文件。微软指出，当精心构造的文件被打开后，会操纵浏览器和Windows Shell的处理流程，导致操作系统执行恶意内容，从而使攻击者绕过安全功能并可能实现代码执行。\n\n虽然微软未正式公布0Day利用的具体细节，但Akamai表示已识别出2026年1月30日上传至VirusTotal的恶意样本，该样本与APT28关联的基础设施存在联系。值得注意的是，乌克兰计算机应急响应小组（CERT-UA）上月初已将该样本标记为APT28利用另一个微软Office漏洞（CVE-2026-21509，CVSS评分：7.8）实施攻击的关联样本。\n\n漏洞利用机制\n\nAkamai分析指出，CVE-2026-21513漏洞源于\"ieframe.dll\"中处理超链接导航的逻辑缺陷，由于对目标URL验证不足，导致攻击者控制的输入可到达调用ShellExecuteExW的代码路径，从而在预期浏览器安全上下文之外执行本地或远程资源。\n\n安全研究员Maor Dahan表示：\"该攻击载荷包含一个精心构造的Windows快捷方式（LNK），在标准LNK结构后直接嵌入HTML文件。LNK文件会启动与wellnesscaremed[.]com域名的通信，该域名归属于APT28，已被广泛用于攻击活动的多阶段载荷分发。漏洞利用通过嵌套iframe和多DOM上下文操纵信任边界。\"\n\n安全防护绕过\n\nAkamai强调，该技术可使攻击者绕过网络标记（MotW）和Internet Explorer增强安全配置（IE ESC），导致安全上下文降级，最终通过ShellExecuteExW在浏览器沙箱外执行恶意代码。公司补充说明：\"虽然已观测到的攻击活动主要利用恶意LNK文件，但任何嵌入MSHTML的组件都可能触发漏洞代码路径。因此，除基于LNK的钓鱼攻击外，还应防范其他可能的传播方式。\"\n\n参考来源：\n\nAPT28 Tied to CVE-2026-21513 MSHTML 0-Day Exploited Before Feb 2026 Patch Tuesday",
+  "published_date": "2026-03-02",
+  "crawl_time": "2026-07-07T16:18:45Z",
+  "tags": [
+    "技术"
+  ]
+}
