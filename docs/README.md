@@ -14,6 +14,7 @@
 | [`docker-runtime.md`](docker-runtime.md)                                 | Docker 部署与运行说明                                                   |
 | [`reference-comparison.md`](reference-comparison.md)                     | 开源项目对比分析                                                        |
 | [`references/course-requirements.md`](references/course-requirements.md) | 课程实验要求（脱敏）                                                    |
+| [`guides/`](guides/)                                                     | 面向各组的上手指南和交付检查                                            |
 | [`plans/`](plans/)                                                       | 实施计划                                                                |
 | [`reference-architecture-reports/`](reference-architecture-reports/)     | 开源架构调研报告（GraphRAG / MISP / OpenCTI / SpiderFoot / TypeDB-CTI） |
 

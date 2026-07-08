@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://threatgraph-osint.local/schemas/extraction-result.schema.json",
+  "title": "ThreatGraph LLM Extraction Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "doc_id", "model_name", "prompt_version", "chunks"],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "doc_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "prompt_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "chunks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/chunk_result"
+      }
+    }
+  },
+  "$defs": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "APT_GROUP",
+        "ORGANIZATION",
+        "PERSON",
+        "MALWARE",
+        "TOOL",
+        "CVE",
+        "TECHNIQUE",
+        "TARGET",
+        "COUNTRY",
+        "REGION",
+        "INDUSTRY",
+        "TIME",
+        "EVENT",
+        "CAMPAIGN",
+        "BEHAVIOR_PATTERN"
+      ]
+    },
+    "relation_type": {
+      "type": "string",
+      "enum": [
+        "USES",
+        "TARGETS",
+        "EXPLOITS",
+        "ATTRIBUTED_TO",
+        "AFFILIATED_WITH",
+        "LOCATED_IN",
+        "HAPPENED_AT",
+        "PART_OF",
+        "LEADS_TO",
+        "RELATED_TO",
+        "DISCOVERED_BY",
+        "CAUSES",
+        "HAS_BEHAVIOR"
+      ]
+    },
+    "candidate_status": {
+      "type": "string",
+      "enum": ["candidate", "accepted", "rejected", "merged"]
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": ["unchecked", "valid", "invalid"]
+    },
+    "chunk_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["chunk_id", "entities", "relations"],
+      "properties": {
+        "chunk_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/extracted_entity"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/extracted_relation"
+          }
+        }
+      }
+    },
+    "extracted_entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type",
+        "aliases",
+        "description",
+        "mention_text",
+        "evidence_text",
+        "char_start",
+        "char_end",
+        "confidence",
+        "candidate_status",
+        "validation_status",
+        "validation_errors"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "$ref": "#/$defs/entity_type"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "description": {
+          "type": "string"
+        },
+        "mention_text": {
+          "type": "string"
+        },
+        "evidence_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "char_start": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "char_end": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "candidate_status": {
+          "$ref": "#/$defs/candidate_status"
+        },
+        "validation_status": {
+          "$ref": "#/$defs/validation_status"
+        },
+        "validation_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "extracted_relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "head_name",
+        "head_type",
+        "relation_type",
+        "tail_name",
+        "tail_type",
+        "evidence_text",
+        "char_start",
+        "char_end",
+        "confidence",
+        "candidate_status",
+        "validation_status",
+        "validation_errors"
+      ],
+      "properties": {
+        "head_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "head_type": {
+          "$ref": "#/$defs/entity_type"
+        },
+        "relation_type": {
+          "$ref": "#/$defs/relation_type"
+        },
+        "tail_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tail_type": {
+          "$ref": "#/$defs/entity_type"
+        },
+        "evidence_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "char_start": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "char_end": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "candidate_status": {
+          "$ref": "#/$defs/candidate_status"
+        },
+        "validation_status": {
+          "$ref": "#/$defs/validation_status"
+        },
+        "validation_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

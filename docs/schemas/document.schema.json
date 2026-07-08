@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://threatgraph-osint.local/schemas/document.schema.json",
+  "title": "ThreatGraph Document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "doc_id",
+    "schema_version",
+    "target_group",
+    "target_groups",
+    "source_url",
+    "source_type",
+    "source_name",
+    "title",
+    "language",
+    "raw_text",
+    "content_hash",
+    "published_at",
+    "retrieved_at",
+    "source_reliability",
+    "tlp",
+    "tags",
+    "metadata"
+  ],
+  "properties": {
+    "doc_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9_\\-]*$"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "target_group": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_groups": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "source_url": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "security_report",
+        "vendor_report",
+        "knowledge_base",
+        "government_notice",
+        "news",
+        "social_forum",
+        "blog",
+        "other"
+      ]
+    },
+    "source_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "language": {
+      "type": "string",
+      "enum": ["zh", "en"]
+    },
+    "raw_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "published_at": {
+      "type": ["string", "null"]
+    },
+    "retrieved_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_reliability": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D", "unknown"]
+    },
+    "tlp": {
+      "type": "string",
+      "enum": ["TLP:CLEAR", "TLP:GREEN", "TLP:AMBER", "TLP:RED"]
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

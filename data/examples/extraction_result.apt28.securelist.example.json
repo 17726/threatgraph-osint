@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_apt28_securelist_masha_bears_001",
+  "doc_id": "apt28_securelist_masha_bears_001",
+  "model_name": "manual-mock",
+  "prompt_version": "extract-v1",
+  "chunks": [
+    {
+      "chunk_id": "apt28_securelist_masha_bears_001_c001",
+      "entities": [
+        {
+          "name": "APT28",
+          "type": "APT_GROUP",
+          "aliases": ["Sofacy", "Fancy Bear", "Tsar Team"],
+          "description": "以 APT28 为标准名归一化的 Sofacy/Fancy Bear/Tsar Team 组织实体。",
+          "mention_text": "Sofacy / APT28 / Fancy Bear / Tsar Team",
+          "evidence_text": "Cleaned sample summary says Sofacy is tracked under APT28, Fancy Bear, and Tsar Team aliases.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.96,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "name": "XAgent",
+          "type": "MALWARE",
+          "aliases": ["SPLM", "CHOPSTICK"],
+          "description": "Securelist 样例中提到的选择性二阶段工具/恶意软件家族。",
+          "mention_text": "SPLM / CHOPSTICK / XAgent",
+          "evidence_text": "Cleaned sample summary links SPLM, CHOPSTICK, and XAgent as the same second-stage tool family.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "name": "Zebrocy",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "Securelist 样例中与 Sofacy 活动一起讨论的恶意软件集群。",
+          "mention_text": "Zebrocy",
+          "evidence_text": "Cleaned sample summary describes Zebrocy activity alongside SPLM in Sofacy activity.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.88,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "name": "China",
+          "type": "COUNTRY",
+          "aliases": [],
+          "description": "Securelist 样例中提到的目标地区之一。",
+          "mention_text": "China",
+          "evidence_text": "Cleaned sample summary highlights targeting activity including China.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.86,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "name": "military and foreign affairs related organizations",
+          "type": "TARGET",
+          "aliases": ["military organizations", "foreign affairs organizations"],
+          "description": "Securelist 样例中提到的目标组织类型。",
+          "mention_text": "military or foreign affairs related organizations",
+          "evidence_text": "Cleaned sample summary describes targeting of military or foreign affairs related organizations.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.84,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "XAgent",
+          "tail_type": "MALWARE",
+          "evidence_text": "Cleaned sample summary links SPLM, CHOPSTICK, and XAgent as the same second-stage tool family used in Sofacy activity.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Zebrocy",
+          "tail_type": "MALWARE",
+          "evidence_text": "Cleaned sample summary describes Zebrocy activity alongside SPLM in Sofacy activity.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.88,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "China",
+          "tail_type": "COUNTRY",
+          "evidence_text": "Cleaned sample summary highlights targeting activity including China.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.86,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "military and foreign affairs related organizations",
+          "tail_type": "TARGET",
+          "evidence_text": "Cleaned sample summary describes targeting of military or foreign affairs related organizations.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.84,
+          "candidate_status": "candidate",
+          "validation_status": "unchecked",
+          "validation_errors": []
+        }
+      ]
+    }
+  ]
+}

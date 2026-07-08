@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "reference_id": "ref_apt28_mitre_g0007",
+  "reference_type": "knowledge_base",
+  "source_type": "knowledge_base",
+  "source_name": "MITRE ATT&CK",
+  "source_url": "https://attack.mitre.org/groups/G0007/",
+  "title": "APT28 - MITRE ATT&CK",
+  "retrieved_at": "2026-07-08T10:00:00+08:00",
+  "target_group": "APT28",
+  "canonical_entity": {
+    "name": "APT28",
+    "type": "APT_GROUP",
+    "aliases": ["Fancy Bear", "Sofacy"],
+    "external_id": "G0007"
+  },
+  "usage": [
+    "normalization_reference",
+    "alias_reference",
+    "mitre_mapping_reference",
+    "golden_reference"
+  ],
+  "notes": "MITRE ATT&CK 在本项目中作为知识库参考，用于标准名、别名和技术映射对齐；它不是第一份真实文章清洗样例。"
+}

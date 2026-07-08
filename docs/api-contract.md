@@ -76,7 +76,7 @@ GET  /api/v1/collection-runs/{collection_run_id}
 {
   "source_id": "src_securelist_apt28",
   "name": "Securelist APT Reports",
-  "source_type": "security_report",
+  "source_type": "vendor_report",
   "collector_type": "http_page",
   "url": "https://securelist.com/masha-and-these-bears/84311/",
   "target_groups": ["APT28"],
@@ -146,22 +146,22 @@ POST /api/v1/documents/import
 
 ```json
 {
-  "doc_id": "apt28_mitre_001",
+  "doc_id": "apt28_securelist_masha_bears_001",
   "schema_version": "1.0",
   "target_group": "APT28",
   "target_groups": ["APT28"],
-  "source_url": "https://attack.mitre.org/groups/G0007/",
-  "source_type": "security_report",
-  "source_name": "MITRE ATT&CK",
-  "title": "APT28 - MITRE ATT&CK",
+  "source_url": "https://securelist.com/masha-and-these-bears/84311/",
+  "source_type": "vendor_report",
+  "source_name": "Kaspersky Securelist",
+  "title": "Masha and these Bears",
   "language": "en",
   "raw_text": "...",
   "content_hash": "sha256:...",
-  "published_at": null,
+  "published_at": "2018-03-09",
   "retrieved_at": "2026-07-07T00:00:00+08:00",
   "source_reliability": "A",
   "tlp": "TLP:CLEAR",
-  "tags": ["mitre", "apt", "security_report"],
+  "tags": ["securelist", "kaspersky", "apt", "apt28", "vendor_report"],
   "metadata": {}
 }
 ```
@@ -239,6 +239,13 @@ GET /api/v1/graph/timeline?target=APT28
 GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 ```
 
+边界说明：
+
+1. `/api/v1/graph` 返回前端当前使用的轻量图谱视图，字段以本节响应为准。
+2. `docs/schemas/graph.schema.json` 约束的是导出的 `data/graph/graph.json` 快照，不要求 API 响应携带 `version`、`generated_at`、`exported_from`、`source_of_truth` 和 `analysis`。
+3. 行为分析、MITRE 映射和推理结果默认走第 8 节的 `/analysis/*` 接口；后续如需在图谱接口聚合分析结果，应新增显式参数或新接口。
+4. 如果后续要让 API 直接返回完整快照，必须同步更新本文件、前端类型和后端测试。
+
 图谱响应：
 
 ```json
@@ -289,7 +296,7 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
         "quote_start": 0,
         "quote_end": 27,
         "source_url": "https://attack.mitre.org/groups/G0007/",
-        "source_type": "security_report",
+        "source_type": "knowledge_base",
         "source_name": "MITRE ATT&CK",
         "published_at": null,
         "retrieved_at": "2026-07-07T00:00:00+08:00",

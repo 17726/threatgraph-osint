@@ -29,7 +29,7 @@ LLM 接口：OpenAI-compatible API
 核心原则：
 
 1. SQLite 是唯一事实源。
-2. graph.json 是导出格式、前端 mock、演示兜底和 Neo4j 同步输入。
+2. graph.json 是导出格式、离线样例、演示兜底和 Neo4j 同步输入；前端默认通过 FastAPI 获取轻量图谱视图。
 3. Neo4j 是增强能力，不作为事实源。
 4. LLM 原始输出不能直接写入 Neo4j。
 5. 前端只调用 FastAPI，不直接读取 SQLite、graph.json 或 Neo4j。
@@ -59,8 +59,8 @@ LLM 接口：OpenAI-compatible API
 | 组别                    | 优先阅读                                                                                                                                                                                               |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 架构与数据规范组 `arch` | [`docs/architecture.md`](docs/architecture.md) + [`docs/api-contract.md`](docs/api-contract.md) + [`docs/data-contract.md`](docs/data-contract.md)                                                     |
-| 数据与样本组 `data`     | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md)                                                                                                    |
-| LLM 抽取与分析组 `llm`  | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/architecture.md`](docs/architecture.md)                                                                                                      |
+| 数据与样本组 `data`     | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/schemas/README.md`](docs/schemas/README.md) + [`docs/team-workflow.md`](docs/team-workflow.md)                                               |
+| LLM 抽取与分析组 `llm`  | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/schemas/README.md`](docs/schemas/README.md) + [`docs/architecture.md`](docs/architecture.md)                                                 |
 | 后端横向工作流 `be`     | [`docs/api-contract.md`](docs/api-contract.md) + [`docs/data-contract.md`](docs/data-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md)                                                   |
 | 图谱与前端组 `fe`       | [`docs/api-contract.md`](docs/api-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md)                                                                                                      |
 | 报告答辩与测试组 `qa`   | [`docs/team-workflow.md`](docs/team-workflow.md) + [`docs/reference-comparison.md`](docs/reference-comparison.md) + [`docs/references/course-requirements.md`](docs/references/course-requirements.md) |
