@@ -14,7 +14,7 @@
     "source_name",
     "title",
     "language",
-    "raw_text",
+    "clean_text",
     "content_hash",
     "published_at",
     "retrieved_at",
@@ -74,7 +74,7 @@
       "type": "string",
       "enum": ["zh", "en"]
     },
-    "raw_text": {
+    "clean_text": {
       "type": "string",
       "minLength": 1
     },

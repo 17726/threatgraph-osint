@@ -173,7 +173,7 @@ P2 包含：
 最低并行契约：
 
 ```text
-data -> document.json -> llm / be
+data -> data/documents/*.json -> be chunks -> llm
 llm -> extraction_result.json -> be
 be -> graph.json -> qa / Neo4j 同步
 be -> /api/v1/graph GraphView -> fe

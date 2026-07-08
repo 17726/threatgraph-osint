@@ -73,7 +73,7 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 
 ## Step 1：真实样本文档闭环 `P0`
 
-目标：先不依赖爬虫平台，用本地文本或 `document.json` 跑通真实样本文档到候选抽取、正式图谱和前端展示的闭环。
+目标：先不依赖爬虫平台，用本地文本或 `data/documents/<target_group>/*.json` 跑通真实样本文档到候选抽取、正式图谱和前端展示的闭环。
 
 1. [x] **S1.1 冻结三份并行开发契约**（arch / be / fe / llm）
    - [x] 确定 `document.json` 的必填字段、可选字段、`schema_version` 和样例文件。
@@ -89,12 +89,12 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
    - [ ] 将 MITRE ATT&CK、MISP Galaxy 等知识库作为 reference / golden 参考，不作为首篇正文清洗样本。
    - [ ] 手动做格式清洗，去掉导航、广告、评论、页脚等网页噪声，保留标题、正文、来源 URL、发布时间、语言和目标组织。
    - [ ] 抽取能作为证据的原文片段，避免只留下总结性描述。
-   - [ ] 将清洗结果整理为本地文本或 `document.json`。
+   - [ ] 将清洗结果整理为 `data/documents/<target_group>/*.json`。
 
 3. [ ] **S1.3 接入文档导入和切块**（be / data）
    - [ ] 实现或确认 `POST /api/v1/documents/import` 可以写入 `documents`。
-   - [x] 将导入文档切分为 `chunks`。
-   - [x] 保留 `doc_id`、`chunk_id`、`source_url`、`language` 和 `target_group`。
+   - [ ] 后端将导入文档切分为 `chunks`，data 组不手写 chunks。
+   - [ ] 保留 `doc_id`、`chunk_id`、`source_url`、`language` 和 `target_group`。
    - [ ] 对重复导入提供可接受的处理方式，例如覆盖、跳过或提示冲突。
 
 4. [x] **S1.4 生成候选抽取结果**（llm / be）
@@ -259,7 +259,7 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 2. [ ] **准备首个真实样本文档**（data）
    - [ ] 选定第一个目标组织。
    - [ ] 收集并清洗一篇可信来源资料。
-   - [ ] 整理为本地文本或 `document.json`。
+   - [ ] 整理为 `data/documents/<target_group>/*.json`。
 
 3. [ ] **接入候选层和正式图谱层**（be / llm）
    - [x] 将候选实体写入 `extracted_entities`。

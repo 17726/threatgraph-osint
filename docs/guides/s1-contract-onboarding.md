@@ -8,8 +8,13 @@ S1 阶段先用固定 JSON 契约让各组并行，不等完整采集平台和�
 
 ```text
 data 组
-  -> document.json
-  -> 给 llm / be 使用
+  -> data/documents/<target_group>/*.json(clean_text)
+  -> 给 be 导入
+
+be 横向工作流
+  -> SQLite documents
+  -> SQLite chunks
+  -> 给 llm 使用
 
 llm 组
   -> extraction_result.json
@@ -29,7 +34,7 @@ qa 组
 
 核心规则：
 
-1. `document.json` 只放来源元信息和清洗正文，不放最终实体 ID。
+1. `document.json` 只放来源元信息和清洗正文 `clean_text`，不放最终实体 ID，也不放 chunks。
 2. `extraction_result.json` 只放 LLM 候选实体和候选关系，不放最终关系 ID。
 3. `graph.json` 只能由 SQLite 正式图谱导出，不能由 LLM 或人工直接当事实源维护。
 4. 前端默认使用 `/api/v1/graph`，不直接读取 `graph.json`。
@@ -44,7 +49,16 @@ data 组当前目标是准备第一份可追溯的真实样本文档。建议先
 ```text
 docs/schemas/document.schema.json
 data/examples/document.apt28.securelist.example.json
+data/documents/<target_group>/*.json
 docs/data-contract.md
+```
+
+输出位置：
+
+```text
+data/documents/apt28/*.json
+data/documents/lazarus/*.json
+data/documents/kimsuky/*.json
 ```
 
 ### 2.1 手工填写字段
@@ -61,7 +75,7 @@ docs/data-contract.md
 | `source_name`   | 发布方名称             | 例如 `Kaspersky Securelist`、`Microsoft Security Blog`、`MITRE ATT&CK`。                                                                                            |
 | `title`         | 原文标题               | 保留原始标题，不要改成自己的总结标题。                                                                                                                              |
 | `language`      | 文档语言               | 只填 `en` 或 `zh`。                                                                                                                                                 |
-| `raw_text`      | 清洗后的正文           | 去掉网页导航、广告、评论、页脚和脚本噪声后保留正文。尽量保留原文顺序和原句，不要改写成自己的总结。                                                                  |
+| `clean_text`    | 清洗后的正文           | 去掉网页导航、广告、评论、页脚和脚本噪声后保留正文。尽量保留原文顺序和原句，不要改写成自己的总结。                                                                  |
 | `published_at`  | 原文发布时间           | 能确定时填 `YYYY-MM-DD` 或原文明确日期；不确定时填 `null`，不要填空字符串。                                                                                         |
 | `retrieved_at`  | 获取或整理时间         | 填整理该样本的时间，建议 ISO 格式并带时区，例如 `2026-07-08T10:00:00+08:00`。                                                                                       |
 | `tags`          | 检索和分类标签         | 不放空字符串。建议包含来源、厂商、目标组织和来源类型，例如 `["securelist", "kaspersky", "apt", "apt28", "vendor_report"]`。                                         |
@@ -72,19 +86,20 @@ docs/data-contract.md
 | ---------------- | ---------------------- |
 | `published_date` | `published_at`         |
 | `crawl_time`     | `retrieved_at`         |
+| `text` / `body`  | `clean_text`           |
 | `tags`           | `tags`，但要删除空标签 |
 
 ### 2.2 可默认或脚本补齐字段
 
 这些字段有价值，但不应该增加 data 组手工负担。
 
-| 字段                 | 价值                                         | 建议填法                                                                        |
-| -------------------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
-| `schema_version`     | 标识当前 JSON 契约版本，避免后续字段漂移     | 固定填 `"1.0"`。                                                                |
-| `content_hash`       | 用于去重、判断正文是否变化、复现实验         | 可由脚本根据 `raw_text` 生成；正式提交时必须是 `sha256:<64位十六进制>`。        |
-| `source_reliability` | 表示来源可信度，后续可用于证据权重和报告说明 | 官方知识库或知名厂商报告可填 `A`；不确定填 `unknown`。                          |
-| `tlp`                | 标识情报共享级别，避免误提交敏感材料         | 公开资料默认 `TLP:CLEAR`。                                                      |
-| `metadata`           | 放扩展说明，不污染主字段                     | 没有额外信息填 `{}`；可记录 `collector`、`notes`、`aliases`、`cleaning_notes`。 |
+| 字段                 | 价值                                         | 建议填法                                                                                |
+| -------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `schema_version`     | 标识当前 JSON 契约版本，避免后续字段漂移     | 固定填 `"1.0"`。                                                                        |
+| `content_hash`       | 用于去重、判断正文是否变化、复现实验         | 可由脚本根据 `clean_text` 的 UTF-8 字节生成；正式提交时必须是 `sha256:<64位十六进制>`。 |
+| `source_reliability` | 表示来源可信度，后续可用于证据权重和报告说明 | 官方知识库或知名厂商报告可填 `A`；不确定填 `unknown`。                                  |
+| `tlp`                | 标识情报共享级别，避免误提交敏感材料         | 公开资料默认 `TLP:CLEAR`。                                                              |
+| `metadata`           | 放扩展说明，不污染主字段                     | 没有额外信息填 `{}`；可记录 `collector`、`notes`、`aliases`、`cleaning_notes`。         |
 
 ### 2.3 清洗边界
 
@@ -106,17 +121,17 @@ docs/data-contract.md
 
 提交给下游前至少检查：
 
-1. `source_url`、`source_name`、`title`、`language`、`raw_text` 不为空。
+1. `source_url`、`source_name`、`title`、`language`、`clean_text` 不为空。
 2. `target_group` 使用标准名，别名放到 `metadata.aliases` 或后续实体别名里。
 3. `source_type` 属于 schema 枚举。
 4. `published_at` 不确定时是 `null`，不是 `""`。
 5. `tags` 没有空字符串。
-6. `raw_text` 是清洗正文，不是结论性摘要。
-7. `content_hash` 和当前 `raw_text` 对应。
+6. `clean_text` 是清洗正文，不是结论性摘要。
+7. `content_hash` 和当前 `clean_text` 的 UTF-8 字节内容对应。
 
 ## 3. llm 组：拿到 document.json 后做什么
 
-llm 组基于 `document.json` 生成 `extraction_result.json`。第一版可以手写或使用 mock LLM 输出，重点是 JSON 合法、字段完整、证据可回溯。
+llm 组基于后端生成的 `chunks` 生成 `extraction_result.json`。第一版可以手写或使用 mock LLM 输出；如果后端切块还没完成，可以先把一篇文档视作一个 chunk，并使用 `${doc_id}_c001` 这类确定性 `chunk_id`。
 
 参考文件：
 
@@ -166,8 +181,8 @@ data/examples/graph.apt28.securelist.example.json
 
 操作步骤：
 
-1. 导入 `document.json` 到 `documents`。
-2. 切块并写入 `chunks`，保留 `doc_id`、`chunk_id`、`char_start`、`char_end` 和 `text_hash`。
+1. 导入 `document.json` 到 `documents`，保存 `clean_text` 和来源元信息。
+2. 基于 `clean_text` 切块并写入 `chunks`，保留 `doc_id`、`chunk_id`、`char_start`、`char_end` 和 `text_hash`，其中 `text_hash = sha256(chunks.text)`。
 3. 将 `extraction_result.json` 写入 `extraction_runs`、`extracted_entities` 和 `extracted_relations`。
 4. 按实体类型、关系类型和最小关系矩阵做校验。
 5. 归一化实体和关系，生成最终 `entity_id` 和 `relation_id`。
@@ -251,11 +266,12 @@ docs/references/course-requirements.md
 建议按下面顺序推进，不互相等待完整系统。
 
 ```text
-第 1 步：data 组交 1 篇 APT28 document.json
-第 2 步：llm 组基于该文档交 1 份 extraction_result.json
-第 3 步：be 归一化并导出 graph.json，同时提供 /api/v1/graph
-第 4 步：fe 用 API 展示图谱、实体详情和证据
-第 5 步：qa 用 golden.json 记录正确答案和错误样例
+第 1 步：data 组交 1 篇 data/documents/apt28/*.json(clean_text)
+第 2 步：be 导入文档并生成 chunks；mock 阶段可先约定 ${doc_id}_c001
+第 3 步：llm 组基于 chunks 交 1 份 extraction_result.json
+第 4 步：be 归一化并导出 graph.json，同时提供 /api/v1/graph
+第 5 步：fe 用 API 展示图谱、实体详情和证据
+第 6 步：qa 用 golden.json 记录正确答案和错误样例
 ```
 
 如果某一步暂时没有代码，可以先用样例 JSON 或 mock 输出推进。关键是字段不要漂移，证据链不要断。
