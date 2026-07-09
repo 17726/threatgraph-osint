@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_077",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1tcwbk3/kimsuky_targets_organizations_with",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Kimsuky targets organizations with PebbleDash-based tools",
+  "language": "en",
+  "clean_text": "Kimsuky APT is actively deploying new PebbleDash-based tools in recent campaigns, showing a clear connection to their established AppleSeed malware cluster . Technical Breakdown Threat Actor: Kimsuky (also known as APT43, Black Banshee, Thallium, Velvet Chollima), a North Korean state-sponsored threat group primarily focused on intelligence gathering. Malware Families: The campaigns utilize a range of newly identified PebbleDash-based tools which are operationally linked to the existing AppleSeed malware cluster . AppleSeed is typically a backdoor or loader used for reconnaissance and execution of further payloads. Campaigns: Recent Kimsuky operations targeting various organizations. The analysis highlights an evolution in their tooling and tradecraft. TTPs/IOCs: While the specific TTPs (e.g., initial access vectors, C2 protocols) and Indicators of Compromise (e.g., hashes, IP addresses) are detailed in Kaspersky's comprehensive report, the summary emphasizes the connection between these distinct malware clusters. Defense Prioritize up-to-date threat intelligence feeds to monitor Kimsuky's evolving toolkit, implement robust EDR solutions for behavioral anomaly detection, and ensure advanced email gateway security for phishing prevention. Source: https://securelist.com/kimsuky-appleseed-pebbledash-campaigns/119785/",
+  "content_hash": "sha256:d187c3c2ab02f9d7dcb7ee1a4ced97b92ac6afebf457e29e6b288d24878fce93",
+  "published_at": "2026-05-14",
+  "retrieved_at": "2026-07-08T21:04:04Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_077",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_077.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_077.json",
+    "legacy_content_hash": "45cc41d7f448a9ec44abb86646235937",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

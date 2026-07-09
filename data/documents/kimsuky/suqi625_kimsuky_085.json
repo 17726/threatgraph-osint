@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_085",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/TechNadu/comments/1oneajv/kimsuky_used_a_fake_vpn_invoice_zip_to_deliver",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Kimsuky used a fake VPN invoice ZIP to deliver HttpTroy backdoor - what detection/response rules would you add?",
+  "language": "en",
+  "clean_text": "Gen Digital reports a targeted spear-phish that dropped a 3-stage chain: small dropper → loader MemLoad (persistence via scheduled task AhnlabUpdate ) → backdoor HttpTroy which talks to load.auraria[.]org . The ZIP filename impersonated a VPN invoice: 250908_A_HK이노션_SecuwaySSL VPN Manager U100S 100user_견적서.zip. Capabilities include file transfer, screenshots, command exec, in-memory loads and strong obfuscation. Discussion prompts: What YARA / EDR heuristics would catch MemLoad / HttpTroy behaviours quickly? How would you tune mail gateway filtering to flag invoice-style ZIPs with SCR/EXE inside? Any good playbooks for triage when a scheduled task named like a vendor (e.g., AhnlabUpdate) appears? Be specific - share detections, IOCs (no raw malware), and playbook snippets. Follow for balanced coverage.",
+  "content_hash": "sha256:9b0b5d751bd66efbe62865d60dcaf38ef64983acddac725f2d77f482f15649ed",
+  "published_at": "2025-11-03",
+  "retrieved_at": "2026-07-08T21:04:12Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_085",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_085.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_085.json",
+    "legacy_content_hash": "480d1ba8f2408a3a532e5fa6799af711",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_lazarus_110",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.reddit.com/r/TechNadu/comments/1pcyars/researchers_capture_lazarus_apts_remoteworker",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Researchers Capture Lazarus APT’s Remote-Worker Scheme Live - What Should Hiring Teams Learn From This?",
+  "language": "en",
+  "clean_text": "A joint investigation (BCA LTD + NorthScan + ANY.RUN) managed to observe a remote-worker infiltration attempt tied to the Lazarus Group from inside controlled sandbox “laptops.” The operators used: AI tools for interviews synced Chrome profiles OTP generators Google Remote Desktop U.S. residential proxies identity-theft requests (ID, SSN, banking info) No malware - just identity takeover + remote access. Key questions for the community: Are identity-driven attacks now a bigger risk than malware in remote hiring workflows? How should companies validate remote applicants without overwhelming legitimate candidates? What’s the right balance between security checks and user friction? Are sandbox traps like this viable for broader defensive use? Would love to hear different viewpoints. Follow our profile for more threat-intel deep dives and APT case studies.",
+  "content_hash": "sha256:ab4ae741b7eba977aa6866dd9baa9cdc15fbd9700287e9f81b077551b888d327",
+  "published_at": "2025-12-03",
+  "retrieved_at": "2026-07-08T21:05:14Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "lazarus",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_110",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_lazarus/lazarus_110.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_lazarus/lazarus_110.json",
+    "legacy_content_hash": "37e95f3b28bf62d6a36fd4143d324dca",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_lazarus_107",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.reddit.com/r/Malware/comments/1svkwpc/new_lazarus_apt_campaign_macho_man_macos_malware",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "New Lazarus APT Campaign: “Mach-O Man” macOS Malware Kit Hits Businesses",
+  "language": "en",
+  "clean_text": "Another post to raise awareness of ClickFix and job hunting social engineering attempts to infect you with malware; comes initially from threat actors sharing a link to for example Teams, Zoom or Google Meet after opening the link, user is greeted with a prompt to fix a connection issue by copying and executing a command the attacker collects credentials, browser sessions, and system-stored secrets, including macOS Keychain data and sends to a Telegram exfiltration channel Full report: https://any.run/cybersecurity-blog/lazarus-macos-malware-mach-o-man/ Communication with a threat actor sharing a malicious link leading to ClickFix",
+  "content_hash": "sha256:29ee8e3100899dda64b2f25d8a05bf74efd6a3c51d1342ae7202f9c3b3499d5e",
+  "published_at": "2026-04-25",
+  "retrieved_at": "2026-07-08T21:05:11Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "lazarus",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_107",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_lazarus/lazarus_107.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_lazarus/lazarus_107.json",
+    "legacy_content_hash": "732233e3050cbf5df146650329f81b91",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

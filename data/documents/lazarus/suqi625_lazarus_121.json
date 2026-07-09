@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_lazarus_121",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.reddit.com/r/pwnhub/comments/1tnd223/lazarus_group_targets_financial_sector_with",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Lazarus Group Targets Financial Sector with RemotePE Malware in Stealthy Attacks",
+  "language": "en",
+  "clean_text": "The North Korea-linked Lazarus Group has deployed a new memory-only RemotePE RAT in attacks against financial and cryptocurrency firms, raising concerns over the sophistication of their operations. Key Points: Lazarus Group uses RemotePE RAT as part of a multi-stage attack targeted at financial institutions. The infection process involves social engineering and employs advanced evasion techniques. RemotePE executes entirely in memory, leaving no disk artifacts, complicating detection efforts. Cybersecurity researchers have revealed that the Lazarus Group, known for its illicit cyber activities linked to North Korea, has been utilizing a sophisticated piece of malware called RemotePE. This memory-only Remote Access Trojan (RAT) is part of a complex, multi-stage attack chain that also includes loaders named DPAPILoader and RemotePELoader. These loaders are designed to decrypt and load each other while bypassing detection mechanisms, significantly enhancing the effectiveness of the attack when targeting financial and cryptocurrency organizations. The attack begins with social engineering tactics that compromise employee devices, allowing the threat actors to operate under the guise of trusted individuals. Once the malware is executed, it leverages stealthy techniques to maintain a low profile, with no traces left on the hard drive, making it difficult for traditional security tools to detect its presence. This methodology indicates that Lazarus Group is shifting towards long-term observation campaigns, focusing on high-value targets, which can lead to significant financial theft or data breaches, consistent with past activities attributed to the group. What steps should organizations take to protect themselves from sophisticated attacks like those using RemotePE? Learn More: The Hacker News Want to stay updated on the latest cyber threats? 👉 Subscribe to /",
+  "content_hash": "sha256:f337b35ed737ad5dd6ffedc930f0947774146fa8187dcfaebdac2d4a1c1d322c",
+  "published_at": "2026-05-25",
+  "retrieved_at": "2026-07-08T21:05:25Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "lazarus",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_121",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_lazarus/lazarus_121.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_lazarus/lazarus_121.json",
+    "legacy_content_hash": "ea3ee65e252030584a440fe58931ece8",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

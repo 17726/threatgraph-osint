@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_081",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1qbqpro/silent_scan_stolen_secrets_kimsukys_qrcode",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Silent Scan, Stolen Secrets: Kimsuky’s QR-Code Phishing Campaign",
+  "language": "en",
+  "clean_text": "Heads up, folks: Kimsuky (Larva-24005) , a North Korea-linked APT group, is actively deploying a \"quishing\" (QR-code phishing) campaign targeting government, defense, and critical infrastructure organizations, as highlighted by a recent FBI warning. Technical Breakdown: * Threat Actor: Kimsuky (aka Larva-24005), a North Korea–linked Advanced Persistent Threat (APT) group. * Attack Vector: Quishing (QR-code phishing) – malicious QR codes are embedded in emails and documents. * Tactics: Victims are redirected to attacker-controlled infrastructure upon scanning the QR code. * Objectives: Primary goals include credential harvesting and malware delivery. * Targets: Specifically focused on government, defense, and critical infrastructure organizations. Defense: To mitigate, emphasize robust user awareness training on recognizing sophisticated phishing tactics (especially those involving QR codes), implement strong email security gateways, and enforce Multi-Factor Authentication (MFA) across all accounts to significantly reduce the impact of credential compromise. Source: https://www.secpod.com/blog/silent-scan-stolen-secrets-kimsukys-qr-code-phishing-campaign/",
+  "content_hash": "sha256:3aba8b5f40b325ca8a9086dc6291ab74622958278bb4670ec8981e2b95d6abbc",
+  "published_at": "2026-01-13",
+  "retrieved_at": "2026-07-08T21:04:08Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_081",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_081.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_081.json",
+    "legacy_content_hash": "01d2a29de5adedee6236bd0ce0351ad7",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_082",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1q7r3h9/fbi_warns_about_kimsuky_hackers_using_qr_codes_to",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "FBI warns about Kimsuky hackers using QR codes to phish U.S. orgs",
+  "language": "en",
+  "clean_text": "Here's a heads-up from the FBI regarding Kimsuky's latest tactics. The North Korean state-sponsored hacker group, Kimsuky , is actively deploying malicious QR codes within spearphishing campaigns targeting U.S. organizations. This marks an evolving initial access vector to watch out for. Technical Breakdown: Threat Actor: Kimsuky (North Korean state-sponsored). Attack Vector: Spearphishing campaigns primarily aimed at U.S. organizations. Malicious Technique: Embedding malicious QR codes in phishing emails. These codes likely lure victims to credential harvesting sites, deploy malware, or compromise accounts. Defense: Implement robust email security filters, conduct user awareness training focusing on QR code vigilance and unsolicited links, and maintain up-to-date endpoint detection and response (EDR) solutions. Source: https://www.bleepingcomputer.com/news/security/fbi-warns-about-kimsuky-hackers-using-qr-codes-to-phish-us-orgs/",
+  "content_hash": "sha256:a8fa0f45bea6b0906342276e0fe6fc2b0d49e287de4a4c5cf20d407950c87766",
+  "published_at": "2026-01-08",
+  "retrieved_at": "2026-07-08T21:04:09Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_082",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_082.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_082.json",
+    "legacy_content_hash": "deda886354beb1bb6702f404e278b7e9",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_lazarus_120",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.reddit.com/r/pwnhub/comments/1twrvf3/lazarus_group_targets_developers_with_malicious",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Lazarus Group Targets Developers with Malicious npm Brandjacking Campaign",
+  "language": "en",
+  "clean_text": "A campaign by the Lazarus Group uses deceptive npm package names to access developers' systems and software environments. Key Points: Lazarus Group's npm campaign features malicious packages mimicking trusted projects. Attacks exploit brandjacking techniques, increasing the likelihood of installation by developers. The malware can establish long-term access and maintain control over affected systems. Recent analysis by Sonatype Security Research revealed that the Lazarus Group, often linked to North Korean cyber operations, is actively targeting software developers through a brandjacking campaign on npm, a popular package manager for JavaScript. Dozens of malicious packages that appear verifiably related to trusted projects have surfaced, with some even achieving up to 500 downloads weekly. This approach not only deceives developers but also exploits the common practice of installing convenient packages without extensive vetting. The operation demonstrates a shift in tactics for the Lazarus Group, traditionally known for financial crimes and espionage. The campaign utilizes sophisticated methods such as suffix alterations, mimicking project names, and version similarities to enhance the attractiveness of these packages. Once installed, these packages can execute malicious code, establish a backdoor, and communicate with command and control servers to receive further instructions, signifying a serious threat to enterprise systems and developer environments. What measures can developers implement to protect themselves from such targeted attacks on npm? Learn More: Hack Read Want to stay updated on the latest cyber threats? 👉 Subscribe to /",
+  "content_hash": "sha256:321971794b1add99fa6fc4aba46abd988dabbaa976d5726df15016f2fe7601de",
+  "published_at": "2026-06-04",
+  "retrieved_at": "2026-07-08T21:05:24Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "lazarus",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_120",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_lazarus/lazarus_120.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_lazarus/lazarus_120.json",
+    "legacy_content_hash": "3c0fd035f2899b71f70d2f54c30b3bb6",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

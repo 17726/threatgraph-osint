@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_084",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1ppm9gf/kimsuky_spreads_docswap_android_malware_via_qr",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Kimsuky Spreads DocSwap Android Malware via QR Phishing Posing as Delivery App",
+  "language": "en",
+  "clean_text": "Kimsuky, the North Korean threat actor, is actively deploying a new Android malware variant named DocSwap through sophisticated QR phishing campaigns. These attacks leverage fake logistics websites and notification pop-ups, primarily impersonating firms like CJ Logistics, to trick victims into installing and executing the malware on their mobile devices. Technical Breakdown Threat Actor: Kimsuky (North Korean state-sponsored advanced persistent threat group) Malware: DocSwap (a new variant of Android malware) Attack Vector: QR phishing, where victims scan malicious QR codes hosted on impersonated logistics websites. Lure: Phishing sites mimicking legitimate services (e.g., CJ Logistics) and notification pop-ups are used to persuade users to install and run the malware. Defense Organizations should emphasize user training against QR code scams and phishing attempts, alongside deploying mobile threat defense (MTD) solutions to detect and prevent malware execution. Always verify app sources before installation. Source: https://thehackernews.com/2025/12/kimsuky-spreads-docswap-android-malware.html",
+  "content_hash": "sha256:731aeee444a7e2ff0a7c81158192fcf36fad68361e75a17fb307430ec8dcc9dc",
+  "published_at": "2025-12-18",
+  "retrieved_at": "2026-07-08T21:04:11Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_084",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_084.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_084.json",
+    "legacy_content_hash": "5729a1b5922fe239b52dac7075f7f0e5",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

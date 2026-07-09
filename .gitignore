@@ -31,6 +31,7 @@ data/reports/*
 data/evaluation/*
 !data/.gitkeep
 !data/sources/.gitkeep
+!data/sources/sources_index*.json
 !data/raw/.gitkeep
 !data/cleaned/.gitkeep
 !data/extracted/.gitkeep
@@ -38,6 +39,7 @@ data/evaluation/*
 !data/graph/.gitkeep
 !data/reports/.gitkeep
 !data/evaluation/.gitkeep
+!data/evaluation/golden*.json
 
 # Local verification artifacts
 output/

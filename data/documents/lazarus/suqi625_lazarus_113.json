@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_lazarus_113",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1pcc972/researchers_capture_lazarus_apts_remoteworker",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Researchers Capture Lazarus APT's Remote-Worker Scheme Live on Camera",
+  "language": "en",
+  "clean_text": "Lazarus APT Exposed: Remote IT Worker Network Infiltration Scheme Detailed TL;DR : Lazarus APT's \"Famous Chollima\" division is leveraging a sophisticated network of remote IT workers for persistent, deep infiltration into target organizations. Technical Analysis Threat Actor : Lazarus Group (specifically, its \"Famous Chollima\" division) MITRE ATT&CK TTPs : T1078 - Valid Accounts : Leveraging compromised, unwitting, or complicit remote IT worker credentials and identities to gain initial access and establish persistent presence within target networks. T1583 - Establish Accounts : Cultivating or exploiting a network of legitimate-appearing remote IT personnel to facilitate strategic access and operational capabilities. Affected Specifications : No specific software versions or CVEs detailed in the provided summary snippet. Indicators of Compromise (IOCs) : No specific IOCs (hashes, IPs, domains) detailed in the provided summary snippet. Actionable Insight This intelligence highlights a critical and persistent human-vector threat by a sophisticated APT. For Blue Teams/Detection Engineers : Implement enhanced identity and access management (IAM) monitoring, specifically for all remote and contractor IT personnel. Look for unusual access patterns, privilege escalation attempts, or activity from accounts outside expected geographic or operational norms. Review and strengthen vetting processes for all third-party contractors, particularly those granted privileged access. Audit remote access configurations and enforce strict network segmentation to limit lateral movement from contractor accounts. For CISOs : Recognize the significant supply chain risk posed by human element infiltration. This scheme bypasses traditional technical defenses by leveraging legitimate identities. Prioritize investment in robust insider threat programs, continuous access reviews, and comprehensive third-party risk management frameworks. Ensure all vendor and contractor agreements include stringent security clauses and audit rights. Source: https://thehackernews.com/2025/12/researchers-capture-lazarus-apts-remote.html",
+  "content_hash": "sha256:7c826527cc74306fea74d8966d0c3f6cb1755f2ce022ba519b802e48606b4d1c",
+  "published_at": "2025-12-02",
+  "retrieved_at": "2026-07-08T21:05:17Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "lazarus",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_113",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_lazarus/lazarus_113.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_lazarus/lazarus_113.json",
+    "legacy_content_hash": "f9aa719efcd08fb0a40a069c4375e3e6",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_099",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1sulo7d/a_shortcut_to_coercion_incomplete_patch_of_apt28s",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "A Shortcut to Coercion: Incomplete Patch of APT28's Zero-Day Leads to CVE-2026-32202",
+  "language": "en",
+  "clean_text": "SCENARIO A: Technical Threat, Vulnerability, or Exploit APT28's Zero-Day Exploitation and Subsequent Incomplete Patch Leading to CVE-2026-32202 The notorious state-sponsored threat actor, APT28 (Fancy Bear/Strontium) , initially leveraged a zero-day vulnerability. A subsequent, incomplete patch for this exploit has reportedly led to a new vulnerability tracked as CVE-2026-32202 , indicating a persistent attack surface. Technical Breakdown: * Threat Actor: APT28 (Fancy Bear, Strontium) * Vulnerability: Arises from an incomplete patch for a previously exploited zero-day. * CVE ID: CVE-2026-32202 * Specifics: Details regarding TTPs, IOCs (IPs/Hashes), and affected versions are not provided in the input summary. Defense: Specific detection or mitigation strategies are not provided in the input summary. Generally, patching promptly and thoroughly is critical to prevent re-exploitation. Source: https://www.akamai.com/blog/security-research/2026/apr/incomplete-patch-apt28s-zero-day-cve-2026-32202",
+  "content_hash": "sha256:7acb4c6917b8f037a1f72e20f4dbc0b1094c346fafe790cbbee4e92de87fca6d",
+  "published_at": "2026-04-24",
+  "retrieved_at": "2026-07-08T21:01:10Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_099",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_099.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_099.json",
+    "legacy_content_hash": "2d5bc8e723f98da8ca6ec66a01ccf549",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

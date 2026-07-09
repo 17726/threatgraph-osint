@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_076",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/TechNadu/comments/1tdstv3/kaspersky_researchers_have_linked_a_new_suite_of",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Kaspersky researchers have linked a new suite of PebbleDash-based tools to the AppleSeed malware cluster associated with Kimsuky (APT43), a North Korean threat group known for cyberespionage operations.",
+  "language": "en",
+  "clean_text": "The campaign reportedly targeted organizations in South Korea, while also expanding into defense-related entities in Brazil and Germany. Interesting technical points from the report: • Multiple malware families were deployed, including HelloDoor, httpMalice, MemLoad, httpTroy, AppleSeed, and HappyDoor • Initial access relied heavily on spearphishing emails and malicious attachments • Operators abused legitimate infrastructure such as VSCode tunneling, GitHub authentication, DWAgent, and Cloudflare Quick Tunnels • C2 traffic was routed through free South Korean hosting domains to reduce visibility and blend with normal traffic The use of trusted developer tools and remote administration utilities continues to blur the line between legitimate and malicious activity, making detection increasingly difficult for defenders. The VSCode and GitHub angle is particularly notable given the recent rise in attacks targeting developer ecosystems. Do you think security monitoring around developer tools and remote collaboration platforms is still lagging behind current threat actor tactics? Full Article: https://www.technadu.com/kimsuky-pebbledash-and-appleseed-malware-campaigns/627884/",
+  "content_hash": "sha256:c97e62dd82eea9596aaab7d4d0a8b6c6e4cd27afa24055a7b5ad2d0e642144d5",
+  "published_at": "2026-05-15",
+  "retrieved_at": "2026-07-08T21:04:03Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_076",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_076.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_076.json",
+    "legacy_content_hash": "06fc3283297de575fdbe1b727c29dacc",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

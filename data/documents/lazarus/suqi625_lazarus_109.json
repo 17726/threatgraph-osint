@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_lazarus_109",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.reddit.com/r/cybersecurity/comments/1qjrwb9/bluenoroff_apt_the_financial_cybercrime_arm_of",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "BlueNoroff APT: The Financial Cybercrime Arm of Lazarus",
+  "language": "en",
+  "clean_text": "BlueNoroff is a financially motivated subgroup of the Lazarus collective, notorious for targeting financial institutions and cryptocurrency assets. Their operations include high-profile heists, most notably the 2016 Bangladesh SWIFT hack. In recent campaigns, BlueNoroff has shifted focus toward macOS targets, Web3 platforms, and cryptocurrency businesses, employing social engineering, fake job interviews, and malicious packages to spread malware. Key Traits: Initially focused on SWIFT infrastructure heists, now primarily targeting cryptocurrency in Web3 sectors. Uses fake job interview tactics, specifically targeting macOS users in the Web3 sector. Active in supply chain attacks, utilizing Go packages and impersonating Microsoft Teams. Employs modular malware, including Rust, Go, and AppleScript (for macOS execution). Creates credible personas through LinkedIn and social engineering techniques for spearphishing. Maintains persistence through browser extension tampering and Launch Agents on macOS. Uses VBS scripts in Windows Startup folder to ensure persistence on Windows systems. BlueNoroff's combination of financial crime motives and sophisticated APT tactics makes it a formidable cybercrime threat, with a growing arsenal for stealth and data exfiltration. For detailed information, you can check here: https://www.picussecurity.com/resource/blog/bluenoroff-group-the-financial-cybercrime-arm-of-lazarus",
+  "content_hash": "sha256:881bcd87648bcc67d279906c99f9ffd04798cd412afe6c832d06c22adfab397b",
+  "published_at": "2026-01-22",
+  "retrieved_at": "2026-07-08T21:05:13Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "lazarus",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_109",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_lazarus/lazarus_109.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_lazarus/lazarus_109.json",
+    "legacy_content_hash": "d5010ff1d4e0b73b1be9fbee1bb1f0a8",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

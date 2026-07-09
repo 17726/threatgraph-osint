@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_100",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/pwnhub/comments/1so9ww3/ukraine_confirms_apt28_cyber_campaign_targeting",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Ukraine Confirms APT28 Cyber Campaign Targeting Prosecutors and Anti-Corruption Agencies",
+  "language": "en",
+  "clean_text": "Ukrainian authorities have confirmed a cyber-espionage campaign attributed to the Russian hacker group APT28, which targeted key government institutions. Key Points: APT28 has allegedly compromised over 170 email accounts of Ukrainian prosecutors and investigators. Attacks exploited vulnerabilities in the Roundcube webmail platform, allowing hostile code execution. Ukrainian officials believe the cyber incidents may support disinformation efforts against government institutions. Ukrainian cybersecurity officials, including Taras Dzyuba, have confirmed that multiple government agencies were targeted by a cyber-espionage campaign linked to the Russian hacking group APT28. This campaign has reportedly led to the compromise of more than 170 email accounts associated with prosecutors and investigators within Ukraine. The attacks were identified as part of a broader strategy that has been monitored since 2023, with three distinct waves of activity reported by Ukraine’s computer emergency response team (CERT-UA). The method of the attacks involved exploiting vulnerabilities in the open-source Roundcube webmail platform, enabling attackers to execute malicious code simply by the victim opening an email. Despite some information reportedly stolen during these attacks being published online, Ukrainian officials assert that no confidential data has been leaked. Dzyuba has indicated that these incidents could be repurposed for disinformation campaigns aimed at undermining trust in Ukrainian institutions, particularly those involved in anti-corruption efforts. What measures can be taken to enhance the security of government email systems against such targeted cyber-attacks? Learn More: The Record Want to stay updated on the latest cyber threats? 👉 Subscribe to /",
+  "content_hash": "sha256:eb88150c579bcb2498444d88d54e6aac7446c8b67c21eae5060375aea7c58c07",
+  "published_at": "2026-04-17",
+  "retrieved_at": "2026-07-08T21:01:11Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_100",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_100.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_100.json",
+    "legacy_content_hash": "c93b836923eb5f5c5a2cf02d3bb3ba72",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

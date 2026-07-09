@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_106",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/pwnhub/comments/1sn34z3/apt28_got_exposed_by_their_own_opsec_mistake_but",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "APT28 Got Exposed by Their Own OPSEC Mistake - But Still Compromised 280+ Targets. What Does That Say?",
+  "language": "en",
+  "clean_text": "A pretty significant cyber espionage operation just got exposed and interestingly, it happened because the attackers made a mistake. Summary: • 280+ email accounts compromised • Campaign ran from Sept 2024 to March 2026 • Attributed to APT28 (FancyBear / GRU-linked) • Discovered after attackers exposed their own server logs Targets included: • Ukrainian prosecutors and anti-corruption agencies • Romanian Air Force (67 accounts) • Greek defense staff (28 accounts) • Local governments across Eastern Europe Why this matters: • Focused on intelligence gathering around anti-corruption and defense • Shows continued targeting of NATO-aligned regions • Coincides with increased attacks on healthcare and municipal systems Interesting angle: Even advanced APT groups can slip up operationally - but the campaign still ran for nearly two years before being exposed. Discussion points for community: How do you detect long-term, low-noise espionage campaigns? Are current email security controls enough against APT-level threats? Does OPSEC failure remain one of the biggest weak points for attackers? Curious to hear thoughts from others in the field. Full Article: https://www.technadu.com/russian-hacking-campaign-targeting-ukraine-and-nato-attributed-to-apt28/625937/",
+  "content_hash": "sha256:fcd8675b652afdefb53622e80a3a0934005d5a6d6dca913492991825837e05e7",
+  "published_at": "2026-04-16",
+  "retrieved_at": "2026-07-08T21:01:17Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_106",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_106.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_106.json",
+    "legacy_content_hash": "87bc0730f271ec771e73df3cdab50dc1",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

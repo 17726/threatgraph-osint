@@ -1,0 +1,722 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-07-08T00:00:00+08:00",
+  "description": "人工标注的标准答案，用于评测实体和关系抽取准确性。基于 Unit42（可信度A）、奇安信（可信度A）和 The Hacker News（可信度B）的高质量威胁情报报告。",
+  "documents": [
+    {
+      "doc_id": "golden_apt28_001",
+      "title": "近年来APT组织使用的10大（类）安全漏洞",
+      "source_url": "https://ti.qianxin.com/blog/articles/exploit-kit-with-apt-group",
+      "source_type": "vendor_report",
+      "source_name": "奇安信威胁情报中心",
+      "language": "zh",
+      "target_group": "APT28",
+      "published_at": "2018-04-10",
+      "clean_text": "概述。APT攻击（Advanced Persistent Threat，高级持续性威胁）是利用先进的攻击手段对特定目标进行长期持续性网络攻击的攻击形式。奇安信威胁情报中心筛选出近年来APT组织所使用的10大（类）安全漏洞。方程式一类的顶尖APT组织所使用的漏洞攻击技术远远领先其他APT组织。方程式组织 Quantum insert（量子植入）通过攻击网络基础设施实现定点打击。防火墙设备漏洞：CVE-2016-6366，为Cisco防火墙SNMP服务模块的一处缓冲区溢出漏洞。APT28组织使用CVE-2017-0199、CVE-2017-8570等漏洞进行攻击。"
+    },
+    {
+      "doc_id": "golden_apt28_002",
+      "title": "Fighting Ursa Luring Targets With Car for Sale",
+      "source_url": "https://unit42.paloaltonetworks.com/fighting-ursa-car-for-sale-phishing-lure/",
+      "source_type": "vendor_report",
+      "source_name": "Palo Alto Unit 42",
+      "language": "en",
+      "target_group": "APT28",
+      "published_at": "2024-08-06",
+      "clean_text": "A Russian threat actor we track as Fighting Ursa advertised a car for sale as a lure to distribute HeadLace backdoor malware. The campaign likely targeted diplomats and began as early as March 2024. Fighting Ursa (aka APT28, Fancy Bear and Sofacy) has been associated with Russian military intelligence. Diplomatic-car-for-sale phishing lure themes have been used by Russian threat actors for years. HeadLace is a backdoor malware used by this group. Russia is the attributed country for Fighting Ursa."
+    },
+    {
+      "doc_id": "golden_kimsuky_001",
+      "title": "疑似Kimsuky（APT-Q-2）针对韩国企业发起攻击",
+      "source_url": "https://ti.qianxin.com/blog/articles/suspected-kimsuky-attacks-south-korean-companies-cn",
+      "source_type": "vendor_report",
+      "source_name": "奇安信威胁情报中心",
+      "language": "zh",
+      "target_group": "Kimsuky",
+      "published_at": "2025-04-11",
+      "clean_text": "团伙背景。Kimsuky，别名 Mystery Baby、Baby Coin、Smoke Screen、Black Banshe 等，奇安信内部跟踪编号为 APT-Q-2。该 APT 组织于 2013 年公开披露，攻击活动最早可追溯至 2012 年。Kimsuky 主要攻击目标为韩国，涉及国防、教育、能源、政府、医疗以及智囊团等领域，以机密信息窃取为主。该组织通常使用社会工程学、鱼叉邮件、水坑攻击等手段投递恶意软件。近期奇安信威胁情报中心发现一批与 Kimsuky 历史样本相似的恶意软件。其中一个样本释放韩国软件厂商 BlueMoonSoft 签名的软件迷惑受害者。恶意软件中的后门样本连接的C2服务器使用动态域名。主机名的筛选名单包含字符串 DANAM，疑似指向韩国企业 Danam。"
+    },
+    {
+      "doc_id": "golden_kimsuky_002",
+      "title": "Unraveling Sparkling Pisces's Tool Set: KLogEXE and FPSpy",
+      "source_url": "https://unit42.paloaltonetworks.com/kimsuky-new-keylogger-backdoor-variant/",
+      "source_type": "vendor_report",
+      "source_name": "Palo Alto Unit 42",
+      "language": "en",
+      "target_group": "Kimsuky",
+      "published_at": "2024-09-26",
+      "clean_text": "Unit 42 researchers discovered two malware samples used by the Sparkling Pisces (aka Kimsuky) threat group. This includes an undocumented keylogger, called KLogEXE by its authors, and an undocumented variant of a backdoor dubbed FPSpy. Kimsuky is also known as APT43, Thallium, Velvet Chollima. The group primarily targets South Korea. Spear phishing is a common attack vector used by this group. MITRE ATT&CK framework maps their techniques."
+    },
+    {
+      "doc_id": "golden_kimsuky_003",
+      "title": "Kimsuky APT组织利用blogspot分发恶意载荷的攻击活动分析",
+      "source_url": "https://ti.qianxin.com/blog/articles/Analysis-of-attack-activities-of-Kimsuky-APT-group-using-blogspot-to-distribute-malicious-payloads",
+      "source_type": "vendor_report",
+      "source_name": "奇安信威胁情报中心",
+      "language": "zh",
+      "target_group": "Kimsuky",
+      "published_at": "2021-07-26",
+      "clean_text": "概述。Kimsuky，别名Mystery Baby、Baby Coin、Smoke Screen、Black Banshe等。是疑似具有东亚国家背景的APT组织，该团伙长期针对韩国政府、新闻机构等目标发起攻击活动。该组织常用社会工程学、鱼叉邮件、水坑攻击等手段投递恶意软件，拥有功能完善的恶意代码武器库。与Konni APT组织存在基础设施重叠等关联性。近日，奇安信红雨滴团队捕获多例疑似Kimsuky组织的攻击样本。此次发现的样本都以案件费用支付委托书为诱饵。此次活动中的样本所加载的Payload均采用多层下载链，最终使用blogspot博客系统分发最终载荷。"
+    },
+    {
+      "doc_id": "golden_lazarus_001",
+      "title": "疑似Lazarus针对双平台的攻击活动披露",
+      "source_url": "https://ti.qianxin.com/blog/articles/suspected-lazarus-disclosure-of-attacks-on-dual-platforms",
+      "source_type": "vendor_report",
+      "source_name": "奇安信威胁情报中心",
+      "language": "zh",
+      "target_group": "Lazarus",
+      "published_at": "2019-11-04",
+      "clean_text": "概括。Lazarus APT组织是一个长期活跃的组织，因为2014年攻击索尼影业而开始受到广泛关注，该组织早期主要针对韩国，美国等国家的政府机构进行攻击活动，以窃取情报等信息为目的。自2014年后，该组织开始针对全球金融机构，加密交易机构等为目标，进行敛财活动。近期，奇安信威胁情报中心红雨滴团队捕获一例利用心理测验为诱饵的Lazarus攻击样本，该样本通过宏释放powershell脚本执行。释放的powershell脚本是一个后门，硬编码了三个c2。经关联分析，奇安信威胁情报中心关联使用相同c2针对MacOS平台的攻击样本。"
+    },
+    {
+      "doc_id": "golden_lazarus_002",
+      "title": "Lazarus APT组织利用新冠疫情诱饵针对韩国地区的定向攻击分析",
+      "source_url": "https://ti.qianxin.com/blog/articles/analysis-of-lazarus-apt-targeted-attack-against-south-korea-using-new-crown-outbreak-bait",
+      "source_type": "vendor_report",
+      "source_name": "奇安信威胁情报中心",
+      "language": "zh",
+      "target_group": "Lazarus",
+      "published_at": "2020-04-15",
+      "clean_text": "背景。Lazarus是疑似具有东北亚背景的APT组织，因2014年攻击索尼影业开始受到广泛关注，其攻击活动最早可追溯到2007年，该组织早期主要针对其他国家政府机构，以窃取敏感情报为目的。但自2014年后，该组织开始针对全球金融机构，虚拟货币交易场等为目标，进行以敛财为目的的攻击活动。近日，奇安信威胁情报中心红雨滴团队捕获到多例该团伙利用疫情为诱饵攻击周边国家的样本。定向攻击使用韩国地区特有的HWP文档并伪装为韩国仁川疾控中心的邮件进行投递。"
+    },
+    {
+      "doc_id": "golden_lazarus_003",
+      "title": "Stately Taurus Activity in Southeast Asia Links to Bookworm Malware",
+      "source_url": "https://unit42.paloaltonetworks.com/stately-taurus-uses-bookworm-malware/",
+      "source_type": "vendor_report",
+      "source_name": "Palo Alto Unit 42",
+      "language": "en",
+      "target_group": "Lazarus",
+      "published_at": "2025-02-20",
+      "clean_text": "While analyzing infrastructure related to Stately Taurus activity targeting organizations in countries affiliated with the Association of Southeast Asian Nations (ASEAN), Unit 42 researchers observed overlaps with infrastructure used by a variant of the Bookworm malware. Stately Taurus commonly uses DLL sideloading as a technique to execute its payloads. The PubLoad malware family is unique to this threat group. Bookworm is a malware family first published about in 2015. ToneShell is another malware associated with this group."
+    },
+    {
+      "doc_id": "golden_apt28_003",
+      "title": "Critical 10-Year-Old Roundcube Webmail Bug Allows Authenticated Users Run Malicious Code",
+      "source_url": "https://thehackernews.com/2025/06/critical-10-year-old-roundcube-webmail.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "language": "en",
+      "target_group": "APT28",
+      "published_at": "2025-06-03",
+      "clean_text": "Cybersecurity researchers have disclosed details of a critical security flaw in the Roundcube webmail software that has gone unnoticed for a decade and could be exploited to take over susceptible systems and execute arbitrary code. The vulnerability, tracked as CVE-2025-49113, carries a CVSS score of 9.9 out of 10.0. Previously disclosed security vulnerabilities in Roundcube have been a lucrative target for nation-state threat actors like APT28 and Winter Vivern. APT28 had leveraged cross-site scripting (XSS) vulnerabilities in various webmail servers such as Roundcube, Horde, MDaemon, and Zimbra to harvest confidential data from specific email accounts belonging to governmental entities and defense companies in Eastern Europe."
+    },
+    {
+      "doc_id": "golden_lazarus_004",
+      "title": "North Korea-Linked npm Packages Mimic Rollup Polyfills to Steal Developer Secrets",
+      "source_url": "https://thehackernews.com/2026/07/north-korea-linked-npm-packages-mimic.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "language": "en",
+      "target_group": "Lazarus",
+      "published_at": "2026-07-03",
+      "clean_text": "Threat actors with ties to North Korea have been linked to a fresh set of malicious npm packages that masquerade as Rollup polyfill tooling to facilitate remote access and data theft. The packages mimic the legitimate rollup-plugin-polyfill-node project. The second-stage packages are near-identical SVG utilities that fetch a JSON object from JSONKeeper and eval the model field. This layered structure, together with the lookalike names, legitimate-looking metadata, hidden install-time execution, environment checks, and credential-theft/remote-access payloads, is similar to previous North Korean Lazarus-linked npm campaigns. In April 2026, Panther detailed a sustained npm campaign that involved publishing 108 malicious npm packages spanning 261 versions to deliver BeaverTail and OtterCookie, two known malware families linked to Contagious Interview."
+    }
+  ],
+  "entities": [
+    {
+      "entity_id": "apt_group:apt28",
+      "name": "APT28",
+      "type": "APT_GROUP",
+      "aliases": [
+        "Fancy Bear",
+        "Sofacy",
+        "STRONTIUM",
+        "Fighting Ursa",
+        "Pawn Storm",
+        "Sednit"
+      ],
+      "description": "俄罗斯国家支持的APT组织，长期从事网络间谍活动",
+      "doc_id": "golden_apt28_001",
+      "evidence_text": "APT28组织使用CVE-2017-0199、CVE-2017-8570等漏洞进行攻击"
+    },
+    {
+      "entity_id": "apt_group:equation_group",
+      "name": "方程式组织",
+      "type": "APT_GROUP",
+      "aliases": [
+        "Equation Group"
+      ],
+      "description": "顶尖APT组织，攻击技术远远领先其他组织",
+      "doc_id": "golden_apt28_001",
+      "evidence_text": "方程式一类的顶尖APT组织所使用的漏洞攻击技术远远领先其他APT组织"
+    },
+    {
+      "entity_id": "apt_group:kimsuky",
+      "name": "Kimsuky",
+      "type": "APT_GROUP",
+      "aliases": [
+        "APT43",
+        "Thallium",
+        "Velvet Chollima",
+        "Sparkling Pisces",
+        "Mystery Baby",
+        "Baby Coin",
+        "Black Banshe",
+        "APT-Q-2"
+      ],
+      "description": "朝鲜支持的APT组织，主要攻击韩国",
+      "doc_id": "golden_kimsuky_001",
+      "evidence_text": "Kimsuky，别名 Mystery Baby、Baby Coin、Smoke Screen、Black Banshe 等"
+    },
+    {
+      "entity_id": "apt_group:lazarus",
+      "name": "Lazarus",
+      "type": "APT_GROUP",
+      "aliases": [
+        "Lazarus Group",
+        "Hidden Cobra",
+        "Zinc"
+      ],
+      "description": "朝鲜支持的APT组织，以经济利益为目的",
+      "doc_id": "golden_lazarus_001",
+      "evidence_text": "Lazarus APT组织是一个长期活跃的组织，因为2014年攻击索尼影业而开始受到广泛关注"
+    },
+    {
+      "entity_id": "apt_group:konni",
+      "name": "Konni",
+      "type": "APT_GROUP",
+      "aliases": [],
+      "description": "与Kimsuky存在基础设施重叠的APT组织",
+      "doc_id": "golden_kimsuky_003",
+      "evidence_text": "与Konni APT组织存在基础设施重叠等关联性"
+    },
+    {
+      "entity_id": "cve:cve-2016-6366",
+      "name": "CVE-2016-6366",
+      "type": "CVE",
+      "aliases": [],
+      "description": "Cisco防火墙SNMP服务模块缓冲区溢出漏洞",
+      "doc_id": "golden_apt28_001",
+      "evidence_text": "CVE-2016-6366，为Cisco防火墙SNMP服务模块的一处缓冲区溢出漏洞"
+    },
+    {
+      "entity_id": "cve:cve-2017-0199",
+      "name": "CVE-2017-0199",
+      "type": "CVE",
+      "aliases": [],
+      "description": "Microsoft Office远程代码执行漏洞",
+      "doc_id": "golden_apt28_001",
+      "evidence_text": "APT28组织使用CVE-2017-0199、CVE-2017-8570等漏洞进行攻击"
+    },
+    {
+      "entity_id": "tool:certipy",
+      "name": "Certipy",
+      "type": "TOOL",
+      "aliases": [],
+      "description": "AD CS漏洞利用工具",
+      "doc_id": "golden_apt28_002",
+      "evidence_text": "Certipy is a tool used for AD CS exploitation"
+    },
+    {
+      "entity_id": "technique:ad_cs",
+      "name": "AD CS攻击",
+      "type": "TECHNIQUE",
+      "aliases": [
+        "Active Directory Certificate Services"
+      ],
+      "description": "利用AD CS漏洞进行权限提升",
+      "doc_id": "golden_apt28_002",
+      "evidence_text": "AD CS attacks rarely rely on zero-day vulnerabilities or malware"
+    },
+    {
+      "entity_id": "technique:spear_phishing",
+      "name": "鱼叉式钓鱼",
+      "type": "TECHNIQUE",
+      "aliases": [
+        "Spear Phishing"
+      ],
+      "description": "针对特定目标的钓鱼攻击",
+      "doc_id": "golden_kimsuky_001",
+      "evidence_text": "该组织通常使用社会工程学、鱼叉邮件、水坑攻击等手段投递恶意软件"
+    },
+    {
+      "entity_id": "technique:dll_sideloading",
+      "name": "DLL侧加载",
+      "type": "TECHNIQUE",
+      "aliases": [
+        "DLL Sideloading"
+      ],
+      "description": "通过合法程序加载恶意DLL的技术",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "Stately Taurus commonly uses DLL sideloading as a technique to execute its payloads"
+    },
+    {
+      "entity_id": "malware:headlace",
+      "name": "HeadLace",
+      "type": "MALWARE",
+      "aliases": [],
+      "description": "Fighting Ursa使用的后门恶意软件",
+      "doc_id": "golden_apt28_002",
+      "evidence_text": "Fighting Ursa advertised a car for sale as a lure to distribute HeadLace backdoor malware"
+    },
+    {
+      "entity_id": "malware:klogexe",
+      "name": "KLogEXE",
+      "type": "MALWARE",
+      "aliases": [],
+      "description": "Kimsuky使用的键盘记录器",
+      "doc_id": "golden_kimsuky_002",
+      "evidence_text": "an undocumented keylogger, called KLogEXE by its authors"
+    },
+    {
+      "entity_id": "malware:fpspy",
+      "name": "FPSpy",
+      "type": "MALWARE",
+      "aliases": [],
+      "description": "Kimsuky使用的后门变种",
+      "doc_id": "golden_kimsuky_002",
+      "evidence_text": "an undocumented variant of a backdoor dubbed FPSpy"
+    },
+    {
+      "entity_id": "malware:bookworm",
+      "name": "Bookworm",
+      "type": "MALWARE",
+      "aliases": [],
+      "description": "Stately Taurus使用的恶意软件",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "We observed overlaps with infrastructure used by a variant of the Bookworm malware"
+    },
+    {
+      "entity_id": "malware:toneshell",
+      "name": "ToneShell",
+      "type": "MALWARE",
+      "aliases": [],
+      "description": "与Stately Taurus关联的恶意软件",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "ToneShell is another malware associated with this group"
+    },
+    {
+      "entity_id": "malware:pubload",
+      "name": "PubLoad",
+      "type": "MALWARE",
+      "aliases": [],
+      "description": "Stately Taurus独有的恶意软件家族",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "The PubLoad malware family is unique to this threat group"
+    },
+    {
+      "entity_id": "target:south_korea",
+      "name": "韩国",
+      "type": "TARGET",
+      "aliases": [
+        "South Korea"
+      ],
+      "description": "Kimsuky和Lazarus主要攻击目标国家",
+      "doc_id": "golden_kimsuky_001",
+      "evidence_text": "Kimsuky 主要攻击目标为韩国，涉及国防、教育、能源、政府、医疗以及智囊团等领域"
+    },
+    {
+      "entity_id": "target:sony_pictures",
+      "name": "索尼影业",
+      "type": "TARGET",
+      "aliases": [
+        "Sony Pictures"
+      ],
+      "description": "Lazarus 2014年攻击目标",
+      "doc_id": "golden_lazarus_001",
+      "evidence_text": "因为2014年攻击索尼影业而开始受到广泛关注"
+    },
+    {
+      "entity_id": "target:global_financial",
+      "name": "全球金融机构",
+      "type": "TARGET",
+      "aliases": [],
+      "description": "Lazarus攻击目标",
+      "doc_id": "golden_lazarus_001",
+      "evidence_text": "该组织开始针对全球金融机构，加密交易机构等为目标，进行敛财活动"
+    },
+    {
+      "entity_id": "target:crypto_exchange",
+      "name": "加密货币交易所",
+      "type": "TARGET",
+      "aliases": [],
+      "description": "Lazarus攻击目标",
+      "doc_id": "golden_lazarus_002",
+      "evidence_text": "该组织开始针对全球金融机构，虚拟货币交易场等为目标"
+    },
+    {
+      "entity_id": "target:diplomats",
+      "name": "外交官",
+      "type": "TARGET",
+      "aliases": [],
+      "description": "Fighting Ursa攻击目标",
+      "doc_id": "golden_apt28_002",
+      "evidence_text": "The campaign likely targeted diplomats"
+    },
+    {
+      "entity_id": "target:asean",
+      "name": "东盟国家",
+      "type": "TARGET",
+      "aliases": [
+        "ASEAN"
+      ],
+      "description": "Stately Taurus攻击目标区域",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "targeting organizations in countries affiliated with the Association of Southeast Asian Nations (ASEAN)"
+    },
+    {
+      "entity_id": "country:north_korea",
+      "name": "朝鲜",
+      "type": "COUNTRY",
+      "aliases": [
+        "DPRK",
+        "North Korea"
+      ],
+      "description": "Lazarus和Kimsuky关联国家",
+      "doc_id": "golden_lazarus_002",
+      "evidence_text": "Lazarus是疑似具有东北亚背景的APT组织"
+    },
+    {
+      "entity_id": "country:russia",
+      "name": "俄罗斯",
+      "type": "COUNTRY",
+      "aliases": [
+        "Russia"
+      ],
+      "description": "APT28关联国家",
+      "doc_id": "golden_apt28_002",
+      "evidence_text": "Russia is the attributed country for Fighting Ursa"
+    },
+    {
+      "entity_id": "organization:cisco",
+      "name": "Cisco",
+      "type": "ORGANIZATION",
+      "aliases": [],
+      "description": "网络设备制造商",
+      "doc_id": "golden_apt28_001",
+      "evidence_text": "CVE-2016-6366，为Cisco防火墙SNMP服务模块的一处缓冲区溢出漏洞"
+    },
+    {
+      "entity_id": "organization:bluemoonsoft",
+      "name": "BlueMoonSoft",
+      "type": "ORGANIZATION",
+      "aliases": [],
+      "description": "韩国软件厂商",
+      "doc_id": "golden_kimsuky_001",
+      "evidence_text": "其中一个样本释放韩国软件厂商 BlueMoonSoft 签名的软件迷惑受害者"
+    },
+    {
+      "entity_id": "cve:cve-2025-49113",
+      "name": "CVE-2025-49113",
+      "type": "CVE",
+      "aliases": [],
+      "description": "Roundcube Webmail远程代码执行漏洞",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "The vulnerability, tracked as CVE-2025-49113, carries a CVSS score of 9.9 out of 10.0"
+    },
+    {
+      "entity_id": "apt_group:winter_vivern",
+      "name": "Winter Vivern",
+      "type": "APT_GROUP",
+      "aliases": [],
+      "description": "利用Roundcube漏洞的国家级威胁组织",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "Previously disclosed security vulnerabilities in Roundcube have been a lucrative target for nation-state threat actors like APT28 and Winter Vivern"
+    },
+    {
+      "entity_id": "technique:xss",
+      "name": "跨站脚本攻击",
+      "type": "TECHNIQUE",
+      "aliases": [
+        "XSS",
+        "Cross-Site Scripting"
+      ],
+      "description": "Web应用安全漏洞利用技术",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "APT28 had leveraged cross-site scripting (XSS) vulnerabilities in various webmail servers"
+    },
+    {
+      "entity_id": "organization:eset",
+      "name": "ESET",
+      "type": "ORGANIZATION",
+      "aliases": [],
+      "description": "网络安全公司",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "ESET noted that APT28 had leveraged cross-site scripting (XSS) vulnerabilities"
+    },
+    {
+      "entity_id": "organization:positive_technologies",
+      "name": "Positive Technologies",
+      "type": "ORGANIZATION",
+      "aliases": [],
+      "description": "网络安全公司",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "Positive Technologies Reproduces CVE-2025-49113"
+    },
+    {
+      "entity_id": "target:eastern_europe",
+      "name": "东欧",
+      "type": "TARGET",
+      "aliases": [
+        "Eastern Europe"
+      ],
+      "description": "APT28攻击目标区域",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "harvest confidential data from specific email accounts belonging to governmental entities and defense companies in Eastern Europe"
+    },
+    {
+      "entity_id": "tool:npm",
+      "name": "npm",
+      "type": "TOOL",
+      "aliases": [],
+      "description": "Node.js包管理器",
+      "doc_id": "golden_lazarus_004",
+      "evidence_text": "Threat actors with ties to North Korea have been linked to a fresh set of malicious npm packages"
+    },
+    {
+      "entity_id": "malware:ottercookie",
+      "name": "OtterCookie",
+      "type": "MALWARE",
+      "aliases": [],
+      "description": "Lazarus关联的恶意软件家族",
+      "doc_id": "golden_lazarus_004",
+      "evidence_text": "to deliver BeaverTail and OtterCookie, two known malware families linked to Contagious Interview"
+    },
+    {
+      "entity_id": "campaign:contagious_interview",
+      "name": "Contagious Interview",
+      "type": "CAMPAIGN",
+      "aliases": [],
+      "description": "Lazarus关联的攻击活动",
+      "doc_id": "golden_lazarus_004",
+      "evidence_text": "two known malware families linked to Contagious Interview"
+    },
+    {
+      "entity_id": "organization:jfrog",
+      "name": "JFrog",
+      "type": "ORGANIZATION",
+      "aliases": [],
+      "description": "软件供应链安全公司",
+      "doc_id": "golden_lazarus_004",
+      "evidence_text": "According to JFrog, the packages mimic the legitimate rollup-plugin-polyfill-node project"
+    },
+    {
+      "entity_id": "technique:supply_chain",
+      "name": "供应链攻击",
+      "type": "TECHNIQUE",
+      "aliases": [
+        "Software Supply Chain"
+      ],
+      "description": "通过污染软件供应链进行攻击",
+      "doc_id": "golden_lazarus_004",
+      "evidence_text": "This layered structure, together with the lookalike names, legitimate-looking metadata, hidden install-time execution, environment checks, and credential-theft/remote-access payloads, is similar to previous North Korean Lazarus-linked npm campaigns"
+    }
+  ],
+  "relations": [
+    {
+      "relation_id": "rel:apt_group:apt28:EXPLOITS:cve:cve-2017-0199",
+      "source_entity_id": "apt_group:apt28",
+      "target_entity_id": "cve:cve-2017-0199",
+      "relation_type": "EXPLOITS",
+      "label": "利用漏洞",
+      "doc_id": "golden_apt28_001",
+      "evidence_text": "APT28组织使用CVE-2017-0199、CVE-2017-8570等漏洞进行攻击"
+    },
+    {
+      "relation_id": "rel:apt_group:apt28:ATTRIBUTED_TO:country:russia",
+      "source_entity_id": "apt_group:apt28",
+      "target_entity_id": "country:russia",
+      "relation_type": "ATTRIBUTED_TO",
+      "label": "归因于",
+      "doc_id": "golden_apt28_002",
+      "evidence_text": "Russia is the attributed country for Fighting Ursa"
+    },
+    {
+      "relation_id": "rel:apt_group:apt28:TARGETS:target:diplomats",
+      "source_entity_id": "apt_group:apt28",
+      "target_entity_id": "target:diplomats",
+      "relation_type": "TARGETS",
+      "label": "攻击",
+      "doc_id": "golden_apt28_002",
+      "evidence_text": "The campaign likely targeted diplomats"
+    },
+    {
+      "relation_id": "rel:apt_group:apt28:USES:malware:headlace",
+      "source_entity_id": "apt_group:apt28",
+      "target_entity_id": "malware:headlace",
+      "relation_type": "USES",
+      "label": "使用恶意软件",
+      "doc_id": "golden_apt28_002",
+      "evidence_text": "Fighting Ursa advertised a car for sale as a lure to distribute HeadLace backdoor malware"
+    },
+    {
+      "relation_id": "rel:apt_group:kimsuky:TARGETS:target:south_korea",
+      "source_entity_id": "apt_group:kimsuky",
+      "target_entity_id": "target:south_korea",
+      "relation_type": "TARGETS",
+      "label": "攻击",
+      "doc_id": "golden_kimsuky_001",
+      "evidence_text": "Kimsuky 主要攻击目标为韩国，涉及国防、教育、能源、政府、医疗以及智囊团等领域"
+    },
+    {
+      "relation_id": "rel:apt_group:kimsuky:USES:malware:klogexe",
+      "source_entity_id": "apt_group:kimsuky",
+      "target_entity_id": "malware:klogexe",
+      "relation_type": "USES",
+      "label": "使用恶意软件",
+      "doc_id": "golden_kimsuky_002",
+      "evidence_text": "an undocumented keylogger, called KLogEXE by its authors"
+    },
+    {
+      "relation_id": "rel:apt_group:kimsuky:USES:malware:fpspy",
+      "source_entity_id": "apt_group:kimsuky",
+      "target_entity_id": "malware:fpspy",
+      "relation_type": "USES",
+      "label": "使用恶意软件",
+      "doc_id": "golden_kimsuky_002",
+      "evidence_text": "an undocumented variant of a backdoor dubbed FPSpy"
+    },
+    {
+      "relation_id": "rel:apt_group:kimsuky:USES:technique:spear_phishing",
+      "source_entity_id": "apt_group:kimsuky",
+      "target_entity_id": "technique:spear_phishing",
+      "relation_type": "USES",
+      "label": "使用技术",
+      "doc_id": "golden_kimsuky_001",
+      "evidence_text": "该组织通常使用社会工程学、鱼叉邮件、水坑攻击等手段投递恶意软件"
+    },
+    {
+      "relation_id": "rel:apt_group:kimsuky:AFFILIATED_WITH:apt_group:konni",
+      "source_entity_id": "apt_group:kimsuky",
+      "target_entity_id": "apt_group:konni",
+      "relation_type": "AFFILIATED_WITH",
+      "label": "关联",
+      "doc_id": "golden_kimsuky_003",
+      "evidence_text": "与Konni APT组织存在基础设施重叠等关联性"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:ATTRIBUTED_TO:country:north_korea",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "country:north_korea",
+      "relation_type": "ATTRIBUTED_TO",
+      "label": "归因于",
+      "doc_id": "golden_lazarus_002",
+      "evidence_text": "Lazarus是疑似具有东北亚背景的APT组织"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:TARGETS:target:sony_pictures",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "target:sony_pictures",
+      "relation_type": "TARGETS",
+      "label": "攻击",
+      "doc_id": "golden_lazarus_001",
+      "evidence_text": "因为2014年攻击索尼影业而开始受到广泛关注"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:TARGETS:target:global_financial",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "target:global_financial",
+      "relation_type": "TARGETS",
+      "label": "攻击",
+      "doc_id": "golden_lazarus_001",
+      "evidence_text": "该组织开始针对全球金融机构，加密交易机构等为目标，进行敛财活动"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:TARGETS:target:crypto_exchange",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "target:crypto_exchange",
+      "relation_type": "TARGETS",
+      "label": "攻击",
+      "doc_id": "golden_lazarus_002",
+      "evidence_text": "该组织开始针对全球金融机构，虚拟货币交易场等为目标"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:TARGETS:target:south_korea",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "target:south_korea",
+      "relation_type": "TARGETS",
+      "label": "攻击",
+      "doc_id": "golden_lazarus_002",
+      "evidence_text": "该团伙利用疫情为诱饵攻击周边国家的样本"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:USES:technique:dll_sideloading",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "technique:dll_sideloading",
+      "relation_type": "USES",
+      "label": "使用技术",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "Stately Taurus commonly uses DLL sideloading as a technique to execute its payloads"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:USES:malware:bookworm",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "malware:bookworm",
+      "relation_type": "USES",
+      "label": "使用恶意软件",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "We observed overlaps with infrastructure used by a variant of the Bookworm malware"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:USES:malware:toneshell",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "malware:toneshell",
+      "relation_type": "USES",
+      "label": "使用恶意软件",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "ToneShell is another malware associated with this group"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:USES:malware:pubload",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "malware:pubload",
+      "relation_type": "USES",
+      "label": "使用恶意软件",
+      "doc_id": "golden_lazarus_003",
+      "evidence_text": "The PubLoad malware family is unique to this threat group"
+    },
+    {
+      "relation_id": "rel:apt_group:apt28:EXPLOITS:cve:cve-2025-49113",
+      "source_entity_id": "apt_group:apt28",
+      "target_entity_id": "cve:cve-2025-49113",
+      "relation_type": "EXPLOITS",
+      "label": "利用漏洞",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "APT28 had leveraged cross-site scripting (XSS) vulnerabilities in various webmail servers"
+    },
+    {
+      "relation_id": "rel:apt_group:apt28:TARGETS:target:eastern_europe",
+      "source_entity_id": "apt_group:apt28",
+      "target_entity_id": "target:eastern_europe",
+      "relation_type": "TARGETS",
+      "label": "攻击",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "harvest confidential data from specific email accounts belonging to governmental entities and defense companies in Eastern Europe"
+    },
+    {
+      "relation_id": "rel:apt_group:apt28:USES:technique:xss",
+      "source_entity_id": "apt_group:apt28",
+      "target_entity_id": "technique:xss",
+      "relation_type": "USES",
+      "label": "使用技术",
+      "doc_id": "golden_apt28_003",
+      "evidence_text": "APT28 had leveraged cross-site scripting (XSS) vulnerabilities in various webmail servers"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:USES:malware:ottercookie",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "malware:ottercookie",
+      "relation_type": "USES",
+      "label": "使用恶意软件",
+      "doc_id": "golden_lazarus_004",
+      "evidence_text": "to deliver BeaverTail and OtterCookie, two known malware families linked to Contagious Interview"
+    },
+    {
+      "relation_id": "rel:apt_group:lazarus:USES:technique:supply_chain",
+      "source_entity_id": "apt_group:lazarus",
+      "target_entity_id": "technique:supply_chain",
+      "relation_type": "USES",
+      "label": "使用技术",
+      "doc_id": "golden_lazarus_004",
+      "evidence_text": "This layered structure, together with the lookalike names, legitimate-looking metadata, hidden install-time execution, environment checks, and credential-theft/remote-access payloads, is similar to previous North Korean Lazarus-linked npm campaigns"
+    }
+  ],
+  "metadata": {
+    "collector_github": "SuQi625",
+    "source_path": "tmp/evaluation/golden.json",
+    "normalizer": "scripts/convert_suqi625_dataset.py",
+    "note": "该文件用于人工评测，不是 LLM 候选抽取结果。"
+  }
+}

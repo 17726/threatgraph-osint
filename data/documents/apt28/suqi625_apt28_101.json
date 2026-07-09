@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_101",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/espionage/comments/1rvce0v/operation_roundish_uncovering_an_apt28_roundcube",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Operation Roundish: Uncovering an APT28 Roundcube Exploitation Toolkit Targeting Ukraine",
+  "language": "en",
+  "clean_text": "Over the past few years, APT28 (Fancy Bear) has repeatedOver the past few years, APT28 (Fancy Bear) has repeatedly targeted webmail platforms to gain access to government and defense email accounts. Roundcube, in particular, has appeared in multiple campaigns due to its widespread deployment and history of exploitable vulnerabilities targeted webmail platforms to gain access to government and defense email accounts. Roundcube, in particular, has appeared in multiple campaigns due to its widespread deployment and history of exploitable vulnerabilities.",
+  "content_hash": "sha256:ef9b739a4b954594e0e2cc2ce77c3d4807dc631a9305d5964332f0573ad2b42c",
+  "published_at": "2026-03-16",
+  "retrieved_at": "2026-07-08T21:01:12Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_101",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_101.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_101.json",
+    "legacy_content_hash": "609d30aafd574c774345c9de122181ee",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

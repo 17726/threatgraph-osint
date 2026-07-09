@@ -1,0 +1,76 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-07-08T00:00:00+08:00",
+  "description": "SuQi625 数据组补充数据的来源索引，仅统计本次新增入库文档。",
+  "sources": [
+    {
+      "source_id": "reddit",
+      "name": "Reddit",
+      "source_type": "social_forum",
+      "collector_type": "local_json",
+      "url": "https://www.reddit.com",
+      "target_groups_json": [
+        "APT28",
+        "Kimsuky",
+        "Lazarus"
+      ],
+      "source_reliability": "D",
+      "tags_json": [
+        "social_forum",
+        "social",
+        "forum",
+        "community"
+      ],
+      "enabled": true,
+      "config_json": {
+        "language": "en",
+        "description": "社交媒体论坛，用户生成内容，包含APT组织相关的安全讨论和分析",
+        "document_count_by_group": {
+          "APT28": 13,
+          "Kimsuky": 13,
+          "Lazarus": 8
+        },
+        "total_document_count": 34
+      },
+      "created_at": "2026-07-08T00:00:00+08:00",
+      "updated_at": "2026-07-08T00:00:00+08:00"
+    }
+  ],
+  "summary": {
+    "total_sources": 1,
+    "total_documents": 34,
+    "documents_by_group": {
+      "APT28": 13,
+      "Kimsuky": 13,
+      "Lazarus": 8
+    },
+    "documents_by_reliability": {
+      "D": 34
+    },
+    "skipped_existing_url": 270,
+    "skipped_too_short": 7,
+    "merged_duplicates": 0,
+    "original_summary": {
+      "total_sources": 5,
+      "total_documents": 316,
+      "documents_by_group": {
+        "APT28": 107,
+        "Kimsuky": 88,
+        "Lazarus": 121
+      },
+      "documents_by_reliability": {
+        "A": 76,
+        "B": 48,
+        "C": 147,
+        "D": 45
+      },
+      "source_reliability_scale": {
+        "A": "完全可信（官方公告、厂商直接发布的威胁报告）",
+        "B": "通常可信（知名安全新闻媒体、厂商博客）",
+        "C": "一般可信（安全新闻媒体、转载较多）",
+        "D": "较低可信（社媒、论坛）",
+        "unknown": "未知"
+      }
+    }
+  }
+}

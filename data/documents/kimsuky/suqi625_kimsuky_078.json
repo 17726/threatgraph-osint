@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_078",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1s9hba6/a_malicious_lnk_that_spreads_a_pythonbased",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "A malicious LNK that spreads a Python-based backdoor and how it’s spreading (Kimsuky group)",
+  "language": "en",
+  "clean_text": "Here's an important update regarding the Kimsuky APT group (also known as APT37 or ScarCruft). They've reportedly refined their distribution tactics, now leveraging malicious LNK files to deploy a Python-based backdoor . AhnLab's analysis highlights a significant structural change in the intermediate execution phase of their attack chain, indicating refined evasion or delivery methods, though the ultimate goal remains consistent: Python-based backdoor or downloader execution. Technical Breakdown Threat Actor: Kimsuky Group (APT37, ScarCruft, RedEyes). Initial Access/Delivery: Malicious LNK files. Payload: Python-based backdoor or downloader. Methodology Shift: The primary observation is a \"structural change in the intermediate execution phase\" compared to their historical distribution methods. This suggests an evolution in their loader or dropper mechanisms before the final Python payload is executed. Indicators of Compromise (IOCs): The provided summary does not include specific file hashes, C2 IPs, or other detailed IOCs. Defense Focus on robust endpoint detection for LNK file execution and anomalous script activity, particularly Python scripts initiated through unusual processes. User education on recognizing and reporting suspicious attachments is also paramount. Source: https://asec.ahnlab.com/en/93151/",
+  "content_hash": "sha256:51f17fb314067f77d66dadf966a299ae1db50f970bd92e7594dfa2e1d19a4ca0",
+  "published_at": "2026-04-01",
+  "retrieved_at": "2026-07-08T21:04:05Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_078",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_078.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_078.json",
+    "legacy_content_hash": "4bf00d970ffb70912e220504e12fabfa",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

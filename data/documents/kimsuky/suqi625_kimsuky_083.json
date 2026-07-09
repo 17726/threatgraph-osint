@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_083",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/NewsFromTheEdge/comments/1q82hmq/fbi_warns_about_kimsuky_hackers_using_qr_codes_to",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "FBI warns about Kimsuky hackers using QR codes to phish U.S. orgs🔥🕵️‍♂️",
+  "language": "en",
+  "clean_text": "FBI warns about Kimsuky hackers using QR codes to phish U.S. orgs🔥🕵️‍♂️ The North Korean hacker group Kimsuki is using malicious QR codes in spearphishing campaigns that target U.S. organizations, the FBI warns in a flash alert! 💥👨‍💻🧱🩲 #news #technews #friday #usa #cybersecuritynews #fridaymorning #cybercrime #crimenews #entertainmentnews #entertainment #hackers #spies #spying #business #businessnews #fbi https://www.bleepingcomputer.com/news/security/fbi-warns-about-kimsuky-hackers-using-qr-codes-to-phish-us-orgs/",
+  "content_hash": "sha256:ca00e8d97a9423f1d05c2233270cd18e09920966286af9bdf0a3835b2e01047e",
+  "published_at": "2026-01-09",
+  "retrieved_at": "2026-07-08T21:04:10Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_083",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_083.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_083.json",
+    "legacy_content_hash": "f10d6f5fc1f480049c9d155d48946793",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}
