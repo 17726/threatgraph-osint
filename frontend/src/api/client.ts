@@ -1,4 +1,10 @@
-import type { ApiResponse, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "../types";
+import type {
+  ApiResponse,
+  GraphEdge,
+  GraphNode,
+  GraphPayload,
+  ReportPayload,
+} from "../types";
 import { getMockGraph, getMockReport } from "../data/mockPayload";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
@@ -40,7 +46,10 @@ export function fetchReport(target: string): Promise<ReportPayload> {
   return getJson<ReportPayload>(url);
 }
 
-export async function fetchPath(source: string, target: string): Promise<PathResult> {
+export async function fetchPath(
+  source: string,
+  target: string,
+): Promise<PathResult> {
   const url = `/graph/path?source=${encodeURIComponent(source)}&target=${encodeURIComponent(target)}`;
   const payload = await getJson<PathApiPayload>(url);
 
