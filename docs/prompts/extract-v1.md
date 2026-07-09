@@ -112,16 +112,16 @@ chunk 列表：
 
 ```bash
 python scripts/validate_extraction_result.py \
-  data/extracted/extraction_result.apt28.securelist.v1.json \
-  --document data/examples/document.apt28.securelist.example.json
+  data/extracted/extraction_result.apt28.thn.beardshell.v1.json \
+  --document data/examples/document.apt28.thn.beardshell.example.json
 ```
 
 通过标准：
 
 1. JSON Schema 校验通过。
 2. `doc_id` 与输入文档一致。
-3. `chunk_id` 使用 `doc_id_cNNN` 形式，当前单 chunk 样例使用 `apt28_securelist_masha_bears_001_c001`。
-4. 每条 `evidence_text` 能在文档 `raw_text` 中找到。
+3. `chunk_id` 使用 `doc_id_cNNN` 形式，当前单 chunk 样例使用 `apt28_049_c001`。
+4. 每条 `evidence_text` 能在文档 `clean_text` 中找到。
 5. 如果填写 `char_start` / `char_end`，对应切片必须精确等于 `evidence_text`。
 6. 每条关系满足最小关系合法性矩阵。
 7. 不出现最终图谱 ID 字段。

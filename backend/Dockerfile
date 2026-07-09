@@ -14,7 +14,7 @@ COPY backend /app/backend
 COPY scripts /app/scripts
 COPY docs/schemas /app/docs/schemas
 COPY data/examples /app/data/examples
-COPY data/extracted/extraction_result.apt28.securelist.v1.json /app/data/extracted/extraction_result.apt28.securelist.v1.json
+COPY data/extracted/extraction_result.apt28.thn.beardshell.v1.json /app/data/extracted/extraction_result.apt28.thn.beardshell.v1.json
 
 EXPOSE 8000
 

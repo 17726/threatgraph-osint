@@ -23,11 +23,11 @@ docs/schemas/relationship-matrix.md
 配套样例放在：
 
 ```text
-data/examples/document.apt28.securelist.example.json
+data/examples/document.apt28.thn.beardshell.example.json
 data/examples/reference.apt28.mitre.example.json
-data/examples/extraction_result.apt28.securelist.example.json
-data/examples/graph.apt28.securelist.example.json
-data/examples/golden.apt28.example.json
+data/examples/extraction_result.apt28.thn.beardshell.example.json
+data/examples/graph.apt28.thn.beardshell.example.json
+data/examples/golden.apt28.thn.beardshell.example.json
 ```
 
 真实 P0 文档放在：
@@ -40,14 +40,14 @@ data/documents/<target_group>/*.json
 
 当前 APT28 样例分成两类来源：
 
-1. Securelist 的 `Masha and these Bears` 是真实文章样例，给 data 组清洗正文、给 llm 组抽取候选结果、给 be 组归一化和导出图谱使用。
+1. The Hacker News 的 `APT28 Uses Signal Chat to Deploy BEARDSHELL Malware and COVENANT in Ukraine` 选自 `data/documents/apt28/apt28_049.json`，给 data 组、llm 组、be 组和 qa 组作为完整证据链样例。
 2. MITRE ATT&CK 的 APT28 页面是知识库参考样例，给 arch / qa / be 做标准名、别名、MITRE 编号和 golden 对齐使用。
 
-Securelist 字段口径如下：
+The Hacker News 字段口径如下：
 
-1. `source_type` 使用 `vendor_report`，表示安全厂商发布的威胁情报文章。
-2. `target_group` 使用标准名 `APT28`，`Sofacy`、`Fancy Bear`、`Tsar Team` 进入实体 `aliases`。
-3. 仓库样例的 `clean_text` 只保留人工清洗后的短文本，不放完整网页原文；`content_hash` 固定为 `sha256(clean_text 按 UTF-8 编码后的字节)`，可追溯性依赖 `source_url`、`published_at`、`retrieved_at`、`doc_id`、`chunk_id` 和 `evidence`。
+1. `source_type` 使用 `news`，表示公开安全新闻来源。
+2. `target_group` 使用标准名 `APT28`，`UAC-0001` 进入实体 `aliases`。
+3. 仓库样例的 `clean_text` 来自已入库 cleaned document；`content_hash` 固定为 `sha256(clean_text 按 UTF-8 编码后的字节)`，可追溯性依赖 `source_url`、`published_at`、`retrieved_at`、`doc_id`、`chunk_id` 和 `evidence`。
 4. MITRE 页面使用 `source_type = knowledge_base`，不要和厂商报告混成同一个 `document.json`。
 
 ## 当前硬性规则
@@ -61,12 +61,12 @@ Securelist 字段口径如下：
 
 ## 今日交付口径
 
-data 组先按 `document.apt28.securelist.example.json` 改出第一份 APT28 真实文档。
+data 组先按 `document.apt28.thn.beardshell.example.json` 改出第一份 APT28 真实文档。
 
-llm 组先按 `extraction_result.apt28.securelist.example.json` 手写或生成候选结果。第一版只要求 JSON 合法、字段完整，不要求准确率完美。
+llm 组先按 `extraction_result.apt28.thn.beardshell.example.json` 手写或生成候选结果。第一版必须保证 JSON 合法、字段完整、证据文本能回到 `clean_text`。
 
-be 组按 `graph.apt28.securelist.example.json` 的格式导出 `data/graph/graph.json`，并按 `docs/api-contract.md` 返回 `/api/v1/graph` 的轻量图谱视图，同时补齐 `/api/v1/graph/path` 的 SQLite BFS 兜底。
+be 组按 `graph.apt28.thn.beardshell.example.json` 的格式导出 `data/graph/graph.json`，并按 `docs/api-contract.md` 返回 `/api/v1/graph` 的轻量图谱视图，同时补齐 `/api/v1/graph/path` 的 SQLite BFS 兜底。
 
 如果后续需要对 `/api/v1/graph` 做机器校验，应新增独立的 `graph-view.schema.json`，不要复用完整 GraphSnapshot 的 `graph.schema.json`。
 
-qa 组按 `golden.apt28.example.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。
+qa 组按 `golden.apt28.thn.beardshell.example.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。

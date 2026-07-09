@@ -14,8 +14,8 @@ from scripts.import_extraction_result import import_extraction_result
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DOCUMENT_PATH = ROOT / "data/examples/document.apt28.securelist.example.json"
-EXTRACTION_PATH = ROOT / "data/extracted/extraction_result.apt28.securelist.v1.json"
+DOCUMENT_PATH = ROOT / "data/examples/document.apt28.thn.beardshell.example.json"
+EXTRACTION_PATH = ROOT / "data/extracted/extraction_result.apt28.thn.beardshell.v1.json"
 GRAPH_SCHEMA_PATH = ROOT / "docs/schemas/graph.schema.json"
 
 
@@ -30,14 +30,14 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
 
     summary = OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
 
-    assert summary.doc_id == "apt28_securelist_masha_bears_001"
-    assert summary.run_id == "extract_apt28_securelist_masha_bears_v1"
+    assert summary.doc_id == "apt28_049"
+    assert summary.run_id == "extract_apt28_thn_beardshell_v1"
     assert summary.chunks == 1
-    assert summary.extracted_entities == 6
-    assert summary.extracted_relations == 5
-    assert summary.canonical_entities == 6
-    assert summary.canonical_relations == 5
-    assert summary.evidence == 11
+    assert summary.extracted_entities == 15
+    assert summary.extracted_relations == 10
+    assert summary.canonical_entities == 15
+    assert summary.canonical_relations == 10
+    assert summary.evidence == 25
     assert summary.behavior_patterns == 2
 
     with connect(db_path) as connection:
@@ -48,30 +48,30 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
             """
             SELECT validation_status, normalized_relation_id, validation_errors_json
             FROM extracted_relations
-            WHERE tail_name = 'China'
+            WHERE tail_name = 'Ukraine'
             """
         ).fetchone()
         assert extracted_relation["validation_status"] == "valid"
         assert extracted_relation["normalized_relation_id"] == (
-            "rel:apt_group:apt28:TARGETS:country:china"
+            "rel:apt_group:apt28:TARGETS:country:ukraine"
         )
         assert json.loads(extracted_relation["validation_errors_json"]) == []
 
-        xagent = connection.execute(
+        beardshell = connection.execute(
             """
             SELECT entity_id, aliases_json
             FROM entities
-            WHERE entity_id = 'malware:x-agent'
+            WHERE entity_id = 'malware:beardshell'
             """
         ).fetchone()
-        assert xagent is not None
-        assert set(json.loads(xagent["aliases_json"])) == {"CHOPSTICK", "SPLM"}
+        assert beardshell is not None
+        assert json.loads(beardshell["aliases_json"]) == []
 
         relation = connection.execute(
             """
             SELECT relation_id, evidence_count, source_count
             FROM relations
-            WHERE relation_id = 'rel:apt_group:apt28:USES:malware:x-agent'
+            WHERE relation_id = 'rel:apt_group:apt28:USES:malware:beardshell'
             """
         ).fetchone()
         assert relation["evidence_count"] == 1
@@ -81,14 +81,14 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
             """
             SELECT evidence_text, source_url, source_name, quote_start, quote_end
             FROM evidence
-            WHERE relation_id = 'rel:apt_group:apt28:TARGETS:country:china'
+            WHERE relation_id = 'rel:apt_group:apt28:TARGETS:country:ukraine'
             """
         ).fetchone()
-        assert evidence["source_url"] == "https://securelist.com/masha-and-these-bears/84311/"
-        assert evidence["source_name"] == "Kaspersky Securelist"
-        assert evidence["quote_start"] == 327
-        assert evidence["quote_end"] == 464
-        assert "China" in evidence["evidence_text"]
+        assert evidence["source_url"] == "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html"
+        assert evidence["source_name"] == "The Hacker News"
+        assert evidence["quote_start"] == 2362
+        assert evidence["quote_end"] == 2672
+        assert "Ukraine" in evidence["evidence_text"]
 
 
 def test_offline_pipeline_graph_export_uses_real_sample_without_demo_seed(tmp_path):
@@ -106,15 +106,15 @@ def test_offline_pipeline_graph_export_uses_real_sample_without_demo_seed(tmp_pa
     assert graph["exported_from"] == "sqlite"
     assert {node["id"] for node in graph["nodes"]} >= {
         "apt_group:apt28",
-        "malware:x-agent",
-        "malware:zebrocy",
-        "country:china",
+        "malware:beardshell",
+        "tool:covenant",
+        "country:ukraine",
     }
-    assert "technique:t1566" not in {node["id"] for node in graph["nodes"]}
+    assert "country:china" not in {node["id"] for node in graph["nodes"]}
     assert {edge["id"] for edge in graph["edges"]} >= {
-        "rel:apt_group:apt28:USES:malware:x-agent",
-        "rel:apt_group:apt28:USES:malware:zebrocy",
-        "rel:apt_group:apt28:TARGETS:country:china",
+        "rel:apt_group:apt28:USES:malware:beardshell",
+        "rel:apt_group:apt28:USES:tool:covenant",
+        "rel:apt_group:apt28:TARGETS:country:ukraine",
     }
     assert len(graph["analysis"]["behavior_patterns"]) == 2
     assert graph["analysis"]["inferred_relations"] == []
@@ -126,10 +126,10 @@ def test_offline_pipeline_updates_api_graph_store_when_seed_demo_disabled(tmp_pa
 
     graph = DemoStore(db_path, seed_demo=False).get_graph(target="APT28")
 
-    assert len(graph["nodes"]) == 6
-    assert len(graph["edges"]) == 5
-    assert any(edge["target"] == "malware:x-agent" for edge in graph["edges"])
-    assert any(item["relation_id"] == "rel:apt_group:apt28:TARGETS:country:china" for item in graph["evidence"])
+    assert len(graph["nodes"]) == 11
+    assert len(graph["edges"]) == 10
+    assert any(edge["target"] == "malware:beardshell" for edge in graph["edges"])
+    assert any(item["relation_id"] == "rel:apt_group:apt28:TARGETS:country:ukraine" for item in graph["evidence"])
 
 
 def test_offline_pipeline_generates_report_cache(tmp_path):
@@ -153,8 +153,8 @@ def test_offline_pipeline_keeps_invalid_relation_as_candidate(tmp_path):
 
     summary = OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, invalid_path)
 
-    assert summary.extracted_relations == 5
-    assert summary.canonical_relations == 4
+    assert summary.extracted_relations == 10
+    assert summary.canonical_relations == 9
     with connect(db_path) as connection:
         run = connection.execute("SELECT validation_status FROM extraction_runs").fetchone()
         invalid_relation = connection.execute(
@@ -180,7 +180,7 @@ def test_offline_pipeline_rerun_removes_stale_canonical_relation(tmp_path):
     payload["chunks"][0]["relations"] = [
         relation
         for relation in payload["chunks"][0]["relations"]
-        if relation["tail_name"] != "China"
+        if relation["tail_name"] != "Ukraine"
     ]
     modified_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
@@ -188,23 +188,23 @@ def test_offline_pipeline_rerun_removes_stale_canonical_relation(tmp_path):
     first_summary = pipeline.run(DOCUMENT_PATH, EXTRACTION_PATH)
     second_summary = pipeline.run(DOCUMENT_PATH, modified_path)
 
-    assert first_summary.canonical_relations == 5
-    assert second_summary.extracted_relations == 4
-    assert second_summary.canonical_relations == 4
-    assert second_summary.evidence == 10
+    assert first_summary.canonical_relations == 10
+    assert second_summary.extracted_relations == 9
+    assert second_summary.canonical_relations == 9
+    assert second_summary.evidence == 24
     with connect(db_path) as connection:
         stale_relation = connection.execute(
             """
             SELECT 1
             FROM relations
-            WHERE relation_id = 'rel:apt_group:apt28:TARGETS:country:china'
+            WHERE relation_id = 'rel:apt_group:apt28:TARGETS:country:ukraine'
             """
         ).fetchone()
         stale_evidence = connection.execute(
             """
             SELECT 1
             FROM evidence
-            WHERE relation_id = 'rel:apt_group:apt28:TARGETS:country:china'
+            WHERE relation_id = 'rel:apt_group:apt28:TARGETS:country:ukraine'
             """
         ).fetchone()
 

@@ -42,13 +42,13 @@ qa 组
 
 ## 2. data 组：如何准备 document.json
 
-data 组当前目标是准备第一份可追溯的真实样本文档。建议先用 APT28 的安全厂商报告，例如 Securelist、Mandiant、Microsoft、ESET 等。
+data 组当前目标是准备第一份可追溯的真实样本文档。当前完整样例选用 APT28 的 The Hacker News cleaned document，后续也可以继续补充安全厂商报告，例如 Securelist、Mandiant、Microsoft、ESET 等。
 
 参考文件：
 
 ```text
 docs/schemas/document.schema.json
-data/examples/document.apt28.securelist.example.json
+data/examples/document.apt28.thn.beardshell.example.json
 data/documents/<target_group>/*.json
 docs/data-contract.md
 ```
@@ -67,7 +67,7 @@ data/documents/kimsuky/*.json
 
 | 字段            | 语义                   | 填写规则                                                                                                                                                            |
 | --------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `doc_id`        | 文档唯一 ID            | 用小写英文、数字、短横线或下划线。建议包含目标、来源、标题关键词和序号，例如 `apt28_securelist_masha_bears_001`。                                                   |
+| `doc_id`        | 文档唯一 ID            | 用小写英文、数字、短横线或下划线。建议包含目标、来源、标题关键词和序号，例如 `apt28_049` 或 `apt28_thn_beardshell_001`。                                            |
 | `target_group`  | 主目标组织             | 使用标准名，例如 `APT28`、`Lazarus`、`Kimsuky`。不要填别名或小写随意写法。                                                                                          |
 | `target_groups` | 文档涉及的目标组织列表 | 单目标时填 `[target_group]`，例如 `["APT28"]`。                                                                                                                     |
 | `source_url`    | 原始资料 URL           | 尽量填公开链接，不能用空字符串。确实是本地整理资料时，在 `metadata` 说明来源。                                                                                      |
@@ -137,7 +137,7 @@ llm 组基于后端生成的 `chunks` 生成 `extraction_result.json`。第一�
 
 ```text
 docs/schemas/extraction-result.schema.json
-data/examples/extraction_result.apt28.securelist.example.json
+data/examples/extraction_result.apt28.thn.beardshell.example.json
 docs/schemas/relationship-matrix.md
 ```
 
@@ -176,7 +176,7 @@ be 不是独立小组，而是后端横向工作流，默认由 arch 牵头。�
 docs/data-contract.md
 docs/api-contract.md
 docs/schemas/graph.schema.json
-data/examples/graph.apt28.securelist.example.json
+data/examples/graph.apt28.thn.beardshell.example.json
 ```
 
 操作步骤：
@@ -211,7 +211,7 @@ fe 组只对接 FastAPI，不直接读取本地文件。`graph.json` 可以作�
 
 ```text
 docs/api-contract.md
-data/examples/graph.apt28.securelist.example.json
+data/examples/graph.apt28.thn.beardshell.example.json
 ```
 
 操作步骤：
@@ -242,14 +242,14 @@ qa 组负责把样例变成可评测、可答辩、可复现的证据。
 参考文件：
 
 ```text
-data/examples/golden.apt28.example.json
+data/examples/golden.apt28.thn.beardshell.example.json
 docs/team-workflow.md
 docs/references/course-requirements.md
 ```
 
 操作步骤：
 
-1. 基于 `golden.apt28.example.json` 扩充人工标准答案。
+1. 基于 `golden.apt28.thn.beardshell.example.json` 扩充人工标准答案。
 2. 记录 LLM 漏抽、错抽、关系类型错误和证据不足样例。
 3. 检查 data 组文档是否有来源、时间、语言和清洗说明。
 4. 检查 be 导出的 `graph.json` 是否能追溯到 evidence。
@@ -282,8 +282,8 @@ docs/references/course-requirements.md
 
 ```bash
 python scripts/import_extraction_result.py \
-  --document data/examples/document.apt28.securelist.example.json \
-  --extraction-result data/extracted/extraction_result.apt28.securelist.v1.json \
+  --document data/examples/document.apt28.thn.beardshell.example.json \
+  --extraction-result data/extracted/extraction_result.apt28.thn.beardshell.v1.json \
   --export-graph
 ```
 

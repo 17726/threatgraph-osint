@@ -20,7 +20,7 @@ def test_document_schema_uses_clean_text_contract() -> None:
 
 
 def test_document_example_hashes_clean_text() -> None:
-    document = load_json("data/examples/document.apt28.securelist.example.json")
+    document = load_json("data/examples/document.apt28.thn.beardshell.example.json")
 
     assert "clean_text" in document
     assert "raw_text" not in document

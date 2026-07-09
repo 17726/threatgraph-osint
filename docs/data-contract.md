@@ -69,11 +69,11 @@ docs/schemas/relationship-matrix.md
 可复制样例：
 
 ```text
-data/examples/document.apt28.securelist.example.json
+data/examples/document.apt28.thn.beardshell.example.json
 data/examples/reference.apt28.mitre.example.json
-data/examples/extraction_result.apt28.securelist.example.json
-data/examples/graph.apt28.securelist.example.json
-data/examples/golden.apt28.example.json
+data/examples/extraction_result.apt28.thn.beardshell.example.json
+data/examples/graph.apt28.thn.beardshell.example.json
+data/examples/golden.apt28.thn.beardshell.example.json
 ```
 
 正式 P0 文档：
@@ -86,11 +86,11 @@ data/documents/<target_group>/*.json
 
 使用规则：
 
-1. data 组提交真实样本时，复制 `document.apt28.securelist.example.json` 的字段结构，在 `data/documents/<target_group>/` 下新增文档，替换 `clean_text`、来源，并按 `clean_text` 重新生成 `content_hash`。
+1. data 组提交真实样本时，复制 `document.apt28.thn.beardshell.example.json` 的字段结构，在 `data/documents/<target_group>/` 下新增文档，替换 `clean_text`、来源，并按 `clean_text` 重新生成 `content_hash`。
 2. arch / qa / be 做标准名和别名对齐时，参考 `reference.apt28.mitre.example.json`。
-3. llm 组提交候选抽取时，复制 `extraction_result.apt28.securelist.example.json` 后替换候选实体和候选关系。
-4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.securelist.example.json`。
-5. qa 做人工标准答案时，先从 `golden.apt28.example.json` 扩展。
+3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系。
+4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.thn.beardshell.example.json`。
+5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展。
 6. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
 
 APT28 首个样例的字段标准：
@@ -141,7 +141,7 @@ P0 阶段的清洗是格式清洗，不是语义筛选。data 组需要把网页
 3. 不把正文改写成自己的总结后再当作完整原文。
 4. 不把整个浏览器页面原样转成 TXT 后直接提交。
 
-仓库里的 `document.apt28.securelist.example.json` 只放短样本文本，是为了说明字段格式和避免提交完整网页正文；data 组真实工作时可以在本地保存完整清洗正文，再按同一字段契约导入。
+仓库里的 `document.apt28.thn.beardshell.example.json` 选自 `data/documents/apt28/apt28_049.json`，用于展示一条可证据对齐的完整样例链路；data 组真实工作时继续按同一字段契约导入。
 
 ---
 
