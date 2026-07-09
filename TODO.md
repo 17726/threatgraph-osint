@@ -98,7 +98,7 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
    - [ ] 对重复导入提供可接受的处理方式，例如覆盖、跳过或提示冲突。
 
 4. [ ] **S1.4 生成候选抽取结果**（llm / be）
-   - [ ] 先用 mock LLM 输出或手写 `extraction_result.json` 跑通流程。
+   - [x] 先用 mock LLM 输出或手写 `extraction_result.json` 跑通流程。
    - [ ] 候选实体写入 `extracted_entities`，不直接写入正式 `entities`。
    - [ ] 候选关系写入 `extracted_relations`，不直接写入正式 `relations`。
    - [ ] 每个候选实体和候选关系都要带 `chunk_id`、`evidence_text` 和 `confidence`。
