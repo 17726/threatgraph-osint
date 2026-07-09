@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_097",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/cybersecurityUK/comments/1sncqk6/uk_cyber_roundup_nhs_gp_sites_compromised_again",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "UK cyber roundup: NHS GP sites compromised (again), APT28 router hijacking confirmed, FCA puts AI governance on notice what are you dealing with this week?",
+  "language": "en",
+  "clean_text": "I am going to try and start a weekly news round up here are a few things from the last few weeks worth discussing, Mythos has been omitted intentionally: NHS GP websites compromised - NHS England is investigating after multiple GP sites were found linking to adult and illicit content, following similar issues with legacy NHS Scotland domains last week. Public reporting points to compromises of legacy or third‑party‑managed sites rather than a big‑game ransomware incident. Anyone else seeing this kind of low‑noise website compromise in public sector or healthcare? It always feels like these run for a while before anyone notices. NCSC APT28 advisory -The NCSC has confirmed that Russia‑linked APT28 is exploiting vulnerable routers and other edge devices to hijack DNS, intercept traffic and harvest credentials. If you’re managing edge gear for clients or your own org, this is a good week to review router patch levels, configs and exposed management interfaces. FCA AI governance - The FCA’s new sector‑specific Regulatory Priorities reports put a clear spotlight on AI governance, especially in insurance and wholesale markets. They’ve said they’ll assess AI deployment across the insurance value chain this quarter and publish findings from their AI live‑testing work by year‑end. For anyone in regulated sectors, the accountability message is pretty unambiguous: document your AI use cases now rather than later. EU AI Act - The EU’s AI Act is also shifting under people’s feet. The Commission’s Digital Omnibus proposals would delay core obligations for high‑risk systems to late 2027 and soften some transparency requirements, especially around registration and self‑assessment. Critics are already asking whether this is a sensible breathing space for implementation – or the start of hollowing out the regime before it properly takes effect. Comments and discussion welcome.",
+  "content_hash": "sha256:33be8c20e81d619edc434986c2acf43be12de0ba0d8d96334b67a1f5fd22860d",
+  "published_at": "2026-04-16",
+  "retrieved_at": "2026-07-08T21:01:08Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_097",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_097.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_097.json",
+    "legacy_content_hash": "89433420395d6547eae706529a0078c9",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

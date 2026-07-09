@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_086",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/TechNadu/comments/1mo65wp/kimsuky_apt_hackers_exposed_in_alleged_breach",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Kimsuky APT Hackers Exposed in Alleged Breach Revealing Phishing Tools and Operational Data",
+  "language": "en",
+  "clean_text": "Two hackers have reportedly leaked 8.9 GB of alleged Kimsuky APT backend data, exposing phishing kits targeting South Korean government domains, source code for the Ministry of Foreign Affairs email platform, and operational tools like Cobalt Strike loaders & reverse shells. The hackers say they acted out of ethics, accusing Kimsuky of “financial greed” and “hacking for all the wrong reasons.” Do you think this leak will cripple their operations — or just give them an excuse to rebuild stronger?",
+  "content_hash": "sha256:279cb3e4fbe24335c434e802556b9a5293d72574d2a78b6264691749798fde7f",
+  "published_at": "2025-08-12",
+  "retrieved_at": "2026-07-08T21:04:13Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_086",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_086.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_086.json",
+    "legacy_content_hash": "983b165eb87658e74eb848843c96391b",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_lazarus_111",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.reddit.com/r/pwnhub/comments/1pcfwjn/lazarus_apts_remoteworker_scheme_exposed",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Lazarus APT's Remote-Worker Scheme Exposed: Researchers Capture Live Operations",
+  "language": "en",
+  "clean_text": "A joint investigation has revealed North Korea's Lazarus Group using fake job offers to infiltrate organizations with remote IT workers. Key Points: Researchers monitored Lazarus Group operators in real-time, capturing their deceptive tactics. Impersonation of a U.S. developer facilitated access to personal information. The operation aims for identity takeover without deploying traditional malware. Remote hiring is exploited as a seamless entry point for cyber threats. Awareness and vigilance are crucial in preventing internal compromises. In a groundbreaking investigation, Mauro Eldritch and his team have unveiled a persistent infiltration strategy employed by North Korea's Lazarus Group, specifically through their infamous Chollima division. By creating a sandbox environment that mimicked authentic developer workstations, they managed to monitor live operations of the group. Researchers noted that the Lazarus operators were attempting to recruit a fake developer, posing as a legitimate job placement service. This tactic has been widely recognized as a method for masquerading North Korean IT workers in Western companies across diverse sectors like finance, healthcare, and engineering. The way the operation was conducted highlights a nuanced approach to cyber infiltration: rather than introducing malware, the group seeks to gain complete identity and operational control of victims. The operators demonstrated their intentions clearly, requesting sensitive personal information such as social security numbers and banking details. The implications of this activity are vast; once infiltrators gain access to a single employee's details, they can potentially breach internal systems and sensitive data, jeopardizing the entire organization. Thus, fostering an environment of awareness and encouraging employees to scrutinize unfamiliar hiring requests can be the key to thwarting such emerging threats before they escalate into serious compromises. What steps can organizations take to better protect themselves against these deceptive remote hiring schemes? Learn More: The Hacker News Want to stay updated on the latest cyber threats? 👉 Subscribe to /",
+  "content_hash": "sha256:42f654d2f0117d548562acef2f43aecc8fee9ab1cabd8552f1745a3a6b1212b8",
+  "published_at": "2025-12-02",
+  "retrieved_at": "2026-07-08T21:05:15Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "lazarus",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_111",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_lazarus/lazarus_111.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_lazarus/lazarus_111.json",
+    "legacy_content_hash": "28acd639c33c980d935abe0d0902b480",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

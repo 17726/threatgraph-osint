@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_094",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/cybersecurity/comments/1u2t46z/20_years_of_fancy_bear_apt28_how_russian_military",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "20 years of Fancy Bear (APT28): How Russian military hackers evolved their tradecraft since 2004",
+  "language": "en",
+  "clean_text": "Since 2025, we have partnered with foreign and domestic law enforcement and government agencies, including the FBI, to disrupt GRU cyber operations. Today, as part of a broader public-private coordinated disclosure aimed at constraining their activities, we released a retrospective analysis of APT28's evolving arsenal (aka Fancy Bear, Sofacy, Forest Blizzard, Blue Delta, and 28 other names that we have compiled). Our latest report traces two decades of their tradecraft shifts since 2004. In fact, APT28 stands out as the only intrusion set with a proven link between remote cyberattacks and physical close-access operations. If you're into threat intel or malware analysis, you can check out the arsenal evolution here: https://blog.sekoia.io/apt28-an-evolution-of-tradecraft/",
+  "content_hash": "sha256:3c4e4de6c4f9e462fd5fe24cc8f718674ea253cd2a9daf806ea0535aad4e5f66",
+  "published_at": "2026-06-11",
+  "retrieved_at": "2026-07-08T21:01:05Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_094",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_094.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_094.json",
+    "legacy_content_hash": "92d3b6da0d9ce37b2bae83760e75fd56",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

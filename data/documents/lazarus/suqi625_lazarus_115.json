@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_lazarus_115",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.reddit.com/r/Information_Security/comments/1k7nu4z/the_hacker_army_of_north_korea_lazarus_and_the",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "The Hacker Army of North Korea: Lazarus and the Other APTs Wage Hidden Cyber War",
+  "language": "en",
+  "clean_text": "While the globe observes missiles and propaganda, North Korea silently battles in cyberspace, and they’re accomplishing more than most know. The regime operates government-backed hacking divisions such as Lazarus Group, APT37, and Kimsuky, that have been behind some of the most aggressive and sophisticated cyberattacks in history. Primary operations are: Sony Pictures Hack (2014): Reprisal for The Interview saw the hackers unleashing huge amounts of data, emails, and not yet released movies. Bangladesh Bank Heist (2016): Almost pulled off the theft of $1 billion using the SWIFT banking network. A basic typo betrayed the plot. COVID-19 Research Espionage targeted global pharmaceutical industries at the peak of the pandemic. Cryptocurrency Hackings: More than $3 billion in stolen cryptocurrency has been used to finance North Korea’s weapons program and operations. Watering Hole Attacks (2024–2025): Compromised six South Korean firms in software, finance, IT, and telecommunications industries by hacking into legitimate sites employees visited. Their aims are clear Finance the regime using cybercrime Weaken geo-political competitors Steal tech and military secrets Cause global unrest without kinetic warfare This is cyberwarfare that is inexpensive, deniable, and efficient. Have your organization or you ever been targeted by a nation-state level cyber attack? Describe your experience and your insights below. Let's shed more light on these strategies and make them widely understood.",
+  "content_hash": "sha256:3c0ba4624db893f2824c7a206d09f2a5bc9501c1c98d8dc75ebfab445827819d",
+  "published_at": "2025-04-25",
+  "retrieved_at": "2026-07-08T21:05:19Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "lazarus",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_115",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_lazarus/lazarus_115.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_lazarus/lazarus_115.json",
+    "legacy_content_hash": "468abc52880e910fecad57e02bf6447c",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

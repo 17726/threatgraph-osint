@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_098",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/InterstellarKinetics/comments/1sy1lds/microsoft_accidentally_created_a_new_zeroclick",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Microsoft Accidentally Created A New Zero-Click Attack, By Incompletely Patching A Windows Flaw, That Russia’s APT28 Was Already Exploiting Against Ukraine And The EU 🤖",
+  "language": "en",
+  "clean_text": "A failed security patch created a bigger problem than the one it was meant to fix. In February 2026, Microsoft patched CVE-2026-21510, a Windows SmartScreen and Shell security bypass that allowed attackers to achieve remote code execution by tricking a victim into opening a malicious shortcut file. Cybersecurity firm Akamai, while analyzing that patch, discovered it was incomplete. The fix blocked the remote code execution path by enforcing SmartScreen verification at the end of the launch chain, but it missed an earlier stage entirely. When Windows Explorer renders the contents of a folder containing a malicious LNK shortcut file, it calls shell32 to fetch an icon from a remote UNC path, and that process automatically triggers an SMB connection to the attacker’s server without any user interaction whatsoever. That automatic connection sends the victim’s Net-NTLMv2 authentication hash to the attacker’s server silently and invisibly, no click required, no warning displayed, no file executed. The attacker receives a credential hash they can then use for offline cracking or NTLM relay attacks, enabling privilege escalation, lateral movement through corporate networks, and potentially full remote code execution from there. Akamai disclosed the new flaw to Microsoft, which assigned it CVE-2026-32202 and included a fix in its April 2026 Patch Tuesday update. However Microsoft has already flagged CVE-2026-32202 as actively exploited in the wild, meaning attackers were using the incomplete-patch loophole before the fix even arrived. The chain of exploitation was attributed to APT28, also known as Fancy Bear and Forest Blizzard, a Russian state-sponsored hacking group operating under the GRU military intelligence directorate. APT28 ran the full attack chain against targets in Ukraine and European Union countries in December 2025, chaining CVE-2026-21513 and CVE-2026-21510 together to bypass Windows security features and achieve code execution via weaponized LNK files. The group leveraged the Windows shell namespace parsing mechanism to load a malicious DLL from a remote server over a UNC path, with the DLL executing as a Control Panel object that bypasses network zone validation entirely. The attack is particularly dangerous for enterprise environments because the zero-click credential theft stage requires no social engineering, no file execution, and no alert from standard security monitoring. Any Windows user who simply browses to a folder containing a weaponized LNK file in Windows Explorer is silently compromised. The fix is available now in the April 2026 Patch Tuesday update and applying it is the only mitigation.",
+  "content_hash": "sha256:78bb605e7c06db0ab9d50cd34d372a7939ee2b9c1d11bcc10e3d7d39ddf8cea2",
+  "published_at": "2026-04-28",
+  "retrieved_at": "2026-07-08T21:01:09Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_098",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_098.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_098.json",
+    "legacy_content_hash": "b046b494308fa346465011408ba09632",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

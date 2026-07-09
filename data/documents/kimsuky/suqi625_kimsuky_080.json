@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_080",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/TechNadu/comments/1q89apg/fbi_warns_kimsuky_hackers_are_using_malicious_qr",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "FBI warns Kimsuky hackers are using malicious QR codes to bypass enterprise security.",
+  "language": "en",
+  "clean_text": "North Korean APT group Kimsuky is running a highly targeted spearphishing campaign using “quishing” - QR codes embedded in emails that redirect victims to credential-harvesting infrastructure. Because the attack starts on unmanaged mobile devices, it often evades EDR, email filtering, and URL inspection tools. The FBI says stolen credentials and session tokens can allow attackers to bypass MFA and maintain long-term access. Are organizations underestimating QR-based phishing risks? Let’s discuss. Source: https://www.technadu.com/kimsuky-spearphishing-campaign-targets-u-s-with-malicious-qr-codes-quishing-fbi-warns/617992/",
+  "content_hash": "sha256:5bd1aa7ffe3d9c59cf99a41c1ab29cc548db2aa09bc13e87c3bfcd3ed22c35cb",
+  "published_at": "2026-01-09",
+  "retrieved_at": "2026-07-08T21:04:07Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_080",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_080.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_080.json",
+    "legacy_content_hash": "48cf6be7832f192374177fade0662935",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

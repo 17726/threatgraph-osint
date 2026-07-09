@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_075",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1tqtwfj/kimsuky_deploys_httpspy_expands_arsenal_with",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Kimsuky Deploys HTTPSpy, Expands Arsenal with HelloDoor and VS Code Tunnels",
+  "language": "en",
+  "clean_text": "North Korean state-sponsored actor Kimsuky (aka Velvet Chollima) has expanded its operational toolkit, deploying new malware like HTTPSpy and HelloDoor , alongside leveraging VS Code tunnels in recent attacks against South Korean military and corporate targets. Technical Breakdown: * Threat Actor: Kimsuky (Velvet Chollima), a North Korean state-sponsored advanced persistent threat (APT) group. * Targets: South Korean military and corporate entities. * Attack Period: March and April 2026. * Tactics, Techniques, and Procedures (TTPs): * Initial Access (Social Engineering): Employed tailored social engineering tactics, specifically spoofing security software installation pages and crafting fake Webex meeting pages. * Malware Deployment: Introduced new malware families: * HTTPSpy: A newly identified tool, likely for reconnaissance, data exfiltration, or further compromise. * HelloDoor: Another new malware, potentially serving as a backdoor or loader for subsequent stages. * Command and Control (C2): Utilized legitimate VS Code tunnels for covert communication, likely for C2 or data exfiltration, leveraging trusted infrastructure to evade detection. Defense: Enhance user awareness training against sophisticated social engineering lures, implement robust network monitoring for unusual outbound connections (e.g., those associated with VS Code tunnels), and ensure EDR/AV solutions are updated to detect new malware families like HTTPSpy and HelloDoor. Source: https://thehackernews.com/2026/05/kimsuky-deploys-httpspy-expands-arsenal.html",
+  "content_hash": "sha256:126cda6a64c45d16828c2574d40afad2f77cc24ecb684bbc0913f6932f72827e",
+  "published_at": "2026-05-29",
+  "retrieved_at": "2026-07-08T21:04:02Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_075",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_075.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_075.json",
+    "legacy_content_hash": "51e973ab50fac16852356ed50a7d05ce",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_093",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/TPLink_Omada/comments/1shjmk5/anyone_else_spooked_by_the_apt28_tplink_news",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Anyone else spooked by the APT28 / TP-Link news? Wondering about Omada safety.",
+  "language": "en",
+  "clean_text": "Hi everyone, I just saw this report on The Hacker News regarding a massive DNS hijacking campaign by the Russian-linked APT28 (Forest Blizzard): https://thehackernews.com/2026/04/russian-state-linked-apt28-exploits.html The article specifically mentions that they are exploiting TP-Link WR841N routers (likely via CVE-2023-50224 ) to change DNS settings and perform Adversary-in-the-Middle (AitM) attacks. While the report highlights consumer SOHO models, I’m concerned about the Omada lineup. Does anyone know if the ER605, ER7206, or ER8411 share any of the vulnerable codebases? Specifically: Has TP-Link released an official statement or \"Security Advisory\" regarding Omada hardware and this APT28 activity? Is CVE-2023-50224 (the auth bypass mentioned) present in the Omada SDN firmware? Are there any specific configuration changes we should make beyond the standard \"disable remote management\" to mitigate this? Would appreciate any insights from the pros here or if any TP-Link employees can chime in. Cheers, Hans",
+  "content_hash": "sha256:80abd04b0fcbf2663688ad1d85d52b9ef75aa049f4275f6e9f38d02f0b3c677b",
+  "published_at": "2026-04-10",
+  "retrieved_at": "2026-07-08T21:01:04Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_093",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_093.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_093.json",
+    "legacy_content_hash": "c5611a5f963b2f26d564e96fad8e536e",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

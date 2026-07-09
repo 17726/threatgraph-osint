@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_apt28_095",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.reddit.com/r/SecOpsDaily/comments/1u2rsim/apt28_an_evolution_of_tradecraft",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "APT28, an evolution of tradecraft",
+  "language": "en",
+  "clean_text": "Sekoia.io is reporting on the evolution of tradecraft from the state-sponsored actor APT28 , also known by its multiple aliases: Fancy Bear, Forest Blizzard, Sofacy, Pawn Storm, or Sednit. Threat Actor: APT28, publicly attributed to GRU’s Unit 26165 . Nature: Described as a prolific and persistent state-sponsored intrusion set. Technical Detail (from summary): The report focuses on an \"evolution of tradecraft,\" implying changes in TTPs, though specific new TTPs or IOCs are not detailed in this summary snippet. Defense: Stay vigilant against known APT28 tactics and ensure robust detection capabilities for persistent state-sponsored activity. Source: https://blog.sekoia.io/apt28-an-evolution-of-tradecraft/",
+  "content_hash": "sha256:eb061d3dfba3de6b7730e0395daac6b5425f9501da2d56063137681e49f6b405",
+  "published_at": "2026-06-11",
+  "retrieved_at": "2026-07-08T21:01:06Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "apt28",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_095",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_apt28/apt28_095.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_apt28/apt28_095.json",
+    "legacy_content_hash": "bdc4e2589665ae5feb71ea7377ad5c44",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

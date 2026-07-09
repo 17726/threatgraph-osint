@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_074",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/pwnhub/comments/1tr2m0f/kimsuky_expands_cyber_arsenal_with_new_malware",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "Kimsuky Expands Cyber Arsenal with New Malware and Tactics Targeting South Korean Entities",
+  "language": "en",
+  "clean_text": "The North Korean hacking group Kimsuky has evolved its cyber attack methods, deploying new malware variants and intricate social engineering techniques against military and corporate targets in South Korea. Key Points: Kimsuky has introduced HTTPSpy, a remote access trojan utilized for infiltrating South Korean organizations. The group is employing sophisticated social engineering tactics, including fake security software pages and counterfeit Webex meetings. Recent campaigns have used a variety of malware families, leveraging legitimate tools and exploit methods for persistence and distribution. Kimsuky, the North Korean state-sponsored threat actor, has significantly ramped up its cyber activities, particularly against South Korean military and corporate entities throughout March and April 2026. The recent deployment of HTTPSpy represents a continuation of their strategy, using social engineering to lure victims into downloading malicious software disguised as legitimate security applications. This trend highlights the group's ability to craft convincing phishing attacks aimed specifically at targeting messaging system administrators in corporate settings, likely due to the sensitive nature of their responsibilities. In their latest tactics, Kimsuky has been observed utilizing fake webpages to mimic trusted applications and services, such as a bogus Cisco Webex meeting. This approach not only facilitates the spread of malware but also allows the group to verify infection statuses in real-time, enhancing the effectiveness of their attack campaigns. Furthermore, the group has started integrating advanced methods, such as utilizing Microsoft Visual Studio Code tunneling, in order to maintain persistent access to compromised networks, which reflects a concerning evolution in their capabilities to execute long-term operations against a diverse range of targets, including defense and medical sectors. What are the implications of state-sponsored threat actors like Kimsuky adapting sophisticated methods for cyber attacks on global security? Learn More: The Hacker News Want to stay updated on the latest cyber threats? 👉 Subscribe to /",
+  "content_hash": "sha256:94d510465c1c35fc97ce2497a6d8829184ffe710ded1bb10a5d6391eddddf3bf",
+  "published_at": "2026-05-29",
+  "retrieved_at": "2026-07-08T21:04:01Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_074",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_074.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_074.json",
+    "legacy_content_hash": "9f0fd668be5fc15bd8b4f59d6225ea46",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}

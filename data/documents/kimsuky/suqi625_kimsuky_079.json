@@ -1,0 +1,35 @@
+{
+  "doc_id": "suqi625_kimsuky_079",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.reddit.com/r/secithubcommunity/comments/1q94970/fbi_warns_about_kimsuky_hackers_using_qr_codes_to",
+  "source_type": "social_forum",
+  "source_name": "Reddit",
+  "title": "FBI warns about Kimsuky hackers using QR codes to phish U.S. orgs",
+  "language": "en",
+  "clean_text": "The North Korean state-sponsored hacker group Kimsuki is using malicious QR codes in spearphishing campaigns that target U.S. organizations, the Federal Bureau of Investigation warns in a flash alert. The observed activity targets organizations involved in North Korea-related policy, research, and analysis, including non-governmental organizations, think tanks, academic institutions, strategic advisory firms, and government entities in the U.S. The use of QR codes in phishing, a technique also known as \"quishing,\" isn’t new; the FBI warned about it when cybercriminals used it to steal money, but it remains an effective security bypass. Kimsuky (APT43) is a state-backed North Korean threat group that has been linked to multiple attacks where hackers posed as journalists, exploited known vulnerabilities, relied on supply-chain attacks, and ClickFix tactics. The FBI warns that in campaigns last year, Kimsuki-associated actors sent emails containing QR codes that redirected victims to malicious locations disguised as questionnaires, secure drives, or fake login pages.",
+  "content_hash": "sha256:ac4c7f082f860887bce0a3d132fbca26109a8efd5ccb65b7d3748f3c4f03c222",
+  "published_at": "2026-01-10",
+  "retrieved_at": "2026-07-08T21:04:06Z",
+  "source_reliability": "D",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "kimsuky",
+    "social_forum"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_079",
+    "legacy_source_type": "social_forum",
+    "raw_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_079.json",
+    "converter": "scripts/convert_suqi625_dataset.py",
+    "cleaning": "light_format_cleaning",
+    "collector_github": "SuQi625",
+    "cleaned_path": "tmp/cleaned/crawler_output_kimsuky/kimsuky_079.json",
+    "legacy_content_hash": "be1ed946f215d3d3ec474a487e2a2e47",
+    "legacy_content_hash_algorithm": "md5"
+  }
+}
