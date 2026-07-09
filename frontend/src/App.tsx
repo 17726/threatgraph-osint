@@ -1,5 +1,12 @@
 import ReactECharts from "echarts-for-react";
-import { Activity, Database, FileText, Network, RefreshCw, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  Database,
+  FileText,
+  Network,
+  RefreshCw,
+  ShieldCheck,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchGraph } from "./api/client";
@@ -18,7 +25,9 @@ const TARGETS = ["APT28", "Lazarus", "Kimsuky"];
 export function App() {
   const [target, setTarget] = useState(TARGETS[0]);
   const [graph, setGraph] = useState<GraphPayload | null>(null);
-  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
+  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -28,7 +37,9 @@ export function App() {
   const chartInstanceRef = useRef<any>(null);
   const [currentYear, setCurrentYear] = useState(2026);
   const [highlightNodeIds, setHighlightNodeIds] = useState<string[]>([]);
-  const [page, setPage] = useState<"graph" | "analysis" | "evaluation">("graph");
+  const [page, setPage] = useState<"graph" | "analysis" | "evaluation">(
+    "graph",
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -71,7 +82,9 @@ export function App() {
         .filter((n) => {
           if (!n.first_seen) return true;
           const fy = parseInt(n.first_seen.split("-")[0], 10);
-          const ly = n.last_seen ? parseInt(n.last_seen.split("-")[0], 10) : 2026;
+          const ly = n.last_seen
+            ? parseInt(n.last_seen.split("-")[0], 10)
+            : 2026;
           if (Number.isNaN(fy) || Number.isNaN(ly)) return true;
           return fy <= currentYear && ly >= currentYear;
         })
@@ -80,11 +93,16 @@ export function App() {
     return {
       ...graph,
       nodes: graph.nodes.filter((n) => activeIds.has(n.id)),
-      edges: graph.edges.filter((e) => activeIds.has(e.source) && activeIds.has(e.target)),
+      edges: graph.edges.filter(
+        (e) => activeIds.has(e.source) && activeIds.has(e.target),
+      ),
     };
   }, [graph, currentYear, highlightNodeIds]);
   const graphOption = useMemo(
-    () => (filteredGraph ? buildGraphOption(filteredGraph, { highlightNodeIds }) : null),
+    () =>
+      filteredGraph
+        ? buildGraphOption(filteredGraph, { highlightNodeIds })
+        : null,
     [filteredGraph, highlightNodeIds],
   );
 
@@ -112,7 +130,11 @@ export function App() {
       const idx = filteredGraph.nodes.findIndex((n) => n.id === nodeId);
       if (idx >= 0) {
         setSelectedNode(filteredGraph.nodes[idx]);
-        instance.dispatchAction({ type: "focusNodeAdjacency", seriesIndex: 0, dataIndex: idx });
+        instance.dispatchAction({
+          type: "focusNodeAdjacency",
+          seriesIndex: 0,
+          dataIndex: idx,
+        });
       }
     },
     [filteredGraph],
@@ -156,7 +178,10 @@ export function App() {
             </button>
           ))}
         </div>
-        <SearchBar nodes={filteredGraph?.nodes ?? []} onSelect={handleSearchSelect} />
+        <SearchBar
+          nodes={filteredGraph?.nodes ?? []}
+          onSelect={handleSearchSelect}
+        />
         <div className="status-strip">
           <span>
             <Database size={16} />
@@ -190,7 +215,11 @@ export function App() {
               fontWeight: page === p ? 600 : 400,
             }}
           >
-            {p === "graph" ? "知识图谱" : p === "analysis" ? "行为分析" : "评测结果"}
+            {p === "graph"
+              ? "知识图谱"
+              : p === "analysis"
+                ? "行为分析"
+                : "评测结果"}
           </button>
         ))}
       </div>
@@ -237,7 +266,10 @@ export function App() {
                       zIndex: 25,
                     }}
                   />
-                  <NodeDetail node={selectedNode} onClose={() => setSelectedNode(null)} />
+                  <NodeDetail
+                    node={selectedNode}
+                    onClose={() => setSelectedNode(null)}
+                  />
                 </>
               )}
             </div>
@@ -274,7 +306,13 @@ export function App() {
                       >
                         {selectedEdge.label}
                       </span>
-                      <span style={{ marginLeft: 8, fontSize: 12, color: "#64748b" }}>
+                      <span
+                        style={{
+                          marginLeft: 8,
+                          fontSize: 12,
+                          color: "#64748b",
+                        }}
+                      >
                         {selectedEdge.type}
                       </span>
                       {selectedEdge.validation_status === "valid" ? (
@@ -311,24 +349,33 @@ export function App() {
                     </div>
                     <p>
                       置信度:{" "}
-                      <strong style={{ color: "#172026" }}>{selectedEdge.confidence}</strong>
+                      <strong style={{ color: "#172026" }}>
+                        {selectedEdge.confidence}
+                      </strong>
                     </p>
                     <p>
-                      来源数: {selectedEdge.source_count} · 证据: {selectedEdge.evidence_count} 条
+                      来源数: {selectedEdge.source_count} · 证据:{" "}
+                      {selectedEdge.evidence_count} 条
                     </p>
                     <hr
-                      style={{ border: "none", borderTop: "1px solid #e2e8e6", margin: "12px 0" }}
+                      style={{
+                        border: "none",
+                        borderTop: "1px solid #e2e8e6",
+                        margin: "12px 0",
+                      }}
                     />
                     <p style={{ color: "#64748b" }}>
-                      {graph?.nodes.find((n) => n.id === selectedEdge.source)?.name ??
-                        selectedEdge.source}{" "}
+                      {graph?.nodes.find((n) => n.id === selectedEdge.source)
+                        ?.name ?? selectedEdge.source}{" "}
                       →{" "}
-                      {graph?.nodes.find((n) => n.id === selectedEdge.target)?.name ??
-                        selectedEdge.target}
+                      {graph?.nodes.find((n) => n.id === selectedEdge.target)
+                        ?.name ?? selectedEdge.target}
                     </p>
                     <div style={{ marginTop: 12 }}>
                       {graph?.evidence
-                        .filter((e) => selectedEdge.evidence_ids?.includes(e.id))
+                        .filter((e) =>
+                          selectedEdge.evidence_ids?.includes(e.id),
+                        )
                         .map((e) => (
                           <div
                             key={e.id}
@@ -340,12 +387,18 @@ export function App() {
                               background: "#f8faf9",
                             }}
                           >
-                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>{e.text}</p>
+                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>
+                              {e.text}
+                            </p>
                             <a
                               href={e.source_url}
                               target="_blank"
                               rel="noreferrer"
-                              style={{ fontSize: 11, color: "#0f766e", fontWeight: 600 }}
+                              style={{
+                                fontSize: 11,
+                                color: "#0f766e",
+                                fontWeight: 600,
+                              }}
                             >
                               {e.source_name}
                             </a>
@@ -380,7 +433,11 @@ export function App() {
                   {selectedEvidence ? (
                     <div className="evidence-detail">
                       <p>{selectedEvidence.text}</p>
-                      <a href={selectedEvidence.source_url} target="_blank" rel="noreferrer">
+                      <a
+                        href={selectedEvidence.source_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         来源链接
                       </a>
                     </div>

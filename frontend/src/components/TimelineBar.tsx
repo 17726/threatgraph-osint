@@ -7,7 +7,12 @@ interface TimelineBarProps {
   onChange: (year: number) => void;
 }
 
-export default function TimelineBar({ minYear, maxYear, currentYear, onChange }: TimelineBarProps) {
+export default function TimelineBar({
+  minYear,
+  maxYear,
+  currentYear,
+  onChange,
+}: TimelineBarProps) {
   const [playing, setPlaying] = useState(false);
 
   const togglePlay = () => {
@@ -47,7 +52,9 @@ export default function TimelineBar({ minYear, maxYear, currentYear, onChange }:
         flexShrink: 0,
       }}
     >
-      <span style={{ fontSize: 12, color: "#64748b", whiteSpace: "nowrap" }}>时间轴</span>
+      <span style={{ fontSize: 12, color: "#64748b", whiteSpace: "nowrap" }}>
+        时间轴
+      </span>
       <span
         style={{
           fontSize: 14,

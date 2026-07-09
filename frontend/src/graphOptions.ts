@@ -19,10 +19,15 @@ export interface BuildOptions {
   highlightNodeIds?: string[];
 }
 
-export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EChartsOption {
+export function buildGraphOption(
+  payload: GraphPayload,
+  opts?: BuildOptions,
+): EChartsOption {
   const highlightSet = new Set(opts?.highlightNodeIds ?? []);
 
-  const categories = Array.from(new Set(payload.nodes.map((node) => node.type))).map((type) => ({
+  const categories = Array.from(
+    new Set(payload.nodes.map((node) => node.type)),
+  ).map((type) => ({
     name: type,
     itemStyle: { color: TYPE_COLORS[type] ?? "#64748b" },
   }));
@@ -45,7 +50,8 @@ export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EC
         if (!data?.name) {
           return "";
         }
-        const tag = data._raw?.validation_status === "invalid" ? "【系统推断】" : "";
+        const tag =
+          data._raw?.validation_status === "invalid" ? "【系统推断】" : "";
         return `${tag}${data.name}<br/>类型：${data.type ?? "关系"}<br/>置信度：${data.value ?? "-"}`;
       },
     },
@@ -94,22 +100,26 @@ export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EC
           type: node.type,
           value: Number(node.confidence.toFixed(2)),
           category: node.type,
-          symbolSize: node.type === "APT_GROUP" ? 56 : node.type === "COUNTRY" ? 48 : 36,
+          symbolSize:
+            node.type === "APT_GROUP" ? 56 : node.type === "COUNTRY" ? 48 : 36,
           itemStyle: {
             color: TYPE_COLORS[node.type] ?? "#64748b",
             borderColor: highlightSet.has(node.id) ? "#f59e0b" : "transparent",
             borderWidth: highlightSet.has(node.id) ? 3 : 0,
-            opacity: highlightSet.size > 0 && !highlightSet.has(node.id) ? 0.25 : 1,
+            opacity:
+              highlightSet.size > 0 && !highlightSet.has(node.id) ? 0.25 : 1,
           },
           label: {
             show: true,
-            fontSize: highlightSet.size > 0 && !highlightSet.has(node.id) ? 10 : 12,
+            fontSize:
+              highlightSet.size > 0 && !highlightSet.has(node.id) ? 10 : 12,
             color: "#172026",
           },
           _raw: node,
         })),
         links: payload.edges.map((edge) => {
-          const pathEdge = highlightSet.has(edge.source) && highlightSet.has(edge.target);
+          const pathEdge =
+            highlightSet.has(edge.source) && highlightSet.has(edge.target);
           const isInfer = edge.validation_status === "invalid";
           return {
             source: edge.source,
