@@ -14,7 +14,7 @@
 
 ```text
 SQLite：唯一事实源，保存文档、切块、抽取结果、实体、关系、证据、报告、评测结果
-graph.json：由 SQLite 导出的图谱格式，用于前端 mock、演示兜底、Neo4j 同步输入
+graph.json：由 SQLite 导出的完整图谱快照，用于演示兜底、离线样例和 Neo4j 同步输入
 Neo4j：增强阶段 / 优先级 P1 的图查询增强层，用于多跳路径查询和 Cypher 展示，但不作为事实源
 ```
 
@@ -28,7 +28,7 @@ SQLite 事实源 + graph.json 导出 + Neo4j 增强同步 + FastAPI API + React/
 
 1. LLM 原始输出不是事实源。
 2. SQLite 是唯一事实源。
-3. graph.json 是导出格式和前端 mock，不是事实源。
+3. graph.json 是导出快照，不是事实源；前端默认只消费 FastAPI 的轻量图谱视图。
 4. Neo4j 是增强能力，但不是事实源。
 5. 前端只依赖 FastAPI 接口，不感知底层是 SQLite、graph.json 还是 Neo4j。
 6. 现场演示必须可缓存、可复现，不能强依赖实时爬虫或实时 LLM。
@@ -38,7 +38,7 @@ SQLite 事实源 + graph.json 导出 + Neo4j 增强同步 + FastAPI API + React/
 参考 OpenCTI、MISP、SpiderFoot、GraphRAG 和 TypeDB CTI 后，当前架构只吸收轻量且必要的设计，不引入重型平台：
 
 1. **证据链前置**：实体、关系、行为分析和报告结论都必须能追溯到 `evidence_ids`。证据记录要保留来源、发布时间、抓取时间、证据类型和原文位置。
-2. **文档容器化**：`documents` 不只是 `raw_text`，还要保存 `source_name`、`source_type`、`published_at`、`retrieved_at`、`source_reliability`、`tags_json` 和 `content_hash`。
+2. **文档容器化**：`documents` 保存可给后端切块和 LLM 使用的 `clean_text`，同时保存 `source_name`、`source_type`、`published_at`、`retrieved_at`、`source_reliability`、`tags_json` 和 `content_hash`；`content_hash` 固定为 `sha256(clean_text 按 UTF-8 编码后的字节)`。
 3. **采集层隔离**：`sources -> collection_runs -> collected_items -> documents` 分层。采集失败、重复、解析失败只影响采集层，不能直接污染正式图谱。
 4. **候选层隔离**：LLM 输出只能进入 `extracted_entities`、`extracted_relations`，并带 `candidate_status`、`validation_status`、`validation_errors_json`。后端归一化后才写入 `entities`、`relations`、`evidence`。
 5. **schema-first**：`document.json`、`extraction_result.json`、`graph.json` 都必须带 `schema_version`。实体类型、关系类型和合法关系矩阵由架构维护，不能由 LLM 临时发明。
@@ -120,7 +120,7 @@ Kimsuky
                 │ 导出 graph.json   │
 ┌───────────────▼──────────────┐   │
 │          graph.json           │   │
-│ 前端 mock / 演示兜底 / 同步输入 │   │
+│ 演示兜底 / 离线样例 / 同步输入   │   │
 └───────────────┬──────────────┘   │
                 │ 增强同步           │
 ┌───────────────▼──────────────┐   │
@@ -136,10 +136,10 @@ Kimsuky
 权威数据流：
 
 ```text
-sources 配置 / data/raw/*.json
-  -> collection runs
-  -> SQLite collected_items
-  -> SQLite documents/chunks
+data/documents/*.json(clean_text)
+  -> POST /api/v1/documents/import
+  -> SQLite documents
+  -> SQLite chunks
   -> LLM 抽取结果写入 SQLite extraction tables
   -> 归一化实体和关系写入 SQLite canonical graph tables
   -> 行为分析和推理结果写入 SQLite analysis tables
@@ -178,12 +178,12 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
 ```text
 阶段 1：离线文本入口
   假设已经拿到本地文本文件
-  data 组手动清洗为 document.json
+  data 组手动清洗为 data/documents/*.json(clean_text)
   llm 组和 be 横向工作流基于固定 JSON 契约并行开发
 
 阶段 2：本地文档导入和集成 MVP
   支持 document.json 或本地文本导入
-  写入 SQLite documents/chunks
+  写入 SQLite documents，后端生成 chunks
   后续进入抽取、归一化、建图和报告流水线
 
 阶段 3：最小自动采集闭环
@@ -191,8 +191,8 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
   手动触发 collection run
   从三类来源采集少量样本文档或 feed 条目
   写入 collected_items
-  转入 documents
-  后续进入清洗、抽取、建图流水线
+  清洗后转入 documents
+  后续进入切块、抽取、建图流水线
 
 阶段 4：复杂采集调度与增量更新
   定时调度
@@ -202,7 +202,7 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
   采集错误重试和运行统计
 ```
 
-第一阶段的关键不是采集平台，而是固定 `document.json`、`extraction_result.json`、`graph.json` 契约。爬虫、RSS、复杂调度和增量更新不能阻塞离线闭环。
+第一阶段的关键不是采集平台，而是固定 `document.json`、`extraction_result.json`、`graph.json` 契约。爬虫、RSS、复杂调度、raw 全量入库和增量更新不能阻塞离线闭环。
 
 ---
 
@@ -210,7 +210,7 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
 
 SQLite 是唯一事实源。下面的 JSON 文件是导入、导出、缓存或演示材料，不作为长期权威存储。
 
-### 5.1 raw documents
+### 5.1 raw collected data
 
 位置：
 
@@ -218,69 +218,73 @@ SQLite 是唯一事实源。下面的 JSON 文件是导入、导出、缓存或�
 data/raw/
 ```
 
-用途：保存爬虫或人工整理的原始情报文本。
+用途：可选保存爬虫原始输出、原始网页文本、原始 HTML 或人工整理的初始文本。它不是 P0 主交付物，也不直接作为 LLM 输入；字段不受 `docs/schemas/document.schema.json` 约束，进入 `documents` 前必须转换成 5.2 的 `document.json` 契约。
 
 示例：
 
 ```json
 {
-  "doc_id": "apt28_mitre_001",
-  "schema_version": "1.0",
+  "item_id": "raw_apt28_securelist_masha_bears_001",
+  "collection_run_id": "manual_20260708_001",
+  "source_id": "securelist",
   "target_group": "APT28",
-  "target_groups": ["APT28"],
-  "source_url": "https://attack.mitre.org/groups/G0007/",
-  "source_type": "security_report",
-  "source_name": "MITRE ATT&CK",
-  "title": "APT28 - MITRE ATT&CK",
+  "source_url": "https://securelist.com/masha-and-these-bears/84311/",
+  "source_type": "vendor_report",
+  "source_name": "Kaspersky Securelist",
+  "title": "Masha and these Bears",
   "language": "en",
   "raw_text": "...",
-  "content_hash": "sha256:...",
-  "published_at": null,
+  "raw_html_path": "data/raw/html/apt28_securelist_masha_bears_001.html",
+  "raw_content_hash": "sha256:...",
+  "raw_html_hash": "sha256:...",
+  "published_at": "2018-03-09",
   "retrieved_at": "2026-07-07T00:00:00+08:00",
-  "source_reliability": "A",
-  "tlp": "TLP:CLEAR",
-  "tags": ["mitre", "apt", "security_report"],
+  "status": "collected",
   "metadata": {
-    "publisher": "MITRE",
-    "collector": "数据组"
+    "collector": "数据组",
+    "crawler": "manual"
   }
 }
 ```
 
-### 5.2 cleaned docs
+### 5.2 P0 standard documents
 
 位置：
 
 ```text
-data/cleaned/cleaned_docs.json
+data/documents/<target_group>/*.json
+data/examples/document.*.json
 ```
 
-用途：保存清洗、去重、切块后的标准输入。
+用途：P0 主输入，保存清洗后正文和来源元信息。`data/documents/` 保存真实标准文档，`data/examples/` 只保存字段样例。这里不保存 chunks；切块由后端在导入后生成。两类文件都必须和 `docs/schemas/document.schema.json` 保持一致。
 
 ```json
 {
-  "doc_id": "apt28_mitre_001",
+  "doc_id": "apt28_securelist_masha_bears_001",
   "schema_version": "1.0",
   "target_group": "APT28",
   "target_groups": ["APT28"],
-  "source_type": "security_report",
-  "source_name": "MITRE ATT&CK",
-  "title": "APT28 - MITRE ATT&CK",
+  "source_url": "https://securelist.com/masha-and-these-bears/84311/",
+  "source_type": "vendor_report",
+  "source_name": "Kaspersky Securelist",
+  "title": "Masha and these Bears",
   "language": "en",
   "clean_text": "...",
-  "chunks": [
-    {
-      "chunk_id": "apt28_mitre_001_c001",
-      "chunk_index": 0,
-      "section_title": "Techniques Used",
-      "text": "...",
-      "char_start": 0,
-      "char_end": 1200,
-      "text_hash": "sha256:..."
-    }
-  ]
+  "content_hash": "sha256:...",
+  "published_at": "2018-03-09",
+  "retrieved_at": "2026-07-08T10:00:00+08:00",
+  "source_reliability": "A",
+  "tlp": "TLP:CLEAR",
+  "tags": ["securelist", "kaspersky", "apt", "apt28", "vendor_report"],
+  "metadata": {
+    "collector": "data"
+  }
 }
 ```
+
+`content_hash` 只对应 `clean_text` 按 UTF-8 编码后的内容。当前不做额外空白、换行或首尾裁剪规范化；如果以后保留原始网页文本或 HTML 的哈希，字段命名为 `raw_content_hash` 或 `raw_html_hash`，不能和 `content_hash` 混用。
+
+P0 不要求提交 `data/raw/` 全量爬虫输出。若需要证明采集来源，可在 PR 说明或少量样例中展示 raw 输入，但主交付物必须是 `data/documents/<target_group>/*.json`。
 
 ### 5.3 extraction results
 
@@ -341,7 +345,7 @@ data/extracted/extraction_results.json
 data/graph/graph.json
 ```
 
-用途：保存从 SQLite 导出的标准图谱快照，用于前端 mock、演示兜底、Neo4j 同步输入。
+用途：保存从 SQLite 导出的标准图谱快照，用于演示兜底、离线样例和 Neo4j 同步输入。前端页面默认通过 FastAPI 获取轻量图谱视图，不直接绑定该完整快照格式。
 
 注意：`graph.json` 不是事实源。事实源是 SQLite 中的实体、关系、证据和文档表。
 
@@ -386,8 +390,10 @@ data/graph/graph.json
       "id": "ev_apt28_001",
       "doc_id": "apt28_mitre_001",
       "chunk_id": "apt28_mitre_001_c001",
+      "entity_id": "apt_group:apt28",
+      "relation_id": null,
       "source_url": "https://attack.mitre.org/groups/G0007/",
-      "source_type": "security_report",
+      "source_type": "knowledge_base",
       "source_name": "MITRE ATT&CK",
       "text": "APT28 is a threat group...",
       "evidence_type": "direct_quote",
@@ -398,7 +404,12 @@ data/graph/graph.json
       "source_reliability": "A",
       "language": "en"
     }
-  ]
+  ],
+  "analysis": {
+    "mitre_mappings": [],
+    "behavior_patterns": [],
+    "inferred_relations": []
+  }
 }
 ```
 
@@ -414,7 +425,8 @@ documents
   source_type
   title
   language
-  raw_text
+  clean_text
+  content_hash
   metadata_json
   created_at
 
@@ -424,6 +436,7 @@ chunks
   text
   char_start
   char_end
+  text_hash
   token_count
 
 extraction_runs
@@ -538,7 +551,7 @@ collected_items
   source_url
   title
   raw_text
-  content_hash
+  raw_content_hash
   status
   created_at
 
@@ -1091,7 +1104,7 @@ Demo 用来证明核心概念能跑，可以有手动步骤和 mock 数据。最
 2. 本地文本或 `document.json` 可作为输入。
 3. 能产出 `extraction_result.json` 或等价 mock。
 4. 能产出 `graph.json`。
-5. 前端能基于 `graph.json` 展示图谱、实体详情和证据。
+5. 前端能通过 `/api/v1/graph` 展示图谱、实体详情和证据；离线演示可由后端从 `graph.json` 适配出同等响应。
 6. 能生成基础报告片段。
 
 ### 14.2 MVP 标准
@@ -1146,7 +1159,7 @@ MVP 用来证明团队可以交付和继续开发，必须满足：
 1. 前端使用 React + TypeScript + Vite + ECharts-for-React。
 2. 后端使用 FastAPI。
 3. SQLite 作为唯一事实源。
-4. `graph.json` 作为导出格式和前端 mock。
+4. `graph.json` 作为导出快照、离线样例和 Neo4j 同步输入。
 5. Neo4j 作为增强阶段 / 优先级 P1 的图查询增强，不作为事实源。
 6. Docker Compose 作为标准开发和演示环境。
 7. 服务通过 `docker compose` 命令直接管理。

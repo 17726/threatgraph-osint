@@ -29,7 +29,7 @@ LLM 接口：OpenAI-compatible API
 核心原则：
 
 1. SQLite 是唯一事实源。
-2. graph.json 是导出格式、前端 mock、演示兜底和 Neo4j 同步输入。
+2. graph.json 是导出格式、离线样例、演示兜底和 Neo4j 同步输入；前端默认通过 FastAPI 获取轻量图谱视图。
 3. Neo4j 是增强能力，不作为事实源。
 4. LLM 原始输出不能直接写入 Neo4j。
 5. 前端只调用 FastAPI，不直接读取 SQLite、graph.json 或 Neo4j。
@@ -40,30 +40,30 @@ LLM 接口：OpenAI-compatible API
 
 先看根目录 [TODO.md](TODO.md) 了解当前进展和下一步任务，再按顺序阅读以下文档：
 
-| 顺序 | 文档 | 说明 |
-|------|------|------|
-| 1 | [`README.md`](README.md) | 项目概述与运行方式 |
-| 2 | [`TODO.md`](TODO.md) | 当前进度与下一步任务 |
-| 3 | [`AGENTS.md`](AGENTS.md) | AI Agent 行为约束 |
-| 4 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | 开发规范与 Git 流程 |
-| 5 | [`docs/team-workflow.md`](docs/team-workflow.md) | 团队协作与组别职责 |
-| 6 | [`docs/stage-roadmap.md`](docs/stage-roadmap.md) | 阶段路线与优先级 |
-| 7 | [`docs/architecture.md`](docs/architecture.md) | 系统架构设计 |
-| 8 | [`docs/data-contract.md`](docs/data-contract.md) | 数据层契约 |
-| 9 | [`docs/api-contract.md`](docs/api-contract.md) | API 接口契约 |
-| 10 | [`docs/reference-comparison.md`](docs/reference-comparison.md) | 开源项目对比 |
-| 11 | [`docs/docker-runtime.md`](docs/docker-runtime.md) | Docker 运行说明 |
+| 顺序 | 文档                                                           | 说明                 |
+| ---- | -------------------------------------------------------------- | -------------------- |
+| 1    | [`README.md`](README.md)                                       | 项目概述与运行方式   |
+| 2    | [`TODO.md`](TODO.md)                                           | 当前进度与下一步任务 |
+| 3    | [`AGENTS.md`](AGENTS.md)                                       | AI Agent 行为约束    |
+| 4    | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)                 | 开发规范与 Git 流程  |
+| 5    | [`docs/team-workflow.md`](docs/team-workflow.md)               | 团队协作与组别职责   |
+| 6    | [`docs/stage-roadmap.md`](docs/stage-roadmap.md)               | 阶段路线与优先级     |
+| 7    | [`docs/architecture.md`](docs/architecture.md)                 | 系统架构设计         |
+| 8    | [`docs/data-contract.md`](docs/data-contract.md)               | 数据层契约           |
+| 9    | [`docs/api-contract.md`](docs/api-contract.md)                 | API 接口契约         |
+| 10   | [`docs/reference-comparison.md`](docs/reference-comparison.md) | 开源项目对比         |
+| 11   | [`docs/docker-runtime.md`](docs/docker-runtime.md)             | Docker 运行说明      |
 
 如果你只负责某一组，优先阅读：
 
-| 组别 | 优先阅读 |
-|------|----------|
-| 架构与数据规范组 `arch` | [`docs/architecture.md`](docs/architecture.md) + [`docs/api-contract.md`](docs/api-contract.md) + [`docs/data-contract.md`](docs/data-contract.md) |
-| 数据与样本组 `data` | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md) |
-| LLM 抽取与分析组 `llm` | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/architecture.md`](docs/architecture.md) |
-| 后端横向工作流 `be` | [`docs/api-contract.md`](docs/api-contract.md) + [`docs/data-contract.md`](docs/data-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md) |
-| 图谱与前端组 `fe` | [`docs/api-contract.md`](docs/api-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md) |
-| 报告答辩与测试组 `qa` | [`docs/team-workflow.md`](docs/team-workflow.md) + [`docs/reference-comparison.md`](docs/reference-comparison.md) + [`docs/references/course-requirements.md`](docs/references/course-requirements.md) |
+| 组别                    | 优先阅读                                                                                                                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 架构与数据规范组 `arch` | [`docs/architecture.md`](docs/architecture.md) + [`docs/api-contract.md`](docs/api-contract.md) + [`docs/data-contract.md`](docs/data-contract.md)                                                     |
+| 数据与样本组 `data`     | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/schemas/README.md`](docs/schemas/README.md) + [`docs/team-workflow.md`](docs/team-workflow.md)                                               |
+| LLM 抽取与分析组 `llm`  | [`docs/data-contract.md`](docs/data-contract.md) + [`docs/schemas/README.md`](docs/schemas/README.md) + [`docs/architecture.md`](docs/architecture.md)                                                 |
+| 后端横向工作流 `be`     | [`docs/api-contract.md`](docs/api-contract.md) + [`docs/data-contract.md`](docs/data-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md)                                                   |
+| 图谱与前端组 `fe`       | [`docs/api-contract.md`](docs/api-contract.md) + [`docs/team-workflow.md`](docs/team-workflow.md)                                                                                                      |
+| 报告答辩与测试组 `qa`   | [`docs/team-workflow.md`](docs/team-workflow.md) + [`docs/reference-comparison.md`](docs/reference-comparison.md) + [`docs/references/course-requirements.md`](docs/references/course-requirements.md) |
 
 ---
 
@@ -71,13 +71,13 @@ LLM 接口：OpenAI-compatible API
 
 详细分工见 [docs/team-workflow.md](docs/team-workflow.md)。
 
-| 组别             | 缩写   | 主要职责                                               | 关键产出                        |
-| ---------------- | ------ | ------------------------------------------------------ | ------------------------------- |
-| 架构与数据规范组 | `arch` | 统一技术路线、数据契约、API 契约、目录结构、后端骨架   | 架构文档、接口文档、评审结论    |
-| 数据与样本组     | `data` | 收集三类情报源，整理原始文档和黄金测试集               | raw 数据、golden.json、来源索引 |
-| LLM 抽取与分析组 | `llm`  | 实体关系抽取、MITRE 映射、行为分析、候选推理           | 抽取结果、行为模式、推理结果    |
-| 图谱与前端组     | `fe`   | React 页面、图谱可视化、搜索、详情、报告展示           | 前端页面、图谱交互、演示界面    |
-| 报告答辩与测试组 | `qa`   | 评测、实验报告、PPT、演示脚本和录像                    | 评测结果、报告、PPT、答辩材料   |
+| 组别             | 缩写   | 主要职责                                             | 关键产出                              |
+| ---------------- | ------ | ---------------------------------------------------- | ------------------------------------- |
+| 架构与数据规范组 | `arch` | 统一技术路线、数据契约、API 契约、目录结构、后端骨架 | 架构文档、接口文档、评审结论          |
+| 数据与样本组     | `data` | 收集三类情报源，整理清洗后标准文档和黄金测试集       | data/documents、golden.json、来源索引 |
+| LLM 抽取与分析组 | `llm`  | 实体关系抽取、MITRE 映射、行为分析、候选推理         | 抽取结果、行为模式、推理结果          |
+| 图谱与前端组     | `fe`   | React 页面、图谱可视化、搜索、详情、报告展示         | 前端页面、图谱交互、演示界面          |
+| 报告答辩与测试组 | `qa`   | 评测、实验报告、PPT、演示脚本和录像                  | 评测结果、报告、PPT、答辩材料         |
 
 后端不是单独小组，而是横向工作流：FastAPI、SQLite、pipeline、graph.json 导出、Neo4j 同步等工作由架构与数据规范组牵头维护；数据与样本组、LLM 抽取与分析组、图谱与前端组、报告答辩与测试组可以按各自业务边界修改对应后端代码，但必须遵守 API 契约和数据契约。
 

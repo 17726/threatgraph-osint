@@ -17,7 +17,8 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
           .filter((n) => {
             const q = query.toLowerCase();
             const matchName = n.name?.toLowerCase().includes(q) ?? false;
-            const matchAlias = n.aliases?.some((a) => a?.toLowerCase().includes(q)) ?? false;
+            const matchAlias =
+              n.aliases?.some((a) => a?.toLowerCase().includes(q)) ?? false;
             const matchType = n.type?.toLowerCase().includes(q) ?? false;
             return matchName || matchAlias || matchType;
           })
@@ -25,7 +26,10 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setShowResults(false);
       }
     };
@@ -34,7 +38,10 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
   }, []);
 
   return (
-    <div ref={containerRef} style={{ position: "relative", flex: 1, maxWidth: 420 }}>
+    <div
+      ref={containerRef}
+      style={{ position: "relative", flex: 1, maxWidth: 420 }}
+    >
       <input
         type="text"
         value={query}
@@ -85,11 +92,19 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
                 fontSize: 13,
                 borderBottom: "1px solid #e2e8e6",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#f8faf9")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#f8faf9")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "transparent")
+              }
             >
-              <span style={{ fontWeight: 600, color: "#172026" }}>{n.name}</span>
-              <span style={{ marginLeft: 8, fontSize: 11, color: "#64748b" }}>{n.type}</span>
+              <span style={{ fontWeight: 600, color: "#172026" }}>
+                {n.name}
+              </span>
+              <span style={{ marginLeft: 8, fontSize: 11, color: "#64748b" }}>
+                {n.type}
+              </span>
             </div>
           ))}
         </div>

@@ -8,10 +8,15 @@ interface ReportPanelProps {
 export default function ReportPanel({ graph, target }: ReportPanelProps) {
   if (!graph) return null;
 
-  const targetNode = graph.nodes.find((n) => n.name === target && n.type === "APT_GROUP");
+  const targetNode = graph.nodes.find(
+    (n) => n.name === target && n.type === "APT_GROUP",
+  );
   if (!targetNode) return null;
 
-  const edgesByType: Record<string, { label: string; confidence: number; infer: boolean }[]> = {};
+  const edgesByType: Record<
+    string,
+    { label: string; confidence: number; infer: boolean }[]
+  > = {};
   graph.edges.forEach((e) => {
     const src = graph.nodes.find((n) => n.id === e.source)?.name ?? e.source;
     const dst = graph.nodes.find((n) => n.id === e.target)?.name ?? e.target;
@@ -31,8 +36,14 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
     ["名称", targetNode.name],
     ["别名", targetNode.aliases?.join(", ") || "-"],
     ["描述", targetNode.description || "-"],
-    ["置信度", targetNode.confidence != null ? String(targetNode.confidence) : "-"],
-    ["来源数", targetNode.source_count != null ? String(targetNode.source_count) : "-"],
+    [
+      "置信度",
+      targetNode.confidence != null ? String(targetNode.confidence) : "-",
+    ],
+    [
+      "来源数",
+      targetNode.source_count != null ? String(targetNode.source_count) : "-",
+    ],
     ["首次发现", targetNode.first_seen ?? "-"],
     ["最近活跃", targetNode.last_seen ?? "-"],
   ];
@@ -49,11 +60,26 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
       <div className="panel-heading">
         <h2>{target} - 威胁分析报告</h2>
       </div>
-      <div style={{ padding: 16, maxHeight: 400, overflowY: "auto", fontSize: 13 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0f766e", margin: "0 0 8px" }}>
+      <div
+        style={{ padding: 16, maxHeight: 400, overflowY: "auto", fontSize: 13 }}
+      >
+        <h3
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "#0f766e",
+            margin: "0 0 8px",
+          }}
+        >
           目标画像
         </h3>
-        <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 20 }}>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            marginBottom: 20,
+          }}
+        >
           <tbody>
             {profile.map(([k, v]) => (
               <tr key={k}>
@@ -82,12 +108,26 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
           </tbody>
         </table>
 
-        <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0f766e", margin: "0 0 8px" }}>
+        <h3
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "#0f766e",
+            margin: "0 0 8px",
+          }}
+        >
           关键关系
         </h3>
         {Object.entries(edgesByType).map(([type, items]) => (
           <div key={type} style={{ marginBottom: 8 }}>
-            <p style={{ fontSize: 12, color: "#64748b", fontWeight: 600, margin: "0 0 4px" }}>
+            <p
+              style={{
+                fontSize: 12,
+                color: "#64748b",
+                fontWeight: 600,
+                margin: "0 0 4px",
+              }}
+            >
               {type}
             </p>
             {items.map((item, i) => (
@@ -107,7 +147,9 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
                 <span style={{ color: "#172026" }}>{item.label}</span>
                 <span style={{ color: "#64748b", marginLeft: "auto" }}>
                   {item.infer ? (
-                    <span style={{ color: "#94a3b8", fontStyle: "italic" }}>推断</span>
+                    <span style={{ color: "#94a3b8", fontStyle: "italic" }}>
+                      推断
+                    </span>
                   ) : (
                     String(item.confidence)
                   )}
@@ -117,10 +159,23 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
           </div>
         ))}
 
-        <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0f766e", margin: "16px 0 8px" }}>
+        <h3
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "#0f766e",
+            margin: "16px 0 8px",
+          }}
+        >
           基础统计
         </h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 8,
+          }}
+        >
           {stats.map(([k, v]) => (
             <div
               key={k}
@@ -132,7 +187,14 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
               }}
             >
               <p style={{ margin: 0, fontSize: 11, color: "#64748b" }}>{k}</p>
-              <p style={{ margin: "2px 0 0", fontSize: 16, fontWeight: 600, color: "#172026" }}>
+              <p
+                style={{
+                  margin: "2px 0 0",
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: "#172026",
+                }}
+              >
                 {v}
               </p>
             </div>

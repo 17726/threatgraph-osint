@@ -61,7 +61,7 @@ def test_graph_evidence_includes_source_and_quote_contract_fields(tmp_path):
     evidence = {item["id"]: item for item in graph["evidence"]}
 
     item = evidence["ev_apt28_t1566_001"]
-    assert item["source_type"] == "security_report"
+    assert item["source_type"] == "knowledge_base"
     assert item["source_name"] == "MITRE ATT&CK"
     assert item["evidence_type"] == "summary"
     assert item["retrieved_at"]

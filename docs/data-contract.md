@@ -11,7 +11,7 @@
 
 ```text
 SQLite：唯一事实源
-graph.json：导出格式、前端 mock、演示兜底、Neo4j 同步输入
+graph.json：导出格式、离线样例、演示兜底、Neo4j 同步输入
 Neo4j：增强阶段 / 优先级 P1 图查询增强，不保存唯一事实
 ```
 
@@ -24,8 +24,8 @@ LLM 原始输出 -> Neo4j -> 前端
 允许链路：
 
 ```text
-sources / raw docs -> SQLite collected_items
-collected_items -> SQLite documents/chunks
+sources / data/raw -> SQLite collected_items
+data/documents/*.json(clean_text) 或 collected_items 清洗结果 -> SQLite documents -> SQLite chunks
 LLM 输出 -> SQLite extracted_* 候选表
 归一化 -> SQLite entities/relations/evidence
 导出 -> graph.json
@@ -47,13 +47,101 @@ LLM 输出 -> SQLite extracted_* 候选表
 字段调整结论：
 
 1. 所有对外 JSON 都带 `schema_version`，避免前后端和 LLM 组字段漂移。
-2. `documents` 必须保留来源元信息：来源名称、来源类型、发布时间、抓取时间、可信度、标签和内容哈希。
-3. `chunks` 必须保留原文位置：`chunk_index`、`char_start`、`char_end`、`text_hash`。
+2. `documents` 必须保留来源元信息和清洗正文：来源名称、来源类型、发布时间、抓取时间、可信度、标签、`clean_text` 和 `content_hash`。
+3. `chunks` 由后端基于 `documents.clean_text` 生成，必须保留原文位置：`chunk_index`、`char_start`、`char_end`、`text_hash`；`text_hash` 固定为 `sha256(chunks.text)`。
 4. `extracted_*` 必须保留候选状态和校验结果：`candidate_status`、`validation_status`、`validation_errors_json`。
 5. LLM 候选结果可以引用归一化结果，但不能决定最终 ID：使用 `normalized_entity_id`、`normalized_relation_id` 记录后端归一化结果。
 6. `evidence` 必须补齐证据类型和原文位置：`evidence_type`、`quote_start`、`quote_end`。
 7. `entities` / `relations` 保留 `first_seen`、`last_seen`、`tags_json`，便于时间线和来源统计。
 8. `graph.json` 是导出快照，需要带 `exported_from` 和 `source_of_truth`，明确它不是事实源。
+
+### 1.2 当前冻结的契约文件
+
+Schema 文件：
+
+```text
+docs/schemas/document.schema.json
+docs/schemas/extraction-result.schema.json
+docs/schemas/graph.schema.json
+docs/schemas/relationship-matrix.md
+```
+
+可复制样例：
+
+```text
+data/examples/document.apt28.securelist.example.json
+data/examples/reference.apt28.mitre.example.json
+data/examples/extraction_result.apt28.securelist.example.json
+data/examples/graph.apt28.securelist.example.json
+data/examples/golden.apt28.example.json
+```
+
+正式 P0 文档：
+
+```text
+data/documents/<target_group>/*.json
+```
+
+`data/examples/` 只用于字段对齐和 mock；真实清洗文档进入 `data/documents/`，并且必须兼容 `docs/schemas/document.schema.json`。
+
+使用规则：
+
+1. data 组提交真实样本时，复制 `document.apt28.securelist.example.json` 的字段结构，在 `data/documents/<target_group>/` 下新增文档，替换 `clean_text`、来源，并按 `clean_text` 重新生成 `content_hash`。
+2. arch / qa / be 做标准名和别名对齐时，参考 `reference.apt28.mitre.example.json`。
+3. llm 组提交候选抽取时，复制 `extraction_result.apt28.securelist.example.json` 后替换候选实体和候选关系。
+4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.securelist.example.json`。
+5. qa 做人工标准答案时，先从 `golden.apt28.example.json` 扩展。
+6. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
+
+APT28 首个样例的字段标准：
+
+1. Securelist、Mandiant、Microsoft、ESET 等厂商威胁情报文章使用 `source_type = vendor_report`。
+2. MITRE ATT&CK、MISP Galaxy 等标准知识库使用 `source_type = knowledge_base`。
+3. `target_group` 只放标准名，例如 `APT28`；别名放在实体 `aliases_json` / JSON 样例的 `aliases` 中。
+4. 仓库 P0 `document.json` 使用 `clean_text` 保存人工清洗后的正文，不要求保存完整网页原文；原始采集文本只放在 `data/raw/` 或 `collected_items.raw_text`。
+5. `evidence_type = summary` 表示证据文本来自人工清洗摘要；只有保留短原文片段时才使用 `direct_quote`。
+
+### 1.3 三份 JSON 的开发工作流
+
+```text
+document.json
+  data 组交付到 data/documents/ 的清洗后文档，是后端切块后的 LLM 输入来源
+
+extraction_result.json
+  llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入
+
+graph.json
+  be 从 SQLite 正式图谱导出的快照，是演示兜底和 Neo4j 同步输入；如用于前端 mock，需要先适配为 API 的轻量图谱视图
+```
+
+边界：
+
+1. `document.json` 只承载来源元信息和清洗正文 `clean_text`，不承载最终实体 ID，也不要求 data 组手写 chunks。
+2. `extraction_result.json` 只承载 LLM 候选结果，不承载最终 `entity_id` / `relation_id`。
+3. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
+4. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
+5. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
+6. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
+
+### 1.4 P0 文档清洗边界
+
+P0 阶段的清洗是格式清洗，不是语义筛选。data 组需要把网页、PDF 或本地文本整理成可读、可切块、可追溯的正文。
+
+应该做：
+
+1. 去掉导航栏、菜单、广告、推荐文章、评论区、页脚、订阅提示和脚本噪声。
+2. 保留标题、正文段落、小标题、列表、表格中的有效文字和必要上下文。
+3. 保留原文顺序，尽量不改写原句。
+4. 记录 `source_url`、`source_name`、`published_at`、`retrieved_at`、`language`、`target_group` 和基于 `clean_text` 的 `content_hash`。
+
+不应该做：
+
+1. 不提前删除作者评估、推测或讨论性段落。
+2. 不提前判断哪些句子是事实、哪些关系成立。
+3. 不把正文改写成自己的总结后再当作完整原文。
+4. 不把整个浏览器页面原样转成 TXT 后直接提交。
+
+仓库里的 `document.apt28.securelist.example.json` 只放短样本文本，是为了说明字段格式和避免提交完整网页正文；data 组真实工作时可以在本地保存完整清洗正文，再按同一字段契约导入。
 
 ---
 
@@ -82,7 +170,7 @@ data/threatgraph_osint.db
 字段含义：
 
 ```text
-source_type：来源类型，如 security_report、news、government_notice、social_forum
+source_type：来源类型，如 vendor_report、knowledge_base、government_notice、news、social_forum、blog；security_report 只作为无法细分时的泛称
 collector_type：采集器类型，如 local_json、http_page、rss_feed
 target_groups_json：该来源默认覆盖的目标组织
 config_json：采集器配置，如语言、默认目标组织、解析规则
@@ -128,7 +216,7 @@ CREATE TABLE collection_runs (
 
 ### 3.3 collected_items
 
-保存采集到的原始条目。这里还不是最终文档事实，需要转入 `documents` 后再进入清洗和抽取。
+保存采集到的原始条目。这里还不是最终文档事实，需要清洗为 `documents.clean_text` 后再进入切块和抽取。
 
 ```sql
 CREATE TABLE collected_items (
@@ -140,7 +228,7 @@ CREATE TABLE collected_items (
   title TEXT NOT NULL,
   language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
   raw_text TEXT NOT NULL,
-  content_hash TEXT NOT NULL,
+  raw_content_hash TEXT NOT NULL,
   source_type TEXT NOT NULL,
   source_name TEXT NOT NULL DEFAULT '',
   published_at TEXT,
@@ -156,7 +244,7 @@ CREATE TABLE collected_items (
 
 ### 3.4 documents
 
-保存原始文档。
+保存清洗后的标准文档。`clean_text` 是后端切块和 LLM 抽取的输入，`content_hash` 固定为 `sha256(clean_text 按 UTF-8 编码后的字节)`。
 
 ```sql
 CREATE TABLE documents (
@@ -170,7 +258,7 @@ CREATE TABLE documents (
   source_name TEXT NOT NULL DEFAULT '',
   title TEXT NOT NULL,
   language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
-  raw_text TEXT NOT NULL,
+  clean_text TEXT NOT NULL,
   content_hash TEXT NOT NULL,
   published_at TEXT,
   retrieved_at TEXT,
@@ -185,7 +273,7 @@ CREATE TABLE documents (
 
 ### 3.5 chunks
 
-保存清洗和切块后的 LLM 输入。
+保存后端基于 `documents.clean_text` 生成的 LLM 输入片段。data 组不手写 chunks。
 
 ```sql
 CREATE TABLE chunks (
@@ -663,8 +751,10 @@ data/graph/graph.json
       "id": "ev_apt28_mitre_001_a1b2",
       "doc_id": "apt28_mitre_001",
       "chunk_id": "apt28_mitre_001_c001",
+      "entity_id": "apt_group:apt28",
+      "relation_id": null,
       "source_url": "https://attack.mitre.org/groups/G0007/",
-      "source_type": "security_report",
+      "source_type": "knowledge_base",
       "source_name": "MITRE ATT&CK",
       "text": "APT28 is a threat group...",
       "evidence_type": "direct_quote",
@@ -723,7 +813,7 @@ data/graph/graph.json
 3. `evidence` 来自 SQLite `evidence`。
 4. `analysis` 来自 SQLite 行为分析和推理表。
 5. `graph.json` 可以删除后重新生成，不影响事实源。
-6. 前端 mock 数据必须与该格式一致。
+6. `graph.json` 作为完整 GraphSnapshot，可用于离线演示兜底和 Neo4j 同步输入；前端模拟 `/api/v1/graph` 时仍按 `docs/api-contract.md` 的轻量 GraphView 返回。
 7. `schema_version` 变更前必须同步架构、后端、前端和 LLM。
 8. `evidence.text` 可以是原文短片段或人工清洗后的证据短句，但必须能通过 `doc_id`、`chunk_id`、`quote_start`、`quote_end` 回到原文。
 

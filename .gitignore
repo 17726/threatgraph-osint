@@ -33,6 +33,7 @@ data/evaluation/*
 !data/raw/.gitkeep
 !data/cleaned/.gitkeep
 !data/extracted/.gitkeep
+!data/extracted/extraction_result.*.v*.json
 !data/graph/.gitkeep
 !data/reports/.gitkeep
 !data/evaluation/.gitkeep
