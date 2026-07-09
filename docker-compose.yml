@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      args:
+        PYTHON_IMAGE: ${BACKEND_PYTHON_IMAGE:-public.ecr.aws/docker/library/python:3.13-slim}
     environment:
       APP_ENV: development
       API_HOST: 0.0.0.0
