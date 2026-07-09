@@ -219,9 +219,10 @@ DEMO_REPORTS = [
 
 
 class DemoStore:
-    def __init__(self, db_path: str | Path | None = None) -> None:
+    def __init__(self, db_path: str | Path | None = None, seed_demo: bool = True) -> None:
         configured_path = db_path or os.getenv("SQLITE_DB_PATH") or DEFAULT_DB_PATH
         self.db_path = Path(configured_path)
+        self.seed_demo = seed_demo
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.initialize()
 
@@ -290,7 +291,8 @@ class DemoStore:
                 """
             )
             self._ensure_columns(connection)
-            self.seed_demo_data(connection)
+            if self.seed_demo:
+                self.seed_demo_data(connection)
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:
         migrations = {
@@ -506,6 +508,85 @@ class DemoStore:
             "markdown": row["markdown"],
         }
 
+    def get_analysis(self) -> dict[str, Any]:
+        with self.connect() as connection:
+            mitre_rows = []
+            behavior_rows = []
+            inference_rows = []
+            if self._table_exists(connection, "mitre_mappings"):
+                mitre_rows = connection.execute(
+                    """
+                    SELECT mapping_id, target_group, technique_id, technique_name, tactic,
+                           attack_stage, entity_id, relation_id, source, confidence,
+                           evidence_ids_json
+                    FROM mitre_mappings
+                    ORDER BY mapping_id
+                    """
+                ).fetchall()
+            if self._table_exists(connection, "behavior_patterns"):
+                behavior_rows = connection.execute(
+                    """
+                    SELECT pattern_id, target_group, stage, description, technique_ids_json,
+                           relation_ids_json, evidence_ids_json, confidence
+                    FROM behavior_patterns
+                    ORDER BY pattern_id
+                    """
+                ).fetchall()
+            if self._table_exists(connection, "inferred_relations"):
+                inference_rows = connection.execute(
+                    """
+                    SELECT inferred_relation_id, source_entity_id, target_entity_id, relation_type,
+                           rationale, support_evidence_ids_json, confidence, status
+                    FROM inferred_relations
+                    ORDER BY inferred_relation_id
+                    """
+                ).fetchall()
+
+        return {
+            "mitre_mappings": [
+                {
+                    "mapping_id": row["mapping_id"],
+                    "target_group": row["target_group"],
+                    "technique_id": row["technique_id"],
+                    "technique_name": row["technique_name"],
+                    "tactic": row["tactic"],
+                    "attack_stage": row["attack_stage"],
+                    "entity_id": row["entity_id"],
+                    "relation_id": row["relation_id"],
+                    "source": row["source"],
+                    "confidence": row["confidence"],
+                    "evidence_ids": json.loads(row["evidence_ids_json"]),
+                }
+                for row in mitre_rows
+            ],
+            "behavior_patterns": [
+                {
+                    "pattern_id": row["pattern_id"],
+                    "target_group": row["target_group"],
+                    "stage": row["stage"],
+                    "description": row["description"],
+                    "technique_ids": json.loads(row["technique_ids_json"]),
+                    "relation_ids": json.loads(row["relation_ids_json"]),
+                    "evidence_ids": json.loads(row["evidence_ids_json"]),
+                    "confidence": row["confidence"],
+                }
+                for row in behavior_rows
+            ],
+            "inferred_relations": [
+                {
+                    "inferred_relation_id": row["inferred_relation_id"],
+                    "source": row["source_entity_id"],
+                    "target": row["target_entity_id"],
+                    "type": row["relation_type"],
+                    "rationale": row["rationale"],
+                    "confidence": row["confidence"],
+                    "status": row["status"],
+                    "evidence_ids": json.loads(row["support_evidence_ids_json"]),
+                }
+                for row in inference_rows
+            ],
+        }
+
     def _filter_graph(
         self,
         nodes: list[dict[str, Any]],
@@ -533,6 +614,17 @@ class DemoStore:
             visible_node_ids.add(edge["target"])
 
         return [node for node in nodes if node["id"] in visible_node_ids], visible_edges
+
+    def _table_exists(self, connection: sqlite3.Connection, table_name: str) -> bool:
+        row = connection.execute(
+            """
+            SELECT 1
+            FROM sqlite_master
+            WHERE type = 'table' AND name = ?
+            """,
+            (table_name,),
+        ).fetchone()
+        return row is not None
 
     def _node_from_row(self, row: sqlite3.Row) -> dict[str, Any]:
         return {

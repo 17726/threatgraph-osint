@@ -260,6 +260,28 @@ docs/references/course-requirements.md
 
 如果某一步暂时没有代码，可以先用样例 JSON 或 mock 输出推进。关键是字段不要漂移，证据链不要断。
 
+### 7.1 真实 API 前的离线闭环命令
+
+在接入真实 LLM API 前，先用人工审阅的 `extraction_result.json` 跑通 SQLite 候选层和正式图谱层：
+
+```bash
+python scripts/import_extraction_result.py \
+  --document data/examples/document.apt28.securelist.example.json \
+  --extraction-result data/extracted/extraction_result.apt28.securelist.v1.json \
+  --export-graph
+```
+
+这条命令会完成：
+
+1. 写入 `documents` 和 `chunks`。
+2. 写入 `extraction_runs`、`extracted_entities` 和 `extracted_relations`。
+3. 按 schema、证据文本和关系矩阵校验候选结果。
+4. 将合法候选归一化到 `entities`、`relations` 和 `evidence`。
+5. 基于正式关系生成第一版 `behavior_patterns` 和报告缓存。
+6. 从 SQLite 导出 `data/graph/graph.json`。
+
+注意：该命令不调用真实 LLM API，输入仍是本地 JSON。后续接入真实 API 时，只替换 `extraction_result.json` 的生成方式，后面的校验、入库、归一化和导出流程保持不变。
+
 ## 8. 字段变更规则
 
 任何组觉得字段不够用时，先按下面流程处理：
