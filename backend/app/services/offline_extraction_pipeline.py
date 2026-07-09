@@ -51,6 +51,10 @@ ENTITY_PREFIXES = {
 }
 
 
+def document_text(document: dict[str, Any]) -> str:
+    return document.get("clean_text") or document.get("raw_text", "")
+
+
 @dataclass
 class OfflinePipelineSummary:
     doc_id: str
@@ -469,6 +473,7 @@ class OfflineExtractionPipeline:
         extraction_result: dict[str, Any],
     ) -> None:
         now = now_iso()
+        clean_text = document_text(document)
         connection.execute(
             """
             INSERT OR REPLACE INTO documents (
@@ -489,7 +494,7 @@ class OfflineExtractionPipeline:
                 document.get("source_name", ""),
                 document["title"],
                 document["language"],
-                document["raw_text"],
+                clean_text,
                 document["content_hash"],
                 document.get("published_at"),
                 document.get("retrieved_at"),
@@ -501,7 +506,6 @@ class OfflineExtractionPipeline:
             ),
         )
 
-        raw_text = document["raw_text"]
         for index, chunk in enumerate(extraction_result["chunks"]):
             connection.execute(
                 """
@@ -515,10 +519,10 @@ class OfflineExtractionPipeline:
                     document["doc_id"],
                     index,
                     "",
-                    raw_text,
+                    clean_text,
                     0,
-                    len(raw_text),
-                    "sha256:" + sha256_text(raw_text),
+                    len(clean_text),
+                    "sha256:" + sha256_text(clean_text),
                     None,
                 ),
             )
@@ -536,16 +540,17 @@ class OfflineExtractionPipeline:
         connection.execute("DELETE FROM extraction_runs WHERE run_id = ?", (run_id,))
 
         candidate_errors: list[str] = []
+        clean_text = document_text(document)
         for chunk in extraction_result["chunks"]:
             known_entities = collect_known_entities(chunk)
             for entity_index, entity in enumerate(chunk["entities"]):
-                errors = evidence_validation_errors(entity, document["raw_text"])
+                errors = evidence_validation_errors(entity, clean_text)
                 candidate_errors.extend(
                     f"{chunk['chunk_id']}.entities[{entity_index}]: {error}" for error in errors
                 )
             for relation_index, relation in enumerate(chunk["relations"]):
                 errors = relation_validation_errors(relation, known_entities)
-                errors.extend(evidence_validation_errors(relation, document["raw_text"]))
+                errors.extend(evidence_validation_errors(relation, clean_text))
                 candidate_errors.extend(
                     f"{chunk['chunk_id']}.relations[{relation_index}]: {error}" for error in errors
                 )
@@ -578,7 +583,7 @@ class OfflineExtractionPipeline:
         for chunk in extraction_result["chunks"]:
             known_entities = collect_known_entities(chunk)
             for entity_index, entity in enumerate(chunk["entities"]):
-                errors = evidence_validation_errors(entity, document["raw_text"])
+                errors = evidence_validation_errors(entity, clean_text)
                 validation_status = "invalid" if errors else "valid"
                 connection.execute(
                     """
@@ -611,7 +616,7 @@ class OfflineExtractionPipeline:
 
             for relation_index, relation in enumerate(chunk["relations"]):
                 errors = relation_validation_errors(relation, known_entities)
-                errors.extend(evidence_validation_errors(relation, document["raw_text"]))
+                errors.extend(evidence_validation_errors(relation, clean_text))
                 validation_status = "invalid" if errors else "valid"
                 connection.execute(
                     """
@@ -1031,19 +1036,19 @@ def relation_validation_errors(
     return errors
 
 
-def evidence_validation_errors(item: dict[str, Any], raw_text: str) -> list[str]:
+def evidence_validation_errors(item: dict[str, Any], clean_text: str) -> list[str]:
     evidence_text = item["evidence_text"]
-    if evidence_text not in raw_text:
-        return ["evidence_text 未出现在 document.raw_text 中"]
+    if evidence_text not in clean_text:
+        return ["evidence_text 未出现在 document.clean_text 中"]
     char_start = item.get("char_start")
     char_end = item.get("char_end")
     if char_start is None and char_end is None:
         return []
     if char_start is None or char_end is None:
         return ["char_start 和 char_end 必须同时为空或同时填写"]
-    if not (0 <= char_start < char_end <= len(raw_text)):
-        return ["字符范围超出 raw_text"]
-    if raw_text[char_start:char_end] != evidence_text:
+    if not (0 <= char_start < char_end <= len(clean_text)):
+        return ["字符范围超出 clean_text"]
+    if clean_text[char_start:char_end] != evidence_text:
         return ["字符范围与 evidence_text 不一致"]
     return []
 

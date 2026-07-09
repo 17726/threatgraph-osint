@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_051",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/consult/378404.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "Konni APT 利用 WinRAR 漏洞（CVE-2023-38831）攻击数字货币行业",
+  "language": "zh",
+  "clean_text": "1. 攻击活动综述\n\n近期知道创宇404 高级威胁情报团队的研究报告《韩美大规模联合军演挑衅升级？朝方 APT 组织近期攻击活动分析》中分享了APT37 & Konni组织近期针对韩方的攻击活动，其中Konni组织所使用的新技战术、程序（TTP）更偏向于针对韩方的惯用TTP，我们在狩猎过程也发现Konni在针对非韩方地区所使用的TTP有所调整。\n\n众所周知，朝方APT组织早已将数字货币行业作为攻击目标，但是朝方针对加密货币/金融相关行业的攻击往往由Lazarus组织操作，本次的攻击活动也是较为少见的发现朝方除Lazarus组织外还有其余组织针对加密货币行业进行攻击活动。\n\n同时我们发现本次攻击活动中Konni使用近期Group-IB披露的WinRAR漏洞（CVE-2023-38831），这也是首次发现有APT组织利用此漏洞进行攻击,相关分析描述见下文。\n\n本次所捕获Konni组织的攻击目标与以往存在极大区别，根据诱导名称来看，攻击目标指向数字货币行业，推测有可能是Konni组织开辟新攻击方向，本次捕获到的样本名称为“wallet_Screenshot_2023_09_06_Qbao_Network.zip”，名称中所提及的Qbao Network介绍如下：\n\n“QbaoNetwork是一款智能加密钱包。旨在打造区块链生态平台，打造区块链世界的入口。集跨链数字货币钱包、支付结算、代币兑换、社交网络、新闻行情、DAPP Store等多功能于一体。QbaoNetwork服务全球数字货币用户，为用户提供跨链、去中心化、安全、易用的数字资产平台。QbaoNetwork是一款满足人们在数字货币支付结算、数字资产管理、数字资产交易、在线消费、身份认证、新闻、社交等方面需求的一站式应用。为全球用户提供数字经济和数字生活的入口。” --来源crunchbase.com\n\nQbao Network公司介绍\n\nQbao Network公司介绍\n2. 攻击链\n\n攻击执行链条\n\n3. 捕获样本分析\n\n本次捕获到的样本名为wallet_Screenshot_2023_09_06_Qbao_Network.rar，该样本利用最新披露的Winrar漏洞（CVE-2023-38831）执行恶意载荷，当压缩文件中的html文件被受害者点击后，精心构造的同名目录下的同名恶意载荷将被执行起来：\n\n关于CVE-2023-38831漏洞的简要分析描述\n\n当受害者尝试打开存档文件中的Screenshot_2023_09_06_Qbao_Network.html\"时，Winrar会比较存档中的所有文件以查找与\"Screenshot_2023_09_06_Qbao_Network.html\"同名的文件/目录,根据Winrar的处理情况来看，如果存在与\"Screenshot_2023_09_06_Qbao_Network.html\"同名的目录Winrar则会继续检查\"Screenshot_2023_09_06_Qbao_Network.html /\"目录下的文件。\n\n如果\"Screenshot_2023_09_06_Qbao_Network.html/\" 目录下同样存在文件名为\"Screenshot_2023_09_06_Qbao_Network.html \"的文件则将\"Screenshot_2023_09_06_Qbao_Network.html/\" 目录下\"Screenshot_2023_09_06_Qbao_Network.html\"文件放入提取列表中。\n\n在实际构造过程中由于Winrar存在一个文件名预处理操作，用于检查文件名并删除一些 Windows 不接受的特殊字符。 “Screenshot_2023_09_06_Qbao_Network.html .exe”文件名中“html”与“.exe”中间存在特意构造的空格，在进行路径分割时文件名解析为“Screenshot_2023_09_06_Qbao_Network.html”，因此把\"Screenshot_2023_09_06_Qbao_Network.html .exe\"文件放入提取列表中。最终导致压缩包中的Screenshot_2023_09_06_Qbao_Network.html .exe运行：\n\nScreenshot_2023_09_06_Qbao_Network.html .exe运行后首先会创建线程，线程中利用GetSystemWow64DirectoryW检测当前系统是否为64位系统，若是则将1拼接到/info.php?user_id=8596&type=后，若不是则拼接0.\n\n从e9f0dkd.c1[.]biz服务端下载后续载荷：\n\n下载载荷后，将硬编码的字符串解base64后写入%temp%\\temp.bat并运行。\n\n解码后的字符串\n\ntemp.bat开始运行下载的载荷check.bat:\n\n下载载荷分析：\n\n从服务端下载的数据被存储为%temp%[random].tmp，并解压缩。压缩文件目录结构如下：\n\n各文件功能分析如下\n\ncheck.bat\n\n判断是否存在远程连接session，存在则直接运行trap.bat。\n\n若不存在则判断当前系统是否为Win10，若是，设置Num等于4，反之等于1，这两个参数代表了后续采用不同的UAC绕过方式。\n\n判断是否在64位系统下，若是则执行wpnprv64.dll，否则执行wpnprv32.dll。\n\n痕迹删除。\n\nwpnprv64.dll（wpnprv32.dll代码逻辑一致）：\n\n“IIIIIIII”导出函数中包含主要恶意代码，根据传入的参数选择不同的Bypass UAC方式：\n\n若传入的参数1为1时，则利用白名单程序wusa.exe + 模拟token登录的方式运行trap.bat：\n\n当传入的参数1为4时，则利用AppInfo RPC以及PPID欺骗技术进行Bypass UAC，最终运行trap.bat：\n\ntrap.bat：\n\n根据当前的路径是否为系统目录判断是否需要文件复制。\n\n判断当前系统是否为64位系统，是则将rdssvc4.png复制到system32目录下命名为rdssvc.dll，否则将rdssvc2.png复制到system32目录下命名为rdssvc.dll，两者都会将rdssvc.dat复制到system32目录下。\n\n创建名为“Remote Database Service Update”的服务，服务指向的服务程序为前面复制而成的rdssvc.dll。\n\n启动服务，rdssvc.dll被执行起来。\n\n删除痕迹。\n\nrdssvc.dll（Konni RAT,以x64程序为例）：\n\n在rdssvc.dll的ServiceMain导出函数中，首先会解密API：\n\n创建HKCU\\Console注册表项，并将65001写入CodePage中：\n\n读取HKCU\\Console\\MaxElapsed下的值作为连接测试的等待时间：\n\n读取rdssvc.dat文件，并从中解密出C2地址：\n\n执行“cmd /c systeminfo”和“cmd /c tasklist”，并将数据保存到%temp%目录下：\n\n将获取的数据使用makecab进行打包：\n\n将数据aes加密后上传到服务端，服务端返回“success!”则表示上传成功：\n\n从C2获取数据：\n\n获取的数据使用“#”分割，分割的数据解base64后再进行aes解密：\n\n最终根据返回数据中的指令可以实现如下功能：\n\n指令 参数1 参数2 功能\n/stext\n\n以SYSTEM权限运行程序\n/user\n\n以USER权限运行程序\n/user /stext或>\n以USER权限运行程序，并保存结果\ncmd pull /f 将文件复制到temp目录，然后上传\ncmd pull\n文件上传\ncmd >\n远程shell，结果保存到temp目录\ncmd\n\n远程shell\ncmd chmod\n保存指定文件\ncmd put\n文件移动\n4. IOC\n\n1536e9bf086982c072c2cba7d42b0a62\n\ne9f0dkd.c1[.]biz\n\nske9dhn.c1[.]biz\n\n作者：K&Nan@知道创宇404高级威胁情报团队",
+  "content_hash": "sha256:1fa7c73be8677709eceac836bbf9e2bd347910ed36d537f2548e825eae29981a",
+  "published_at": "2023-09-18",
+  "retrieved_at": "2026-07-07T17:03:09Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "咨询",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_051",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_051.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "doc_id": "kimsuky_030",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/news/404872.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "Kimsuky 组织利用 TRANSLATEXT Chrome 扩展程序窃取敏感数据信息",
+  "language": "zh",
+  "clean_text": "日前，一个名为 Kimsuky 的威胁攻击组织正在使用新型恶意谷歌 Chrome 浏览器扩展程序，窃取大量敏感信息。\n\nKimsuky 是一个臭名昭著的朝鲜黑客组织，至少从 2012 年起就开始活动，主要策划针对韩国实体的网络间谍和金融攻击，曾以 APT43、ARCHIPELAGO、Black Banshee、Emerald Sleet、Springtail 和 Velvet Chollima 等名称被躲过的执法人员追踪。\n\n2024 年 3 月，Zscaler ThreatLabz 观察到 Kimsuky 网络攻击活动，将扩展程序编号为 TRANSLATEXT，并强调了其收集电子邮件地址、用户名、密码、cookie 和浏览器截图的能力。据悉，威胁攻击者的攻击目标主要针对韩国学术界，特别是一些关注朝鲜政治事务的学术界人员。\n\n最近几周，Kimsuky 威胁组织利用微软 Office 的一个已知安全漏洞 CVE-2017-11882，分发键盘记录程序，并在针对航空航天和国防部门的攻击中使用工作主题诱饵，其目的是投放一个具有数据收集和二次有效载荷执行功能的间谍工具。\n\n网络安全公司 CyberArmor 指出，该恶意程序后门似乎此前从未公开记录过，允许威胁攻击者执行基本侦察，并投放额外的有效载荷来接管或远程控制机器。目前，尚不清楚与新发现活动相关的初始访问的确切模式，但是，研究人员已经获悉该组织利用鱼叉式网络钓鱼和社交工程攻击来激活感染链。\n据悉，攻击活动的起于一个 ZIP 压缩包（关于韩国军事历史），其中包含两个文件， 一个是韩文文字处理器文档和一个可执行文件。一旦受害者启动该可执行文件后，威胁攻击者控制的服务器就会立刻检索到一个 PowerShell 脚本，该脚本随即将被威胁攻击者导出到 GitHub 存储库，并通过 Windows 快捷方式 (LNK) 文件下载额外的 PowerShell 代码。\n\nZscaler 表示，研究人员发现创建于 2024 年 2 月 13 日的 GitHub 账户以 \"GoogleTranslate.crx \"为名短暂托管了 TRANSLATEXT 扩展，但其传输方式目前尚不清楚。安全研究员 Seongsu Park 也指出，这些文件于 2024 年 3 月 7 日出现在资源库中，但第二天就被删除了，此举意味着 Kimsuky 威胁组织试图尽量减少曝光率。\n\n值得一提的是，伪装成谷歌翻译的 TRANSLATEXT 主要包含 JavaScript 代码，可以绕过谷歌、Kakao 和Naver 等服务的安全措施，从而轻松窃取电子邮件地址、凭证和 cookie，捕获浏览器截图，以及盗取敏感数据信息。\n\n不仅如此，TRANSLATEXT Chrome 扩展程序还被威胁攻击者精心设计，用于从博客 Blogspot URL 获取命令，以便对新打开的标签页进行截图，删除浏览器中的所有 cookies 等。最后，完全专家强调，Kimsuky 威胁组织的主要目标之一是对韩国学术界和政府人员进行监视，以收集有价值的情报。\n\n参考文章：\n\nhttps://thehackernews.com/2024/06/kimsuky-using-translatext-chrome.html",
+  "content_hash": "sha256:387ea7432181089652924bd643f2ee821aa4803aa0beee0684f08d483f9249f3",
+  "published_at": "2024-07-01",
+  "retrieved_at": "2026-07-07T17:19:47Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_030",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_030.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

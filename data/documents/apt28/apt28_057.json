@@ -1,0 +1,39 @@
+{
+  "doc_id": "apt28_057",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2026/03/apt28-linked-campaign-deploys-badpaw.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "APT28-Linked Campaign Deploys BadPaw Loader and MeowMeow Backdoor in Ukraine",
+  "language": "en",
+  "clean_text": "Cybersecurity researchers have disclosed details of a new Russian cyber campaign that has targeted Ukrainian entities with two previously undocumented malware families named\nBadPaw\nand\nMeowMeow\n.\n\"The attack chain initiates with a phishing email containing a link to a ZIP archive. Once extracted, an initial HTA file displays a lure document written in Ukrainian concerning border crossing appeals to deceive the victim,\" ClearSky\nsaid\nin a report published this week.\nIn parallel, the attack chain leads to the deployment of a .NET-based loader called BadPaw, which then establishes communication with a remote server to fetch and deploy a sophisticated backdoor called MeowMeow.\nThe campaign has been attributed with moderate confidence to the Russian state-sponsored threat actor known as\nAPT28\n, based on the targeting footprint, the geopolitical nature of the lures used, and overlaps with techniques observed in previous Russian cyber operations.\nThe starting point of the attack sequence is a phishing email sent from ukr[.]net, likely in an attempt to establish credibility and secure the trust of targeted victims. Present in the message is a link to a purported ZIP file, causing the user to be redirected to a URL that loads an \"exceptionally small image,\" effectively acting as a tracking pixel to signal the operators that the link was clicked.\nOnce this step is complete, the victim is redirected to a secondary URL from where the archive is downloaded. The ZIP file includes an HTML Application (HTA) that, once launched, drops a decoy document as a distraction mechanism, while it executes follow-on stages in the background.\n\"The dropped decoy document serves as a social engineering tactic, presenting a confirmation of receipt for a government appeal regarding a Ukrainian border crossing,\" ClearSky said. \"This lure is intended to maintain the veneer of legitimacy.\"\nThe HTA file also carries out checks to avoid running within sandbox environments. It does this by querying the Windows Registry key \"KLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\InstallDate\" to estimate the \"age\" of the operating system. The malware is designed to abort execution if the system was installed less than ten days prior.\nShould the system meet the environment criteria, the malware locates the downloaded ZIP archive and extracts two files from it – a Visual Basic Script (VBScript) and a PNG image – and saves them to disk under different names. It also creates a scheduled task to execute the VBScript as a way of ensuring persistence on the infected system.\nThe primary responsibility of the VBScript is to extract malicious code embedded within the PNG image, an obfuscated loader referred to as BadPaw that's capable of contacting a command-and-control (C2) server to download additional components, including an executable named MeowMeow.\n\"Consistent with the 'BadPaw' tradecraft, if this file is executed independently of the full attack chain, it initiates a dummy code sequence,\" the Israeli cybersecurity company explained. \"This decoy execution displays a graphical user interface (GUI) featuring a picture of a cat, aligning with the visual theme of the initial image file from which the primary malware was extracted.\"\n\"When the 'MeowMeow' button within the decoy GUI is clicked, the application simply displays a 'Meow Meow Meow' message, performing no further malicious actions. This serves as a secondary functional decoy to mislead manual analysis.\"\nThe backdoor's malicious code is activated only when it's executed with a certain parameter (\"-v\") that's provided by the initial infection chain, and after checking that it's running on an actual endpoint as opposed to a sandbox, and no forensic and monitoring tools like Wireshark, Procmon, Ollydbg, and Fiddler are running in the background.\nAt its core, MeowMeow is equipped to remotely execute PowerShell commands on the compromised host and support file system operations, such as the ability to read, write, and delete data. ClearSky said it identified Russian language strings in the source code, reinforcing the assessment that the activity is the work of a Russian-speaking threat actor.\n\"The presence of these Russian-language strings suggests two possibilities: the threat actor committed an operational security (OPSEC) error by failing to localize the code for the Ukrainian target environment, or they inadvertently left Russian development artifacts within the code during the malware's production phase,\" it said.",
+  "content_hash": "sha256:877b01ddf8a73f17fd297a20d506cb68476e5501aa6a6ca5fb645c9f6ec327d1",
+  "published_at": "2026-03-05",
+  "retrieved_at": "2026-07-08T08:00:53Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "cyber espionage",
+    "cybersecurity",
+    "Malware",
+    "Phishing",
+    "Russia",
+    "Threat Intelligence",
+    "Ukraine",
+    "windows security",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_057",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_057.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

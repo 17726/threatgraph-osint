@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_053",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/news/383376.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "Lazarus 黑客多次入侵开发环境以部署 SIGNBT 恶意软件",
+  "language": "zh",
+  "clean_text": "近期，塞讯安全实验室在追踪Lazarus的攻击事件中发现它利用易受攻击的软件中的缺陷多次攻击软件供应商。尽管相关厂商开发人员多次提供补丁和警告，但Lazarus还是在众多事件中通过软件供应链攻击得手。\n\nLazarus 多次攻击同一受害者的事实表明，黑客的目的是窃取源代码或尝试供应链攻击。\n\n“这种反复出现的违规行为表明，攻击者持续且坚定，其目标可能是窃取有价值的源代码或篡改软件供应链，他们继续利用公司软件中的漏洞，同时针对其他软件制造商。”\n\n今年7月，Lazarus被发现攻击时使用了多种感染链和攻击后工具集。\n\n最近的一次攻击被归入了Lazarus在今年3月-8月期间针对多家软件供应商的攻击活动的更广泛范围内。\n\nSIGNBT和LPEClient恶意软件\n\nLazarus的攻击目标是用于加密网络通信的合法安全软件。然而，黑客所采用的具体利用方法仍然未知。\n\n该漏洞利用导致了SIGNBT恶意软件的部署以及用于将有效载荷注入内存以秘密执行的shellcode。\n\n通过将恶意DLL（“ualapi.dll”）添加到启动中以由“spoolsv.exe”执行或执行Windows注册表修改来建立持久性。\n\n恶意DLL文件在解密并从本地文件系统路径加载SIGNBT有效载荷之前执行受害者ID验证检查，以确保感染继续进行到预期目标。\n\nLazarus在攻击中使用的DLL侧载路径\n\nSIGNBT的名称源自其用于命令与控制 (C&C) 通信、发送有关受感染系统的信息并接收执行命令的不同字符串。\n\nSIGNBT支持的命令有：\n\nCCBrush：处理诸如获取系统信息、测试连接和配置设置等功能。\nCCList：管理进程，包括获取正在运行的进程列表、终止进程、运行文件和DLL操作。\nCCComboBox：与文件系统配合使用，例如获取驱动器列表、更改文件属性和创建新文件夹。\nCCButton：下载和上传文件，加载到内存中，并捕获屏幕。\nCCBitmap：实现常用的Windows命令和实用程序。\n\nSIGNBT还可以从C&C服务器获取额外的有效载荷并将其部署在主机上，为Lazarus提供操作上的更多功能。\n\nC&C服务器与SIGNBT之间的通信交换\n\n我们发现Lazarus利用SIGNBT上的该功能在受感染的系统上加载凭证Dump工具和LPEClient恶意软件。\n\n恶意软件加载过程\n\nLPEClient本身就是一个信息窃取程序和恶意软件加载程序，其最新版本与之前记录的样本相比有显著的演变。\n\n“它现在采用先进技术来提高其隐蔽性并避免检测，例如禁用用户模式系统调用Hook和恢复系统库内存部分。 ”\n\nLazarus在今年的其他攻击活动中整合了LPEClient，尽管它在早期感染阶段使用了该恶意软件来注入其他有效载荷。\n\nLazarus的多起攻击活动在2023年同时进行\n\n总体而言，Lazarus组织仍然是最活跃和最危险的威胁组织之一，其目标范围之广泛，横跨多个地区和行业。\n\n他们最近的行动凸显了他们精心定制的的策略和对目标实现持久性。广大企业则需要通过强调组织需要主动修补软件并防止漏洞被轻易利用来进行初始攻击。",
+  "content_hash": "sha256:1c7e134f585bc24403220f4be7a39e30ff15dfda2af9a9da4818b87040e32dbc",
+  "published_at": "2023-11-09",
+  "retrieved_at": "2026-07-07T16:59:58Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_053",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_053.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "doc_id": "kimsuky_012",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/news/271958.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "疑似Kimsuky APT组织利用韩国外交部为诱饵的攻击活动分析",
+  "language": "zh",
+  "clean_text": "概述\n\nKimsuky，别名Mystery Baby，Baby Coin，Smoke Screen，Black Banshe；是疑似具有东亚国家背景的APT组织。该团伙长期针对韩国政府、新闻机构等目标发起攻击活动。与Konni APT组织存在基础设施重叠等关联性。\n\n近日，奇安信红雨滴团队在日常高价值样本狩猎过程中，捕获多例疑似Kimsuky组织的攻击样本，此次捕获的样本以伪装成文档的恶意脚本文件为主，并以2021外交部驻外公馆服役相关情况调查问卷等为诱饵名，诱导受害者打开查看，一旦脚本被打开执行后，将释放展示正常的文档信息迷惑受害者，同时将释放执行远控木马到计算机执行。\n\n红雨滴团队高价值狩猎流程主动识别到APT团队相关样本\n\n样本分析\n基本信息\n\n捕获的样本诱饵名均是韩语，且都采用相似的恶意脚本进行攻击，样本基本信息如下：\n\n文件名\n\nMD5\n\n2021 외교부 재외공관 복무관련 실태 조사 설문지.hwp.js\n\n3a4ab11b25961becece1c358029ba611\n\n창공모델 성능개량 체계개발사업 현장확인자료 - 협력업체 배포용.wsf\n\n14b95dc99e797c6c717bf68440eae720\n\n样本以2021外交部驻外公馆服役相关情况调查问卷,数据确认为诱饵。执行脚本后释放展示的诱饵文档信息如下图所示。\n\n详细分析\n\n两例样本执行流程完全一致，此处以样本3a4ab11b25961becece1c358029ba611为例进行分析，该样本后缀为hwp.js，以此迷惑用户点开。\n\n脚本执行后先在本地%ProgramData%路径下新建文件0421.hwp.b64及temp.db.b64并写入base64编码后的数据。\n\n其中0421.hwp.b64为正常（诱饵）文档编码后的数据，temp.db.b64为恶意dll文件编码后的数据。\n\n之后恶意脚本将通过base64解码释放的文件，并将解码后的0421.hwp移动到当前目录显示以迷惑受害者，同时通过powershell执行命令调用启动temp.db。\n\n释放temp.db为带有upx压缩壳加壳的dll文件，该dll文件基本信息如下：\n\n文件名\n\ntemp.db\n\nMD5\n\n80a2bb7884b8bad4a8e83c2cb03ee343\n\n时间戳\n\n2021:04:18 16:37:50\n\ndll文件加载运行后，首先拷贝自身到如下路径：C:\\ProgramData\\Software\\Microsoft\\Windows\\Defender\\AutoUpdate.dll\n\n接着设置注册表Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run下名为WindowsDefenderAutoUpdate的项实现开机自启动，利用regsvr3*.exe加载AutoUpdate.dll后自删除。\n\nAutoUpdate.dll启动后创建名为” DropperRegsvr3*-20210418013743”的互斥体，防止多开。\n\n互斥体名中的时间结合PE头的时间戳，我们可以猜测该木马在2021年4月18日编译。\n\n之后向onedrive-upload.ikpoo[.]cf以POST方式发送当前上线包，内容包括当前计算机C盘序列号，当前windows版本号，系统位数，当前木马版本号：\n\n//?m=a&p1=C盘序列号&p2=windows版本号及位数-D_Regsvr3*-v2.0.74（木马版本号）。\n\n成功“通信”后，该恶意dll将尝试从服务器下载文件到C:\\ProgramData\\temp目录。\n\n程序将验证下载到本地的文件头部数据是否为“%PDF-1.7..4 0 obj”，若验证成功，则第一次解密到.enc文件：\n\n之后使用该key再进行RSA解密：\n\n后续根据解密的指令执行进程创建，PE解密内存自加载等操作：\n\n溯源与关联\n\n奇安信威胁情报中心红雨滴团队结合威胁情报中心ALPHA威胁分析平台，对此次攻击活动的手法，恶意代码等方面关联分析发现：此次攻击活动与Kimsuky APT团伙存在高度相似性，脚本样本与Kimsuky以往活动中使用的脚本一致，脚本对比代码如下图所示：\n\n同时释放执行的DLL样本代码结构也与Kimsuky组织常用的木马相似，对比如下图所示。\n\n综上所述，此次捕获的攻击样本幕后组织应为Kimsuky组织。\n\n总结\n\nKimsuky APT组织是一个长期活跃的攻击团伙，武器库十分强大，奇安信威胁情报中心红雨滴团队将持续关注披露相关攻击活动。同时，奇安信威胁情报中心提醒用户在日常的工作中，切勿随意打开来历不明的文件，不安装未知来源的APP，提高个人网络安全意识。\n\n目前，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括奇安信威胁情报平台（TIP）、天擎、天眼高级威胁检测系统、奇安信NGSOC等，都已经支持对此类攻击的精确检测。\n\nIOCs\n\n3a4ab11b25961becece1c358029ba611\n\n80a2bb7884b8bad4a8e83c2cb03ee343\n\n10b9702f8096afa8c928de6507f7ecfe\n\n14b95dc99e797c6c717bf68440eae720\n\n199674e87f437bdbd68884b155346d25\n\nonedrive-upload.ikpoo[.]cf\n\nalps.travelmountain.ml\n\nhttp://pootbal.med/ianewsonline.com/ro/ki.txt",
+  "content_hash": "sha256:e69161a8dead2592c4ebe7ad74cbbe5aa460cd57d0eb394e31f7ccd213a8e885",
+  "published_at": "2021-05-06",
+  "retrieved_at": "2026-07-07T17:21:08Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_012",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_012.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

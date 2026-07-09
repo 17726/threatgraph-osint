@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_045",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/articles/network/346141.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "Lazarus 滥用戴尔驱动程序漏洞部署 FudModule Rootkit",
+  "language": "zh",
+  "clean_text": "研究人员发现，臭名昭著的朝鲜黑客组织 Lazarus 部署了新的 Windows Rootkit，该恶意软件利用了戴尔驱动程序的漏洞。\n\n鱼叉邮件攻击在 2021 年秋季开始，已经确认荷兰的一名航空航天专家与比利时的一名政治记者被攻击。ESET 表示，本次攻击活动的主要目标是进行间谍活动与数据盗窃。\n\n滥用戴尔驱动程序进行攻击\n\n攻击者针对欧盟的攻击目标发送虚假的职位招聘信息，这在 2022 年是非常典型且常见的社会工程学技巧。打开文档就会从硬编码地址下载远程模板，加载后续恶意代码与后门。\n\n恶意文档\n\nESET 在报告中表示，攻击者所使用的全新 Rootkit 名为 FudModule，该恶意软件利用戴尔硬件驱动程序中的漏洞进行攻击。\n\n攻击者利用戴尔驱动程序中的 CVE-2021-21551 漏洞，获取读写内核内存的能力。ESET 也表示，这也是有记录以来首次在野发现对该漏洞的利用。\n\n攻击者直接操控内核内存来禁用 Windows 操作系统能够跟踪其的七种安全机制，如注册表、文件系统、进程创建、事件跟踪等，使安全解决方案失效。\n\nBYOVD 攻击\n\nBYOVD 攻击是指攻击者在 Windows 中加载合法的签名驱动程序，但这些驱动程序包含已知的漏洞。由于内核驱动程序已签名，Windows 系统将允许将驱动程序安装在操作系统中，攻击者从而利用驱动程序漏洞获取内核级权限。\n\n失效证书\n\nLazarus 利用了戴尔硬件驱动程序（dbutil_2_3.sys）中的漏洞（CVE-2021-21551），在戴尔推送安全更新前该漏洞已经存在了十二年。\n\n驱动程序\n\n2021 年 12 月，Rapid 7 的研究人员表示：“戴尔的修复并不完全，该驱动程序仍然是被攻击者青睐的目标”。看起来，Lazarus 的攻击者也非常了解该漏洞，并且在安全分析人员发布之前就开始有针对性的利用。\n\nBLINDINGCAN 与其他工具\n\nESET 也发现 Lazarus 组织在攻击行动中部署了自定义 HTTP(S) 后门 BLINDINGCAN，该后门最早由美国情报部门在 2020 年 8 月发现，并且在 2021 年 10 月被卡巴斯基正式归因为 Lazarus 攻击组织。\n\nESET 确定 BLINDINGCAN 后门支持 25 个命令，包括文件操作、命令执行、C&C 通信、屏幕截取、进程创建与系统信息泄露等。\n\n数据回传\n\n攻击活动中不仅有 Rootkit FudModule，还有用于数据泄露的上传工具。以及各种木马化的开源应用程序，如 wolfSSL 与 FingerText。\n\n将开源工具木马化是 Lazarus 的一贯风格，微软在研究报告中也提到了这一点。攻击者已经开始将魔爪伸向了 PuTTY、KiTTY、TightVNC、Sumatra PDF Reader 和 muPDF/Subliminal Recording 等程序。\n\n参考来源\n\nBleepingComputer",
+  "content_hash": "sha256:b511a19eea6336c500341e4f46b96c95b3ceded9bd33f0c143f00d1989293d8b",
+  "published_at": "2022-10-02",
+  "retrieved_at": "2026-07-07T16:58:42Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "基础安全",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_045",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_045.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

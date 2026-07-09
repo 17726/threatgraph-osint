@@ -1,0 +1,31 @@
+{
+  "doc_id": "apt28_003",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.freebuf.com/news/163945.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "战斗民族黑客入侵德国政府网络，并植入恶意软件",
+  "language": "zh",
+  "clean_text": "德国政府证实，黑客侵入其计算机网络并植入了恶意软件。 德国新闻机构DPA报道称，APT28组织（又名Fancy Bear，Pawn Storm，Sednit，Sofacy和Strontium）俄罗斯黑客侵入德国的外交和内政部的在线网络。\n\n该机构援引未透露姓名的来源表示，APT28黑客在内部网络中植入了恶意软件，而这些恶意代码在过去一年内都没有被任何人发现。\n\n美国广播公司报告称：“关于很多高层都知道的俄罗斯支持的黑客组织，已经能够渗透到德国政府的安全网络中， DPA 通讯社周三就已经报道过。”\n\n德国政府在去年十二月忠于发现了这起入侵事件，但专家判断黑客是在一年前入侵了网络。 德国内政部门表示该事件的证实仍在调查之中。DPA 通讯社补充道，黑客能够渗透到一个孤立的政府IT网络。\n\n“在联邦政府内部，攻击事件已经被孤立并受到控制。”内政部说，该事件也证实正在进行调查。该部门补充说：“这个案件正以最高优先级并且调用大量资源开展调查工作。”黑客窃取了17千兆字节的数据，可用于进一步攻击德国政府。\n\n与俄罗斯有联系的APT28组织已经不是第一次被指攻击德国网络，2015年，APT组织入侵了德国议会的系统。\n\n未来会发生什么？德国高级情报官员正要求政府在外国政府发起网络攻击的情况下，采取一定必要措施回击攻击者。\n\n*参考来源：securityaffairs，FB小编Andy编译，转载请注明来自FreeBuf.COM",
+  "content_hash": "sha256:e2a071388cba7349d91f60d1397cf1d3096e0c9dc8488b7512f504588ec5ab60",
+  "published_at": "2018-03-02",
+  "retrieved_at": "2026-07-07T16:21:10Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_003",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_003.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

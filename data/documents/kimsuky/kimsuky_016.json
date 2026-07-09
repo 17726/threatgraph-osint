@@ -1,0 +1,31 @@
+{
+  "doc_id": "kimsuky_016",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/consult/291250.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "Kimsuky武器库更新：利用新冠疫情为诱饵针对韩国地区的攻击活动分析",
+  "language": "zh",
+  "clean_text": "概述\n\nKimsuky，别名Mystery Baby、Baby Coin、Smoke Screen、Black Banshe等。是疑似具有东亚国家背景的APT组织。该团伙长期针对韩国政府、新闻机构等目标发起攻击活动。其通常使用社会工程学、鱼叉邮件、水坑攻击等手段投递恶意软件，拥有功能完善的恶意代码武器库。与Konni APT组织存在基础设施重叠等关联性。\n\n近日，奇安信红雨滴团队在日常高价值样本狩猎过程中，捕获疑似Kimsuky组织利用新冠疫情相关信息为诱饵针对韩国地区的攻击样本。根据红雨滴研究人员跟踪分析，此次的攻击活动有如下特点：\n\n诱饵目标为韩国某地方土地管理局。诱饵内容大概是该地区针对COVID-19疫情的处理流程和发热统计表格。\n使用PIF可执行文件格式伪装成PDF文件。\n使用了新版的远控软件。\n相关攻击未发现影响国内，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括威胁情报平台（TIP）、天眼高级威胁检测系统、NGSOC、奇安信态势感知等，都已经支持对此APT攻击团伙攻击活动的精准检测。\n样本分析\n\n相关恶意样本基础信息如下：\n\nMD5\n\n946f787c129bf469298aa881fb0843f4\n\n文件名\n\n210927 코로나 대응(보령-태안1)_취합_수정.PIF\n\n文件大小\n\n834.52 KB\n\n时间戳\n\n星期六, 11.09.2021 07:33:38 UTC\n\n原始样本释放的hwp文档诱饵如下：\n\n详细分析\n\n样本是一个伪装为PDF文档的PIF可执行文件，其是一个Loader，作用为释放诱饵和载荷。通过解密加密的字符串进行API函数地址获取。首先会遍历列表去匹配Library的名字。\n\n然后解密传入的API加密字符串和Library字符串。然后通过LoarLibrary和GetProcAddress获取函数。\n\n具体的解密函数如下，采用python3实现。\n\n读取文件自身，获取数据，最终在文件夹C:\\ProgramData\\写入诱饵文件和载荷，并运行。\n\n写入的文件如下图所示：\n\n启动载荷的参数如图所示为 “iDmzQtvReUSCdTn”。\n\n有效载荷信息如下\n\nMD5\n\ne33a34fa0e0696f6eae4feba11873f56\n\n文件名\n\nIcon.PIF\n\n时间戳\n\n星期六, 11.09.2021 01:13:44 UTC\n\n此载荷使用了相同密钥'zcgXlSWkj314CwaYLvyh0U_odZH8OReKiNIr-JM2G7QAxpnmEVbqP5TuB9Ds6fFtE'，相同解密流程。\n\n校验参数个数后，判断根据参数进行不同的操作。\n\n参数1：iDmzQtvReUSCdTn\n\n该参数为装载器启动默认参数，主要功能包括复制自身，注册开机启动注册表，启动拷贝后的程序并传入参数2。\n\n将自身拷贝到当前文件夹中的system32文件夹中，并更名为smss.exe。\n\n注册表参数如图所示，传入了参数2。\n\n然后再次运行拷贝后的程序，传入参数2，结束自身。\n\n参数2：zWbTLWgKymXMDwZ\n\n校验参数，参数如果为zWbTLWgKymXMDwZ的话，隐藏错误显示框。并再次判断参数个数，\n\n当使用参数2的时候且参数个数大于等于3，则会触发特定文件删除功能。写入大量空白数据，进行随机更名后然后删除文件。\n\n字符串解密，密钥为0x9F，8字节为一组。\n\n拼接字符串后，像发送函数传入参数进行网络连接测试。能正常接收信息后，进入功能分发处。\n\nRAT功能分发函数，疑似使用Base64解码和AES解密。\n\nuid后面接磁盘序列号，sep接特定字符，data获取到的数据。\n\nSep特定字符如下，该RAT目前只用了2，3的字符。\n\nC2命令如下表格所示\n\nC2命令\n\n功能\n\n3\n\n修改当前目录\n\n4\n\n修改文件日期\n\n5\n\n结束特定进程\n\n6\n\n获取进程权限\n\n7\n\n删除文件\n\n8\n\n创建新线程，破坏文件后删除\n\n9\n\n执行命令\n\n10\n\n注册DLL\n\n11\n\n加载插件\n\n12\n\n读取文件\n\n13\n\n写入文件\n\n14\n\n获取系统时间\n\n15\n\n获取系统时间\n\n16\n\n删除开机启动注册表\n\n17\n\n获取主机名，计算机名，适配器信息\n\n18\n\n获取上次获取全局信息时间\n\n19\n\n获取%temp%目录\n\n20\n\n读取PMS*文件信息（Unicode）\n\n21\n\n读取PMS*文件信息\n\n溯源与关联\n\n奇安信威胁情报中心分析人员通过对此次捕获样本所带的恶意代码、释放的木马文件进行分析后，判断本次攻击活动的幕后黑手为Kimsuky。\n\n此前Kimsuky组织使用的C&C地址所对应的IP地址与此次木马使用的IP地址相同，同为216.189.149.78。\n\n总结\n\n目前，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括威胁情报平台（TIP）、天眼高级威胁检测系统、NGSOC、奇安信态势感知等，都已经支持对此APT攻击团伙攻击活动的精准检测。\n\nIOCs\n\nMD5\n\n946f787c129bf469298aa881fb0843f4\n\ne33a34fa0e0696f6eae4feba11873f56\n\nURL\n\nmovie.youtoboo.kro.kr\n\nIP\n\n216.189.149.78:80",
+  "content_hash": "sha256:e1f47aeb36268f3287f87c323376e5782e9b2592b98f207872304abe67644e2b",
+  "published_at": "2021-10-12",
+  "retrieved_at": "2026-07-07T17:21:46Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "咨询",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_016",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_016.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

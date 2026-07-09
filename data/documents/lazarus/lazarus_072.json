@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_072",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/articles/483648.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "发现 Lazarus 组织的纯内存攻击工具集",
+  "language": "zh",
+  "clean_text": "安全研究人员近期发现一起针对国际金融机构的高度复杂网络间谍活动。Fox-IT 特别分析了一个由朝鲜黑客组织部署的危险执行框架，该恶意行动与 AppleJeus 和 Gleaming Pisces 等组织的历史活动存在重叠。值得注意的是，攻击者近期已弃用旧版的 ThemeForestRAT 和 PondRAT 植入程序，转而采用极其隐蔽的 Lazarus 纯内存工具集。这种架构升级最大限度地减少了在受感染主机设备上的常规数字痕迹。\n\n研究团队首先识别出三个协同工作的恶意软件组件：新发现的 DPAPILoader、RemotePELoader 以及最终的 RemotePE 植入程序。网络安全防御人员必须立即更新主动检测机制以保护系统安全。\n\n第一阶段：环境密钥验证\n\n初始入侵阶段依赖于专门的环境密钥文件加载器。攻击者将 DPAPILoader 作为动态链接库实现隐蔽驻留。在实际案例中，研究人员发现该文件以 lassvc.dll 名称存在于系统文件夹，并伪装成官方服务\"Internet Authentication Service\"实现开机自启。\n\n该加载器利用操作系统特性解密第二阶段载荷。报告指出：\"DPAPILoader 作为 DLL 实现，其核心功能是通过 DPAPI 从磁盘解密并加载加密载荷。\"例如，上传至 VirusTotal 的样本对安全研究人员完全无效。恶意软件会检查宿主进程并遍历特定设备元数据路径，通过反射机制将验证通过的文件载入系统内存。\n\n高级 EDR 规避与 C2 轮询\n\n执行流程随后进入威胁架构的第二阶段。RemotePELoader 作为攻击者控制的加载器，负责获取后续载荷。该程序在进行网络通信前会实施激进的规避技术：使用 HellsGate 变种扫描系统库中的原始存根，将核心库从可信内核映射重新映射以绕过用户模式安全钩子。\n\n分析显示：\"RemotePELoader 采用已知技术修补当前进程中的 EtwEventWrite() 函数，用特定字节覆盖使其立即返回零值。\"这种操作导致终端安全解决方案无法获取运行时进程事件。随后程序会与远程服务器建立加密 HTTP 通信循环。\n\nRemotePE：内存驻留远程访问能力\n\n轮询机制最终将第三阶段植入程序直接注入活动内存。RemotePE 被确认为使用 C++ 编写的完整远程访问木马，完全在 RAM 中运行且不向本地磁盘写入任何痕迹。其主线程处理与命令基础设施的出站连接，次线程处理攻击者指令。\n\n该木马包含安全删除敏感文件的专用例程，报告强调：\"RemotePE 实现了插件系统，允许攻击者在运行时动态注册 DLL 载荷。\"其文件删除功能会先用固定字节覆盖文件七次才执行删除，相较常规恶意软件更具破坏性。\n\n基础设施与运营模式\n\n该组织使用可靠的共享托管系统隐藏恶意流量，主要域名托管于 Namecheap。由于这些服务器同时托管合法网站，传统基于 IP 的封锁效果有限。网络数据包使用模仿微软生态的 HTTP Cookie 名称（如 MSCC 和 MicrosoftApplicationsTelemetryDeviceId），使恶意数据完美混入正常企业流量。\n\n取证分析揭示出独特的人工介入交付模式：操作员会在传输加密木马文件前手动审查连接。遥测数据显示，有效载荷投递几乎都发生在韩国标准时间的日间时段。\n\n企业安全防御建议\n\n企业需调整监控策略应对这类无文件威胁。传统基于磁盘的防病毒方案无法检测仅驻留内存的载荷，安全团队应转向全面的主机行为检测模型。报告建议管理员监控非常规目录路径中的异常 DPAPI 加密数据块，同时通过检查 SNI 字段和解析内部 DNS 日志来追踪已知命令基础设施。主动狩猎仍是预防 Lazarus 纯内存工具集造成重大数据泄露的最佳手段。\n\n参考来源：\n\nAdvanced Lazarus Memory-Only Toolset Deeply Analyzed by Fox-IT",
+  "content_hash": "sha256:d794ec43fdec9d5d2ec003fb28f6f6f110727d3e8fe6c4f79610e6d088399a75",
+  "published_at": "2026-05-29",
+  "retrieved_at": "2026-07-07T16:54:54Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "技术",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_072",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_072.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

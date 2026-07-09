@@ -1,0 +1,31 @@
+{
+  "doc_id": "apt28_026",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.freebuf.com/articles/447894.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "俄罗斯APT28组织新型Outlook后门GONEPOSTAL：利用电子邮件构建隐蔽C2通道",
+  "language": "zh",
+  "clean_text": "网络安全公司Kroll近日发现俄罗斯APT28（高级持续威胁28组，又称Fancy Bear）发起的新型间谍活动，该组织使用名为GONEPOSTAL的定制Outlook宏后门程序。这款恶意软件通过DLL侧加载（DLL Side-Loading）技术和Microsoft Outlook的VBA（Visual Basic for Applications）宏引擎，构建了基于电子邮件的隐蔽命令控制（C2）通道。\n\n攻击组织背景\n\nKroll将此次攻击归因于代号KTA007的组织，即广为人知的Fancy Bear、APT28或Pawn Storm。报告明确指出：\"KTA007是与俄罗斯军方总参谋部情报总局（GRU）第26165部队关联的、受国家支持的政治经济间谍组织。\"该组织\"战绩\"显赫，涉及2016年民主党全国委员会（DNC）数据泄露、国际奥委会（IOC）入侵以及挪威议会攻击等事件。\n\n攻击技术剖析\n\n攻击始于两个被提交分析的DLL文件：SSPICLI.dll和tmp7EC9.dll。其中恶意SSPICLI.dll伪装成微软同名合法动态链接库。\"该恶意DLL通过导出表将其105个库函数全部转发至随附的重命名DLL，使得调用该DLL的应用程序仍能正常运作。\"在此掩护下，攻击者的代码暗中执行PowerShell命令实施进一步渗透。\n\n恶意DLL的DLLMain函数会启动经过编码的PowerShell命令，其中关键指令包括：\n\n将预置文件testtemp.ini复制到Outlook配置目录并重命名为VbaProject.OTM（此后门激活的关键步骤）\n通过DNS和HTTP查询向攻击者控制的基础设施外传受害者用户名及IP地址\n持久化机制\n\n恶意软件通过修改Windows注册表键值强制Outlook启动时加载恶意宏：\n\nLoadMacroProviderOnBoot = 1启用宏加载功能\nLevel = 1将Outlook设置为\"启用所有宏\"\nPONT_STRING = \"32\"抑制通常会警告用户可疑内容的对话框\n\nKroll分析指出：\"通过启用注册表设置'LoadMacroProviderOnBoot'，GONEPOSTAL被加载到Microsoft Outlook中，该设置允许从VbaProject.OTM文件自动加载VBA。这使得后门程序能够利用电子邮件服务本身作为C2通道。\"\n\n后门工作流程\n启动阶段：在Outlook的MAPI登录事件时激活\n邮件监控：通过Application_NewMailEx()监听新邮件\n指令解析：识别含有编码指令的特殊C2邮件\n命令执行：运行指令、窃取文件并将数据分块隐藏在邮件附件中外传\n痕迹清除：从收件箱和已删除文件夹中清除处理过的C2邮件\n\n这种\"就地取材\"（Living off the Land）的攻击手法滥用合法电子邮件流量，使得检测变得异常困难。\n\n攻击特征与防御建议\n\n该恶意软件专为间谍活动设计，主要功能包括：\n\n远程文件操作\nPowerShell命令执行\n隐蔽文件传输\n通过伪装成正常邮件的编码附件外传数据\n\nKroll强调：\"此次活动完美展示了如何利用常见商业工具和通信方式实现命令控制。通过合法渠道拦截电子邮件并植入工具，形成了难以检测的隐蔽访问方式。\"\n\n企业应重点监控以下异常行为：\n\n异常的Outlook宏活动\n可疑的注册表修改\n非常规的电子邮件收发模式\n\nAPT28持续创新攻击手法，此次将Microsoft Outlook改造成间谍后门的案例，再次巩固了其作为全球最具实力国家支持网络攻击组织的声誉。\n\n参考来源：\n\nGONEPOSTAL: New Outlook Backdoor by Russia’s APT28 Uses Email for C2",
+  "content_hash": "sha256:86a9ef880ad4a8fcca9b3dc706e40e7bd035e0f76224b2ff970614f3f949228f",
+  "published_at": "2025-09-10",
+  "retrieved_at": "2026-07-07T16:19:07Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "技术",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_026",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_026.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

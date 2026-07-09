@@ -150,7 +150,7 @@ def validate_relation_matrix(payload: dict[str, Any], report: ValidationReport) 
 def validate_text_span(
     *,
     item: dict[str, Any],
-    raw_text: str,
+    clean_text: str,
     item_path: str,
     report: ValidationReport,
 ) -> None:
@@ -159,8 +159,8 @@ def validate_text_span(
         report.add_error(f"{item_path}: evidence_text 不能为空")
         return
 
-    if evidence_text not in raw_text:
-        report.add_error(f"{item_path}: evidence_text 未出现在 document.raw_text 中")
+    if evidence_text not in clean_text:
+        report.add_error(f"{item_path}: evidence_text 未出现在 document.clean_text 中")
         return
 
     char_start = item.get("char_start")
@@ -173,10 +173,10 @@ def validate_text_span(
     if not isinstance(char_start, int) or not isinstance(char_end, int):
         report.add_error(f"{item_path}: char_start 和 char_end 必须是整数或 null")
         return
-    if not (0 <= char_start < char_end <= len(raw_text)):
-        report.add_error(f"{item_path}: 字符范围 {char_start}:{char_end} 超出 raw_text")
+    if not (0 <= char_start < char_end <= len(clean_text)):
+        report.add_error(f"{item_path}: 字符范围 {char_start}:{char_end} 超出 clean_text")
         return
-    if raw_text[char_start:char_end] != evidence_text:
+    if clean_text[char_start:char_end] != evidence_text:
         report.add_error(f"{item_path}: 字符范围与 evidence_text 不一致")
 
 
@@ -185,12 +185,12 @@ def validate_document_alignment(
 ) -> None:
     doc_id = payload.get("doc_id")
     document_doc_id = document.get("doc_id")
-    raw_text = document.get("raw_text", "")
+    clean_text = document.get("clean_text") or document.get("raw_text", "")
 
     if doc_id != document_doc_id:
         report.add_error(f"doc_id 不一致: result={doc_id!r}, document={document_doc_id!r}")
-    if not raw_text:
-        report.add_error("document.raw_text 不能为空")
+    if not clean_text:
+        report.add_error("document.clean_text 不能为空")
         return
 
     for chunk_index, chunk in enumerate(payload.get("chunks", [])):
@@ -201,14 +201,14 @@ def validate_document_alignment(
         for entity_index, entity in enumerate(chunk.get("entities", [])):
             validate_text_span(
                 item=entity,
-                raw_text=raw_text,
+                clean_text=clean_text,
                 item_path=f"{chunk_id}.entities[{entity_index}]",
                 report=report,
             )
         for relation_index, relation in enumerate(chunk.get("relations", [])):
             validate_text_span(
                 item=relation,
-                raw_text=raw_text,
+                clean_text=clean_text,
                 item_path=f"{chunk_id}.relations[{relation_index}]",
                 report=report,
             )

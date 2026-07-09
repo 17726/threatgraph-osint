@@ -1,0 +1,32 @@
+{
+  "doc_id": "kimsuky_056",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://thehackernews.com/2023/05/n-korean-kimsuky-hackers-using-new.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "N. Korean Kimsuky Hackers Using New Recon Tool ReconShark in Latest Cyberattacks",
+  "language": "en",
+  "clean_text": "The North Korean state-sponsored threat actor known as\nKimsuky\nhas been discovered using a new reconnaissance tool called\nReconShark\nas part of an ongoing global campaign.\n\"[ReconShark] is actively delivered to specifically targeted individuals through spear-phishing emails, OneDrive links leading to document downloads, and the execution of malicious macros,\" SentinelOne researchers Tom Hegel and Aleksandar Milenkoski\nsaid\n.\nKimsuky\nis also known by the names APT43, ARCHIPELAGO, Black Banshee, Emerald Sleet (previously Thallium), Nickel Kimball, and Velvet Chollima.\nActive since at least 2012, the\nprolific\nthreat actor\nhas been linked to\ntargeted\nattacks\non non-governmental organizations (NGOs), think tanks, diplomatic agencies, military organizations, economic groups, and research entities across North America, Asia, and Europe.\nThe latest intrusion set documented by SentinelOne leverages geopolitical themes related to North Korea's nuclear proliferation to activate the infection sequence.\n\"Notably, the spear-phishing emails are made with a level of design quality tuned for specific individuals, increasing the likelihood of opening by the target,\" the researchers said. \"This includes proper formatting, grammar, and visual clues, appearing legitimate to unsuspecting users.\"\nThese messages contain links to booby-trapped Microsoft Word documents hosted on OneDrive to deploy ReconShark, which chiefly functions as a recon tool to execute instructions sent from an actor-controlled server. It's also an evolution of the threat actor's BabyShark malware toolset.\n\"It exfiltrates system information to C2 server, maintains persistence on the system, and waits for further instruction from the operator,\" Palo Alto Networks Unit 42\nsaid\nin its analysis of BabyShark in February 2019.\nReconShark is specifically designed to exfiltrate details about running processes, deployed detection mechanisms and hardware information, suggesting that data gathered from the tool is used to carry out \"precision attacks\" involving malware tailored to the targeted environment in a manner that sidesteps detection.\nThe malware is also capable of deploying additional payloads from the server based on \"what detection mechanism processes run on infected machines.\"\nFurthermore, ReconShark, unlike previous variants, does not save the harvested information on the file system, instead opting to store the data in string variables and uploading it to the C2 server by issuing HTTP POST requests.\nThe findings add to growing evidence that the threat actor is actively shifting its tactics to get a foothold on compromised hosts, establish persistence, and stealthily gather intelligence for extended periods of time.\n\"The ongoing attacks from Kimsuky and their use of the new reconnaissance tool, ReconShark, highlight the evolving nature of the North Korean threat landscape,\" SentinelOne said.",
+  "content_hash": "sha256:0e9529edab7e91488c77fc3a4c33a49b9fc5a1743c9a457a4a2b675f37da6083",
+  "published_at": "2023-05-05",
+  "retrieved_at": "2026-07-08T08:21:32Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "Kimsuky",
+    "North Korean hackers",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_056",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_056.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

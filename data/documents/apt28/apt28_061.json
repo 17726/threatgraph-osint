@@ -1,0 +1,42 @@
+{
+  "doc_id": "apt28_061",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2026/04/russian-state-linked-apt28-exploits.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "Russian State-Linked APT28 Exploits SOHO Routers in Global DNS Hijacking Campaign",
+  "language": "en",
+  "clean_text": "The Russia-linked threat actor known as\nAPT28\n(aka Forest Blizzard) has been linked to a new campaign that has compromised insecure MikroTik and TP-Link routers and modified their settings to turn them into malicious infrastructure under their control as part of a cyber espionage campaign since at least May 2025.\nThe large-scale exploitation campaign has been\ncodenamed\nFrostArmada\nby Lumen's Black Lotus Labs, with Microsoft\ndescribing\nit as an effort to exploit vulnerable home and small office (SOHO) internet devices to hijack DNS traffic and enable passive collection of network data.\n\"Their technique modified DNS settings on compromised routers to hijack local network traffic to capture and exfiltrate authentication credentials,\" Black Lotus Labs said in a report shared with The Hacker News.\n\"When targeted domains were requested by a user, the actor redirected traffic to an attacker-in-the-middle (AitM) node, where those credentials were harvested and exfiltrated. This approach enabled a nearly invisible attack that required no interaction from the end user.\"\nThe infrastructure associated with the campaign has been disrupted and taken offline as part of a joint operation in collaboration with the U.S. Department of Justice (DoJ), Federal Bureau of Investigation (FBI), and other international partners.\nIn a press statement announcing the court-authorized technical operation neutralizing the U.S. portion of the network, the U.S. DoJ said the DNS hijacking operation allowed Russian intelligence agencies to target individuals of interest to the Kremlin, including those in the military, government, and critical infrastructure sectors. The law enforcement effort has been codenamed Operation Masquerade.\nThe activity is assessed to have commenced as far back as May 2025 in a limited capacity, followed by widespread router exploitation and DNS redirection commencing in early August. At its peak in December 2025, more than 18,000 unique IP addresses from no less than 120 countries were found communicating with APT28 infrastructure.\nThese efforts primarily singled out government agencies, such as ministries of foreign affairs, law enforcement, and third-party email and cloud service providers across North African, Central American, Southeast Asian, and European countries.\nThe Microsoft Threat Intelligence team, in its analysis of the campaign, attributed the activity to APT28 and its sub-group tracked as Storm-2754. The tech giant said it identified more than 200 organizations and 5,000 consumer devices impacted by the threat actor's malicious DNS infrastructure.\n\"For nation-state actors like Forest Blizzard, DNS hijacking enables persistent, passive visibility and reconnaissance at scale,\" Redmond said. \"By compromising edge devices that are upstream of larger targets, threat actors can take advantage of less closely monitored or managed assets to pivot into enterprise environments.\"\nThe DNS hijacking activity has also facilitated AitM attacks that made it possible to facilitate the theft of passwords, OAuth tokens, and other credentials for web and email-related services, putting organizations at risk of broader compromise.\nThe development marks the first time the adversarial collective has been observed using DNS hijacking at scale to support AiTM of Transport Layer Security (TLS) connections after exploiting edge devices, Microsoft added.\nAt a high level, the attack chain involves APT28 gaining remote administrative access to SOHO devices and changing default network configurations to use DNS resolvers under its control. The malicious reconfiguration causes the devices to send their DNS requests to actor-controlled servers.\nThis, in turn, causes DNS lookups for email applications or login pages to be resolved by the malicious DNS server. The threat actor then attempts to conduct AitM attacks against those connections to steal user account credentials by tricking the victims into connecting to malicious infrastructure.\nSome of these domains are associated with Microsoft Outlook on the web. Microsoft said it also identified AitM activity aimed at non-Microsoft hosted servers in at least three government organizations in Africa.\n\"It is believed that the DNS hijacking operations are opportunistic in nature, with the actor gaining visibility of a large pool of candidate target users then filtering down users at each stage in the exploitation chain to triage for victims of likely intelligence value,\" the U.K. National Cyber Security Centre (NCSC)\nsaid\n.\nAPT28 is said to have exploited TP-Link WR841N routers for its DNS poisoning operations by likely taking advantage of\nCVE-2023-50224\n(CVSS score: 6.5), an authentication bypass vulnerability that could be used to extract stored credentials via specially crafted HTTP GET requests.\nPer the DoJ, threat actors affiliated with Military Unit 26165 of the Main Directorate of the General Staff of the Armed Forces of the Russian Federation (GRU) have exploited known security vulnerabilities to steal credentials for thousands of TP-Link routers worldwide since at least 2024, using them to redirect DNS requests to GRU-controlled servers.\n\"The actors then implemented an automated filtering process to determine which DNS requests were of interest and warranted interception,\" the DoJ\nsaid\n. \"For select targets, the GRU's DNS resolvers provided fraudulent DNS records for specific domains that mimicked legitimate services – including Microsoft Outlook Web Access – to facilitate Actor-in-the-Middle attacks against encrypted victim network traffic.\"\nAccording to the FBI, APT28 \"\nindiscriminately compromised\n\" a broad set of U.S. and global victims and then filtered down impacted users, particularly targeting information related to military, government, and critical infrastructure.\nA second cluster of servers has been found to receive DNS requests via compromised routers and subsequently forward them to remote actor-owned servers. This cluster is also assessed to have engaged in interactive operations targeting a small number of MikroTik routers located in Ukraine.\n\"Forest Blizzard's DNS hijacking and AitM activity allows the actor to conduct DNS collection on sensitive organizations worldwide and is consistent with the actor's longstanding remit to collect espionage against priority intelligence targets,\" Microsoft said.\n\"Although we have only observed Forest Blizzard utilizing their DNS hijacking campaign for information collection, an attacker could use an AiTM position for additional outcomes, such as malware deployment or denial of service.\"",
+  "content_hash": "sha256:50ad647b64e4d3c0898700de92f0a1a4c97d7ef6cde93e76f3a8c41587754b04",
+  "published_at": "2026-04-07",
+  "retrieved_at": "2026-07-08T08:00:46Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "botnet",
+    "cyber espionage",
+    "DNS hijacking",
+    "DOJ",
+    "Fancy Bear",
+    "FBI",
+    "Forest Blizzard",
+    "Lumen Technologies",
+    "Microsoft",
+    "network security",
+    "Threat Intelligence",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_061",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_061.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

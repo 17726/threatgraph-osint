@@ -1,0 +1,31 @@
+{
+  "doc_id": "kimsuky_039",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/articles/447368.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "朝鲜黑客组织利用社交工程与AppleSeed恶意软件对韩国实施间谍活动",
+  "language": "zh",
+  "clean_text": "Genians安全中心(GSC)近日发布分析报告，详细披露了与朝鲜有关的黑客组织Kimsuky发起的新一轮高级持续性威胁(APT)攻击行动。该行动与长期活跃的AppleSeed恶意软件家族相关联，显示出攻击者正不断升级渗透手段，专门针对韩国的国防、社会活动家及涉朝事务相关群体。\n\n多平台社交工程攻击链\n\n报告指出：\"GSC在2025年3月至4月期间检测到针对韩国Facebook、电子邮件和Telegram用户的APT攻击活动...经溯源确认，此次攻击由朝鲜政府背景的知名黑客组织Kimsuky发起。\"\n\n攻击者采用三阶段通信渠道建立信任并投递恶意软件：\n\nFacebook：使用包括\"过渡期正义使命\"在内的虚假账号发送好友请求和消息，以\"支援朝鲜脱北者志愿者活动\"等话题接触受害者。恶意文件通过密码保护的EGG压缩包分享，以绕过移动平台检测。\n电子邮件：建立联系后，攻击者索要个人邮箱地址投递后续载荷。GSC强调：\"攻击中使用的恶意文件结构完全相同，且持续利用'支援脱北者志愿者'主题实施欺骗。\"\nTelegram：获取受害者手机号后，攻击者将对话转移至加密通讯应用，进一步拓展攻击渠道。\n\n这种持续性策略被GSC称为\"协同多通道攻击\"，充分利用人际关系和脱北者相关叙事实施渗透。\n\n攻击流程图 | 图片来源：GSC\n\nAppleSeed后门技术解析\n\n本次攻击的核心载荷是伪装成\"脱北者志愿者支援.jse\"合法文件的AppleSeed后门程序。该.jse脚本执行时会：\n\n释放诱饵PDF文档掩盖恶意行为\n通过regsvr32.exe创建并运行Base64编码的DLL文件\n在注册表中创建计划任务项(TripServiceUpdate)实现持久化驻留\n\nGSC分析指出：\"该恶意软件是通过regsvr32加载DLL执行的远程访问木马(RAT)，采用RC4和RSA加密收集系统信息，接收C2服务器指令执行操作并回传结果。\"\n\n攻击者使用woana.n-e[.]kr域名作为命令控制(C2)基础设施，维持与受控系统的持续数据交换。\n\n针对性规避技术\n\n攻击中采用多项独特技术：\n\n韩国特色文件格式：使用ALZip专属的EGG压缩格式降低全球杀毒软件的检出率，迫使受害者在PC端打开文件\n混淆技术：脚本包含随机变量名和自定义Base64伪装\nVMProtect加壳：DLL文件经加壳处理抵抗逆向分析\nPDF伪装：窃取数据以.pdf文件为掩护进行外传\n\n攻击者还特别确保恶意压缩包无法在移动设备上直接打开，体现其针对Windows系统的精确打击策略。\n\nGSC警告称：\"用户应始终保持对意外链接或文件的警惕，这些都可能包含威胁。养成安全防范习惯是网络防护的关键。\"\n\n参考来源：\n\nKimsuky APT Is Using Social Engineering and AppleSeed Malware to Spy on South Korea",
+  "content_hash": "sha256:1ce3c440cdfb9e8f8a96cfeefa991b5eadfc7fc0ad60318ffc1d94b08f7ad798",
+  "published_at": "2025-09-05",
+  "retrieved_at": "2026-07-07T17:18:23Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "技术",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_039",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_039.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

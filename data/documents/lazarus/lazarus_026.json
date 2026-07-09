@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_026",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/articles/network/263957.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "Lazarus APT攻击手法之利用Build Events特性执行代码复现",
+  "language": "zh",
+  "clean_text": "近日，Google\nTAG安全部门披露了一起利用推特等社交媒体针对不同公司和组织从事漏洞研究和开发的安全研究人员的社会工程学攻击事件，经绿盟科技伏影实验室分析，确认此次事件为Lazarus组织针对网络安全行业的一次针对性网络攻击，并猜测其可能有更深层次的攻击意图和行动。绿盟科技攻击对抗技术研究团队M01N\nTeam也针对此次事件展开了全面的分析研判，认定本次事件是一个典型的“明修栈道、暗渡陈仓”社会工程学攻击事件，也将在本文中揭秘该事件中Lazarus组织使用的一种新型间接命令执行攻击技术。\n\nLazarus组织是一支来自朝鲜半岛的APT组织。该组织自2007年就开始活跃，长期对韩国、中国、美国、印度等国家进行攻击活动。据国外安全公司的调查显示，Lazarus组织与2014年索尼影业遭黑客攻击事件，2016\n年孟加拉国银行数据泄露事件，2017年美国国防承包商、美国能源部门及英国、韩国等比特币交易所被攻击等事件有关。2017年席卷全球的最臭名昭著的安全事件“Wannacry”勒索病毒也被怀疑是该组织所为。\n\n绿盟科技\nhttps://mp.weixin.qq.com/s/7RwH5_h1rGn3MxGIngal6A\n\n具体的攻击手法是”养号“，然后诱骗安全研究人员下载他们带有恶意代码的POC，在编译的时候会触发的恶意命令和代码。\n\nLazarus组织的攻击者伪装成安全研究人员建立了一个研究博客和多个Twitter账号，这些伪装账号大都打上了Web开发、浏览器漏洞挖掘、Windows内核安全甚至CTF选手等一些身份标签，并会发布一些安全研究动态，同时相互评论转发来扩大影响力。\n\n另外他们的博客(https://blog.br0vvnn[.]\nio)发表了多个已公开披露的漏洞分析文章，还包含一些不知情安全研究人员的来访评论，以图在安全研究人员中建立更高的信任度。\n\n在建立了一定的研究影响力后，攻击者会主动寻找目标安全研究人员进行交流，并表达希望在漏洞研究方面进行更深入合作和交流的想法。此后攻击者便会向安全研究人员分享了一个Visual\nStudio的项目工程文件，该项目文件明为一些漏洞的POC代码，暗则是包含了等待目标研究员编译执行来触发的恶意命令和代码。\n\n绿盟科技\nhttps://mp.weixin.qq.com/s/7RwH5_h1rGn3MxGIngal6A\n\n从绿盟科技的文章中我们可以知道事件的背景和一些信息。\n\n我们从公开的报告中可以知道Lazarus组织的利用编译事件（Build Events）的攻击方法，接下来我们一起复现一下这个手法吧。\n\n我们先来查看一下在微软文档中关于编译事件（Build Events）的资料\n\nBy specifying a custom build event, you can automatically run commands\nbefore a build starts or after it finishes. For example, you can run a\n.bat file before a build starts or copy new files to a folder after\nthe build is complete. Build events run only if the build successfully\nreaches those points in the build process.\n\nhttps://docs.microsoft.com/en-us/visualstudio/ide/specifying-custom-build-events-in-visual-studio?view=vs-2019\n\n微软文档中说“通过指定自定义构建事件，我们可以在构建开始之前或构建完成之后自动运行命令，仅当构建成功达到构建过程中的那些点时，构建事件才会运行”，例如：\n\n可以在构建开始之前运行.bat文件，或者在构建完成后将新文件复制到文件夹中。\n\n这个不难理解。\n\n我们继续看微软文档中的资料可以知道Build Events具有3种事件，分别为：\n\n1.Pre-build event command line 预先生成事件；在编译前执行自定义任务\n\n指定在构建开始之前要执行的所有命令，如果项目是最新的并且未触发任何构建，则预构建事件不会运行。\n\n2.Post-build event command line 预链接事件；在链接前执行自定义任务\n\n指定在构建结束后要执行的所有命令\n\n3.Run the post-build event 后期生成事件；在编译完成后执行自定义任务\n\n在这个中具有以下参数：\n选项 结果\n总是 无论构建是否成功，都会运行构建后事件。\n成功构建 如果构建成功，则将运行构建后事件。因此，只要构建成功，该事件甚至将针对最新的项目运行。\n当构建更新项目输出时 仅当编译器的输出文件（.exe或.dll）不同于先前的编译器输出文件时，才会运行构建后事件。因此，如果项目是最新的，则不会运行构建后事件。\nhttps://docs.microsoft.com/en-us/visualstudio/ide/reference/build-events-page-project-designer-csharp?view=vs-2019\n\n其中在微软文档中也给出了对应的XML 元素，有兴趣的同学可以自行看看\n\n在Lazarus组织中是利用Visual Studio进行利用的，那么我们来复现一下利用手法：\n\n1.打开Visual Studio\n2.新建一个项目\n3.进入项目的属性\n\n就可以看到了，正如上面看到的具有3种事件\n\n我们来利用一下第一种事件看看\n\n第一种可以直接执行命令行也可以执行宏代码：\n\n这里简单复现一下，就不讨论宏代码的一个情况了。\n\n在cobalt strike种直接生成powershell的恶意脚本。\n\n把命令放在visual studio中\n\n应用然后编译\n\n可以看到直接上线。\n\n然后是第2种，电脑比较卡，所以我就不上线cobalt strike了，我们使用弹计算器来证明可利用吧\n\n编译\n\n同理，第3种也是\n\n我们也可以在项目文件中直接添加我们需要执行的命令\n\n打开项目目录可以看到\n\n其中以.vcxproj结尾的文件就是我们需要利用的文件。\n\n*.vcxproj：VS2010以及VS2010之后版本的VS工程文件\n\n这里使用notepad++打开，这个文件其实也是一个xml文件。\n\nok 我们直接查找PreBuildEvent，PreLinkEvent，PostBuildEvent这3个xml元素\n\n这里以PreBuildEvent进行利用\n\n可以看到在PreBuildEvent 具有参数，这里就是可以执行命令的地方，\n\n保存一下然后导进vs中进行编译\n\n这里再分享一个手法吧 我看到网上的分析文章都是说PreBuildEvent，PreLinkEvent，PostBuildEvent这三个利用点，都是其实还有一个的地方可以给我们利用\n\n我们可以回看到.vcxproj文件，然后全局查找一下Command可以发现具有4个Command参数，\n\n除了3个我们说过的之外，还有一个在中\n\n添加我们需要执行的命令\n\n保存然后编译一下，但是发现并不能成功利用，通过查看微软文档知道我们还需要构建一个输出叁数。\n\n然后编译，弹出计算机\n\n图形化的利用在\n\n理论上所有的IDE都能这样利用，我们可以看一下在Microsoft Visual中的利用过程吧\n\n打开vc然后新建一个工程，在上面的工具栏找到工程然后是设置\n\n在命令中填入我们需要执行的命令\n\n我这里就弹计算机吧 然后编译成exe\n\n在编译的时就会执行我们的命令。\n\n当然这个也有3种：\n\n1.自定义构建\n2.pre-link步骤\n3.Post-bulid步骤\n\n在自定义步骤中的参数有2个\n分别是命令和输出\n\n命令可以放我们的shellcode 输出的话都可以的\n\n同样也是可以执行我们的命令的\n\n同理 post-bulid也是可以执行命令的\n\n在后面翻资料的时候发现了一个有意思的文章\n\n在前面的Visual Studio中我复现了这个APT的手法，我们可以再一次看微软文档发现在Visual Studio存在一个引擎--Microsoft Build Engine\n\nThe Microsoft Build Engine is a platform for building applications.\nThis engine, which is also known as MSBuild, provides an XML schema\nfor a project file that controls how the build platform processes and\nbuilds software. Visual Studio uses MSBuild, but MSBuild doesn't\ndepend on Visual Studio. By invoking msbuild.exe on your project or\nsolution file, you can orchestrate and build products in environments\nwhere Visual Studio isn't installed.\n\nVisual Studio uses MSBuild to load and build managed projects. The\nproject files in Visual Studio (.csproj, .vbproj, .vcxproj, and\nothers) contain MSBuild XML code that executes when you build a\nproject by using the IDE. Visual Studio projects import all the\nnecessary settings and build processes to do typical development work,\nbut you can extend or modify them from within Visual Studio or by\nusing an XML editor.\n\n不难理解，MSBuild可以在未安装Visual Studio的环境中编排和构建产品（可以简单理解为执行可以代码），而且Visual Studio使用MSBuild加载和生成托管项目。例如：Visual Studio中的项目文件.csproj，.vbproj，.vcxproj等，\n\n在.NET Framework 4.0中支持了一项新功能”Inline Tasks”，被包含在元素UsingTask中，可用来在xml文件中执行c#代码\n\n这里是不是看着很眼熟？哈哈哈\n\n没错，前面我们在复现这个APT组织的手法中知道了我们那个利用点就是.vcxproj文件，那么我们可以脱离VS来进行利用。\n\n我们去微软中下载msbuild.exe 当然在.net中我们也能查找到\n\n利用起来也不难 在MSF中可以直接生成利用代码\n\n我们使用Microsoft\nVisualStudio创建以MSBuild格式保存的、带有*.csproj后缀的C#代码，以便可以使用MSBuild平台将其编译为可执行程序。借助于一个恶意的构建的过程，我们可以获得受害者计算机的反向shell。接下来，我们要生成file.csproj文件，为此，首先需要通过msfvenom生成一个基于C#的shellcode。之后，将该shellcode放入我们的file.csproj中，具体如下所示。\n\n具体的利用手法前辈们总结好了\n\nhttps://www.cnblogs.com/backlion/p/10490573.html\n\n这里补充一些利用手法吧\n\n执行powershell命令\n\n这里参考3gstudent和Casey的手法，但是Casey给出的POC挂了，所以我们可以使用3gstudent的POC来进行利用\n\nhttps://github.com/3gstudent/msbuild-inline-task/blob/master/executes%20PowerShellCommands.xml\n\n未完。。。。。。。。",
+  "content_hash": "sha256:466eaaa7aeb41634bcf47d6d6b9be35afc8666b5ea49087d0676b87ba84b34f7",
+  "published_at": "2021-02-21",
+  "retrieved_at": "2026-07-07T17:00:57Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "基础安全",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_026",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_026.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

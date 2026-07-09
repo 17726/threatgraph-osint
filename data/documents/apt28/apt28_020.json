@@ -1,0 +1,31 @@
+{
+  "doc_id": "apt28_020",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.freebuf.com/news/392782.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "俄罗斯APT28组织隐秘攻击Ubiquiti路由器，以逃避安全检测",
+  "language": "zh",
+  "clean_text": "Bleepingcomputer网站消息，近日，美国联邦调查局与国家安全局、美国网络司令部及国际合作伙伴联合发布警告称，俄罗斯军方黑客正通过被入侵的Ubiquiti EdgeRouters来逃避检测。\n\n早在2018年4月，美国和英国当局已经联合发布报告称，俄罗斯黑客正在攻击家用及企业级路由器。该报告强调，俄罗斯黑客长期以来一直将互联网路由器作为攻击目标，通过这些设备发起中间人攻击以支持其间谍活动，保持对受害者网络的持续访问，并为进一步的攻击活动奠定基础。\n\n这些黑客属于俄罗斯总参谋部情报总局（GRU）下的26165军事单位，也被称为APT28和Fancy Bear。他们利用这些受到攻击的路由器创建了大型的僵尸网络，以便窃取登录凭证、搜集NTLMv2认证信息，并用作恶意流量的中转站。\n\n此外，在针对全球各地的军事、政府及其他机构的秘密网络行动中，APT28还利用EdgeRouters部署定制工具和设置钓鱼网站的登陆页面。\n\n联合警告指出，EdgeRouters通常以默认的登录凭据出售，并且为了方便无线互联网服务提供商（WISPs）的使用，这些路由器的防火墙保护非常有限或几乎不存在。除非用户进行设置，否则EdgeRouters不会自动更新其固件。\n\n本月早些时候，美国联邦调查局（FBI）破坏了一个由网络罪犯创建的僵尸网络，该网络由感染了Moobot恶意软件的Ubiquiti EdgeRouters组成。虽然被破坏的僵尸网络与APT28无关，但后来该组织重新利用这些路由器，构建了一个具有全球影响力的网络间谍工具。\n\n在调查被黑路由器的过程中，FBI发现了各种APT28发起攻击使用的多种工具和痕迹，其中包括用来窃取网络邮件凭据的Python脚本、用来搜集NTLMv2认证摘要的程序，以及自动将钓鱼流量重定向到攻击专用基础设施的定制路由规则。\n\nAPT28\n\nAPT28是一个声名狼藉的俄罗斯黑客组织，自成立以来，已经被查明是多起高调网络攻击的幕后黑手。\n\n2016年，该组织入侵了德国联邦议院（Deutscher Bundestag），并在美国总统选举前对民主党国会竞选委员会（DCCC）和民主党全国委员会（DNC）发起了攻击。\n\n两年后（即2018年），APT28成员因参与DNC和DCCC的攻击在美国被起诉。\n\n2020年10月，欧洲联盟理事会因APT28成员参与德国联邦议院黑客事件对其实施了制裁。\n\n如何“恢复”被入侵的Ubiquiti EdgeRouters\n\nFBI及其合作机构在通告中建议采取以下措施，以消除恶意软件感染并阻止APT28访问被入侵的路由器：\n\n将硬件恢复出厂设置以清除恶意文件；\n升级到最新的固件版本；\n更改所有默认的用户名和密码；\n在广域网（WAN）侧接口部署策略性防火墙规则，避免远程管理服务被不当访问。\n\n目前，联邦调查局正在搜集有关APT28在被黑的EdgeRouters上的活动信息，目的是为了阻止这些攻击技术的进一步使用，并对相关责任者进行问责。\n\n如果发现任何与这些攻击有关的可疑或非法行为，应立即向当地的FBI办公室或联邦调查局的互联网犯罪投诉中心（IC3）进行报告。\n\n参考来源：Russian hackers hijack Ubiquiti routers to launch stealthy attacks (bleepingcomputer.com)",
+  "content_hash": "sha256:e766b531aa3fe1cbc21f5cd6916120e316b1bd2bdc18f7df812fbe3cb060198b",
+  "published_at": "2024-02-28",
+  "retrieved_at": "2026-07-07T16:21:47Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_020",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_020.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

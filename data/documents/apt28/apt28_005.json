@@ -1,0 +1,31 @@
+{
+  "doc_id": "apt28_005",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.freebuf.com/company-information/181820.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "微软发现新一轮俄罗斯黑客攻击，美国中期选举或受影响",
+  "language": "zh",
+  "clean_text": "近日，微软向美国法院提起诉讼，要求控制数个试图干涉美国中期选举的虚假网站，将其域名迁移至微软服务器。\n\n这些虚假网站均由Strontium集团创建，该集团与俄罗斯军事机构GRU有关，别名Fancy Bear或APT28，微软在两年内已12次禁用该团体创建的84个虚假网站。据外媒报道，美国有政客呼吁应努力避免2016年美国大选期间发生的网络攻击事件再次出现，当时美方指责俄罗斯利用虚假身份，通过Facebook和Instagram等社交平台影响美国大选结果。\n\n微软总裁布拉德·史密斯发布声明，Strontium创建了至少六个与美国参议院和保守组织相关的虚假网站来感染用户系统，窃取密码和隐私信息。其中两个虚假网站模仿了美国保守组织Hudson Institute及International Republican Institute，另外三个虚假网站假冒美国参议院官方网站。\n\n图片来源于securityaffairs\n\n除了禁用这些虚假网站，微软还推出了新安全服务Microsoft AccountGuard，可免费提供给所有使用Office365的美国联邦、州、地方候选人。该服务包括向符合条件的Office365，Outlook.com和Hotmail账户进行威胁检测及通知，当微软检测到针对用户公司电子邮件和个人账户的恶意攻击时，会直接通知并提供过去只针对大型企业和政府客户的安全功能早期访问权限。\n\n图片来源于cnBeta\n\n俄罗斯发言人佩斯科夫表示，微软并没有证据证明俄方干涉美国中期选举，俄方一直提倡就网络安全问题与美方举行工作组会议，俄美专家可就具体问题进行讨论。\n\n来源：http://u6.gg/evy8b",
+  "content_hash": "sha256:1273acb473591d1cd4522535e5e508fed627e0ae6aa072e8d19f6277b1b228f6",
+  "published_at": "2018-08-22",
+  "retrieved_at": "2026-07-07T16:22:26Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "企业资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_005",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_005.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

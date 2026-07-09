@@ -54,4 +54,4 @@ def test_validator_rejects_evidence_text_not_in_document():
     report = validate_payload(invalid_payload, schema_path=SCHEMA_PATH, document=document)
 
     assert not report.ok
-    assert any("未出现在 document.raw_text" in error for error in report.errors)
+    assert any("未出现在 document.clean_text" in error for error in report.errors)

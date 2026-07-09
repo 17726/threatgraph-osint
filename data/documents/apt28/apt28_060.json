@@ -1,0 +1,39 @@
+{
+  "doc_id": "apt28_060",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2026/04/apt28-deploys-prismex-malware-in.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "APT28 Deploys PRISMEX Malware in Campaign Targeting Ukraine and NATO Allies",
+  "language": "en",
+  "clean_text": "The Russian threat actor known as\nAPT28\n(aka Forest Blizzard and Pawn Storm) has been linked to a fresh spear-phishing campaign targeting Ukraine and its allies to deploy a previously undocumented malware suite codenamed\nPRISMEX\n.\n\"PRISMEX combines advanced steganography, component object model (COM) hijacking, and legitimate cloud service abuse for command-and-control,\" Trend Micro researchers Feike Hacquebord and Hiroyuki Kakara\nsaid\nin a technical report. The campaign is believed to be active since at least  September 2025.\nThe activity has targeted various sectors in Ukraine, including central executive bodies, hydrometeorology, defense, and emergency services, as well as rail logistics (Poland), maritime and transportation (Romania, Slovenia, Turkey), and logistical support partners involved in ammunition initiatives (Slovakia, Czech Republic), and military and NATO partners.\nThe campaign is notable for the rapid weaponization of newly disclosed flaws, such as\nCVE-2026-21509\nand\nCVE-2026-21513\n, to breach targets of interest, with infrastructure preparation observed on January 12, 2026, exactly two weeks before the former was publicly disclosed.\nIn late February 2025, Akamai also disclosed that APT28 may have weaponized CVE-2026-21513 as a zero-day based on a Microsoft Shortcut (LNK) exploit that was uploaded to VirusTotal on January 30, 2026, well before the Windows maker pushed out a fix as part of its Patch Tuesday update on February 10, 2026.\nThis pattern of zero-day exploitation indicates that the threat actor had advanced knowledge of the vulnerabilities prior to them being revealed by Microsoft.\nAn interesting overlap between campaigns exploiting the two vulnerabilities is the domain \"wellnesscaremed[.]com.\" This commonality, combined with the timing of the two exploits, has raised the possibility that the threat actors are stringing together CVE-2026-21513 and CVE-2026-21509 into a sophisticated two-stage attack chain.\n\"The first vulnerability (CVE-2026-21509) forces the victim's system to retrieve a malicious .LNK file, which then exploits the second vulnerability (CVE-2026-21513) to bypass security features and execute payloads without user warnings,\" Trend Micro theorized.\nThe attacks culminate in the deployment of either\nMiniDoor\n, an Outlook email stealer, or a collection of interconnected malware components collectively known as PRISMEX, so named for the use of a steganographic technique to conceal payloads within image files. These include -\nPrismexSheet\n, a malicious Excel dropper with VBA macros that extracts payloads embedded within the file using steganography, establishes persistence via\nCOM hijacking\n, and displays a decoy document related to drone inventory lists and drone prices after macros are enabled.\nPrismexDrop\n, a native dropper that readies the environment for follow-on exploitation and uses scheduled tasks and COM DLL hijacking for persistence.\nPrismexLoader\n(aka PixyNetLoader), a proxy DLL that extracts the next-stage .NET payload scattered across a PNG image's (\"SplashScreen.png\") file structure using a bespoke \"Bit Plane Round Robin\" algorithm and runs it entirely in memory.\nPrismexStager\n, a COVENANT Grunt implant that abuses Filen.io cloud storage for C2.\nIt's worth mentioning here that some aspects of the campaign were previously documented by Zscaler ThreatLabz under the moniker\nOperation Neusploit\n.\nAPT28's use of\nCOVENANT\n, an open-source command-and-control (C2) framework, was first highlighted by the Computer Emergency Response Team of Ukraine (CERT-UA) in June 2025. PrismexStager is assessed to be an expansion of MiniDoor and\nNotDoor\n(aka GONEPOSTAL), a Microsoft Outlook backdoor deployed by the hacking group in late 2025.\nIn at least one incident in October 2025, the COVENANT Grunt payload was found to not only facilitate information gathering, but also run a destructive wiper command that erases all files under the \"%USERPROFILE%\" directory. This dual capability lends weight to the hypothesis that these campaigns could be designed for both espionage and sabotage.\n\"This operation demonstrates that Pawn Storm remains one of the most aggressive Russia-aligned intrusion sets,\" Trend Micro said. \"The targeting pattern reveals a strategic intent to compromise the supply chain and operational planning capabilities of Ukraine and its NATO partners.\"\n\"The strategic focus on targeting the supply chains, weather services, and humanitarian corridors supporting Ukraine represents a shift toward operational disruption that may presage more destructive activities.\"",
+  "content_hash": "sha256:a5296d43279a57d01626472d452f237d40fde2676df39c5aaa8db234a06eafe3",
+  "published_at": "2026-04-08",
+  "retrieved_at": "2026-07-08T08:00:41Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "Cloud security",
+    "cyber espionage",
+    "cybersecurity",
+    "Malware",
+    "NATO",
+    "Threat Intelligence",
+    "Vulnerability",
+    "zero-day",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_060",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_060.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

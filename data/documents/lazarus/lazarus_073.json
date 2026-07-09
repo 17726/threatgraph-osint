@@ -1,0 +1,35 @@
+{
+  "doc_id": "lazarus_073",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://ti.qianxin.com/blog/articles/analysis-of-apt-q-1-recent-attacks-using-clickfix-cn",
+  "source_type": "vendor_report",
+  "source_name": "奇安信威胁情报中心",
+  "title": "故障修复之下的陷阱：Lazarus（APT-Q-1）近期利用 ClickFix 手法的攻击分析",
+  "language": "zh",
+  "clean_text": "团伙背景\nLazarus 是疑似具有东北亚背景的 APT 组织，奇安信内部跟踪编号 APT-Q-1。该组织因 2014 年攻击索尼影业开始受到广泛关注，其攻击活动最早可追溯到 2007 年。Lazarus 早期主要针对政府机构，以窃取敏感情报为目的，但自 2014 年后，开始攻击全球金融机构、虚拟货币交易场所等目标，从受害者处盗取金钱资产。Lazarus 曾多次利用虚假的社交账号，以提供工作机会为伪装，向特定行业人员发起钓鱼攻击。\n事件概述\nClickFix 是近年来兴起的一种社会工程学攻击手段，攻击者向受害者展示一个并不存在的故障，诱使受害者按照攻击者提供的指示“修复”故障，实际上受害者主动运行的“修复”命令正是经过伪装的恶意代码。\nLazarus 在以虚假招聘为诱饵的钓鱼攻击中融入 ClickFix 手法，受害者被虚假工作机会吸引到攻击者搭建的面试网站，网站指导受害者准备面试环境。当受害者按照指示操作时，网站会在特定时机提示受害者摄像头配置不符合要求或者存在故障，并给出修复方案，修复命令看起来是下载 Nvidia 相关软件的更新，真实目的却是植入恶意软件。不久前国外的一些报告\n[1, 2]\n记录了该钓鱼过程。\n近期，奇安信威胁情报中心发现一个与 Lazarus ClickFix 攻击活动有关的 bat 脚本，该脚本下载虚假的 Nvidia 软件包\n[3]\n。恶意软件包进一步部署 Node.js 环境，执行 Lazarus 组织常用的 BeaverTail 恶意软件。对于 Windows11 的系统，攻击者还会运行一个具有命令执行、读写指定文件功能的后门 drvUpdate.exe。根据关联，该攻击活动还影响到 macOS 系统用户。\n详细分析\n样本相关信息如下：\n-\n-\n-\nMD5\n文件名\n说明\nf9e18687a38e968811b93351e9fca089\nClickFix-1.bat\n下载恶意压缩包\na4e58b91531d199f268c5ea02c7bf456\nnvidiaRelease.zip\n包含恶意软件的压缩包\n3ef7717c8bcb26396fc50ed92e812d13\nrun.vbs\n恶意脚本\n983a8a6f4d0a8c887536f5787a6b01a2\nshell.bat\n恶意脚本\nb52e105bd040bda6639e958f7d9e3090\nmain.js\nBeaverTail 窃密软件\n6175efd148a89ca61b6835c77acc7a8d\ndrvUpdate.exe\n针对 Win11 运行的后门\n攻击链\nClickFix-1.bat 点击运行后从 hxxps://driverservices.store/visiodrive/nvidiaRelease.zip 下载恶意压缩包，压缩包解压后执行其中的 run.vbs 脚本。\n下载的压缩包 nvidiaRelease.zip 中内容如下。\nRun.vbs 检查操作系统的 BuildNumber 是否不低于 22000（即是否为 Win11），如果是则运行压缩包中的后门 drvUpdate.exe 文件，该文件的具体作用在后面介绍。并且 run.vbs 通过获取 Node.js 的版本判断是否存在 Node.js 环境，存在则直接运行 shell.bat，不存在则以管理员身份运行 shell.bat。\nShell.bat 在 Node.js 不存在的情况下，下载并安装 Node.js 运行环境。\n在 shell.bat 文件所在的目录运行 npm install 和 npm start 命令。\n最后通过注册表建立持久化，添加的命令为\"\\\"%USERPROFILE%\\.pyp\\pythonw.exe\\\" \\\"%USERPROFILE%\\.n2\\pay\\\"\"，该路径为 Lazarus 后续下载 Python 木马 InvisibleFerret 的常用保存路径。\nShell.bat 执行 npm 命令时，根据同目录下的 package.json 配置信息，将运行 main.js。\nMain.js 为 Lazarus 常用的跨操作系统窃密软件 BeaverTail，C2 服务器为 hxxp://45.159.248.110。BeaverTail 还会从 C2 服务器下载并部署 Python 木马 InvisibleFerret。\n-\n-\n-\nMD5\n下载链接\n保存位置\n17eb90ac00007154a6418a91bf8da9c7\nhxxp://45.159.248.110/client/xyz2\n[home_dir]/.npl\n5e698d6f14e10616b0dbb1496e574a91\nhxxp://45.159.248.110/payload/xyz2\n[home_dir]/.n2/pay\nd9fb02481d1df9f93b7d8e84dc7e097f\nhxxp://45.159.248.110/brow/xyz2\n[home_dir]/.n2/bow\n后门 drvUpdate.exe\n下载压缩包中的 drvUpdate.exe 名称伪装成驱动更新，但实际上是一个后门，可以执行攻击者下发的 cmd 命令，写入和读取指定文件。\n后门连接的 C2 服务器为 103.231.75.101:8888。\n通过向 C2 服务器发送 challenge 信息，并对比接收数据，判断服务器是否可以正常连接。\n函数 0x401620 负责后门指令分发，支持的后门指令如下。\n-\n-\n指令码\n说明\n0x4\n回传收集的各种设备信息，包括用户名、主机名、操作系统版本、网卡 IP 和 MAC 地址\n0x6\n使用 cmd.exe 执行命令\n0x8\n写入文件\n0x9\n休眠 60 秒，然后向服务器发送\"QA==\\r\\n\"\n0x18\n读取指定文件内容\n命令执行功能如下。\n写入文件功能如下，该功能有 3 个子命令：“0”打开指定文件，“1”向打开文件写入指定内容，“2”关闭文件。\n读取文件功能如下。\n溯源关联\n最初阶段 ClickFix-1.bat 脚本中的命令与 Lazarus 相关报告\n[1, 2]\n中提到的命令高度相似，并且最后部署 BeaverTail 和 InvisibleFerret 恶意软件，因此我们将相关样本归属为 Lazarus 组织。\n关联发现攻击者的其他样本，除了 Windows 还涉及 macOS 系统。Windows 平台样本如下，与前面描述的样本相比整体变化不大，其中加载的 BeaverTail 恶意软件连接的 C2 服务器为 hxxp://45.89.53.54。\n-\n-\n-\n文件名\nMD5\n说明\nnvidiaReleasenew.zip\n8c274285c5f8914cdbb090d72d1720d3\nzip 压缩包，下载链接为：\nhxxps://driverservices.store/visiodrive/nvidiaReleasenew.zip\ncam_driver\nb73fd8f21a2ed093f8caf0cf4b41aa4d\nzip 压缩包，下载链接为：\nhxxps://block-digital.online/drivers/cam_driver\n针对 macOS 平台的样本如下，伪装的名称 arm-fixer 意为对 arm64 架构的修复方案。\n-\n-\n-\n文件名\nMD5\n说明\narm64-fixer\ncdf296d7404bd6193514284f021bfa54\nzip 压缩包，下载链接为：\nhxxps://driverservices.store/visiodrive/arm64-fixer\narm64-fixernew\ncbd183f5e5ed7d295d83e29b62b15431\nzip 压缩包，下载链接为：\nhxxps://driverservices.store/visiodrive/arm64-fixernew\nmac-v-j1722.fixer\na009cd35850929199ef60e71bce86830\nShell 脚本，用于下载 arm64-fixernew\nShell 脚本内容如下，其中针对 arm64 和 intel 芯片架构使用的是相同下载 URL，下载包解压后执行其中的 drivfixer.sh 脚本。\n下载压缩包中内容如下。\nDrivfixer.sh 同样是先检测 Node.js 是否存在，不存在则下载安装。\n设置 plist 将 drivfixer.sh 持久化，plist 路径为\"~/Library/LaunchAgents/com.local.drvierUpdate.plist\"。然后通过 npm 执行同目录下的 main.js。Main.js 包含的是与 Windows 样本相同的 BeaverTail 恶意软件。\n总结\n社会工程学手段往往不需要复杂的技术，但由于击中了人们的认知和心理的盲区，攻击者通过操纵受害者的心理就能使其在不经意间“配合”完成攻击行动。Lazarus 组织近期利用 ClickFix 手法，针对 Windows 和 macOS 多平台频繁出击，反映出该方法屡试不爽。因此在访问未知网站时，一定要对网站要求在本机运行的命令和文件提高警惕，避免掉入陷阱。\n防护建议\n奇安信威胁情报中心提醒广大用户，谨防钓鱼攻击，切勿打开社交媒体分享的来历不明的链接，不点击执行未知来源的邮件附件，不运行标题夸张的未知文件，不安装非正规途径来源的 APP。做到及时备份重要文件，更新安装补丁。\n若需运行，安装来历不明的应用，可先通过奇安信威胁情报文件深度分析平台（https://sandbox.ti.qianxin.com/sandbox/page）进行判别。目前已支持包括 Windows、安卓平台在内的多种格式文件深度分析。\n目前，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括奇安信威胁情报平台（TIP）、天擎、天眼高级威胁检测系统、奇安信 NGSOC、奇安信态势感知等，都已经支持对此类攻击的精确检测。\nIOC\nMD5\n(Windows 平台)\nf9e18687a38e968811b93351e9fca089\na4e58b91531d199f268c5ea02c7bf456\n3ef7717c8bcb26396fc50ed92e812d13\n983a8a6f4d0a8c887536f5787a6b01a2\n6175efd148a89ca61b6835c77acc7a8d\n8c274285c5f8914cdbb090d72d1720d3\nb73fd8f21a2ed093f8caf0cf4b41aa4d\n(macOS 平台)\ncdf296d7404bd6193514284f021bfa54\ncbd183f5e5ed7d295d83e29b62b15431\na009cd35850929199ef60e71bce86830\n13400d5c844b7ab9aacc81822b1e7f02\n(BeaverTail)\nb52e105bd040bda6639e958f7d9e3090\n15e48aef2e26f2367e5002e6c3148e1f\nC&C\ndriverservices.store\nblock-digital.online\nhxxp://45.159.248.110\nhxxp://45.89.53.54\n103.231.75.101:8888\nURL\nhxxps://driverservices.store/visiodrive/nvidiaRelease.zip\nhxxps://driverservices.store/visiodrive/nvidiaReleasenew.zip\nhxxps://driverservices.store/visiodrive/arm64-fixer\nhxxps://driverservices.store/visiodrive/arm64-fixernew\nhxxps://block-digital.online/drivers/cam_driver\n参考链接\n[1]. https://www.gendigital.com/blog/insights/research/deceptive-nvidia-attack\n[2]. https://medium.com/@anyrun/pylangghost-rat-rising-data-stealer-from-lazarus-group-targeting-finance-and-technology-d65cf790fb6d\n[3]. https://x.com/RedDrip7/status/1954801591938170935",
+  "content_hash": "sha256:9af30b41e7e587ad15f8433d7213128eaa0a5f8428dfc02d4320f3b741f09789",
+  "published_at": "2025-08-28",
+  "retrieved_at": "2026-07-08T07:39:46Z",
+  "source_reliability": "A",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT",
+    "LAZARUS",
+    "APT-Q-1",
+    "CLICKFIX",
+    "事件追踪",
+    "vendor_report"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_073",
+    "legacy_source_type": "threat_report",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_073.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

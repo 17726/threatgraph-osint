@@ -1,0 +1,37 @@
+{
+  "doc_id": "kimsuky_062",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://thehackernews.com/2023/12/us-treasury-sanctions-north-korean.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "U.S. Treasury Sanctions North Korean Kimsuky Hackers and 8 Foreign-Based Agents",
+  "language": "en",
+  "clean_text": "The U.S. Department of the Treasury's Office of Foreign Assets Control (OFAC) on Thursday sanctioned the North Korea-linked adversarial collective known as Kimsuky as well as eight foreign-based agents who are alleged to have facilitated sanctions evasion.\nThe agents, the Treasury\nsaid\n, helped in \"\nrevenue generation\nand missile-related technology procurement that support the DPRK's weapons of mass destruction (WMD) programs.\"\nThe sanctions against Kimsuky, which have been levied for gathering intelligence to support the regime's strategic objectives, come more than four years after the OFAC\nimposed\nsimilar measures\nagainst the Lazarus Group and its offshoots\nAndariel\nand\nBlueNoroff\nin September 2019.\nThe actions are in\nresponse\nto North Korea's launch of a military reconnaissance satellite late last month, the Treasury added. They also arrive a day after a virtual currency mixer service called Sinbad was\nsanctioned\nfor processing stolen assets linked to hacks perpetrated by the Lazarus Group.\nKimsuky\n– also called APT43, ARCHIPELAGO, Black Banshee, Emerald Sleet (previously Thallium), Nickel Kimball, and Velvet Chollima – is a\nprolific\ncyber espionage crew\nthat primarily targets governments, nuclear organizations, and foreign relations entities to collect intelligence that help further North Korea's interests.\n\"The group combines moderately sophisticated technical capabilities with aggressive social engineering tactics, especially against South Korean and U.S.-based government organizations, academics, and think tanks focused on Korean peninsula geopolitical issues,\" Google-owned Mandiant\nnoted\nin October 2023.\nLike the Lazarus Group, it's also an element within the Reconnaissance General Bureau (RGB), which is North Korea's primary foreign intelligence service that's responsible for intelligence collection operations. It's known to be active since at least 2012.\n\"Kimsuky employs social engineering to collect intelligence on geopolitical events, foreign policy strategies, and diplomatic efforts affecting its interests by gaining illicit access to the private documents, research, and communications of their targets,\" the Treasury said.\nThe agency also identified Kang Kyong Il, Ri Sung Il, and Kang Phyong Guk for acting as weapons sales representatives; So Myong, Choe Un Hyok, and Jang Myong Chol for engaging in illicit financial transfers to procure material for North Korea's missile programs; and Choe Song Chol and Im Song Sun for running front companies involved in generating revenue by\nexporting skilled workers\n.\n\"The geographic breakdown of North Korean threat groups' targeting in the cryptocurrency industry [follows a multi-pronged approach], where Kimsuky has been\nseen\ntargeting the cryptocurrency industry in South Korea, and Lazarus Group has a more global presence in their cryptocurrency targeting operations,\" Recorded Future said in a new report published this week.",
+  "content_hash": "sha256:1bfe405c9b493013c3d4746b6539f4454e9f68341b7e3aac59fd0141048bd22c",
+  "published_at": "2023-12-01",
+  "retrieved_at": "2026-07-08T08:21:22Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "cryptocurrency",
+    "cyber espionage",
+    "Kimsuky",
+    "lazarus group",
+    "North Korean hackers",
+    "social engineering",
+    "Virtual Currency Mixer",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_062",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_062.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

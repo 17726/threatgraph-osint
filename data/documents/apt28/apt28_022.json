@@ -1,0 +1,31 @@
+{
+  "doc_id": "apt28_022",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.freebuf.com/news/432057.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "FreeBuf早报 | 俄APT28组织攻击援乌后勤供应链；微软联合执法机构捣毁Lumma窃密网络",
+  "language": "zh",
+  "clean_text": "全球网安事件速递\n1. 俄罗斯军总参情报局APT28组织瞄准援乌后勤供应链发起全球网络攻击\n\n俄罗斯GRU黑客组织APT28持续攻击支持乌克兰的全球物流与科技企业，窃取运输数据并监控物资运输。采用暴力破解、钓鱼、零日漏洞等手段渗透北约系统，目标包括交通、国防和关键基础设施。国际联合公告建议加强零信任架构、多因素认证等防护措施。【外刊-阅读原文】\n\n2. 微软联合执法机构捣毁全球Lumma窃密软件网络\n\n微软联合国际执法机构成功摧毁Lumma Stealer恶意软件网络，查封2300多个域名，切断攻击链。该恶意软件即服务模式窃取敏感信息，全球40万台设备受害。行动展现跨部门协作力量，但网络犯罪威胁仍存，需持续防护。【外刊-阅读原文】\n\n3. 韩国最大电信运营商SK电讯遭长期入侵：2700万用户数据泄露\n\n韩国SK电讯遭黑客入侵，2695万用户数据泄露，包括IMSI号码、短信等敏感信息。攻击者潜伏3年，利用25个后门程序窃取数据。公司因日志缺失无法追溯完整入侵过程，现暂停新用户注册并更换SIM卡加强防护。【外刊-阅读原文】\n\n4. BadSuccessor漏洞：未修复的微软Active Directory攻击可导致域控沦陷\n\nWindows Server 2025 AD存在\"BadSuccessor\"漏洞，低权限用户可滥用dMSA功能修改属性，冒充域管理员获取全权限。攻击者还能窃取加密凭证，威胁整个域安全。微软暂未修复，建议严格限制dMSA创建权限并监控关键操作。【外刊-阅读原文】\n\n5. 新型攻击活动利用木马化KeePass窃密，信任机制沦为攻击载体\n\n黑客利用木马化KeePass窃取凭证，通过Bing广告诱导安装，植入Cobalt Strike控制受害者系统并获取云服务权限。攻击暴露未受管凭证风险，专家建议从官方渠道下载软件并部署EDR、PAM等防护措施。【外刊-阅读原文】\n\n6. Docker容器遭新型自复制Dero挖矿病毒攻击\n\n卡巴斯基发现新型恶意软件攻击暴露的Docker容器，将其转化为自我复制的Dero挖矿机，无需C2服务器。攻击含传播蠕虫和挖矿程序，利用masscan扫描暴露API，隐蔽持久化。全球520个Docker API暴露，威胁严重需加强防护。【外刊-阅读原文】\n\n7. Langroid框架高危漏洞（CVSS 9.8）可导致LLM应用遭受远程代码执行攻击\n\nLangroid框架发现两高危漏洞（CVE-2025-46725/46724，CVSS 8.1/9.8），涉及pandas.eval()函数未验证输入，可导致远程代码执行。漏洞影响数据分析与聊天自动化功能，攻击者可窃取文件或破坏系统。已发布0.53.15修复版本，建议立即升级并检查配置。【外刊-阅读原文】\n\n8. NIST提出新指标预测\"可能被利用\"漏洞\n\nNIST推出\"可能被利用漏洞\"(LEV)新指标，通过统计模型评估漏洞被利用概率，弥补EPSS和KEV清单的不足，帮助组织更精准识别高风险漏洞，优化修复优先级。【外刊-阅读原文】\n\n9. 未修复零日漏洞（CVSS 10分）：Versa Concerto缺陷威胁企业网络安全\n\nVersa Concerto平台曝出多个高危零日漏洞，包括身份验证绕过、远程代码执行和容器逃逸，CVSS评分最高达10分。攻击者可利用漏洞完全控制网络系统。尽管多次披露，厂商未在90天内修复，漏洞细节已公开。建议拦截分号字符和特定标头缓解风险。【外刊-阅读原文】\n\n10. RADIUS协议风险：未经认证的远程攻击者可默认导致Cisco ISE服务崩溃\n\n思科ISE存在高危漏洞（CVE-2025-20152，CVSS 8.6），攻击者可通过特制RADIUS请求发起DoS攻击，导致设备重启。默认启用RADIUS的部署均受影响，建议升级至3.4P1修复版本。【外刊-阅读原文】\n\n优质文章推荐\n1. Java代码审计中的SSRF漏洞深度解析\n\nSSRF漏洞通过服务端发起非预期请求，可访问内网、读取文件或与其他漏洞结合攻击。文章以Java代码审计为例，分析Spring、Apache、OkHttp等常见库的SSRF漏洞及防御方案，强调输入校验、协议限制和网络层防护。【阅读原文】\n\n2. 未授权访问漏洞的利用链\n\n通过精细信息收集和联想，发现老系统漏洞，利用接口FUZZ获取账户信息，爆破登录后越权重置管理员密码，最终尝试上传漏洞。渗透测试考验耐心与细致，漏洞总存在。【阅读原文】\n\n3. Java代码审计 | 某电商系统 漏洞分析\n\nstarsea-mall电商系统存在4大漏洞：1.水平越权可接管账户；2.订单状态修改可绕过支付；3.前端过滤不严导致任意文件上传；4.缺乏过滤引发XSS漏洞。系统需加强参数校验与安全防护。【阅读原文】\n\n漏洞情报精华\n1.欧澳PicHome textviewer 任意文件读取漏洞\n\nhttps://xvi.vulbox.com/detail/1925378356770115584\n\n2.上讯信息运维管理审计系统 RepeatSend 命令注入漏洞\n\nhttps://xvi.vulbox.com/detail/1925475880256278528\n\n3.妖气山视频管理系统 get_media_list_by_filter.json SQL注入漏洞\n\nhttps://xvi.vulbox.com/detail/1925452044211195904\n\n*本文内容收集自全球范围内的媒体与刊物，制作者对其完整性负责，但不对其真实性和有效性负责。\n\n*标明为【外刊】的内容主要来源为英语国家的媒体与刊物，部分内容需要注册原链接平台账号后方可阅读。",
+  "content_hash": "sha256:30b618cdf3e4013520950b9a5a1fe1e6a95d85ceb87db43e0cc01c0c663c7836",
+  "published_at": "2025-05-22",
+  "retrieved_at": "2026-07-07T16:19:41Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_022",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_022.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

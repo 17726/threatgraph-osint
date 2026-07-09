@@ -1,0 +1,31 @@
+{
+  "doc_id": "kimsuky_014",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/consult/281985.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "老树新花：Kimsuky使用的新版KGH间谍组件分析",
+  "language": "zh",
+  "clean_text": "一、概述\n\nKimsuky APT组织是境外由特定政府支持的、先进的APT组织，其至少从2012年开始运营，近些年一直针对韩国、俄罗斯、美国等政府从事间谍活动，该组织经常使用各种鱼叉式和社会工程学方法来获得对目标的初始访问。\n\n微步情报局近期通过威胁狩猎系统监测到Kimsuky APT组织使用KGH间谍组件在进行攻击活动，分析有如下发现：\n\n攻击者开发私有工具制作钓鱼邮件，对目标进行鱼叉邮件攻击；\n\n木马进入目标系统后，使用漏洞CVE-2019-0880进行提权；\n\n攻击者复用了之前KGH间谍组件的部分代码，利用KGH间谍组件窃取目标隐私信息；\n\n开发者在旧版本KGH间谍组件的基础上拓展了持久化、远程控制等功能，根据样本信息显示，疑似多个开发人员协同工作；\n\n在新版本KGH间谍组件中，使用FTP协议与C2服务器通信；\n\n微步在线通过对相关样本、IP和域名的溯源分析，提取多条相关IOC，可用于威胁情报检测。微步在线威胁感知平台TDP、本地威胁情报管理平台TIP、威胁情报云API、互联网安全接入服务OneDNS、主机威胁检测与响应平台 OneEDR等均已支持对此次攻击事件和团伙的检测。\n\n二、详情\n\nKimsuky组织使用的KGH间谍组件已经不是第一次看到了，攻击者通常使用鱼叉邮件对目标进行攻击，开发者在此次攻击活动中对KGH组件进行了功能拓展，使用了漏洞CVE-2019-0880以提升进程权限。目前研究人员尚未明确攻击者所针对目标，但根据分析信息显示，疑似为俄罗斯方向相关团体。\n\n图[1] . 执行流程图\n\n三、样本分析\n3.1第一阶段：初始访问\n\n攻击者使用一款名为“MakeMail”的私有工具用以制作钓鱼邮件，文件信息显示开发语言为朝鲜语，Pdb路径：“x:\\mywork\\prevwork\\vc attack program\\makemail\\release\\makemail.pdb”，其中work表示开发者可能处于受雇状态，prevwork表示该工具在攻击前阶段进行开发，编译时间2017年表示攻击者可能在复用之前的工具。\n\n图[2] . MakeMail.exe程序文件信息\n\n此工具先点击MakeWord按钮，根据所设置关键字生成类似字典的txt文本，同时文本内容也可自定义，然后填写对应序号，将指定eml文件导入，点击MakeEmail按钮将目标eml文件中的关键词替换为序号指定的关键词用以制作钓鱼邮件，再借助类似swaks之类的工具进行鱼叉邮件攻击。\n\n图[3] . MakeMail.exe程序界面\n\n3.2第二阶段：木马安装\n\n攻击者前后开发了多个类似的木马，作者观察到在部分组件中携带有 Pdb路径，疑似多名开发者协同工作。\n\nD:\\MyWork\\PrevWork\\취약점자료\\IE\\2021\\Work\\Final\\splwow64_poc\\x64\\Release\\splwow64_poc.pdb\n\nD:\\MyWork\\PrevWork\\취약점자료\\IE\\2021\\Work\\Final\\splwow64_poc\\x64\\Release\\DLL.pdb\n\nI:\\splwow64_poc\\Release\\CreateDC.pdb\n\nI:\\splwow64_poc\\x64\\Release\\DLL.pdb\n\nC:\\Users\\Administrator\\Downloads\\Win32Project1\\x64\\Release\\Win32Project1.pdb\n\nX:\\MyWork\\PrevWork\\VC Attack Program\\MakeMail\\Release\\MakeMail.pdb\n\n木马进入目标系统之后，名为“speed1.exe”的木马首先连接FTP服务器，以目标主机名在FTP服务器创建同名文件夹，后续该目录将会存储执行日志、系统信息、窃取的数据等。\n\n图[4] . 连接FTP服务器\n\n攻击者前后在多个组件中使用了相同的FTP服务器和用户名，但是多次修改FTP密码。\n\nFTP服务器\n\n用户名\n\n密码\n\nftp.selp.o-r.kr:21\n\naaa\n\nSpeed2021!@#$\n\n1q2w3e4r!@#$\n\nDragon2021!@#$\n\nkingdom2021!@#$\n\n在“speed1.exe”中尝试将%Temp%\\speed3.exe（间谍模块）复制到系统目录C:\\Windows\\system32\\comhost.exe。\n\n图[5] . 向系统目录拷贝\n\n如果复制成功将会直接执行，否则会检查speed3.exe路径是否包含Low字符串，如果不包含，则会复制到C:\\Users\\<user>\\AppData\\Local\\comhost.exe执行，并以字符串\"Level Medium-->Path\"作为日志标识。\n\n如果包含Low字符串，则会利用漏洞CVE_2019_0880进行提权，将%Temp%\\speed1.dll通过注入的方式以高权限执行。\n\n图[6] . 漏洞CVE_2019_0880 expolit反汇编代码片段\n\n被注入执行的speed1.dll，从Temp目录寻找 %Temp%\\low\\pay.exe或者%Temp%\\pay.exe（间谍模块），将其复制到C:\\Users\\<user>\\AppData\\Local\\comhost.exe并执行。\n\n图[7] . 在dll中执行间谍模块\n\n木马将执行记录和主机进程列表信息暂存到 %Temp%\\dlllog.log中，最终将此文件上传到FTP服务器。\n\n图[8] . 木马记录的日志信息\n\n3.3 第三阶段：间谍模块执行\n\n间谍模块执行后首先动态获取API地址。\n\n图[9] . 动态获取API\n\n之后设置注册表开机启动项，启动项名称：SamVs。\n\n图[10] . 设置注册表启动项\n\n创建窗口，窗口标题：SamVs，窗口类名：SamVs Class。\n\n图[11] . 创建窗口\n\n在窗口回调函数中设置定时器进行恶意行为，首次触发时间10秒钟，后续触发时间60秒。\n\n图[12] . 窗口回调函数中的定时器\n\n以创建事件的方式作为互斥防止重复运行，事件名称 \"VSthread\"。\n\n图[13] . 创建事件\n\n先尝试从注册表取服务器配置，包括FTP服务器地址、FTP用户名、FTP密码。\n\n图[14] . 从注册表读取FTP配置\n\n如果没有成功获取上述信息，将会使用默认的配置与FTP服务器进行C2通信。\n\n图[15] . 硬编码的FTP配置信息\n\n获取主机名称，以主机名称在FTP服务器建立对应文件夹，此目录将会作为对应主机的活动目录。\n\n图[16] . 收集主机信息上传至C2服务器\n\n3.4 第四阶段：窃密与C2通信\n\n间谍模块会收集多种浏览器、邮件客户端等隐私信息，包括Chrome、IE/Edge、FireFox、CredManager、WinSCP、Thunderbird、Opera等。将收集到的信息包括执行路径、系统目录、磁盘信息、浏览器隐私信息上传到FTP服务器，以tert_<路径转换ID>.txt为名，之后再使用系统命令systeminfo将收集到的主机信息上传到FTP服务器sysinfo.txt。\n\n图[17] . 窃密函数流程\n\n删除FTP服务器上的文件KEEPALIVE，再重新创建一份同名文件，攻击者可根据该文件判断主机存活状态。之后读取FTP服务器对应主机目录中的文件cmd.txt，从中读取远程指令并执行对应功能。\n\n图[18] . 从C2服务器获取远程指令\n\n远程指令代码如下：\n\n指令\n\n功能\n\nB\n\n上传指定目录文件\n\nC\n\n删除注册表monstate标记\n\nD\n\n下载文件，以LoadLibrary形式加载执行\n\nE\n\n加载alysvc.dll，调用导出函数SystemCheck\n\nF\n\n屏幕截图1\n\nG\n\n上传文件\n\nH\n\n删除文件\n\nI\n\n更新注册表中的FTP服务器、用户名、密码\n\nL\n\n内存加载PE模块，使用0xAA异或解密\n\nT\n\n屏幕截图2\n\n1\n\n下载文件，以ShellExcute执行\n\n2\n\n上传指定文件\n\n3\n\n获取主机磁盘信息\n\n4\n\n使用tree命令获取文件目录结构信息\n\n5\n\n注册表枚举\n\n6\n\n搜集主机浏览器等隐私信息\n\n7\n\n获取主机最近使用文件\n\n8\n\n删除文件\n\n9\n\n进程枚举\n\n17\n\n设置注册表monstate标记\n\n分析时登录FTP服务器，发现已有20余个感染用户。\n\n图[19] . FTP服务器上的感染用户列表\n\n从窃取到的部分信息中可看到部分主机疑似为俄罗斯所属主机，目前应该没有国内用户被感染。\n\n图[20] . 窃取的部分信息\n\n四、关联分析\n\n在以往的攻击活动中该组件曾携带Pdb路径“E:\\SPY\\WebBrowser\\KGH_Browser-Master\\x64\\Release\\KGH_Browser-Master.pdb”，这也是KGH名称的来由。在本次所分析的间谍模块的新版本中，虽然攻击者删除了Pdb路径信息，但从反汇编代码层面看与旧版本KGH间谍组件存在高度一致性。\n\n在之前的攻击活动中，KGH间谍组件多以模块化的方式呈现，通常需要配合其他模块进行攻击，例如在单独的模块中实现窃密功能，而开发者在新版本中拓展了KGH间谍组件的功能，包括持久化、远程控制等，且使用FTP协议与C2通信，使之成为可以独立运行的模块。\n\n图[21] .基本一致的窃密执行流程（左为旧版，右为新版）\n\n从字符串信息也能观察到与旧版本的高度相似性。\n\n图[22] .高度相似的字符串（左为旧版，右为新版）\n\n五、结论\n\nKimsuky APT组织近些年持续开发新的工具以及旧工具的变种，在此次攻击活动中，作者观察到Kimsuky在旧版本KGH间谍组件基础上拓展了多种功能，表明该组织在积极进行相关情报搜集工作，微步情报局会对相关攻击活动持续进行跟踪，及时发现安全威胁并快速响应处置。",
+  "content_hash": "sha256:f62453dc565d47b0f54b904ee7336a2e96d5cb0ae5de509080994d559ff4fa77",
+  "published_at": "2021-07-23",
+  "retrieved_at": "2026-07-07T17:20:18Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "咨询",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_014",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_014.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

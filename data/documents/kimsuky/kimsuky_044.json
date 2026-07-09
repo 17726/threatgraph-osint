@@ -1,0 +1,31 @@
+{
+  "doc_id": "kimsuky_044",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/news/483668.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "FreeBuf早报 | 朝鲜Kimsuky部署HTTPSpy木马，GDPR敲定AI罚款标准",
+  "language": "zh",
+  "clean_text": "全球网安事件速递\n1. 朝鲜黑客组织Kimsuky部署HTTPSpy木马 新增HelloDoor与VS Code隧道攻击手段\n\n朝鲜黑客组织Kimsuky针对韩国军方和企业发动网络攻击，采用定制化社会工程学策略，包括伪造安全软件和Webex会议页面，部署HTTPSpy等恶意软件，并利用VS Code隧道等新技术扩大攻击范围。【外刊-阅读原文】\n\n2. GDPR 为监管行动定调：AI 罚款争议初现端倪\n\nGDPR实施八年收缴60%罚款，暴露监管程序弱点，科技巨头持续挑战罚单。72小时数据泄露通报成全球标杆，但40%罚款因司法缺陷被撤销。AI法案临近，企业面临监管与创新平衡难题，预示未来AI监管将遇更大阻力。【外刊-阅读原文】\n\n3. 黑客利用LLM Agent通过四次横向移动从Marimo RCE攻入内部数据库\n\n首例AI Agent驱动网络攻击曝光：攻击者利用LLM实时生成命令，通过漏洞入侵marimo服务器，22秒内分发12个AWS调用绕过检测，1小时内窃取数据库。防御需转向行为检测，升级系统并轮换凭证。【外刊-阅读原文】\n\n4. 发现 Lazarus 组织的纯内存攻击工具集\n\n朝鲜黑客组织升级攻击手段，采用隐蔽的Lazarus纯内存工具集针对金融机构，通过三阶段恶意软件组件（DPAPILoader、RemotePELoader、RemotePE）实现无文件攻击，规避检测并隐藏于合法流量。企业需转向行为检测模型应对此类威胁。【外刊-阅读原文】\n\n5. Anthropic发布Claude Opus 4.8大模型并完成650亿美元融资\n\nAnthropic推出Claude Opus 4.8，编程性能显著提升，错误率降低75%，新增动态工作流功能。完成650亿美元融资，估值9650亿美元，资金用于基础设施和安全计划。新模型优化成本与响应速度，并计划推出Mythos级模型。【外刊-阅读原文】\n\n6. 微软谴责公开披露0Day漏洞行为 同时GitHub删除研究员账户\n\n微软呼吁协调漏洞披露，反对研究员公开未修复漏洞，称其增加客户风险。研究员指责微软处理不当并封禁其账户，计划继续披露漏洞。双方矛盾激化，微软强调透明合作但遭质疑。【外刊-阅读原文】\n\n7. 洛杉矶地铁遇袭事件：披着黑客活动外衣的国家级网络攻击行动\n\n伊朗黑客组织Ababil of Minab实为伊朗情报机构伪装，通过精心策划攻击全球交通、GPS等关键系统，使用AI优化破坏脚本，选择性公开破坏行动掩盖数据窃取，证据指向其与伊朗情报部门关联。【外刊-阅读原文】\n\n8. Gogs 严重远程代码执行漏洞：任意认证用户可执行恶意代码\n\nGogs曝高危漏洞（CVSS 9.4），认证用户可通过恶意分支名注入--exec参数实现RCE，无需管理员权限。影响所有平台，可窃取数据、渗透内网。建议禁用注册、限制仓库创建，官方补丁未出。Metasploit已发布自动化攻击工具。【外刊-阅读原文】\n\n9. Asana收购StackAI 实现跨企业系统的AI Agent工作流自动化\n\nAsana收购StackAI，增强跨系统AI工作流自动化能力，推动人机协作操作系统发展。StackAI的无代码平台可连接多企业应用，扩展Asana的AI Agent执行层。交易将贡献营收增长，Asana财报超预期，股价上涨3%。【外刊-阅读原文】\n\n10. WP Maps Pro 插件漏洞遭野外利用\n\nWP Maps Pro插件曝0Day漏洞，允许未认证攻击者创建管理员账户接管网站。攻击已大规模爆发，24小时内超2500次攻击。必须立即升级至6.1.1版本并部署防护措施。【外刊-阅读原文】\n\n优质文章推荐\n1. Linux 服务器安全加固与防护完整部署方案\n\nDebian/Ubuntu服务器安全加固方案：UFW防火墙+CrowdSec动态防御+SSH端口修改+雷池WAF应用防护，涵盖系统检查、基础加固、WAF部署及日常维护命令，确保多层防护。【阅读原文】\n\n2. 从0到1打造JS漏洞扫描器：Python爬虫 + Ollama本地AI\n\n本文介绍了一个本地化JS漏洞扫描工具，通过关键词预筛选+AI分析两步法提升效率，使用3B模型平衡性能与准确率，强调工具用于授权测试，核心价值是快速定位可疑代码而非替代人工研判。【阅读原文】\n\n3. 从项目上下文 RAG 到 CodeQL Agent：LLM 自动化代码审计的工程化闭环\n\n文章提出LLM自动化代码审计的工程化闭环方案：通过项目上下文RAG存储API设计、架构文档等安全事实，CodeQL提供代码证据，LangChain Agent结合MCP工具调用，形成可复核的审计链路，显著提升准确率和可执行性。【阅读原文】\n\n*本文内容收集自全球范围内的媒体与刊物，制作者对其完整性负责，但不对其真实性和有效性负责。\n\n*标明为【外刊】的内容主要来源为英语国家的媒体与刊物，部分内容需要注册原链接平台账号后方可阅读。",
+  "content_hash": "sha256:d665b07bb9cd9d551c09cab6c67209cc56b8513ee3b42687f4f9c55d85c532a5",
+  "published_at": "2026-05-29",
+  "retrieved_at": "2026-07-07T17:17:21Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_044",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_044.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

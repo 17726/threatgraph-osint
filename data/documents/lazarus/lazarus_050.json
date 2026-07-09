@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_050",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/articles/network/358698.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "Lazarus 组织开始在攻击中应用反取证技术",
+  "language": "zh",
+  "clean_text": "大约一年前开始，在韩国国防、卫星、软件和媒体出版等多个行业的公司中都发现了 Lazarus 组织的身影。本文旨在通过 Lazarus 组织入侵的组织，总结该犯罪团伙所使用的反取证技术。\n\n概述\n\n反取证技术是攻击者旨在篡改证据，试图提高犯罪现场取证调查难度而应用的一类技术。反取证技术通常要达成以下目标：\n\n规避检测并阻碍信息收集\n\n增加取证分析的难度\n\n禁用或使数字取证工具失灵\n\n阻止、绕过或删除日志以隐藏痕迹\n\n反取证技术的分类多种多样，本文使用 Marcus Roger 博士提出的分类标准（数据隐藏、数据清除、痕迹混淆、针对数字取证的攻击、物理攻击）来进行分析。具体来说，Lazarus 组织使用了数据隐藏、数据清除与痕迹混淆三种技术。\n\n数据隐藏\n\n数据隐藏是指使数据难以被发现，主要包括混淆、加密、隐写术与其他形式的手段。\n\n加密\n\nLazarus 组织在加载程序、可执行文件与配置文件中都应用了加密操作：\n\n加载程序：解密加密的 PE 文件并加载到内存中\n\n可执行文件：由加载程序加载后解密配置文件与 C&C 服务器通信\n\n配置文件：存储加密的 C&C 服务器信息\n\n后门执行过程\n\nLazarus 组织通过加密方式传输带有 C&C 服务器信息的配置文件和与 C&C 服务器通信的 PE 可执行文件。加密文件在被加载程序加密到内存后运行，再从 C&C 服务器接收其他文件执行恶意行为。\n\n其他数据隐藏方式\n\nLazarus 组织经常使用系统文件夹作为藏身之处，也会模仿普通文件的名称来进行隐藏。攻击者通过在系统中创建类似的文件夹，或将恶意软件伪装成默认隐藏的系统文件中的普通文件。常用的目录如下：\n\nC:\\ProgramData\\\n\nC:\\ProgramData\\Microsoft\\\n\nC:\\Windows\\System32\\\n\n创建类似文件夹\n\nC:\\ProgramData 文件夹是默认隐藏的系统文件夹。在此文件夹内创建一个名称与默认文件夹相似的文件夹作为恶意软件隐藏位置，或者将恶意软件伪装成默认文件夹内的类似文件。\n\n模仿默认文件名\n\n数据清除\n\n数据清除是指永久删除特定文件或整个文件系统。在删除文件外，还可以抹去所有使用痕迹。\n\n文件清除\n\nLazarus 会删除恶意软件与恶意软件执行时出现的各种文件，手段是数据覆盖或者直接删除文件，部分甚至会在删除前更改文件名。数据被覆盖后，就很难再找到原始文件内容，使得分析人员在文件恢复与数据取证的过程变得异常困难。\n\n恶意软件删除\n\nLazarus 也会清除应用程序执行时预读取文件，全面消除恶意软件执行的痕迹。\n\n预读取文件删除\n\n在初始访问或横向平移时，Lazarus 组织可能会利用应用程序的 0-day 漏洞进行攻击。由漏洞攻击产生的错误报告与内存 Dump 文件，也会被攻击者一并删除。\n\n漏洞攻击痕迹删除\n\n痕迹混淆\n\n痕迹混淆是指混淆那些取证过程中可能揭示恶意行为的情况，达成隐藏的目的。例如日志的修改、删除、插入不正确的信息等都是干扰分析和痕迹混淆的例子。\n\n时间戳更改\n\nLazarus 几乎会删除所有的文件与日志，但仍然会将后门类恶意软件留在失陷主机。为了保证后门在失陷主机上长期存在不被发现，Lazarus 组织会修改恶意软件创建时间戳来进行隐藏。\n\n厂商经常会跟踪事件发生前后的创建、修改、删除、访问文件，更改时间戳的动机应该是为了逃避时间线分析。时间戳被篡改后，分析过程中就可能会被遗漏，引导分析人员误入歧途。\n\n时间戳比较\n\n时间戳比较\n\n在失陷主机上发现的恶意软件时间戳，与系统上其他文件的时间戳完全一致。\n\nNTFS 文件系统上 $STANDARD_INFORMATION属性和 $FILE_NAME属性有四个时间戳：文件创建、修改、访问与属性修改。Windows 文件属性中显示的时间戳是来自 $STANDARD_INFORMATION的时间戳。\n\n$STANDARD_INFORMATION：默认存在于所有文件中的属性，包含文件的基本信息，如时间戳、所有者和安全等。\n$FILE_NAME：默认存在于所有文件中的属性，包含文件名和文件的各种其他附加数据，其目的是保存文件名。\n\n经过分析，发现默认系统文件 notepad.exe 与恶意软件 DapowSyncProvider.dll 的 $STANDARD_INFORMATION时间戳完全一致。\n\n时间戳比较\n\n近期在失陷主机上发现的篡改时间戳的样本如下所示：\n\n篡改时间戳\n\nLazarus 对时间戳的修改可以归纳为以下几点：\n\n并非所有恶意软件都要修改时间戳\n\n时间戳并非修改为任意值，而是与默认系统文件相同\n\n同一事件中可修改也可不修改，修改时间戳应该是可选项\n\n默认系统文件也是可选的，相同的恶意软件会存在不同的时间戳\n\n不仅是 Lazarus，修改时间戳的技术也被其他各个 APT 组织所广泛使用：\n\n使用同类技术的 APT 组织\n\n结论\n\n在 Lazarus 组织攻击时，会使用各种各样的反取证技术。一方面可以逃避安全产品的检测，另一方面也可以阻碍安全人员的分析。攻击者全面清除了文件与日志，几乎完全消除了执行痕迹来阻碍数据取证，显示出攻击者的细致。\n\n在调查和分析事件时，必须考虑攻击者使用反取证技术的可能性。也需要对相关方法与技术进行持续研究，以确保即使在攻击者应用反取证技术时也可以跟踪恶意软件。\n\nIOC\n\nB3E03A41CED8C8BAA56B8B78F1D55C22\n1E7D604FADD7D481DFADB66B9313865D\n7870DECBC7578DA1656D1D1FF992313C\nB457E8E9D92A1B31A4E2197037711783\n1F1A3FE0A31BD0B17BC63967DE0CCC29\nC16A6178A4910C6F3263A01929F306B9\n202A7EEC39951E1C0B1C9D0A2E24A4C4\n1F1A3FE0A31BD0B17BC63967DE0CCC29\n8543667917A318001D0E331AEAE3FB9B\nCA9B6B3BCE52D7F14BABDBA82345F5B1\n97BC894205D696023395CBD844FA4E37\nC7256A0FBAB0F437C3AD4334AA5CDE06\nFC8B6C05963FD5285BCE6ED51862F125\n27DB56964E7583E19643BF5C98FFFD52\n61B3C9878B84706DB5F871B4808E739A\n6EA4E4AB925A09E4C7A1E80BAE5B9584\nBD47942E9B6AD87EB5525040DB620756\n67D306C163B38A06E98DA5711E14C5A7\nC09B062841E2C4D46C2E5270182D4272\n747177AAD5AEF020B82C6AEABE5B174F\nE73EAB80B75887D4E8DD6DF33718E3A5\nBA741FA4C7B4BB97165644C799E29C99\n064D696A93A3790BD3A1B8B76BAAEEF3\n\n参考来源\n\nASEC",
+  "content_hash": "sha256:50498ff74c6a16b324cce8b964a371a8e975b98f465afb161246cb926656a1ed",
+  "published_at": "2023-02-26",
+  "retrieved_at": "2026-07-07T16:59:42Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "基础安全",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_050",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_050.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

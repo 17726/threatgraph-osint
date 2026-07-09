@@ -1,0 +1,39 @@
+{
+  "doc_id": "apt28_054",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2025/12/apt28-targets-ukrainian-ukr-net-users.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "APT28 Targets Ukrainian UKR-net Users in Long-Running Credential Phishing Campaign",
+  "language": "en",
+  "clean_text": "The Russian state-sponsored threat actor known as\nAPT28\nhas been attributed to what has been described as a \"sustained\" credential-harvesting campaign targeting users of UKR[.]net, a webmail and news service popular in Ukraine.\nThe activity, observed by Recorded Future's Insikt Group between June 2024 and April 2025, builds upon\nprior findings\nfrom the cybersecurity company in May 2024 that detailed the hacking group's attacks targeting European networks with the HeadLace malware and credential-harvesting web pages.\nAPT28 is also tracked as BlueDelta, Fancy Bear, Forest Blizzard, FROZENLAKE, Iron Twilight, ITG05, Pawn Storm, Sednit, Sofacy, and TA422. It's assessed to be affiliated with Russia's Main Directorate of the General Staff of the Russian Federation's Armed Forces (GRU).\nThe latest attacks are characterized by the deployment of UKR[.]net-themed login pages on legitimate services like Mocky to entice recipients into entering their credentials and two-factor authentication (2FA) codes. Links to these pages are embedded within PDF documents that are distributed via phishing emails.\nThe links are shortened using services like tiny[.]cc or tinyurl[.]com. In some cases, the threat actor has also been observed using subdomains created on platforms like Blogger (*.blogspot[.]com) to launch a two-tier redirection chain that leads to the credential harvesting page.\nThe efforts are part of a broader set of phishing and credential theft operations orchestrated by the adversary since mid-2000s targeting government institutions, defense contractors, weapons suppliers, logistics firms, and policy think tanks in pursuit of Russia's strategic objectives.\n\"While this campaign does not reveal specific targets, BlueDelta's historical focus on credential theft to enable intelligence collection provides strong indicators of likely intent to collect sensitive information from Ukrainian users in support of broader GRU intelligence requirements,\" the Mastercard-owned company said in a report shared with The Hacker News.\nWhat has changed is the transition from using compromised routers to proxy tunneling services such as ngrok and Serveo to capture and relay the stolen credentials and 2FA codes.\n\"BlueDelta's continued abuse of free hosting and anonymized tunneling infrastructure likely reflects an adaptive response to\nWestern-led infrastructure takedowns\nin early 2024,\" Recorded Future said. \"The campaign highlights the GRU's persistent interest in compromising Ukrainian user credentials to support intelligence-gathering operations amid Russia's ongoing war in Ukraine.\"",
+  "content_hash": "sha256:dd3a2d9be2c43044fb051729a4f6326e325033fa6c0fc9b89ab8dcd271993939",
+  "published_at": "2025-12-17",
+  "retrieved_at": "2026-07-08T08:01:05Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "Credential Theft",
+    "cybersecurity",
+    "email security",
+    "GRU",
+    "Malware",
+    "Phishing",
+    "Threat Intelligence",
+    "Ukraine",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_054",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_054.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

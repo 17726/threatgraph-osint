@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_006",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/articles/others-articles/192717.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "2018年影响MAC-OS的恶意软件(含APT)汇总报告",
+  "language": "zh",
+  "clean_text": "简介：\n\n2018年是MacOS RAT的一年，Empyre作为多种恶意软件变体的首选开发框架一路领先。EvilOSX，EvilEgg和基于Java的RAT也在野亮相。\n\nLazarus组织主要针对MAC用户的比特币的钱包，利用加密货币平台程序来感染毫无戒心的用户。\n\nMAC挖矿软件的仍然在增加，主要问题出于macOS的广告软件。\n\n下面将按家族在2018年出现的时间线进行排序，从早到晚\n\n正在开发中的MAC恶意软件\n\n年初最早出现的为OSX.MaMi，一个疑似旧版Windows恶意软件DNSUnlocker的macOS变种。\n\nMami改变了macOS SystemConfiguration.plist，以劫持受害者的DNS服务器。\n\n该恶意软件包含用于远程下载和上载文件，记录鼠标点击，截屏和尝试权限提升的逻辑。\n\n同月，基于Java的CrossRAT被发现作为Dark Caracel APT工具包的一部分，该组织疑似为黎巴嫩政府的攻击性网络能力收集情报。\n\nCrossRAT是一种多平台监视工具，它通过将自身副本写入~/Library/mediamgrs.jar并安装用户LaunchAgent来实现持久性，从而在macOS上体现出来。\n\n有趣的是，MaMi和CrossRAT都有版本号，表明它们处于早期开发状态，未来看到这两种版本的更高级版本也就不足为奇了。\n\n参考链接：\n\nhttps://objective-see.com/blog/blog_0x26.html\n\nhttps://info.lookout.com/rs/051-ESQ-475/images/Lookout_Dark-Caracal_srr_20180118_us_v.1.0.pdf\n\nAPT组织Lazarus\n\n在今年年初发生的两项重要发现之后，恶意软件方面的情况仍然相对平静，直到4月份才发布了一个名为CelasTradePro的加密货币交易应用程序。\n\n该恶意软件归因于与朝鲜有关的APT小组Lazarus，由三部分组成。\n\n作为CelasTradePro.app中的更新程序插入的木马下载程序，一个标签为“com.celastradepro.plist”的LaunchDaemon和payload，最初是在/var/zdiffsec。\n\n目前还不清楚这个被称为恶意软件的恶意软件OSX.AppleJeus是供应链攻击，还是CelasTradePro.app是专门为感染加密货币交易而创建的。\n\n在任何一种情况下，该应用程序都有一个有效的开发人员签名，因此很容易绕过Apple的内置安全技术。\n\n参考链接：\n\nhttps://securelist.com/operation-applejeus/87553/\n\nhttps://www.sentinelone.com/blog/malware-can-easily-defeat-apples-macos-security/\n\nWindShift APT\n\nAppleJeus活动虽然是在4月底创建的，但直到8月才被发现，而那个月也带来了另一个针对Mac平台的APT组织WindShift APT的消息。\n\n虽然早在去年1月就被认为首次针对macOS，但WindShift似乎已经在2018年开始活动，因为这个数字（暗示的DarkMatter）显示：\n\n以受害者计算机上的文件为目标，具有以下扩展名：并使用LoginItem进行持久化。后门获取当前桌面的屏幕截图，将其发送到C2服务器并删除本地副本。它每5秒重复一次这个过程。\nWindTail.A.txt .pdf .doc .docx .ppt .pptx .db .rtf .xls .xlsx WindTape\n\n感染此特定恶意软件的关键是默认情况下Safari首选项允许.zip文件在下载时自动取消归档。此功能意味着macOS将自动注册在恶意软件中定义的自定义URL，这有助于进一步感染。\n\n一般情况下，Safari用户在Safari的首选项的常规选项卡中取消选中以下设置总是明智的：\n\n参考链接：\n\nhttps://gsec.hitb.org/materials/sg2018/D1%20COMMSEC%20-%20In%20the%20Trails%20of%20WINDSHIFT%20APT%20-%20Taha%20Karim.pdf\n\n最薄弱的环节\n\n7月，OSX.Dummy出现在一些加密聊天组中。攻击者确信受害者会故意运行具有提升权限的工具，因为他们认为这是来自可靠的来源。\n\n并且攻击者还不需要过多的进行社工诱导，因为他们提供恶意软件，便是作为受害者自己寻求帮助的问题的答案。该工具安装了一个bash脚本，该脚本利用python打开反向shell：\n\n而在九月看到了许多人认为最不可能的威胁来源：Apple自己的App Store。\n\n从Mac App Store下载的软件是Apple的Gatekeeper是信任的，因此没有额外防御的用户在未经许可的情况下完全不受一系列批准的应用程序泄露个人数据的保护就不足为奇了。\n\nAdware Doctor, Open Any Files, Dr AntiVirus, and Dr Cleaner，苹果公司在9月份最终将所有这些恶意应用从商店中移除。\n\n参考链接：\n\nhttps://www.sentinelone.com/blog/weakest-link-admins-get-phished-macos-osx-dummy-malware/\n\nMAC挖矿\n\n10月，CoinTicker进入现场，通过数字货币应用程序提供木马后门。结合开源的开发工具:EvilOSX和EggShell。\n\nCoinTicker似乎是一个简单的状态栏的应用程序，显示各种加密货币的当前交易价格。该应用程序功能齐全，但同时会尝试通过反向shell回连攻击者。\n\n由于它利用的开发工具的性质，攻击者可以选择多种功能。\n\n人们可以假设优先考虑的事情之一就是窃取受害者的密码。\n\n针对cryptocurrency用户的事件并没有在2018年十一月停止，因为当月还有另一起埃及cryptowallet的用户进行了针对性的电子邮件钓鱼运动。\n\n攻击者曾希望安装基于RealTimeSpy商业间谍软件的恶意软件。虽然没有任何关于RealTimeSpy开发人员参与的建议，但毫无疑问，电子邮件活动背后的人希望在受害者的计算机上安装RealTimeSpy版本。\n\n假设目标是会窃取比特币钱包的内容，但是这个macOS间谍软件还可以通过屏幕截图和键盘记录来窃取其他个人数据。此外，还能够捕获社交网络活动和网站访问记录。\n\n参考链接：\n\nhttps://blog.malwarebytes.com/threat-analysis/2018/10/mac-cryptocurrency-ticker-app-installs-backdoors/\n\nhttps://www.sentinelone.com/blog/macos-spyware-dangers-fake-cryptowallet-keylogger/\n\nFestive Crackers\n\n这一年被繁忙的12月所取代，在一周之内发现了三次恶意软件）。\n\n首先是Adobe CC的假的破解应用程序OSX.DarthMiner，它利用Automator工作流程通过Empyre后端安装加密器。\n\nOSX.LamePyre，为游戏玩家提供的Discord语音和文字聊天应用的虚假版本，也使用了类似的Automator工作流程和Empyre后门。\n\nLamePyre的主要功能似乎是采用受害者桌面的常规屏幕截图并将其上传到C2服务器。\n\n目前尚不清楚这两个相关的特洛伊木马是由同一个演员创作的，还是仅仅是最近在DarkNet上交易的一些通用代码。可以注意到伪造的Discord应用程序似乎已经本地化为俄语并包含一些俄语文本\n\n当然，同样没有办法说出这些线索是故意留下误导还是粗心的结果。无论哪种方式，都不会惊讶地看到这些基于Automator的木马在2019年新年之前或之后再次出现。\n\n最后，OSX.BadWord通过利用Microsoft Word for Mac沙箱转义并提供Meterpreter有效负载来提供不同类型的威胁。\n\n袭击者似乎已经在八月份首次详细介绍了武器化的概念验证。与Windows上类似的基于Word的攻击一样，它利用VBA宏来执行代码并感染用户。OSX.BadWord似乎是通过电子邮件发送给Quidax加密货币平台的员工，邀请他们为“BitCoin Magazine UK”做出贡献。\n\n参考链接：\n\nhttps://blog.malwarebytes.com/category/threat-analysis/mac-threat-analysis/\n\nhttps://twitter.com/JohnLaTwC/status/1069653900473466880\n\n恶意推广软件\n\n除了彻头彻尾的恶意软件之外，今年还有看到许多广告软件安装程序充当了密码管理器的特洛伊木马程序，例如PPMiner，CreativeUpdate和SearchPageInstaller。\n\n广告软件仍然是一个问题，特别是当广告软件开发人员越来越多地扩展他们的技术范围并开始跨越线路进入类似恶意软件的行为时。\n\n参考链接：\n\nhttps://www.sentinelone.com/blog/macos-cryptomining-malware-rise/\n\n总结\n\n总体而言，2018年APT小组对macOS平台的定位增加，以及意图利用加密技术或针对加密货币参与者（包括员工和货币交易）进行犯罪。\n\n像Empyre这样的开源开发工具包在过去12个月中一直是macOS恶意软件的首选工具。",
+  "content_hash": "sha256:abdb068f432c9337d295a1893f54b46974b5ae8dcf4a3b0442399e1992074e68",
+  "published_at": "2018-12-23",
+  "retrieved_at": "2026-07-07T17:02:41Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "其他",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_006",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_006.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}
