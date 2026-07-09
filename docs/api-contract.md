@@ -68,7 +68,7 @@ POST /api/v1/collection-runs
 GET  /api/v1/collection-runs/{collection_run_id}
 ```
 
-第一阶段可以先跳过网络采集，通过本地文本或 `document.json` 导入文档。课程验收增强阶段再实现三类来源的最小自动采集闭环，并写入 SQLite。复杂定时调度、增量 checkpoint、复杂去重和新情报自动入图属于后续增强。
+第一阶段可以先跳过网络采集，通过本地文本或 `data/documents/<target_group>/*.json` 导入文档。课程验收增强阶段再实现三类来源的最小自动采集闭环，并写入 SQLite。复杂定时调度、增量 checkpoint、复杂去重和新情报自动入图属于后续增强。
 
 `POST /sources` 请求：
 
@@ -117,9 +117,9 @@ GET  /api/v1/collection-runs/{collection_run_id}
 优先级 P0 支持的输入 / 采集器类型：
 
 ```text
-local_json：读取 data/raw 或 data/sources 下的本地 JSON 样本
+local_json：读取 data/documents 下符合 document.schema.json 的本地 JSON 样本
 local_text：读取本地手动清洗文本
-http_page：抓取单篇安全报告、新闻或公告页面，课程验收增强阶段使用
+http_page：抓取单篇安全报告、新闻或公告页面，课程验收增强阶段使用，采集结果需先转换为 document.json
 rss_feed：读取 RSS/Atom feed 并抽取条目，课程验收增强阶段使用
 ```
 
@@ -155,7 +155,7 @@ POST /api/v1/documents/import
   "source_name": "Kaspersky Securelist",
   "title": "Masha and these Bears",
   "language": "en",
-  "raw_text": "...",
+  "clean_text": "...",
   "content_hash": "sha256:...",
   "published_at": "2018-03-09",
   "retrieved_at": "2026-07-07T00:00:00+08:00",
@@ -170,9 +170,10 @@ POST /api/v1/documents/import
 
 1. `schema_version` 必填，用于避免数据、LLM、后端和前端字段漂移。
 2. `target_group` 是主目标组织，`target_groups` 可保存多个相关组织。
-3. `content_hash` 用于重复导入判断。
+3. `content_hash` 用于重复导入判断，固定为 `sha256(clean_text 按 UTF-8 编码后的字节)`。
 4. `source_reliability` 优先使用 `A/B/C/D/unknown`，P0 可先人工填写。
 5. `published_at` 不确定时允许为 `null`，但 `retrieved_at` 必须保留。
+6. 导入成功后由后端基于 `clean_text` 生成 `chunks`，data 组不在 `document.json` 中手写 chunks。
 
 ---
 

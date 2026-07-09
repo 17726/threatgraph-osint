@@ -66,7 +66,7 @@ docs/docker-runtime.md
 
 1. 收集 APT28、Lazarus、Kimsuky 三个目标组织的资料。
 2. 覆盖三类来源：安全报告、新闻/公告、社媒/论坛整理文本。
-3. 整理原始文档，填充来源、标题、语言、发布时间等元数据。
+3. 整理清洗后标准文档，填充来源、标题、语言、发布时间等元数据。
 4. 维护小型黄金测试集 `golden.json`。
 5. 按数据导入和清洗边界修改对应后端业务代码。
 6. 按 `docs/data-contract.md` 的 P0 清洗边界做格式清洗，不提前做事实筛选。
@@ -74,11 +74,14 @@ docs/docker-runtime.md
 关键产出：
 
 ```text
+data/documents/<target_group>/*.json
 data/raw/*.json
 data/evaluation/golden.json
 数据来源索引表
 数据导入和清洗相关实现
 ```
+
+P0 主交付是 `data/documents/<target_group>/*.json`。`data/raw/*` 只作为可选采集暂存或复现材料，不阻塞离线闭环。
 
 golden.json 原则：
 
@@ -265,7 +268,8 @@ LLM 抽取与分析组：负责抽取、分析、Prompt 调用和结果校验相
 
 ```text
 docs/*：架构与数据规范组维护，其他组提交变更前先沟通
-data/raw/*：数据与样本组维护
+data/documents/*：数据与样本组维护的 P0 标准文档
+data/raw/*：数据与样本组维护的可选采集暂存
 data/evaluation/*：报告答辩与测试组维护
 backend/*：后端横向工作流，arch 牵头，各组按业务边界修改
 frontend/*：图谱与前端组维护
