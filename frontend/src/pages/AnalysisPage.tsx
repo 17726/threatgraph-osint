@@ -20,20 +20,14 @@ export default function AnalysisPage({ graph, target }: AnalysisPageProps) {
     ...new Set(
       targetEdges.map((e) => {
         const n = graph.nodes.find(
-          (n) =>
-            n.id ===
-            (e.target === `apt_group:${target.toLowerCase()}`
-              ? e.source
-              : e.target),
+          (n) => n.id === (e.target === `apt_group:${target.toLowerCase()}` ? e.source : e.target),
         );
         return n?.name ?? e.target;
       }),
     ),
   ];
 
-  const inferenceEdges = graph.edges.filter(
-    (e) => e.validation_status === "invalid",
-  );
+  const inferenceEdges = graph.edges.filter((e) => e.validation_status === "invalid");
 
   const usedTTPs = graph.edges
     .filter((e) => e.type === "USES")
@@ -47,9 +41,7 @@ export default function AnalysisPage({ graph, target }: AnalysisPageProps) {
       <div className="panel-heading">
         <h2>{target} - 行为分析</h2>
       </div>
-      <div
-        style={{ padding: 16, maxHeight: 500, overflowY: "auto", fontSize: 13 }}
-      >
+      <div style={{ padding: 16, maxHeight: 500, overflowY: "auto", fontSize: 13 }}>
         <div style={{ marginBottom: 20 }}>
           <h3
             style={{
@@ -172,10 +164,8 @@ export default function AnalysisPage({ graph, target }: AnalysisPageProps) {
             <p style={{ color: "#94a3b8" }}>无</p>
           ) : (
             inferenceEdges.map((e) => {
-              const src =
-                graph.nodes.find((n) => n.id === e.source)?.name ?? e.source;
-              const dst =
-                graph.nodes.find((n) => n.id === e.target)?.name ?? e.target;
+              const src = graph.nodes.find((n) => n.id === e.source)?.name ?? e.source;
+              const dst = graph.nodes.find((n) => n.id === e.target)?.name ?? e.target;
               return (
                 <div
                   key={e.id}
@@ -188,11 +178,8 @@ export default function AnalysisPage({ graph, target }: AnalysisPageProps) {
                   }}
                 >
                   <p style={{ margin: 0, fontSize: 12 }}>
-                    <span style={{ color: "#64748b" }}>{e.label}</span> {src} →{" "}
-                    {dst}{" "}
-                    <span style={{ color: "#94a3b8", fontStyle: "italic" }}>
-                      ({e.confidence})
-                    </span>
+                    <span style={{ color: "#64748b" }}>{e.label}</span> {src} → {dst}{" "}
+                    <span style={{ color: "#94a3b8", fontStyle: "italic" }}>({e.confidence})</span>
                   </p>
                 </div>
               );

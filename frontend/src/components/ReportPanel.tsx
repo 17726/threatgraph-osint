@@ -8,15 +8,10 @@ interface ReportPanelProps {
 export default function ReportPanel({ graph, target }: ReportPanelProps) {
   if (!graph) return null;
 
-  const targetNode = graph.nodes.find(
-    (n) => n.name === target && n.type === "APT_GROUP",
-  );
+  const targetNode = graph.nodes.find((n) => n.name === target && n.type === "APT_GROUP");
   if (!targetNode) return null;
 
-  const edgesByType: Record<
-    string,
-    { label: string; confidence: number; infer: boolean }[]
-  > = {};
+  const edgesByType: Record<string, { label: string; confidence: number; infer: boolean }[]> = {};
   graph.edges.forEach((e) => {
     const src = graph.nodes.find((n) => n.id === e.source)?.name ?? e.source;
     const dst = graph.nodes.find((n) => n.id === e.target)?.name ?? e.target;
@@ -36,14 +31,8 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
     ["名称", targetNode.name],
     ["别名", targetNode.aliases?.join(", ") || "-"],
     ["描述", targetNode.description || "-"],
-    [
-      "置信度",
-      targetNode.confidence != null ? String(targetNode.confidence) : "-",
-    ],
-    [
-      "来源数",
-      targetNode.source_count != null ? String(targetNode.source_count) : "-",
-    ],
+    ["置信度", targetNode.confidence != null ? String(targetNode.confidence) : "-"],
+    ["来源数", targetNode.source_count != null ? String(targetNode.source_count) : "-"],
     ["首次发现", targetNode.first_seen ?? "-"],
     ["最近活跃", targetNode.last_seen ?? "-"],
   ];
@@ -60,9 +49,7 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
       <div className="panel-heading">
         <h2>{target} - 威胁分析报告</h2>
       </div>
-      <div
-        style={{ padding: 16, maxHeight: 400, overflowY: "auto", fontSize: 13 }}
-      >
+      <div style={{ padding: 16, maxHeight: 400, overflowY: "auto", fontSize: 13 }}>
         <h3
           style={{
             fontSize: 14,
@@ -147,9 +134,7 @@ export default function ReportPanel({ graph, target }: ReportPanelProps) {
                 <span style={{ color: "#172026" }}>{item.label}</span>
                 <span style={{ color: "#64748b", marginLeft: "auto" }}>
                   {item.infer ? (
-                    <span style={{ color: "#94a3b8", fontStyle: "italic" }}>
-                      推断
-                    </span>
+                    <span style={{ color: "#94a3b8", fontStyle: "italic" }}>推断</span>
                   ) : (
                     String(item.confidence)
                   )}

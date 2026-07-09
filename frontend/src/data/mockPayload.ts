@@ -288,11 +288,7 @@ const MOCK_EVIDENCE = [
   },
 ];
 
-const ALL_GROUPS = [
-  "apt_group:apt28",
-  "apt_group:lazarus",
-  "apt_group:kimsuky",
-];
+const ALL_GROUPS = ["apt_group:apt28", "apt_group:lazarus", "apt_group:kimsuky"];
 
 export function getMockGraph(target: string): GraphPayload {
   const targetId = `apt_group:${target.toLowerCase()}`;
@@ -306,13 +302,9 @@ export function getMockGraph(target: string): GraphPayload {
   return {
     schema_version: "1.0",
     nodes: MOCK_NODES.filter(
-      (n) =>
-        n.id === targetId ||
-        (connectedIds.has(n.id) && !ALL_GROUPS.includes(n.id)),
+      (n) => n.id === targetId || (connectedIds.has(n.id) && !ALL_GROUPS.includes(n.id)),
     ),
-    edges: MOCK_EDGES.filter(
-      (e) => e.source === targetId || e.target === targetId,
-    ),
+    edges: MOCK_EDGES.filter((e) => e.source === targetId || e.target === targetId),
     evidence: MOCK_EVIDENCE,
   };
 }

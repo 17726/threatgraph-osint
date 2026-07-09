@@ -57,9 +57,7 @@ export default function NodeDetail({ node, onClose }: NodeDetailProps) {
         }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-            {node.name}
-          </h3>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>{node.name}</h3>
           <span
             style={{
               display: "inline-block",
