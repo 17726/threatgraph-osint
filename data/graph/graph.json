@@ -1,0 +1,1296 @@
+{
+  "version": "2.0",
+  "schema_version": "1.0",
+  "generated_at": "2026-07-09T16:24:37.145535+00:00",
+  "exported_from": "sqlite",
+  "source_of_truth": "data/threatgraph_osint.db",
+  "nodes": [
+    {
+      "id": "apt_group:apt28",
+      "name": "APT28",
+      "type": "APT_GROUP",
+      "aliases": [
+        "Fancy Bear",
+        "Sednit",
+        "Sofacy",
+        "UAC-0001"
+      ],
+      "description": "APT28 是长期活跃的高级持续性威胁组织，常被公开报告关联到政府和军事目标攻击。",
+      "confidence": 0.96,
+      "source_count": 2,
+      "first_seen": "2014-01-01",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "apt",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "mitre",
+        "news",
+        "powershell",
+        "security_report"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_cfe09dcbed74dbcd",
+        "ev_apt28_profile_001"
+      ]
+    },
+    {
+      "id": "apt_group:kimsuky",
+      "name": "Kimsuky",
+      "type": "APT_GROUP",
+      "aliases": [
+        "Velvet Chollima"
+      ],
+      "description": "公开报告中常与情报收集和鱼叉式钓鱼活动相关联的威胁组织。",
+      "confidence": 0.9,
+      "source_count": 0,
+      "first_seen": "2012-01-01",
+      "last_seen": "2026-07-01",
+      "tags": [
+        "apt",
+        "security_report"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "id": "apt_group:lazarus",
+      "name": "Lazarus",
+      "type": "APT_GROUP",
+      "aliases": [
+        "Hidden Cobra"
+      ],
+      "description": "公开报告中常与加密货币盗窃和金融目标攻击相关联的威胁组织。",
+      "confidence": 0.92,
+      "source_count": 0,
+      "first_seen": "2009-01-01",
+      "last_seen": "2026-07-01",
+      "tags": [
+        "apt",
+        "security_report"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "id": "country:ukraine",
+      "name": "Ukraine",
+      "type": "COUNTRY",
+      "aliases": [],
+      "description": "文档中多次出现的攻击目标国家。",
+      "confidence": 0.91,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_b918fbd51b8f251f"
+      ]
+    },
+    {
+      "id": "cve:cve-2020-12641",
+      "name": "CVE-2020-12641",
+      "type": "CVE",
+      "aliases": [],
+      "description": "文档中提到的 Roundcube 相关漏洞编号。",
+      "confidence": 0.88,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_d4b0a0306b47cafc"
+      ]
+    },
+    {
+      "id": "cve:cve-2020-35730",
+      "name": "CVE-2020-35730",
+      "type": "CVE",
+      "aliases": [],
+      "description": "文档中提到的 Roundcube 相关漏洞编号。",
+      "confidence": 0.88,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_d42c0feea35aaa96"
+      ]
+    },
+    {
+      "id": "cve:cve-2021-44026",
+      "name": "CVE-2021-44026",
+      "type": "CVE",
+      "aliases": [],
+      "description": "文档中提到的 Roundcube 相关漏洞编号。",
+      "confidence": 0.88,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_a0525dd9ee56180a"
+      ]
+    },
+    {
+      "id": "malware:beardshell",
+      "name": "BEARDSHELL",
+      "type": "MALWARE",
+      "aliases": [],
+      "description": "文档中提到的先前未公开恶意软件家族。",
+      "confidence": 0.94,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_2f17cb58cc326f01"
+      ]
+    },
+    {
+      "id": "malware:x-agent",
+      "name": "X-Agent",
+      "type": "MALWARE",
+      "aliases": [
+        "CHOPSTICK"
+      ],
+      "description": "公开威胁报告中多次提到的 APT28 相关恶意软件家族。",
+      "confidence": 0.88,
+      "source_count": 1,
+      "first_seen": "2015-01-01",
+      "last_seen": "2024-12-31",
+      "tags": [
+        "malware",
+        "security_report"
+      ],
+      "evidence_ids": [
+        "ev_apt28_xagent_001"
+      ]
+    },
+    {
+      "id": "organization:cert-ua",
+      "name": "CERT-UA",
+      "type": "ORGANIZATION",
+      "aliases": [
+        "Computer Emergency Response Team of Ukraine"
+      ],
+      "description": "乌克兰计算机应急响应团队，文档中的披露和告警来源。",
+      "confidence": 0.93,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_72b862c6267feff4"
+      ]
+    },
+    {
+      "id": "target:government",
+      "name": "Government Organizations",
+      "type": "TARGET",
+      "aliases": [
+        "政府机构"
+      ],
+      "description": "APT 活动中常见的高价值目标类别。",
+      "confidence": 0.84,
+      "source_count": 0,
+      "first_seen": "2014-01-01",
+      "last_seen": "2026-07-01",
+      "tags": [
+        "target"
+      ],
+      "evidence_ids": []
+    },
+    {
+      "id": "target:ukrainian-government-entities",
+      "name": "Ukrainian government entities",
+      "type": "TARGET",
+      "aliases": [
+        "Ukrainian government entities"
+      ],
+      "description": "文档中描述的被入侵目标类型。",
+      "confidence": 0.9,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_acfe7bbb190cbbdf"
+      ]
+    },
+    {
+      "id": "technique:t1566",
+      "name": "Phishing",
+      "type": "TECHNIQUE",
+      "aliases": [
+        "Spearphishing"
+      ],
+      "description": "MITRE ATT&CK T1566，常用于初始访问阶段。",
+      "confidence": 0.9,
+      "source_count": 1,
+      "first_seen": "2015-01-01",
+      "last_seen": "2026-07-01",
+      "tags": [
+        "mitre",
+        "technique"
+      ],
+      "evidence_ids": [
+        "ev_apt28_t1566_001"
+      ]
+    },
+    {
+      "id": "technique:cross-site-scripting-xss",
+      "name": "cross-site scripting (XSS)",
+      "type": "TECHNIQUE",
+      "aliases": [
+        "XSS"
+      ],
+      "description": "APT28 利用的跨站脚本漏洞类型。",
+      "confidence": 0.89,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_bb16ad4473fbd083"
+      ]
+    },
+    {
+      "id": "technique:phishing-emails",
+      "name": "phishing emails",
+      "type": "TECHNIQUE",
+      "aliases": [],
+      "description": "文档中描述的投递漏洞利用代码的钓鱼邮件方式。",
+      "confidence": 0.86,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_d18b11b4fe91fe78"
+      ]
+    },
+    {
+      "id": "tool:covenant",
+      "name": "COVENANT",
+      "type": "TOOL",
+      "aliases": [],
+      "description": "文档中提到的恶意软件框架或 C2 框架。",
+      "confidence": 0.91,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_76477a9cf3fb7817"
+      ]
+    },
+    {
+      "id": "tool:icedrive-api",
+      "name": "Icedrive API",
+      "type": "TOOL",
+      "aliases": [
+        "Icedrive"
+      ],
+      "description": "BEARDSHELL 用于回传执行结果的远程服务接口。",
+      "confidence": 0.8,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_548174176b70b1e5"
+      ]
+    },
+    {
+      "id": "tool:power-shell",
+      "name": "PowerShell",
+      "type": "TOOL",
+      "aliases": [],
+      "description": "BEARDSHELL 可下载并执行的脚本环境。",
+      "confidence": 0.82,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_5936e33bd0f72bd8"
+      ]
+    },
+    {
+      "id": "tool:roundcube",
+      "name": "Roundcube",
+      "type": "TOOL",
+      "aliases": [],
+      "description": "文档中被提及的 webmail 软件。",
+      "confidence": 0.84,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_bab9d537d3604432"
+      ]
+    },
+    {
+      "id": "tool:signal",
+      "name": "Signal",
+      "type": "TOOL",
+      "aliases": [],
+      "description": "文档中被攻击者用于投递诱饵消息的通信工具。",
+      "confidence": 0.86,
+      "source_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "tags": [
+        "APT28",
+        "CERT-UA",
+        "Malware",
+        "Phishing",
+        "Threat Intelligence",
+        "Ukraine",
+        "Windows",
+        "cybersecurity",
+        "email security",
+        "malware analysis",
+        "news",
+        "powershell"
+      ],
+      "evidence_ids": [
+        "ev_apt28_049_4161a194d715837d"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "rel:apt_group:apt28:EXPLOITS:cve:cve-2020-12641",
+      "source": "apt_group:apt28",
+      "target": "cve:cve-2020-12641",
+      "type": "EXPLOITS",
+      "label": "利用漏洞",
+      "confidence": 0.87,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_88a97c89ce034ae7"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:EXPLOITS:cve:cve-2020-35730",
+      "source": "apt_group:apt28",
+      "target": "cve:cve-2020-35730",
+      "type": "EXPLOITS",
+      "label": "利用漏洞",
+      "confidence": 0.87,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_8563494b511c2b3a"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:EXPLOITS:cve:cve-2021-44026",
+      "source": "apt_group:apt28",
+      "target": "cve:cve-2021-44026",
+      "type": "EXPLOITS",
+      "label": "利用漏洞",
+      "confidence": 0.87,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_c7045c84eddfaf04"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:TARGETS:country:ukraine",
+      "source": "apt_group:apt28",
+      "target": "country:ukraine",
+      "type": "TARGETS",
+      "label": "攻击目标",
+      "confidence": 0.89,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_d9543f3c343d0e62"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:TARGETS:target:government",
+      "source": "apt_group:apt28",
+      "target": "target:government",
+      "type": "TARGETS",
+      "label": "攻击目标",
+      "confidence": 0.84,
+      "source_count": 0,
+      "evidence_count": 0,
+      "first_seen": "2014-01-01",
+      "last_seen": "2026-07-01",
+      "validation_status": "valid",
+      "evidence_ids": []
+    },
+    {
+      "id": "rel:apt_group:apt28:TARGETS:target:ukrainian-government-entities",
+      "source": "apt_group:apt28",
+      "target": "target:ukrainian-government-entities",
+      "type": "TARGETS",
+      "label": "攻击目标",
+      "confidence": 0.9,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_ea03e4522d531f52"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:USES:malware:beardshell",
+      "source": "apt_group:apt28",
+      "target": "malware:beardshell",
+      "type": "USES",
+      "label": "使用",
+      "confidence": 0.9,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_f9df748891c9db60"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:USES:malware:x-agent",
+      "source": "apt_group:apt28",
+      "target": "malware:x-agent",
+      "type": "USES",
+      "label": "使用",
+      "confidence": 0.88,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2015-01-01",
+      "last_seen": "2024-12-31",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_xagent_001"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:USES:technique:cross-site-scripting-xss",
+      "source": "apt_group:apt28",
+      "target": "technique:cross-site-scripting-xss",
+      "type": "USES",
+      "label": "使用",
+      "confidence": 0.87,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_d5f9282e9c84c21c"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:USES:technique:phishing-emails",
+      "source": "apt_group:apt28",
+      "target": "technique:phishing-emails",
+      "type": "USES",
+      "label": "使用",
+      "confidence": 0.84,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_cb321f691b20e03a"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:USES:technique:t1566",
+      "source": "apt_group:apt28",
+      "target": "technique:t1566",
+      "type": "USES",
+      "label": "使用",
+      "confidence": 0.9,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2015-01-01",
+      "last_seen": "2026-07-01",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_t1566_001"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:USES:tool:covenant",
+      "source": "apt_group:apt28",
+      "target": "tool:covenant",
+      "type": "USES",
+      "label": "使用",
+      "confidence": 0.88,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_942da4eedc62575f"
+      ]
+    },
+    {
+      "id": "rel:apt_group:apt28:USES:tool:signal",
+      "source": "apt_group:apt28",
+      "target": "tool:signal",
+      "type": "USES",
+      "label": "使用",
+      "confidence": 0.84,
+      "source_count": 1,
+      "evidence_count": 1,
+      "first_seen": "2025-06-24",
+      "last_seen": "2025-06-24",
+      "validation_status": "valid",
+      "evidence_ids": [
+        "ev_apt28_049_0b5c5414fa340b0e"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev_apt28_049_0b5c5414fa340b0e",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:USES:tool:signal",
+      "text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 0,
+      "quote_end": 271,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_2f17cb58cc326f01",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "malware:beardshell",
+      "relation_id": null,
+      "text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 0,
+      "quote_end": 271,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_4161a194d715837d",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "tool:signal",
+      "relation_id": null,
+      "text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 0,
+      "quote_end": 271,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_548174176b70b1e5",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "tool:icedrive-api",
+      "relation_id": null,
+      "text": "BEARDSHELL, per CERT-UA, is written in C++ and offers the ability to download and execute PowerShell scripts, as well as upload the results of the execution back to a remote server over the Icedrive API.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 272,
+      "quote_end": 475,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_5936e33bd0f72bd8",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "tool:power-shell",
+      "relation_id": null,
+      "text": "BEARDSHELL, per CERT-UA, is written in C++ and offers the ability to download and execute PowerShell scripts, as well as upload the results of the execution back to a remote server over the Icedrive API.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 272,
+      "quote_end": 475,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_72b862c6267feff4",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "organization:cert-ua",
+      "relation_id": null,
+      "text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 0,
+      "quote_end": 271,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_76477a9cf3fb7817",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "tool:covenant",
+      "relation_id": null,
+      "text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 0,
+      "quote_end": 271,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_8563494b511c2b3a",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:EXPLOITS:cve:cve-2020-35730",
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_88a97c89ce034ae7",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:EXPLOITS:cve:cve-2020-12641",
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_942da4eedc62575f",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:USES:tool:covenant",
+      "text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 0,
+      "quote_end": 271,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_a0525dd9ee56180a",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "cve:cve-2021-44026",
+      "relation_id": null,
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_acfe7bbb190cbbdf",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "target:ukrainian-government-entities",
+      "relation_id": null,
+      "text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 1054,
+      "quote_end": 1235,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_b918fbd51b8f251f",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "country:ukraine",
+      "relation_id": null,
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_bab9d537d3604432",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "tool:roundcube",
+      "relation_id": null,
+      "text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 1054,
+      "quote_end": 1235,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_bb16ad4473fbd083",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "technique:cross-site-scripting-xss",
+      "relation_id": null,
+      "text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 1054,
+      "quote_end": 1235,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_c7045c84eddfaf04",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:EXPLOITS:cve:cve-2021-44026",
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_cb321f691b20e03a",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:USES:technique:phishing-emails",
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_cfe09dcbed74dbcd",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "apt_group:apt28",
+      "relation_id": null,
+      "text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 0,
+      "quote_end": 271,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_d18b11b4fe91fe78",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "technique:phishing-emails",
+      "relation_id": null,
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_d42c0feea35aaa96",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "cve:cve-2020-35730",
+      "relation_id": null,
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_d4b0a0306b47cafc",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": "cve:cve-2020-12641",
+      "relation_id": null,
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_d5f9282e9c84c21c",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:USES:technique:cross-site-scripting-xss",
+      "text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 1054,
+      "quote_end": 1235,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_d9543f3c343d0e62",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:TARGETS:country:ukraine",
+      "text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 2362,
+      "quote_end": 2672,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_ea03e4522d531f52",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:TARGETS:target:ukrainian-government-entities",
+      "text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 1054,
+      "quote_end": 1235,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_049_f9df748891c9db60",
+      "doc_id": "apt28_049",
+      "chunk_id": "apt28_049_c001",
+      "entity_id": null,
+      "relation_id": "rel:apt_group:apt28:USES:malware:beardshell",
+      "text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
+      "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+      "source_type": "news",
+      "source_name": "The Hacker News",
+      "evidence_type": "summary",
+      "quote_start": 0,
+      "quote_end": 271,
+      "published_at": "2025-06-24",
+      "retrieved_at": "2026-07-08T08:01:18Z",
+      "source_reliability": "B",
+      "language": "en"
+    },
+    {
+      "id": "ev_apt28_profile_001",
+      "doc_id": "apt28_demo_001",
+      "chunk_id": "apt28_demo_001_c001",
+      "entity_id": "apt_group:apt28",
+      "relation_id": null,
+      "text": "公开知识库（如 MITRE ATT&CK）将 APT28 描述为长期活跃并偏好政府、军事等高价值目标的威胁组织。",
+      "source_url": "https://attack.mitre.org/groups/G0007/",
+      "source_type": "knowledge_base",
+      "source_name": "MITRE ATT&CK",
+      "evidence_type": "summary",
+      "quote_start": null,
+      "quote_end": null,
+      "published_at": null,
+      "retrieved_at": "2026-07-07T00:00:00+08:00",
+      "source_reliability": "A",
+      "language": "zh"
+    },
+    {
+      "id": "ev_apt28_t1566_001",
+      "doc_id": "apt28_demo_002",
+      "chunk_id": "apt28_demo_002_c001",
+      "entity_id": "technique:t1566",
+      "relation_id": "rel:apt_group:apt28:USES:technique:t1566",
+      "text": "APT28 相关攻击活动经常通过鱼叉式钓鱼邮件获得初始访问。",
+      "source_url": "https://attack.mitre.org/techniques/T1566/",
+      "source_type": "knowledge_base",
+      "source_name": "MITRE ATT&CK",
+      "evidence_type": "summary",
+      "quote_start": null,
+      "quote_end": null,
+      "published_at": null,
+      "retrieved_at": "2026-07-07T00:00:00+08:00",
+      "source_reliability": "A",
+      "language": "zh"
+    },
+    {
+      "id": "ev_apt28_xagent_001",
+      "doc_id": "apt28_demo_003",
+      "chunk_id": "apt28_demo_003_c001",
+      "entity_id": "malware:x-agent",
+      "relation_id": "rel:apt_group:apt28:USES:malware:x-agent",
+      "text": "公开报告中多次出现 APT28 使用 X-Agent 恶意软件的描述。",
+      "source_url": "https://attack.mitre.org/software/",
+      "source_type": "knowledge_base",
+      "source_name": "MITRE ATT&CK",
+      "evidence_type": "summary",
+      "quote_start": null,
+      "quote_end": null,
+      "published_at": null,
+      "retrieved_at": "2026-07-07T00:00:00+08:00",
+      "source_reliability": "A",
+      "language": "zh"
+    }
+  ],
+  "analysis": {
+    "mitre_mappings": [],
+    "behavior_patterns": [
+      {
+        "pattern_id": "pattern_apt28_targeting",
+        "target_group": "APT28",
+        "stage": "目标偏好",
+        "description": "APT28 在当前样例中呈现对 Ukraine、Government Organizations、Ukrainian government entities 的目标偏好。",
+        "technique_ids": [],
+        "relation_ids": [
+          "rel:apt_group:apt28:TARGETS:country:ukraine",
+          "rel:apt_group:apt28:TARGETS:target:government",
+          "rel:apt_group:apt28:TARGETS:target:ukrainian-government-entities"
+        ],
+        "evidence_ids": [
+          "ev_apt28_049_d9543f3c343d0e62",
+          "ev_apt28_049_ea03e4522d531f52"
+        ],
+        "confidence": 0.8767
+      },
+      {
+        "pattern_id": "pattern_apt28_tool_use",
+        "target_group": "APT28",
+        "stage": "工具使用",
+        "description": "APT28 在当前样例中与 BEARDSHELL、COVENANT、Signal、X-Agent 等恶意软件或工具存在使用关系。",
+        "technique_ids": [],
+        "relation_ids": [
+          "rel:apt_group:apt28:USES:malware:beardshell",
+          "rel:apt_group:apt28:USES:tool:covenant",
+          "rel:apt_group:apt28:USES:tool:signal",
+          "rel:apt_group:apt28:USES:malware:x-agent"
+        ],
+        "evidence_ids": [
+          "ev_apt28_049_0b5c5414fa340b0e",
+          "ev_apt28_049_942da4eedc62575f",
+          "ev_apt28_049_f9df748891c9db60",
+          "ev_apt28_xagent_001"
+        ],
+        "confidence": 0.875
+      }
+    ],
+    "inferred_relations": []
+  }
+}
