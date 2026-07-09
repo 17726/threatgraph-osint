@@ -1,6 +1,9 @@
+import hashlib
 import json
 import os
 import sqlite3
+from collections import deque
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -248,6 +251,41 @@ class DemoStore:
                   tags_json TEXT NOT NULL DEFAULT '[]'
                 );
 
+                CREATE TABLE IF NOT EXISTS documents (
+                  doc_id TEXT PRIMARY KEY,
+                  schema_version TEXT NOT NULL DEFAULT '1.0',
+                  collection_item_id TEXT,
+                  target_group TEXT NOT NULL,
+                  target_groups_json TEXT NOT NULL DEFAULT '[]',
+                  source_url TEXT NOT NULL,
+                  source_type TEXT NOT NULL,
+                  source_name TEXT NOT NULL DEFAULT '',
+                  title TEXT NOT NULL,
+                  language TEXT NOT NULL,
+                  raw_text TEXT NOT NULL,
+                  content_hash TEXT NOT NULL,
+                  published_at TEXT,
+                  retrieved_at TEXT,
+                  source_reliability TEXT NOT NULL DEFAULT 'unknown',
+                  tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
+                  tags_json TEXT NOT NULL DEFAULT '[]',
+                  metadata_json TEXT NOT NULL DEFAULT '{}',
+                  created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS chunks (
+                  chunk_id TEXT PRIMARY KEY,
+                  doc_id TEXT NOT NULL,
+                  chunk_index INTEGER NOT NULL DEFAULT 0,
+                  section_title TEXT NOT NULL DEFAULT '',
+                  text TEXT NOT NULL,
+                  char_start INTEGER NOT NULL,
+                  char_end INTEGER NOT NULL,
+                  text_hash TEXT NOT NULL,
+                  token_count INTEGER,
+                  FOREIGN KEY (doc_id) REFERENCES documents(doc_id)
+                );
+
                 CREATE TABLE IF NOT EXISTS relations (
                   relation_id TEXT PRIMARY KEY,
                   source_entity_id TEXT NOT NULL,
@@ -286,6 +324,7 @@ class DemoStore:
                   target_group TEXT NOT NULL,
                   title TEXT NOT NULL,
                   markdown TEXT NOT NULL,
+                  generated_at TEXT,
                   graph_version TEXT NOT NULL
                 );
                 """
@@ -317,6 +356,9 @@ class DemoStore:
                 "published_at": "TEXT",
                 "retrieved_at": "TEXT",
                 "source_reliability": "TEXT NOT NULL DEFAULT 'unknown'",
+            },
+            "reports": {
+                "generated_at": "TEXT",
             },
         }
         for table_name, columns in migrations.items():
@@ -431,6 +473,73 @@ class DemoStore:
             connection.execute("SELECT 1").fetchone()
         return {"sqlite": "ok", "neo4j": "disconnected", "llm": "not_configured"}
 
+    def count_rows(self, table_name: str) -> int:
+        with self.connect() as connection:
+            row = connection.execute(f"SELECT count(*) AS count FROM {table_name}").fetchone()
+        return int(row["count"])
+
+    def import_document(self, document: dict[str, Any]) -> dict[str, Any]:
+        clean_text = document.get("clean_text")
+        if not clean_text:
+            raise ValueError("document.clean_text 不能为空")
+        doc_id = document["doc_id"]
+        chunk_id = f"{doc_id}_c001"
+        now = now_iso()
+        with self.connect() as connection:
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO documents (
+                  doc_id, schema_version, collection_item_id, target_group, target_groups_json,
+                  source_url, source_type, source_name, title, language, raw_text, content_hash,
+                  published_at, retrieved_at, source_reliability, tlp, tags_json, metadata_json,
+                  created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    doc_id,
+                    document.get("schema_version", "1.0"),
+                    document.get("collection_item_id"),
+                    document["target_group"],
+                    json.dumps(document.get("target_groups", []), ensure_ascii=False),
+                    document["source_url"],
+                    document["source_type"],
+                    document["source_name"],
+                    document["title"],
+                    document["language"],
+                    clean_text,
+                    document["content_hash"],
+                    document.get("published_at"),
+                    document["retrieved_at"],
+                    document.get("source_reliability", "unknown"),
+                    document.get("tlp", "TLP:CLEAR"),
+                    json.dumps(document.get("tags", []), ensure_ascii=False),
+                    json.dumps(document.get("metadata", {}), ensure_ascii=False),
+                    now,
+                ),
+            )
+            connection.execute("DELETE FROM chunks WHERE doc_id = ?", (doc_id,))
+            connection.execute(
+                """
+                INSERT INTO chunks (
+                  chunk_id, doc_id, chunk_index, section_title, text, char_start,
+                  char_end, text_hash, token_count
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    chunk_id,
+                    doc_id,
+                    0,
+                    "",
+                    clean_text,
+                    0,
+                    len(clean_text),
+                    "sha256:" + sha256_text(clean_text),
+                    None,
+                ),
+            )
+            connection.commit()
+        return {"doc_id": doc_id, "chunk_count": 1, "chunk_ids": [chunk_id]}
+
     def get_graph(self, target: str | None = None) -> dict[str, Any]:
         with self.connect() as connection:
             rows = connection.execute(
@@ -490,6 +599,72 @@ class DemoStore:
 
         return {"schema_version": "1.0", "nodes": nodes, "edges": edges, "evidence": evidence}
 
+    def search_entities(self, query: str) -> list[dict[str, Any]]:
+        normalized_query = query.lower()
+        graph = self.get_graph()
+        return [
+            node
+            for node in graph["nodes"]
+            if normalized_query in node["id"].lower()
+            or normalized_query in node["name"].lower()
+            or any(normalized_query in alias.lower() for alias in node["aliases"])
+        ]
+
+    def get_entity(self, entity_id: str) -> dict[str, Any] | None:
+        graph = self.get_graph()
+        node = next((item for item in graph["nodes"] if item["id"] == entity_id), None)
+        if node is None:
+            return None
+        evidence = [item for item in graph["evidence"] if item["entity_id"] == entity_id]
+        return {**node, "evidence": evidence}
+
+    def find_paths(self, source: str, target: str, max_depth: int = 4) -> dict[str, Any]:
+        graph = self.get_graph()
+        nodes_by_id = {node["id"]: node for node in graph["nodes"]}
+        edges_by_id = {edge["id"]: edge for edge in graph["edges"]}
+        if source not in nodes_by_id or target not in nodes_by_id:
+            return {"source": source, "target": target, "engine": "sqlite", "paths": []}
+
+        adjacency: dict[str, list[tuple[str, str]]] = {}
+        for edge in graph["edges"]:
+            adjacency.setdefault(edge["source"], []).append((edge["target"], edge["id"]))
+            adjacency.setdefault(edge["target"], []).append((edge["source"], edge["id"]))
+        for items in adjacency.values():
+            items.sort(key=lambda item: (item[0], item[1]))
+
+        queue = deque([(source, [source], [])])
+        paths = []
+        while queue and len(paths) < 3:
+            current, node_path, edge_path = queue.popleft()
+            if len(edge_path) >= max_depth:
+                continue
+            for next_node, edge_id in adjacency.get(current, []):
+                if next_node in node_path:
+                    continue
+                next_node_path = [*node_path, next_node]
+                next_edge_path = [*edge_path, edge_id]
+                if next_node == target:
+                    path_edges = [edges_by_id[item] for item in next_edge_path]
+                    evidence_ids = sorted(
+                        {
+                            evidence_id
+                            for edge in path_edges
+                            for evidence_id in edge["evidence_ids"]
+                        }
+                    )
+                    paths.append(
+                        {
+                            "nodes": [minimal_node(nodes_by_id[item]) for item in next_node_path],
+                            "edges": [minimal_edge(item) for item in path_edges],
+                            "length": len(next_edge_path),
+                            "evidence_ids": evidence_ids,
+                        }
+                    )
+                    continue
+                queue.append((next_node, next_node_path, next_edge_path))
+
+        return {"source": source, "target": target, "engine": "sqlite", "paths": paths}
+
     def get_report(self, target_group: str) -> dict[str, Any] | None:
         with self.connect() as connection:
             row = connection.execute(
@@ -508,7 +683,7 @@ class DemoStore:
             "markdown": row["markdown"],
         }
 
-    def get_analysis(self) -> dict[str, Any]:
+    def get_analysis(self, target_group: str | None = None) -> dict[str, Any]:
         with self.connect() as connection:
             mitre_rows = []
             behavior_rows = []
@@ -542,7 +717,7 @@ class DemoStore:
                     """
                 ).fetchall()
 
-        return {
+        analysis = {
             "mitre_mappings": [
                 {
                     "mapping_id": row["mapping_id"],
@@ -585,6 +760,22 @@ class DemoStore:
                 }
                 for row in inference_rows
             ],
+        }
+        if target_group is None:
+            return analysis
+
+        return {
+            "mitre_mappings": [
+                item
+                for item in analysis["mitre_mappings"]
+                if item["target_group"].lower() == target_group.lower()
+            ],
+            "behavior_patterns": [
+                item
+                for item in analysis["behavior_patterns"]
+                if item["target_group"].lower() == target_group.lower()
+            ],
+            "inferred_relations": analysis["inferred_relations"],
         }
 
     def _filter_graph(
@@ -676,3 +867,25 @@ class DemoStore:
             "source_reliability": row["source_reliability"],
             "language": row["language"],
         }
+
+
+def minimal_node(node: dict[str, Any]) -> dict[str, Any]:
+    return {"id": node["id"], "name": node["name"], "type": node["type"]}
+
+
+def minimal_edge(edge: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": edge["id"],
+        "source": edge["source"],
+        "target": edge["target"],
+        "type": edge["type"],
+        "label": edge["label"],
+    }
+
+
+def sha256_text(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def now_iso() -> str:
+    return datetime.now(UTC).isoformat()
