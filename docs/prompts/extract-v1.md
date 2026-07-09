@@ -1,7 +1,7 @@
 # LLM 抽取 Prompt：extract-v1
 
-适用对象：LLM 抽取与分析组 `llm`  
-适用输入：符合 `docs/schemas/document.schema.json` 的 `document.json`，或后端切块后的 `chunk_id + text`  
+适用对象：LLM 抽取与分析组 `llm`
+适用输入：符合 `docs/schemas/document.schema.json` 的 `document.json`，或后端切块后的 `chunk_id + text`
 适用输出：符合 `docs/schemas/extraction-result.schema.json` 的 `extraction_result.json`
 
 ## 目标

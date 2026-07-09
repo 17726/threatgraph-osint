@@ -94,6 +94,7 @@ class OfflineExtractionPipeline:
 
         with self.connect() as connection:
             self.initialize_schema(connection)
+            self.clear_document_canonical_artifacts(connection, document["doc_id"])
             self.import_document(connection, document, extraction_result)
             self.import_extraction_result(connection, document, extraction_result)
             self.normalize_candidates(connection, extraction_result["run_id"])
@@ -356,6 +357,110 @@ class OfflineExtractionPipeline:
                     connection.execute(
                         f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
                     )
+
+    def clear_document_canonical_artifacts(
+        self,
+        connection: sqlite3.Connection,
+        doc_id: str,
+    ) -> None:
+        rows = connection.execute(
+            """
+            SELECT entity_id, relation_id
+            FROM evidence
+            WHERE doc_id = ?
+            """,
+            (doc_id,),
+        ).fetchall()
+        stale_entity_ids = {row["entity_id"] for row in rows if row["entity_id"]}
+        stale_relation_ids = {row["relation_id"] for row in rows if row["relation_id"]}
+
+        if stale_relation_ids:
+            placeholders = ",".join("?" for _ in stale_relation_ids)
+            relation_rows = connection.execute(
+                f"""
+                SELECT source_entity_id, target_entity_id
+                FROM relations
+                WHERE relation_id IN ({placeholders})
+                """,
+                tuple(stale_relation_ids),
+            ).fetchall()
+            for row in relation_rows:
+                stale_entity_ids.add(row["source_entity_id"])
+                stale_entity_ids.add(row["target_entity_id"])
+
+        connection.execute("DELETE FROM evidence WHERE doc_id = ?", (doc_id,))
+
+        for relation_id in stale_relation_ids:
+            remaining_evidence = connection.execute(
+                "SELECT 1 FROM evidence WHERE relation_id = ? LIMIT 1",
+                (relation_id,),
+            ).fetchone()
+            if remaining_evidence is None:
+                connection.execute(
+                    """
+                    UPDATE extracted_relations
+                    SET normalized_relation_id = NULL
+                    WHERE normalized_relation_id = ?
+                    """,
+                    (relation_id,),
+                )
+                if self._table_exists(connection, "mitre_mappings"):
+                    connection.execute(
+                        "UPDATE mitre_mappings SET relation_id = NULL WHERE relation_id = ?",
+                        (relation_id,),
+                    )
+                connection.execute("DELETE FROM relations WHERE relation_id = ?", (relation_id,))
+
+        for entity_id in stale_entity_ids:
+            remaining_evidence = connection.execute(
+                "SELECT 1 FROM evidence WHERE entity_id = ? LIMIT 1",
+                (entity_id,),
+            ).fetchone()
+            remaining_relation = connection.execute(
+                """
+                SELECT 1
+                FROM relations
+                WHERE source_entity_id = ? OR target_entity_id = ?
+                LIMIT 1
+                """,
+                (entity_id, entity_id),
+            ).fetchone()
+            if remaining_evidence is None and remaining_relation is None:
+                connection.execute(
+                    """
+                    UPDATE extracted_entities
+                    SET normalized_entity_id = NULL
+                    WHERE normalized_entity_id = ?
+                    """,
+                    (entity_id,),
+                )
+                if self._table_exists(connection, "mitre_mappings"):
+                    connection.execute(
+                        "UPDATE mitre_mappings SET entity_id = NULL WHERE entity_id = ?",
+                        (entity_id,),
+                    )
+                if self._table_exists(connection, "inferred_relations"):
+                    connection.execute(
+                        """
+                        DELETE FROM inferred_relations
+                        WHERE source_entity_id = ? OR target_entity_id = ?
+                        """,
+                        (entity_id, entity_id),
+                    )
+                connection.execute("DELETE FROM entities WHERE entity_id = ?", (entity_id,))
+
+        self.refresh_source_counts(connection)
+
+    def _table_exists(self, connection: sqlite3.Connection, table_name: str) -> bool:
+        row = connection.execute(
+            """
+            SELECT 1
+            FROM sqlite_master
+            WHERE type = 'table' AND name = ?
+            """,
+            (table_name,),
+        ).fetchone()
+        return row is not None
 
     def import_document(
         self,
@@ -979,6 +1084,10 @@ def evidence_ids_for_relations(
 
 
 def canonical_entity_id(entity_type: str, name: str) -> str:
+    if entity_type == "TECHNIQUE":
+        match = re.search(r"\bT\d{4}(?:\.\d{3})?\b", name, flags=re.IGNORECASE)
+        if match:
+            return f"{ENTITY_PREFIXES[entity_type]}:{match.group(0).lower()}"
     return f"{ENTITY_PREFIXES[entity_type]}:{slugify(name)}"
 
 

@@ -5,7 +5,10 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 
 from backend.app.services.demo_store import DemoStore
-from backend.app.services.offline_extraction_pipeline import OfflineExtractionPipeline
+from backend.app.services.offline_extraction_pipeline import (
+    OfflineExtractionPipeline,
+    canonical_entity_id,
+)
 from scripts.export_graph_json import export_graph_json
 from scripts.import_extraction_result import import_extraction_result
 
@@ -168,3 +171,51 @@ def test_offline_pipeline_keeps_invalid_relation_as_candidate(tmp_path):
     assert "不允许主体类型 COUNTRY" in json.loads(
         invalid_relation["validation_errors_json"]
     )[0]
+
+
+def test_offline_pipeline_rerun_removes_stale_canonical_relation(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    modified_path = tmp_path / "modified_extraction.json"
+    payload = json.loads(EXTRACTION_PATH.read_text(encoding="utf-8"))
+    payload["chunks"][0]["relations"] = [
+        relation
+        for relation in payload["chunks"][0]["relations"]
+        if relation["tail_name"] != "China"
+    ]
+    modified_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    pipeline = OfflineExtractionPipeline(db_path)
+    first_summary = pipeline.run(DOCUMENT_PATH, EXTRACTION_PATH)
+    second_summary = pipeline.run(DOCUMENT_PATH, modified_path)
+
+    assert first_summary.canonical_relations == 5
+    assert second_summary.extracted_relations == 4
+    assert second_summary.canonical_relations == 4
+    assert second_summary.evidence == 10
+    with connect(db_path) as connection:
+        stale_relation = connection.execute(
+            """
+            SELECT 1
+            FROM relations
+            WHERE relation_id = 'rel:apt_group:apt28:TARGETS:country:china'
+            """
+        ).fetchone()
+        stale_evidence = connection.execute(
+            """
+            SELECT 1
+            FROM evidence
+            WHERE relation_id = 'rel:apt_group:apt28:TARGETS:country:china'
+            """
+        ).fetchone()
+
+    assert stale_relation is None
+    assert stale_evidence is None
+
+
+def test_technique_entity_id_preserves_mitre_subtechnique_dot():
+    assert canonical_entity_id("TECHNIQUE", "T1566") == "technique:t1566"
+    assert canonical_entity_id("TECHNIQUE", "T1566.001") == "technique:t1566.001"
+    assert (
+        canonical_entity_id("TECHNIQUE", "Spearphishing Attachment (T1566.001)")
+        == "technique:t1566.001"
+    )
