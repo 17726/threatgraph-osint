@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+      args:
+        PYTHON_IMAGE: ${BACKEND_PYTHON_IMAGE:-public.ecr.aws/docker/library/python:3.13-slim}
     environment:
       APP_ENV: development
       API_HOST: 0.0.0.0
@@ -20,6 +22,7 @@ services:
     volumes:
       - ./backend:/app/backend
       - ./scripts:/app/scripts
+      - ./docs:/app/docs:ro
       - ./data:/app/data
     command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 

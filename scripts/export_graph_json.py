@@ -1,6 +1,11 @@
 import json
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from backend.app.services.demo_store import DEFAULT_DB_PATH, DemoStore
 
@@ -11,8 +16,10 @@ DEFAULT_OUTPUT_PATH = Path("data/graph/graph.json")
 def export_graph_json(
     db_path: str | Path = DEFAULT_DB_PATH,
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
+    seed_demo: bool = True,
 ) -> Path:
-    graph = DemoStore(db_path).get_graph()
+    store = DemoStore(db_path, seed_demo=seed_demo)
+    graph = store.get_graph()
     payload = {
         "version": "2.0",
         "schema_version": graph["schema_version"],
@@ -22,32 +29,7 @@ def export_graph_json(
         "nodes": graph["nodes"],
         "edges": graph["edges"],
         "evidence": graph["evidence"],
-        "analysis": {
-            "mitre_mappings": [
-                {
-                    "mapping_id": "mitre_apt28_t1566",
-                    "target_group": "APT28",
-                    "technique_id": "T1566",
-                    "technique_name": "Phishing",
-                    "tactic": "Initial Access",
-                    "attack_stage": "初始访问",
-                    "confidence": 0.9,
-                    "evidence_ids": ["ev_apt28_t1566_001"],
-                }
-            ],
-            "behavior_patterns": [
-                {
-                    "pattern_id": "pattern_apt28_initial_access",
-                    "target_group": "APT28",
-                    "stage": "初始访问",
-                    "description": "APT28 常通过鱼叉式钓鱼相关技术获得初始访问。",
-                    "technique_ids": ["T1566"],
-                    "evidence_ids": ["ev_apt28_t1566_001"],
-                    "confidence": 0.88,
-                }
-            ],
-            "inferred_relations": [],
-        },
+        "analysis": store.get_analysis(),
     }
 
     path = Path(output_path)

@@ -93,28 +93,28 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 
 3. [ ] **S1.3 接入文档导入和切块**（be / data）
    - [ ] 实现或确认 `POST /api/v1/documents/import` 可以写入 `documents`。
-   - [ ] 将导入文档切分为 `chunks`。
-   - [ ] 保留 `doc_id`、`chunk_id`、`source_url`、`language` 和 `target_group`。
+   - [x] 将导入文档切分为 `chunks`。
+   - [x] 保留 `doc_id`、`chunk_id`、`source_url`、`language` 和 `target_group`。
    - [ ] 对重复导入提供可接受的处理方式，例如覆盖、跳过或提示冲突。
 
-4. [ ] **S1.4 生成候选抽取结果**（llm / be）
-   - [ ] 先用 mock LLM 输出或手写 `extraction_result.json` 跑通流程。
-   - [ ] 候选实体写入 `extracted_entities`，不直接写入正式 `entities`。
-   - [ ] 候选关系写入 `extracted_relations`，不直接写入正式 `relations`。
-   - [ ] 每个候选实体和候选关系都要带 `chunk_id`、`evidence_text` 和 `confidence`。
-   - [ ] 记录抽取运行信息到 `extraction_runs`。
+4. [x] **S1.4 生成候选抽取结果**（llm / be）
+   - [x] 先用 mock LLM 输出或手写 `extraction_result.json` 跑通流程。
+   - [x] 候选实体写入 `extracted_entities`，不直接写入正式 `entities`。
+   - [x] 候选关系写入 `extracted_relations`，不直接写入正式 `relations`。
+   - [x] 每个候选实体和候选关系都要带 `chunk_id`、`evidence_text` 和 `confidence`。
+   - [x] 记录抽取运行信息到 `extraction_runs`。
 
-5. [ ] **S1.5 归一化为正式图谱**（be / arch）
-   - [ ] 实现基础实体归一化：同名、别名、大小写和常见 APT 别称合并。
-   - [ ] 后端生成正式 `entity_id`，LLM 不生成最终 ID。
-   - [ ] 后端生成正式 `relation_id`，LLM 不直接写正式关系。
-   - [ ] 将可信候选结果写入 `entities`、`relations` 和 `evidence`。
-   - [ ] 基于实体类型和关系类型做最小合法性校验。
+5. [x] **S1.5 归一化为正式图谱**（be / arch）
+   - [x] 实现基础实体归一化：同名、别名、大小写和常见 APT 别称合并。
+   - [x] 后端生成正式 `entity_id`，LLM 不生成最终 ID。
+   - [x] 后端生成正式 `relation_id`，LLM 不直接写正式关系。
+   - [x] 将可信候选结果写入 `entities`、`relations` 和 `evidence`。
+   - [x] 基于实体类型和关系类型做最小合法性校验。
 
 6. [ ] **S1.6 导出并验证 `graph.json`**（be / fe / qa）
-   - [ ] 从 SQLite 正式图谱表导出 `data/graph/graph.json`。
-   - [ ] 确认 `nodes` 的 `evidence_ids` 能追溯到 `evidence`。
-   - [ ] 确认 `edges` 的 `evidence_ids` 能追溯到 `evidence`。
+   - [x] 从 SQLite 正式图谱表导出 `data/graph/graph.json`。
+   - [x] 确认 `nodes` 的 `evidence_ids` 能追溯到 `evidence`。
+   - [x] 确认 `edges` 的 `evidence_ids` 能追溯到 `evidence`。
    - [ ] 前端能使用真实样本的 `graph.json` 或 API 响应正常渲染。
    - [ ] 记录当前流程的手动步骤和失败边界。
 
@@ -262,9 +262,9 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
    - [ ] 整理为本地文本或 `document.json`。
 
 3. [ ] **接入候选层和正式图谱层**（be / llm）
-   - [ ] 将候选实体写入 `extracted_entities`。
-   - [ ] 将候选关系写入 `extracted_relations`。
-   - [ ] 归一化后写入 `entities`、`relations` 和 `evidence`。
+   - [x] 将候选实体写入 `extracted_entities`。
+   - [x] 将候选关系写入 `extracted_relations`。
+   - [x] 归一化后写入 `entities`、`relations` 和 `evidence`。
 
 4. [ ] **验证前端真实样本展示**（fe / qa）
    - [ ] 使用真实 `graph.json` 或 API 响应渲染图谱。

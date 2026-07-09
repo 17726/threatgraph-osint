@@ -10,6 +10,7 @@ data/*.sqlite
 data/cleaned/*
 data/evaluation/*
 data/extracted/*
+!data/extracted/extraction_result.apt28.securelist.v1.json
 data/graph/*
 data/raw/*
 data/reports/*

@@ -1,4 +1,5 @@
-FROM python:3.13-slim
+ARG PYTHON_IMAGE=public.ecr.aws/docker/library/python:3.13-slim
+FROM ${PYTHON_IMAGE}
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -11,6 +12,9 @@ RUN pip install --no-cache-dir --retries 5 -r /app/backend/requirements.txt
 
 COPY backend /app/backend
 COPY scripts /app/scripts
+COPY docs/schemas /app/docs/schemas
+COPY data/examples /app/data/examples
+COPY data/extracted/extraction_result.apt28.securelist.v1.json /app/data/extracted/extraction_result.apt28.securelist.v1.json
 
 EXPOSE 8000
 
