@@ -224,20 +224,20 @@ data/raw/
 
 ```json
 {
-  "item_id": "raw_apt28_securelist_masha_bears_001",
+  "item_id": "raw_apt28_thn_beardshell_001",
   "collection_run_id": "manual_20260708_001",
-  "source_id": "securelist",
+  "source_id": "the_hacker_news",
   "target_group": "APT28",
-  "source_url": "https://securelist.com/masha-and-these-bears/84311/",
-  "source_type": "vendor_report",
-  "source_name": "Kaspersky Securelist",
-  "title": "Masha and these Bears",
+  "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "APT28 Uses Signal Chat to Deploy BEARDSHELL Malware and COVENANT in Ukraine",
   "language": "en",
   "raw_text": "...",
-  "raw_html_path": "data/raw/html/apt28_securelist_masha_bears_001.html",
+  "raw_html_path": "data/raw/html/apt28_thn_beardshell_001.html",
   "raw_content_hash": "sha256:...",
   "raw_html_hash": "sha256:...",
-  "published_at": "2018-03-09",
+  "published_at": "2025-06-24",
   "retrieved_at": "2026-07-07T00:00:00+08:00",
   "status": "collected",
   "metadata": {
@@ -260,22 +260,22 @@ data/examples/document.*.json
 
 ```json
 {
-  "doc_id": "apt28_securelist_masha_bears_001",
+  "doc_id": "apt28_049",
   "schema_version": "1.0",
   "target_group": "APT28",
   "target_groups": ["APT28"],
-  "source_url": "https://securelist.com/masha-and-these-bears/84311/",
-  "source_type": "vendor_report",
-  "source_name": "Kaspersky Securelist",
-  "title": "Masha and these Bears",
+  "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "APT28 Uses Signal Chat to Deploy BEARDSHELL Malware and COVENANT in Ukraine",
   "language": "en",
   "clean_text": "...",
   "content_hash": "sha256:...",
-  "published_at": "2018-03-09",
-  "retrieved_at": "2026-07-08T10:00:00+08:00",
-  "source_reliability": "A",
+  "published_at": "2025-06-24",
+  "retrieved_at": "2026-07-08T08:01:18Z",
+  "source_reliability": "B",
   "tlp": "TLP:CLEAR",
-  "tags": ["securelist", "kaspersky", "apt", "apt28", "vendor_report"],
+  "tags": ["APT28", "CERT-UA", "Malware", "Phishing", "Ukraine", "news"],
   "metadata": {
     "collector": "data"
   }
