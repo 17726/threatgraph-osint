@@ -40,6 +40,7 @@ data/evaluation/*
 
 # Local verification artifacts
 output/
+tmp/
 
 # Neo4j local data
 neo4j_data/
