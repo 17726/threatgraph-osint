@@ -1,0 +1,38 @@
+{
+  "doc_id": "kimsuky_053",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://thehackernews.com/2013/09/Kimsuky-malware-Cyber-Espionage-campaign-South-Korea.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "Kaspersky revealed \"Kimsuky\" Cyber Espionage campaign targeting South Korea",
+  "language": "en",
+  "clean_text": "Russian Security Firm\nKaspersky Lab\nhas revealed that it has been following a sustained attack on South Korea by hackers seemingly based in North Korea.,\nThis new\nCyber Espionage\ncampaign dubbed\n\"Kimsuky\"\nhas targeted several South Korean think tanks. R\nesearchers believe the Kimsuky malware is most likely delivered via\nspear-phishing\ne-mails\nand used multiple Dropbox email accounts\n\"It’s interesting that the drop box mail accounts iop110112@hotmail.com and rsh1213@hotmail.com are registered with the following “kim” names: kimsukyang and “Kim\nasdfa\n”\nThe Kaspersky researchers revealed that the operation presents distinctive characteristics in its execution and logistics. The investigation started after the team of experts detected an unsophisticated\nspy program\nthat communicated with it control server via a public e-mail server, an approach followed by too many amateur\nmalware\nauthors.\nVictims download a Trojan dropper which is used to download additional malware, which\nhas the ability to perform the following espionage functions including keystroke logging, directory listing collection, remote control access and HWP document theft.\nThe complete path found in the malware presents some Korean strings:\nD:\\rsh\\공격\\UAC_dll(완성)\\Release\\test.pdb\nThe “\nrsh\n” word, by all appearances, means a shortening of “Remote Shell” and the Korean words can be translated in English as “attack” and “completion”, i.e.:\nD:\\rsh\\ATTACK\\UAC_dll(COMPLETION)\\Release\\test.pdb\nAt system startup, the basic library disables the system firewall and any firewall produced by the South Korean security product vendor AhnLab. The malware does not include a custom back door, instead the attackers modified a TeamViewer client as a remote control module.\nBot agents communicate with C&C through the Bulgarian web-based free email server (mail.bg), it maintains a hard coded credentials for its e-mail account. After authenticating, the malware sends emails to another specified email address, and reads emails from the Inbox.\nEspionage campaign appears to be originated in North Korea. The researchers identified 10 IP addresses indicating that the attackers used networks in China's Jilin and Liaoning provinces, which border North Korea.\nAttackers were interested in targeting 11 organizations based in South Korea and two entities in China including the Sejong Institute, Korea Institute For Defense Analyses (KIDA), South Korea's Ministry of Unification, Hyundai Merchant Marine and The supporters of Korean Unification.",
+  "content_hash": "sha256:fca1785254f13c2b47da97e394a792d3442f3b6cb6cb978a4d5afc093672655f",
+  "published_at": "2013-09-12",
+  "retrieved_at": "2026-07-08T08:21:41Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "Antivirus",
+    "cyber espionage",
+    "Firewall",
+    "hacking news",
+    "Kimsuky",
+    "Malware",
+    "Spear Phishing",
+    "Trojan",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_053",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_053.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

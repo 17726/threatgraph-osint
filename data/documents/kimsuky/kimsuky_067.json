@@ -1,0 +1,39 @@
+{
+  "doc_id": "kimsuky_067",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://thehackernews.com/2024/05/north-korean-hackers-exploit-facebook.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "North Korean Hackers Exploit Facebook Messenger in Targeted Malware Campaign",
+  "language": "en",
+  "clean_text": "The North Korea-linked\nKimsuky hacking group\nhas been attributed to a new social engineering attack that employs fictitious Facebook accounts to targets via Messenger and ultimately delivers malware.\n\"The threat actor created a Facebook account with a fake identity disguised as a public official working in the North Korean human rights field,\" South Korean cybersecurity company Genians\nsaid\nin a report published last week.\nThe multi-stage attack campaign, which impersonates a legitimate individual, is designed to target activists in the North Korean human rights and anti-North Korea sectors, it noted.\nThe approach is a departure from the typical email-based spear-phishing strategy in that it leverages the social media platform to approach targets through Facebook Messenger and trick them into opening seemingly private documents written by the persona.\nThe decoy documents, hosted on OneDrive, is a Microsoft Common Console document that masquerades as an essay or content related to a trilateral summit between Japan, South Korea, and the U.S. -- \"My_Essay(prof).msc\" or \"NZZ_Interview_Kohei Yamamoto.msc\" -- with the latter uploaded to the VirusTotal platform on April 5, 2024, from Japan.\nThis raises the possibility that the campaign may be oriented toward targeting specific people in\nJapan and South Korea\n.\nThe use of MSC files to pull off the attack is a sign that Kimsuky is utilizing uncommon document types to fly under the radar. In a further attempt to increase the likelihood of success of the infection, the document is\ndisguised as an innocuous Word file\nusing the word processor's icon.\nShould a victim launch the MSC file and consent to opening it using Microsoft Management Console (\nMMC\n), they are displayed a console screen containing a Word document that, when launched, activates the attack sequence.\nThis involves running a command to establish a connection with an adversary-controlled server (\"brandwizer.co[.]in\") to display a document hosted on Google Drive (\"Essay on Resolution of Korean Forced Labor Claims.docx\"), while additional instructions are executed in the background to set up persistence as well as collect battery and process information.\nThe gathered information is then exfiltrated to the command-and-control (C2) server, which is also capable of harvesting IP addresses, User-Agent strings, and timestamp information from the HTTP requests, and delivering relevant payloads as necessary.\nGenians said that some of the tactics, techniques, and procedures (TTPs) adopted in the campaign overlap with prior Kimsuky activity disseminating malware such as\nReconShark\n, which was\ndetailed\nby SentinelOne in May 2023.\n\"In the first quarter of this year, spear-phishing attacks were the most common method of APT attacks reported in South Korea,\" the company noted. \"Although not commonly reported, covert attacks via social media are also occurring.\"\n\"Due to their one-on-one, personalized nature, they are not easily detected by security monitoring and are rarely reported externally, even if the victim is aware of them. Therefore, it is very important to detect these personalized threats at an early stage.\"",
+  "content_hash": "sha256:a25a58cabff0f002a48e27e2111b3f0baaba9ea4b13ec1c21f31d6cde9872f4a",
+  "published_at": "2024-05-16",
+  "retrieved_at": "2026-07-08T08:20:54Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT group",
+    "cyber espionage",
+    "Facebook",
+    "Kimsuky",
+    "Malware",
+    "Microsoft",
+    "OneDrive",
+    "social engineering",
+    "Threat Intelligence",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_067",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_067.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

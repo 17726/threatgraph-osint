@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_019",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/news/242589.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "朝鲜黑客窃取了美国和欧盟商店的信用卡数据",
+  "language": "zh",
+  "clean_text": "来自网络安全公司Sansec的最新研究表明，朝鲜的黑客组织Lazarus APT一直在窃取美国和欧洲大型零售商户的支付卡信息，他们通过破坏合法网站并利用电子分离器来窃取信用卡数据。\n\n为了避免在泄露支付卡数据时被发现，这些朝鲜黑客还使用类似于被入侵商店的域名进行注册。\n\n这种策略在Magecart式攻击中非常普遍：攻击者利用恶意脚本（网络浏览器），从结帐页面复制敏感信息。\n\n如今从在线商店的客户那里窃取信用卡信息已成为越来越严重的威胁，于是Sansec的研究人员发现在调查支付卡盗窃案时发现，该恶意代码是从涉及Lazarus APT的网络钓鱼活动域中加载的，并且和攻击中使用的电子分离器代码共享相同的代码库。\n\n此次受害者名单涉及数十家商店，其中有配饰巨头克莱尔（Claire），黄氏珠宝商（Wongs Jewellers），Focus Camera，CBD Armour，Microbattery和Realchems。\n\n目前多家网络安全公司已把渗透域与朝鲜网络攻击联系在一起，下图显示了朝鲜黑客从受害者那里收集支付卡信息的渗透节点（红色）（绿色）。\n\ncom（spearphishing操作1，2）\nnet（malspam 1，2）\nareac-agr.com（Dacls RAT的下载服务器）\ncom（与areac-agr.com共享IP，在Dacls示例中进行硬编码）\n\n“为了使业务获利，HIDDEN COBRA开发了一个全球渗漏网络。该网络可以利用合法的站点，这些站点被劫持并重新用于伪装成犯罪活动。” 研究人员发布的报告表示“该网络还可以用来对被盗资产进行归类，以便可以在暗网市场上出售它们。\n\nSansec已经确定了许多这样的渗透节点，最初，渗透节点是Lux Model Agency的网站，但该恶意软件在24小时内消失，并在一周后重新出现在同一家商店中。\n\n于是米兰的模特经纪公司，德黑兰的古董音乐商店和新泽西的家庭书店都遭殃了，在接下来的几个月中，相同的恶意脚本使用以下被劫持的站点来加载并收集被盗的信用卡，从而感染了数十家商店：\n\ncom（在2019-07-19和2019-08-10之间）\ncom（在2019-07-06和2019-07-09之间）\nnet（在2019-05-30和2019-11-26之间）\nareac-agr.com（在2019-05-30和2020-05-01之间）\ncom（介于2019-06-23和2020-04-07之间）\ncom（在2019-07-01和2020-05-24之间）\n\n注册与受害者商店相似的域名是黑客组织Lazarus APT的另一种策略。在2020年2月至2020年3月间的另一次运动中，黑客注册了易与Claire's，Focus Camera和PaperSource混淆的域。\n\n于是Sansec发现，这三个品牌的网站都受到了付款掠夺恶意软件的侵害，并且在假域名加载了脚本并收集了数据。除了域名注册商和DNS服务外，它们还共享了一个“奇数代码段”，被跟踪到是由同一参与者操作的。\n\nSansec研究人员总结说：不排除这些攻击是与朝鲜无关的其他攻击者的所为，但同时控制一套劫持网站的可能性很小。所以，朝鲜至少从2019年5月起就一直在进行大规模的盗窃攻击活动，并将其作为一种赚钱的手段。\n\n参考来源\n\nbleepingcomputer",
+  "content_hash": "sha256:19a4bfadedf878f33d26d4b2915dd864acc1c46c5bdd376b581e44468880f73a",
+  "published_at": "2020-07-07",
+  "retrieved_at": "2026-07-07T17:03:28Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_019",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_019.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

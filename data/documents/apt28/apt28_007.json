@@ -1,0 +1,31 @@
+{
+  "doc_id": "apt28_007",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.freebuf.com/articles/web/207807.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "SecWiki周刊（第279期）",
+  "language": "zh",
+  "clean_text": "安全资讯\n\n[新闻] 工信部：10月底前完成200款主流App数据安全检查\n\nhttp://www.bjnews.com.cn/news/2019/07/01/597947.html\n\n安全技术\n\n[其它] 怎样使用Python打造免杀payload\n\nhttps://nosec.org/home/detail/2727.html\n\n[工具] 当子域名遇上搜索引擎\n\nhttps://mp.weixin.qq.com/s/yZFdVXPDh2O_qN_S1DsBPw\n\n[Web安全] CobaltStrike + Metasploit 组合安装\n\nhttps://www.aqniu.com/vendor/50662.html\n\n[漏洞分析] 关于漏洞挖掘的一点想法\n\nhttps://mp.weixin.qq.com/s/79k5bxGr1ykCpN4lSeiTqw\n\n[漏洞分析] Writing shellcodes for Windows x64\n\nhttps://nytrosecurity.com/2019/06/30/writing-shellcodes-for-windows-x64/\n\n[漏洞分析] 隐藏在Firefox中长达17年的文件窃取漏洞？\n\nhttps://nosec.org/home/detail/2745.html\n\n[恶意分析] Analyzing One of the Latest APT28 Zepakab/Zebrocy Delphi Implant\n\nhttps://www.vkremez.com/2019/01/lets-learn-overanalyzing-one-of-latest.html\n\n[漏洞分析] phpMyAdmin 文件包含复现分析\n\nhttps://xz.aliyun.com/t/5534\n\n[运维安全] Safety-Project-Collection: 收集一些比较优秀的开源安全项目\n\nhttps://github.com/Bypass007/Safety-Project-Collection\n\n[取证分析] 威胁剑魔杂谈\n\nhttps://mp.weixin.qq.com/s/wpBeoTEC7g-wFX-DA61gmA\n\n[数据挖掘] 国内四大UEBA解决方案\n\nhttps://mp.weixin.qq.com/s/ftcks4wPVNmKMpODvOcfBQ\n\n[运维安全] 利用 ELK 搭建 Docker 容器化应用日志中心\n\n[漏洞分析] Cheating-Plugin-Program: 从零开始研究外挂设计原理\n\nhttps://github.com/luguanxing/Cheating-Plugin-Program\n\n[取证分析] Donot团伙（APT-C-35）移动端新攻击框架工具分析\n\nhttps://www.anquanke.com/post/id/181483\n\n[漏洞分析] Razzer: Finding Kernel Race Bugs through Fuzzing\n\nhttp://zeroyu.xyz/2019/06/30/Razzer-Finding-Kernel-Race-Bugs-through-Fuzzing/\n\n[Web安全] 前端中存在的变量劫持漏洞\n\nhttp://blog.wonderkun.cc/2019/07/01/%E5%89%8D%E7%AB%AF%E4%B8%AD%E5%AD%98%E5%9C%A8%E7%9A%84%E5%8F%98%E9%87%8F%E5%8A%AB%E6%8C%81%E6%BC%8F%E6%B4%9E/\n\n[恶意分析] 全球高级持续性威胁（APT）2019年中报告\n\nhttps://mp.weixin.qq.com/s/As902I82uYq5eYQHhUToaA\n\n[漏洞分析] 通过异常处理机制实现漏洞利用\n\nhttps://xz.aliyun.com/t/5480\n\n[其它] 利用Microsoft.com绕过防火墙以传递恶意命令\n\nhttps://nosec.org/home/detail/2747.html\n\n[取证分析] OSINT公开资源情报调查：暗网枪支销售+比特币追踪\n\nhttps://www.anquanke.com/post/id/181236\n\n[Web安全] Red Teaming Toolkit Collection\n\nhttps://0xsp.com/offensive/red-teaming-toolkit-collection\n\n[漏洞分析] 拟态防御题型pwn&web初探\n\nhttps://xz.aliyun.com/t/5532\n\n[编程技术] 前端工程师反击爬虫技术\n\nhttps://imweb.io/topic/595b7161d6ca6b4f0ac71f05\n\n[恶意分析] 浅析PHP文件包含及其getshell的姿势\n\nhttps://xz.aliyun.com/t/5535\n\n[其它] 区块链安全入门笔记 系列一\n\nhttps://paper.seebug.org/973/\n\n[恶意分析] Godlua Backdoor分析报告\n\nhttps://blog.netlab.360.com/an-analysis-of-godlua-backdoor/\n\n[漏洞分析] Axis-1.4-RCE-Poc: Axis\n\nhttps://github.com/KibodWapon/Axis-1.4-RCE-Poc\n\n[Web安全] Vasile Revnic's Blog: Hunting for Privilege Escalation with Burp Suite\n\nhttps://sirpwnalot.blogspot.com/2019/06/hunting-for-privilege-escalation-with.html\n\n[论文] 骗局的艺术：剖析以太坊智能合约中的蜜罐\n\nhttps://mp.weixin.qq.com/s/zKv3wKEXRT8CgOnVHOXi0Q\n\n[Web安全] Reverse Shells and Controlling Webcams\n\nhttps://ctrlaltdel.blog/2019/07/02/reverse-shells-and-controlling-webcams/\n\n[Web安全] IDS Bypass contest at PHDays: writeup and solutions\n\nhttp://blog.ptsecurity.com/2019/07/ids-bypass-contest-at-phdays-writeup.html\n\n[取证分析] 基于E-Mail的隐蔽控制：机理与防御\n\nhttps://www.freebuf.com/articles/network/207379.html\n\n[取证分析] Incident Response and IoC\n\nhttps://www.projectsharp.org/2019/07/04/incident-response-and-ioc/\n\n[恶意分析] 勒索软件Sodinokibi运营组织的关联分析\n\nhttps://www.freebuf.com/articles/network/207116.html\n\n-----微信ID：SecWiki-----\nSecWiki，5年来一直专注安全技术资讯分析！\nSecWiki：https://www.sec-wiki.com\n\n本期原文地址: SecWiki周刊(第279期)",
+  "content_hash": "sha256:b11cdb3dbea5597193cf1f0b5969db15ada80461af984920f4cf7d4fbbfa8914",
+  "published_at": "2019-07-08",
+  "retrieved_at": "2026-07-07T16:22:12Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "Web安全",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_007",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_007.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

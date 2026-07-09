@@ -1,0 +1,36 @@
+{
+  "doc_id": "apt28_038",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2022/09/researchers-identify-3-hacktivist.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "Researchers Identify 3 Hacktivist Groups Supporting Russian Interests",
+  "language": "en",
+  "clean_text": "At least three alleged hacktivist groups working in support of Russian interests are likely doing so in collaboration with state-sponsored cyber threat actors, according to Mandiant.\nThe Google-owned threat intelligence and incident response firm\nsaid\nwith moderate confidence that \"moderators of the purported hacktivist Telegram channels 'XakNet Team,' 'Infoccentr,' and 'CyberArmyofRussia_Reborn' are coordinating their operations with Russian Main Intelligence Directorate (GRU)-sponsored cyber threat actors.\"\nMandiant's assessment is based on evidence that the leakage of data stolen from Ukrainian organizations occurred within 24 hours of\nmalicious wiper incidents\nundertaken by the Russian nation-state group tracked as\nAPT28\n(aka Fancy Bear, Sofacy, or Strontium).\nTo that end, four of the 16 data leaks from these groups coincided with\ndisk wiping malware attacks\nby APT28 that involved the use of a strain dubbed\nCaddyWiper\n.\nAPT28\n, active since at least 2009, is\nassociated\nwith the Russian military intelligence agency, the General Staff Main Intelligence Directorate (GRU), and drew public attention in 2016 for the breaches of the Democratic National Committee (DNC) in the run-up to the U.S. presidential election.\nWhile the so-called hacktivist groups have conducted distributed denial-of-service (DDoS) attacks and website defacements to target Ukraine, indications are that these fake personas are a front for information operations and destructive cyber activities.\nThat said, the exact nature of the relationship and the degree of affiliation with the Russian state remains unknown, although it suggests either direct involvement from GRU officers themselves or through the moderators running the Telegram channels.\nThis line of reasoning is substantiated by XakNet's leak of a \"unique\" technical artifact that APT28 utilized in its compromise of a Ukrainian network and the fact that CyberArmyofRussia_Reborn's data releases are preceded by APT28 intrusion operations.\nThe cybersecurity company noted it also unearthed some level of coordination between the XakNet Team and Infoccentr as well as the pro-Russia group\nKillNet\n.\n\"The war in Ukraine has also presented novel opportunities to understand the totality, coordination, and effectiveness of Russia cyber programs, including the use of social media platforms by threat actors,\" Mandiant said.",
+  "content_hash": "sha256:341ad891731ac25cac40d60d49e6e52a0ddc7d485e35a090d10858c022db9acd",
+  "published_at": "2022-09-26",
+  "retrieved_at": "2026-07-08T08:01:59Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "Cyber Attack",
+    "Google",
+    "hacking news",
+    "Mandiant",
+    "Telegram",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_038",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_038.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

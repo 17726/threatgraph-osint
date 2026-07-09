@@ -1,0 +1,36 @@
+{
+  "doc_id": "kimsuky_069",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://thehackernews.com/2024/06/kimsuky-using-translatext-chrome.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "Kimsuky Using TRANSLATEXT Chrome Extension to Steal Sensitive Data",
+  "language": "en",
+  "clean_text": "The North Korea-linked threat actor known as Kimsuky has been linked to the use of a new malicious Google Chrome extension that's designed to steal sensitive information as part of an ongoing intelligence collection effort.\nZscaler ThreatLabz, which\nobserved\nthe activity in early March 2024, has codenamed the extension TRANSLATEXT, highlighting its ability to gather email addresses, usernames, passwords, cookies, and browser screenshots.\nThe targeted campaign is said to have been directed against South Korean academia, specifically those focused on North Korean political affairs.\nKimsuky is a\nnotorious hacking crew\nfrom North Korea that's known to be active since at least 2012, orchestrating cyber espionage and financially motivated attacks targeting South Korean entities.\nA sister group of the Lazarus cluster and part of the Reconnaissance General Bureau (RGB), it's also\ntracked\nunder the names APT43, ARCHIPELAGO, Black Banshee, Emerald Sleet, Springtail, and Velvet Chollima.\nIn recent weeks, the group has\nweaponized\na known security flaw in Microsoft Office (CVE-2017-11882) to distribute a keylogger and has used\njob-themed lures\nin attacks aimed at aerospace and defense sectors with an aim to drop an espionage tool with data gathering and secondary payload execution functionalities.\n\"The backdoor, which does not appear to have been publicly documented before, allows the attacker to perform basic reconnaissance and drop additional payloads to take over or remotely control the machine,\" cybersecurity company CyberArmor\nsaid\n. It has given the campaign the name Niki.\nThe exact mode of initial access associated with the newly discovered activity is currently unclear, although the group is known to leverage\nspear-phishing and social engineering attacks\nto activate the infection chain.\nThe starting point of the attack is a ZIP archive that purports to be about Korean military history and which contains two files: A Hangul Word Processor document and an executable.\nLaunching the executable results in the retrieval of a PowerShell script from an attacker-controlled server, which, in turn, exports information about the compromised victim to a GitHub repository and downloads additional PowerShell code by means of a Windows shortcut (LNK) file.\nZscaler said it found the\nGitHub account\n, created on February 13, 2024, briefly hosting the TRANSLATEXT extension under the name \"GoogleTranslate.crx,\" although its delivery method is presently unknown.\n\"These files were present in the repository on March 7, 2024, and deleted the next day, implying that Kimsuky intended to minimize exposure and use the malware for a short period to target specific individuals,\" security researcher Seongsu Park said.\nTRANSLATEXT, which masquerades as Google Translate, incorporates JavaScript code to bypass security measures for services like Google, Kakao, and Naver; siphon email addresses, credentials, and cookies; capture browser screenshots; and exfiltrate stolen data.\nIt's also designed to fetch commands from a Blogger Blogspot URL in order to take screenshots of newly opened tabs and delete all cookies from the browser, among others.\n\"One of the primary objectives of the Kimsuky group is to conduct surveillance on academic and government personnel in order to gather valuable intelligence,\" Park said.",
+  "content_hash": "sha256:19ae48d58e879bc5b0bf5eb64b5aa4234d0988b50cbe4d27fa942b5a76a16fea",
+  "published_at": "2024-06-28",
+  "retrieved_at": "2026-07-08T08:20:51Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "chrome extension",
+    "cyber espionage",
+    "cybersecurity",
+    "Kimsuky",
+    "Malware",
+    "North Korea",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_069",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_069.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

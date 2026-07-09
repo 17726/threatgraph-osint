@@ -1,0 +1,38 @@
+{
+  "doc_id": "apt28_062",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2026/06/canadas-spy-agency-used-first-of-its.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "Canada’s Spy Agency Used First-of-Its-Kind Warrant to Clean Botnet-Infected Devices",
+  "language": "en",
+  "clean_text": "Canada's spy service got a judge's permission to reach into infected servers, home routers, and IoT gear sitting on Canadian soil and neutralize two foreign-run botnets.\nThe Federal Court released a\npublic version\nof the ruling on June 15. It is the first time the Canadian Security Intelligence Service has used its threat reduction warrant powers this way.\nThe warrant let CSIS alter, degrade, and destroy botnet data on the infected machines and cut the devices loose from the networks.\nThe targets were Canada-based servers, small office and home office (SOHO) routers, and Internet of Things devices: Ring doorbells, security cameras, TVs, and other Wi-Fi-enabled appliances.\nJustice Catherine Kane granted the warrant on May 1, 2024, renewed it that August, and issued the confidential reasons in February 2026. The warrant stayed out of public view for more than two years, until this month's redacted release.\nCSIS needed the order because the cleanup would likely have been a crime without it. Reaching into someone else's device and wiping data is computer mischief under the Criminal Code, so the Service needed a judge's sign-off before touching the machines.\nThe court found the threat to Canada clearly established and imminent, and the measures necessary, reasonable, and proportional. It stressed the operation went after devices, not people: no user identities sought, no content intercepted, any personal data swept up incidentally destroyed.\nThe two botnets ran the standard relay playbook. A command tier issued the orders; a layer of infected devices relayed the traffic. By routing through hijacked Canadian hardware, a foreign state can look like an ordinary connection, a home worker, or an ISP customer, while it probes critical infrastructure, government, and military networks.\nThe owner of the infected doorbell gets left looking responsible for traffic they never sent. The court flagged the energy sector among the targets and warned that the\nadversaries could direct the botnets\nto probe and potentially disrupt Canadian infrastructure.\nThe public ruling settles the what: two foreign adversaries, a threat to Canada's security, the court found clearly made out. What it strips is the who. The timing and the technique match a specific moment in early 2024, but The Bureau, which\nsurfaced the ruling\n, says it cannot tell from the redacted reasons whether Canada's two botnets were both Chinese, both Russian, or one of each. The foreign-state hand is a finding. The flag is the redaction.\nSame Tactic, a Different Authority\nThat moment was a run of court-ordered botnet cleanups in the United States. In a December 2023 operation, the FBI used the botnet's own command channel to delete the\nKV-botnet malware\nfrom hundreds of U.S. SOHO routers, mostly end-of-life Cisco and NetGear boxes that the China-linked Volt Typhoon was using to hide access it had planted ahead of a possible crisis inside American communications, energy, water, and transportation systems.\nWeeks later, it ran a near-identical operation against a separate network of Ubiquiti routers that Russia's GRU, the\nAPT28 group\n, had turned into an espionage relay.\nCanada's cyber centre had joined the allied warnings about state actors abusing SOHO and IoT gear. Same court-ordered shape both times: neglected consumer gear, a state operator, a judge signing off on remote disinfection.\nThe difference is who holds the warrant. The U.S. operations were law enforcement, FBI, and DOJ acting under search-and-seizure authority.\nCanada's is an intelligence service using threat reduction measures, the CSIS's power to actively disrupt a threat rather than just collect intelligence on it, written into the CSIS Act years ago and reworked in the\nNational Security Act, 2017\n, which took effect in 2019. CSIS had never reached for it like this until now.\nIt Still Comes Down to Old Routers\nThe lesson for defenders is the boring one. The botnets feed on the gear nobody maintains: end-of-life routers still wired into the network, IoT kits that never took their last firmware update, anything sitting on default credentials with a management panel facing the internet.\nA government cleanup does not touch that. In the U.S. operations, the malware came off, but the weaknesses stayed, and a reboot or factory reset could undo the fix and reopen the door to reinfection. Retiring the dead hardware and locking down what stays is on the owner, not the agency that cleaned up after them.\nOne loose end the public ruling does not close: the application, by The Bureau's account, leaned on IP addresses CSIS had collected without a warrant, weeks after the Supreme Court of Canada held in\nR. v. Bykovets\nthat an IP address carries a reasonable expectation of privacy.\nWhether that squares with CSIS's collection authorities, and whether the owners of the disinfected devices were ever told, stay open.",
+  "content_hash": "sha256:5df9f5f09b80146890f608a109476de16379bb891646e61a19885639c095a094",
+  "published_at": "2026-06-22",
+  "retrieved_at": "2026-07-08T08:00:39Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "botnet",
+    "critical infrastructure",
+    "CSIS",
+    "cyber espionage",
+    "iot security",
+    "SOHO Router",
+    "Volt Typhoon",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_062",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_062.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

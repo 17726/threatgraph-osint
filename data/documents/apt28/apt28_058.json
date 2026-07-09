@@ -1,0 +1,40 @@
+{
+  "doc_id": "apt28_058",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2026/03/apt28-tied-to-cve-2026-21513-mshtml-0.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "APT28 Tied to CVE-2026-21513 MSHTML 0-Day Exploited Before Feb 2026 Patch Tuesday",
+  "language": "en",
+  "clean_text": "A recently disclosed security flaw patched by Microsoft may have been exploited by the Russia-linked state-sponsored threat actor known as\nAPT28\n, according to\nnew findings\nfrom Akamai.\nThe vulnerability in question is\nCVE-2026-21513\n(CVSS score: 8.8), a high-severity security feature bypass affecting the MSHTML Framework.\n\"Protection mechanism failure in MSHTML Framework allows an unauthorized attacker to bypass a security feature over a network,\" Microsoft\nnoted\nin its advisory for the flaw. It was\nfixed\nby the Windows maker as part of its February 2026 Patch Tuesday update.\nHowever, the tech giant also noted that the vulnerability had been exploited as a zero-day in real-world attacks, crediting the Microsoft Threat Intelligence Center (MSTIC), Microsoft Security Response Center (MSRC), and Office Product Group Security Team, along with Google Threat Intelligence Group (GTIG), for reporting it.\nIn a hypothetical attack scenario, a threat actor could weaponize the vulnerability by persuading a victim to open a malicious HTML file or shortcut (LNK) file delivered through a link or as an email attachment.\nOnce the crafted file is opened, it manipulates browser and Windows Shell handling, causing the content to be executed by the operating system, Microsoft noted. This, in turn, allows the attacker to bypass security features and potentially achieve code execution.\nWhile the company has not officially shared any details about the zero-day exploitation effort, Akamai said it identified a\nmalicious artifact\nthat was uploaded to VirusTotal on January 30, 2026, and is associated with infrastructure linked to APT28.\nIt's worth noting that the sample was\nflagged\nby the Computer Emergency Response Team of Ukraine (CERT-UA) early last month in connection with APT28's attacks exploiting another security flaw in Microsoft Office (CVE-2026-21509, CVSS score: 7.8).\nThe web infrastructure company said CVE-2026-21513 is rooted in the logic within \"ieframe.dll\" that handles hyperlink navigation, and that it's the result of insufficient validation of the target URL, which allows attacker-controlled input to reach code paths that invoke\nShellExecuteExW\n. This, in turn, enables execution of local or remote resources outside the intended browser security context.\n\"This payload involves a specially crafted Windows Shortcut (LNK) that embeds an HTML file immediately after the standard LNK structure,\" security researcher Maor Dahan said. \"The LNK file initiates communication with the domain wellnesscaremed[.]com, which is attributed to APT28 and has been in extensive use for the campaign's multistage payloads. The exploit leverages nested iframes and multiple DOM contexts to manipulate trust boundaries.\"\nAkamai noted that the technique makes it possible for an attacker to bypass Mark-of-the-Web (\nMotW\n) and Internet Explorer Enhanced Security Configuration (\nIE ESC\n), leading to a downgrade of the security context and ultimately facilitating the execution of malicious code outside of the browser sandbox via\nShellExecuteExW\n.\n\"While the observed campaign leverages malicious LNK files, the vulnerable code path can be triggered through any component embedding MSHTML,\" the company added. \"Therefore, additional delivery mechanisms beyond LNK-based phishing should be expected.\"",
+  "content_hash": "sha256:e2645504b3679fc9931c9ed0d34cb0681893ec14c7088928e2951e72789ee76d",
+  "published_at": "2026-03-02",
+  "retrieved_at": "2026-07-08T08:00:57Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "cybersecurity",
+    "Microsoft",
+    "MSHTML",
+    "patch Tuesday",
+    "Phishing",
+    "Threat Intelligence",
+    "Vulnerability",
+    "Windows",
+    "zero-day",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_058",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_058.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

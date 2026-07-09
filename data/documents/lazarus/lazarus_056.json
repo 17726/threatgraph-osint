@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_056",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/news/422577.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "史上最大加密货币盗窃案：Bybit冷钱包遭攻击，损失超百亿",
+  "language": "zh",
+  "clean_text": "加密货币交易所Bybit周五披露，其一个以太坊冷钱包（离线钱包）遭遇了一次“复杂”攻击，导致价值超过14.6亿美元（约合105.8亿人民币） 的加密货币被盗。这成为有史以来规模最大的单一加密货币盗窃案。\n\n攻击手法曝光\n\nBybit在X平台上的一篇帖子中表示：“事件发生在我们的一笔ETH多重签名冷钱包向热钱包转账的过程中。不幸的是，这次交易遭到了复杂攻击的操纵，攻击者伪装了签名界面，表面上显示正确的地址，但实际篡改了底层的智能合约逻辑。”\n“最终，攻击者成功控制了受影响的ETH冷钱包，并将其资产转移到了一个不明地址。”\n\n此外，Bybit首席执行官周本在社交媒体上发布了一份声明，强调所有其他冷钱包均未受到影响。公司还表示，已将此事件报告给相关部门。\n\n幕后黑手浮出水面\n\n虽然没有Bybit的官方确认，但Elliptic和Arkham Intelligence证实，此次数字盗窃案是臭名昭著的Lazarus组织所为。这一事件成为迄今为止报告的最大加密货币盗窃案，规模远超Ronin Network（6.24亿美元）、Poly Network（6.11亿美元）和BNB Bridge（5.86亿美元）。\n\n独立研究员ZachXBT表示，他们已经“将Bybit的攻击链与Phemex的攻击联系起来”，后者发生在上月底。\n\nLazarus组织是来自朝鲜的一个威胁行为者，也是最高产的黑客组织之一，曾策划了数十起加密货币盗窃案，为受制裁的朝鲜谋取非法收入。去年，谷歌曾将其描述为“可以说是全球领先的网络犯罪企业”。\n\n加密货币盗窃猖獗\n\n根据区块链情报公司Chainalysis的数据，2024年，Lazarus组织估计在47次加密货币攻击中窃取了340亿，占据同期所有非法加密货币收入的61%。\n\n谷歌旗下的Mandiant公司上月表示：“由于加密货币盗窃的回报丰厚、归因恶意行为者的挑战性以及许多组织对加密货币和Web3技术的初步了解，加密货币盗窃案正在不断增加。”\n\n参考来源：\n\nBybit Confirms Record-Breaking $1.46 Billion Crypto Heist in Sophisticated Cold Wallet Attack",
+  "content_hash": "sha256:4a1314fb74bcb2026e70dcecf78e510d09ed2f3a2491f088ea46b9a7211fb8c7",
+  "published_at": "2025-02-22",
+  "retrieved_at": "2026-07-07T16:58:06Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_056",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_056.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_031",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/consult/272517.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "疑似Lazarus组织利用大宇造船厂为相关诱饵的系列攻击活动分析",
+  "language": "zh",
+  "clean_text": "概述\n\nLazarus APT组织是疑似具有东北亚背景的APT团伙，该组织攻击活动最早可追溯到2007年，其早期主要针对韩国、美国等政府机构，以窃取敏感情报为目的。自2014年后，该组织开始针对全球金融机构 、虚拟货币交易所等为目标，进行以敛财为目的的攻击活动。\n\n据公开情报显示，2014 年索尼影业遭黑客攻击事件，2016 年孟加拉国银行数据泄露事件，2017年美国国防承包商、美国能源部门及英国、韩国等比特币交易所被攻击等事件都出自Lazarus之手。\n\n近日，奇安信红雨滴团队使用内部高价值样本狩猎流程捕获多个Lazarus组织新攻击样本，此类样本以东亚某知名造船厂（大宇造船：Daewoo Shipbuilding）、居民登记表等信息为诱饵，采用bmp文件隐藏RAT的方式进行载荷隐藏。\n\n样本信息\n\n捕获的样本均是韩语相关诱饵，都采用类似的VBA脚本进行攻击，样本信息如下:\n\n文件名\n\nMD5\n\n참가신청서양식.doc\n\ned9aa858ba2c-4671ca373496a4dd05d4\n\n결의대회초안.doc\n\nd5e974a3386fc99d2932756ca165a451\n\n생활비지급.doc\n\n71759cca8c700646b4976b19b9abd6fe\n\n受害者启用宏后，将展示诱饵文档信息迷惑受害者，诱饵包括东亚某造船厂收购、居民登记表等相关信息。诱饵内容入下图所示：\n\n样本分析\n\n我们以MD5为d5e974a3386fc99d2932756ca165a451的样本进行分析。\n\nMD5\n\nd5e974a3386fc99d2932756ca165a451\n\n文件名\n\n결의대회초안.doc\n\n创建时间\n\n2021-03-31 00:01:00\n\n创建者\n\nWilliam\n\n文件名中文原意为决议会议草案。诱导用户点击按钮，则会执行宏代码。\n\n启用宏，将展示诱饵信息内容，诱饵信息是关于韩国出售大宇造船厂给现代重工的相关言论。\n\n之后宏使用MsgBoxOKCancel函数会进行弹窗，并收集用户点击结果。如果用户点击yes的话会进行后续的载荷解密释放。\n\n使用base64将代码中所需字符进行解码。\n\n将image003.png转换为bmp格式进行解密，然后使用mshta运行其中的js代码。\n\n从binwalk中可看见image003.png存在Zlib压缩数据。\n\nBMP文件中包含HTA文件。解压缩后的JS代码如下图所示，包含OpenTextFile，CreateTextFile，fromCharCode，Close，Write，C:/Users/Public/Downloads/Winvoke.exe等值。\n\n当脚本执行时，会去解析第一个数组获取索引值。同时使用CreateTextFile创建Winvoke.exe，将“MZ”写入。然后通过fromCharCode将data数组转换为字符串，写入Wincoke.exe中。最后Wscript.Run执行落地的载荷。\n\nMD5\n\nf4d46629ca15313b94992f3798718df7\n\n文件名\n\nWinvoke.exe\n\n释放执行的Winvoke.exe是一个加载器，主要功能为内存解密并加载后续远控文件。\n\n标记处为密钥，程序运行后会使用该密钥通过异或解密.KDATA的后续字段。\n\n解密函数如下，解密后的数据是一个可执行文件，解密完成后将跳转到该文件中执行。\n\n解密加载的可执行文件信息如下：\n\nMD5\n\n7d7ad10a5d9fa1789b9a918625dbfe35\n\n时间戳\n\n2020-11-24,20:18:03\n\n执行后，首先创建Microsoft32互斥量，保持单一进程执行。获取函数地址，使用了MicrosoftCorporationValidation@#$%^&*()!US作为S盒的Rivest Cipher 4解密。\n\n解密url。\n\n解密函数如下：\n\n利用python还原解密函数逻辑如下图：\n\n将该文件通过com接口shellLink在开机启动文件夹中创建“Visor 2010 Launcher.lnk”的指定快捷方式，实现持久化。\n\n与C2进行通信，获取命令执行。\n\n与C2成功建立通信后，将从返回数据中读取指令并执行。\n\n该后门支持的指令功能介绍如下表所示\n\n指令码\n\n功能\n\n8888\n\n下载执行\n\n9876\n\n退出程序\n\n9999\n\n命令执行（创建线程，通过cmd执行命令）\n\n8877\n\n下载文件\n\n1111\n\n更改休眠时间\n\n1234\n\n创建线程内存加载执行代码\n\n3333\n\n删除自身\n\n4444\n\n关机\n\n溯源关联\n\n奇安信威胁情报中心红雨滴团队结合威胁情报中心ALPHA威胁分析平台（https://ti.qianxin.com/），对此次攻击活动的手法、恶意代码等方面关联分析发现：此次攻击活动与Lazarus组织样本存在高度相似性。该样本与ed9aa858ba2c-4671ca373496a4dd05d4 和d5e974a3386fc99d2932756ca165a451中使用的宏和第二阶段内存载入的木马存在一致性。同时该样本的RAT为更全功能的版本，增加了移动自身到开机自启动文件夹的功能，实现了持久化。\n\n同时该样本使用的加密算法与之前Lazarus使用的BISTROMATH RAT的加密算法有一定的相似度。\n\n总结\n\n此次捕获的样本主要针对东亚地区开展攻击活动，暂未发现影响国内用户，但防范之心不可无，奇安信威胁情报中心再次提醒各企业用户，加强员工的安全意识培训是企业信息安全建设中最重要的一环，如有需要，企业用户可以建设态势感知，完善资产管理及持续监控能力，并积极引入威胁情报，以尽可能防御此类攻击。\n\n目前，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括威胁情报平台（TIP）、天眼高级威胁检测系统、NGSOC、奇安信态势感知等，都已经支持对此APT攻击团伙攻击活动的精准检测。\n\nIOCs\n\nd5e974a3386fc99d2932756ca165a451\n\nf4d46629ca15313b94992f3798718df7\n\n0ecfa51cd4bf1a9841a07bdb5bfcd0ab\n\ned9aa858ba2c-4671ca373496a4dd05d4\n\n71759cca8c700646b4976b19b9abd6fe\n\n118cfa75e386ed45bec297f8865de671\n\n53648bf8f0121130edb42c626d7c2fc-4\n\n4d30612a928faf7643b14bd85d8433cc\n\n0812ce08a75e5fc774a114436e88cd06\n\n1bb267c96ec2925f6ae3716d831671cf\n\nhttp://mail.namusoft.kr/jsp/user/eam/board.jsp\n\nhttp://www.jinjinpig.co.kr/Anyboard/skin/board.php\n\nhttp://snum.or.kr/skin_img/skin.php\n\nhttp://www.ddjm.co.kr/bbs/icon/skin/skin.php",
+  "content_hash": "sha256:6765b634046b89d621b8f094a760717364b7e77fda48110ff2c451da4b008ccc",
+  "published_at": "2021-05-11",
+  "retrieved_at": "2026-07-07T17:01:11Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "咨询",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_031",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_031.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

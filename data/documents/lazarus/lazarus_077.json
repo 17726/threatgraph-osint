@@ -1,0 +1,33 @@
+{
+  "doc_id": "lazarus_077",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://ti.qianxin.com/blog/articles/analysis-of-lazarus-apt-targeted-attack-against-south-korea-using-new-crown-outbreak-bait",
+  "source_type": "vendor_report",
+  "source_name": "奇安信威胁情报中心",
+  "title": "Lazarus APT组织利用新冠疫情诱饵针对韩国地区的定向攻击分析",
+  "language": "zh",
+  "clean_text": "背景\nLazarus是疑似具有东北亚背景的APT组织，因2014年攻击索尼影业开始受到广泛关注，其攻击活动最早可追溯到2007年，该组织早期主要针对其他国家政府机构，以窃取敏感情报为目的。但自2014年后，该组织开始针对全球金融机构 ，虚拟货币交易场等为目标，进行以敛财为目的的攻击活动。\n近日，奇安信威胁情报中心红雨滴团队在日常的异常样本监控过程中捕获到多例该团伙利用疫情为诱饵攻击周边国家的样本。定向攻击使用韩国地区特有的HWP文档并伪装为韩国仁川疾控中心的邮件进行投递，具有极强的针对性。红雨滴团队在发现此次攻击活动的第一时间向安全社区进行预警。\n样本分析\nHWP文档释放DLL后门的攻击样本\n文件名\n인천광역시 코로나바이러스 대응 긴급 조회 .hwp\nMD5\nbc13fc599bb594bc19ac9e6fde0c28c6\n攻击者伪装为韩国仁川疾控中心发送了带有恶意HWP文档附件的定向攻击邮件：\n以疫情相关信息诱导受害者执行附件文档，附件文档名为：인천광역시 코로나바이러스 대응 긴급 조회.hwp（仁川广域市紧急调查冠状病毒）。HWP文档打开后会展示疫情相关诱饵信息：\n通过hwpscan2工具打开文件，可见样本信息如下：\n样本中包含Post Scrip脚本，执行文档后，该脚本将会释放到%temp%目录下，并通过HWP组件gbb.exe加载起来。HWP文件中的大部分流都是经过zlib raw deflate压缩存储的，EPS流也不例外。可以通过Python解压缩恶意HWP文件中的EPS流，最终提取的脚本信息如下：\n脚本将执行image中定义的shellcode，多层解密后如下所示：\n可见该脚本最终将执行PowerShell脚本，脚本将根据系统位数的差别从远程下载对应文件到%temp%skype.jpg，并利用regsvr32加载skype.jpg：\n文件名\nSkype.exe\nMD5\ne3ef607182564bb158287cafb7b11be7\n来源\nhttp://teslacontrols.ir/wp-includes/images/detail31.jpg\n下载的文件是一个DLL文件,加载起来后首先动态获取API：\n之后获取系统版本，并根据不同版本尝试打开对应文件，从而判断当前进程权限以及进程id是否相同：\n若无法获取对应文件句柄或进程id不对应，则提升自身权限，并将自身注入到对应的文件中执行：\n满足条件后，检查运行环境，是否处于虚拟机中，若是虚拟机则退出程序：\n检查是否处于被调试状态\n通过检查窗口名，检查是否存在IDA等相关分析工具：\n之后获取计算机用户名，MAC地址等信息：\n将获取的信息加密后与C2通信获取命令执行等相应功能：\n该样本具有下载执行、获取进程列表、上传文件、获取计算机信息等功能：\nHWP文档释放EXE后门的攻击样本\n奇安信红雨滴团队还捕获了另外一起利用相同诱饵，相同手法的攻击样本\n文件名\n전라남도 코로나바이러스 대응 긴급 조회.hwp\nMD5\n8451be72b75a38516e7ba7972729909e\n该样本诱饵与之前的样本一样，执行后同样通过EPS脚本执行PowerShell从远程获取可执行文件执行：\n远程获取的可执行文件信息如下：\n文件名\nSvchost.exe\nMd5\nfe2d05365f059d48fd972c79afeee682\n来源\nhttp://www.sofa.rs/wp-content/themes/twentynineteen/sass/layout/h1.jpg\n该样本加入大量花指令，干扰分析：\n样本会获取计算机MAC地址、硬盘ID等信息：\n木马程序还会试着读取%AppData%\\Mircosoft\\Windows\\Winx\\config.txt中的文本，该文件会存放着加密后的URL地址：\n若该文件为空或不存在，则初始化C2并加密存入config.txt\n之后与C2通信获取指令执行：\n该样本通过自定义功能几个类实现恶意功能，包括远程SHELL、获取文件信息、键盘记录、下载执行等功能：\n总结\nLazarus 团伙是一个长期活跃的APT组织，其网络攻击武器库十分强大，拥有对多平台进行攻击的能力。近年来，该团伙多次被安全厂商披露，但从未停止进攻的脚步，反而越发活跃，攻击目标也越发广泛。同时，该团伙也多次针对中国国内进行攻击活动，所以企业用户在日常的工作中，切勿随意打开来历不明的邮件附件和链接。\n目前，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括奇安信威胁情报平台（TIP）、天擎、天眼高级威胁检测系统、奇安信NGSOC、奇安信态势感知等，都已经支持对此类攻击的精确检测。\nIOC\nMD5\n8451be72b75a38516e7ba7972729909e\nbc13fc599bb594bc19ac9e6fde0c28c6\n4662dfa19bd590b1088befa28426a161\nb5a31d89f5b83d37c921d159364c968c\ne6521be3b323865cf05f27d7c43aeff2\nURL\nhttp://www.sofa.rs/wp-content/themes/twentynineteen/sass/layout/h1.jpg\nhxxp://teslacontrols.ir/wp-includes/images/detail31.jpg\nhxxp://teslacontrols.ir/wp-includes/images/detail32.jpg\nhttp://www.kingsvc.cc/index.php\nhttp://www.sofa.rs/wp-admin/network/server_test.php\nhttp://www.afuocolento.it/wp-admin/network/server_test.php\nhttp://www.mbrainingevents.com/wp-admin/network/server_test.php",
+  "content_hash": "sha256:da778328d09100c54834a01dc3c7159ae1c7ed8ec9f4d2c1aa4d1a1aa99414de",
+  "published_at": "2020-04-15",
+  "retrieved_at": "2026-07-08T07:40:13Z",
+  "source_reliability": "A",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "LAZARUS",
+    "APT",
+    "事件追踪",
+    "vendor_report"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_077",
+    "legacy_source_type": "threat_report",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_077.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

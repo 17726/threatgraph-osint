@@ -1,0 +1,40 @@
+{
+  "doc_id": "apt28_040",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2024/02/alert-cisa-warns-of-active-roundcube.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "Alert: CISA Warns of Active 'Roundcube' Email Attacks - Patch Now",
+  "language": "en",
+  "clean_text": "The U.S. Cybersecurity and Infrastructure Security Agency (CISA) on Monday\nadded\na medium-severity security flaw impacting Roundcube email software to its Known Exploited Vulnerabilities (\nKEV\n) catalog, based on evidence of active exploitation.\nThe issue, tracked as\nCVE-2023-43770\n(CVSS score: 6.1), relates to a cross-site scripting (XSS) flaw that stems from the handling of linkrefs in plain text messages.\n\"Roundcube Webmail contains a persistent cross-site scripting (XSS) vulnerability that can lead to information disclosure via malicious link references in plain/text messages,\" CISA said.\nAccording to a description of the bug on NIST's National Vulnerability Database (NVD), the vulnerability impacts Roundcube versions before 1.4.14, 1.5.x before 1.5.4, and 1.6.x before 1.6.3.\nThe flaw was\naddressed\nby Roundcube maintainers with\nversion 1.6.3\n, which was released on September 15, 2023. Zscaler security researcher Niraj Shivtarkar has been credited with discovering and reporting the vulnerability.\nIt's currently not known how the vulnerability is being exploited in the wild, but flaws in the web-based email client have been weaponized by Russia-linked threat actors like\nAPT28 and Winter Vivern\nover the past year.\nU.S. Federal Civilian Executive Branch (FCEB) agencies have been mandated to apply vendor-provided fixes by March 4, 2024, to secure their networks against potential threats.",
+  "content_hash": "sha256:fb87c5473645f4d70271c6f97c2d4dfaaaf2abf80703ebdd207a921d55d0e96f",
+  "published_at": "2024-02-13",
+  "retrieved_at": "2026-07-08T08:01:49Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "CISA",
+    "Cross-site Scripting",
+    "cybersecurity",
+    "email security",
+    "NIST",
+    "Regulatory Compliance",
+    "Roundcube",
+    "Software Patching",
+    "Vulnerability",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_040",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_040.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "doc_id": "kimsuky_043",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/articles/483641.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "朝鲜黑客组织Kimsuky部署HTTPSpy木马 新增HelloDoor与VS Code隧道攻击手段",
+  "language": "zh",
+  "clean_text": "朝鲜国家背景的黑客组织Kimsuky（又称Velvet Chollima）被确认在2026年3月至4月期间针对韩国军方和企业实体发动新一轮网络攻击。网络安全公司ENKI本周发布分析报告指出：\"Kimsuky采用了一系列定制化的社会工程学策略，包括伪造安全软件安装页面以及利用真实会议日程制作的虚假Webex会议页面。\"\n\n伪装安全软件的HTTPSpy攻击链\n\n攻击者通过伪装成韩国安全软件安装程序的方式，投放了名为HTTPSpy的恶意软件变种，这种手法自2023年以来被该组织持续使用。在2026年3月的最新攻击活动中，攻击者通过仿冒韩国B2B通讯服务安全软件安装页面的虚假网站传播恶意载荷。鉴于诱饵性质，该活动可能专门针对企业环境中的通讯系统管理员。\n\n虚假页面声称提供两款安全工具：防火墙和键盘安全程序。当用户下载时，实际获取的是伪装成nProtect Online Security和AhnLab Safe Transaction（ASTx）的可执行文件\"nos-setup.exe\"和\"astx-setup.exe\"。虽然名称不同，但两者内嵌的恶意行为完全一致。\n\n这些二进制文件的主要功能是通过\"regsvr32.exe\"加载第二阶段DLL载荷（\"MemLoader.dll\"），随后运行批处理脚本进行自删除。DLL会创建计划任务实现持久化，并连接C2服务器获取未知载荷。ENKI表示：\"攻击者可能监控恶意软件的周期性GET请求，选择性地向特定目标投递载荷。\"\n\n伪造Webex会议的感染路径\n\n在2026年4月的另一次攻击中，攻击者使用仿冒Cisco Webex的虚假网页弹出提示，诱骗受害者下载运行解决摄像头访问问题的脚本。该操作会获取包含加密JavaScript（JSE）文件（\"fix-camera.jse\"）的ZIP压缩包。\n\nJSE文件执行后会通过PowerShell部署中间下载器（\"mTSTCv8.mdxm\"），该下载器进行反分析检测后连接C2服务器获取下一阶段恶意软件（\"engine.dat\"或\"spyInster.dll\"）。最终阶段，DLL会释放加载组件（\"cacheMon.dat\"），进而在受感染系统上执行HTTPSpy。\n\nHTTPSpy是一款功能完备的远程访问木马，支持执行shell命令、文件上传下载、进程执行、屏幕截图捕获、向指定PID进程注入DLL路径以及自擦除等操作。这并非Kimsuky首次部署HTTPSpy，根据CrowdStrike 2025年欧洲威胁态势报告，该组织曾在2024年5月至9月期间通过凭证钓鱼攻击针对德国防务制造商员工投放该木马，其最早使用记录可追溯至2022年。\n\n实时感染验证与新型攻击工具\n\n恶意软件还会释放并打开名为\"meeting.html\"的HTML文件，将受害者重定向至真实的Webex会议室。网络安全公司分析称：\"这表明攻击者可能已入侵某位参会成员的设备或账户获取会议日程，然后制作虚假会议页面向其他参会者分发恶意软件。\"\n\nENKI还发现其他虚假网页会通过JSONP（带填充的JSON）查询受害者机器上由恶意软件搭建的本地服务器，以验证恶意软件执行状态，若未运行则显示安装提示。该技术被命名为JSONPing，但由于相关URL目前已失效，下载恶意软件的具体性质尚不明确。\n\nKimsuky技术演进：HelloDoor与HttpMalice\n\n卡巴斯基最新报告披露，该组织在近期攻击中开始使用Microsoft Visual Studio Code（VS Code）隧道、Cloudflare Quick Tunnels、DWAgent、大语言模型（LLM）和Rust编程语言，展现出持续进化能力。\n\n攻击链使用JSE、PIF、SCR和EXE格式的投放器分发两大恶意软件家族：PebbleDash和AppleSeed。其中PebbleDash攻击还涉及巴西和德国的防务组织，而AppleSeed主要针对政府机构。主要恶意软件家族包括：\n\nHelloDoor：基于Rust的PebbleDash变种，2025年8月首次发现，可能使用LLM开发，支持设置当前目录、定时休眠和命令执行等基础功能\nHttpMalice：PebbleDash最新后门变种，2025年12月前出现，具备收集系统信息、建立持久化、使用原生Windows命令侦察、截屏、内存加载载荷、执行命令和窃取输出等功能\nHttpTroy：通过MemLoad加载器投放的后门，支持文件上传下载、截屏、命令执行、内存加载可执行文件、反向shell、进程终止和痕迹清除\nAppleSeed：包含Dropper和Spy两个变种，前者负责下载额外恶意软件并执行C2指令，后者收集文档、截图、键盘记录和USB驱动器列表等敏感信息，包括C:\\GPKI目录数据\nHappyDoor：AppleSeed的高级版本，2021年首次出现\n\n另一个显著战术转变是滥用VS Code远程隧道功能建立隐蔽访问，无需传统基于恶意软件的C2通道。卡巴斯基研究员Sojun Ryu指出：\"分析表明攻击者保留了对恶意软件集群源代码的修改能力，两大集群的攻击目标存在重叠，涵盖国防、军事、政府、医疗、机械和能源行业。AppleSeed集群正转向数据窃取，GPKI证书提取成为标志性能力；而PebbleDash集群则展现出高级远程控制能力和不断扩大的攻击目标范围。\"\n\n参考来源：\n\nKimsuky Deploys HTTPSpy, Expands Arsenal with HelloDoor and VS Code Tunnels",
+  "content_hash": "sha256:433b614d25b82f792e2d7112cc08f5ba440677310edd043a7121ba48d794f74c",
+  "published_at": "2026-05-29",
+  "retrieved_at": "2026-07-07T17:17:27Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "技术",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_043",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_043.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

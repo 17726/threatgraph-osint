@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_002",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/articles/network/164511.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "Lazarus APT组织最新活动揭露",
+  "language": "zh",
+  "clean_text": "一、概述\n\nLazarus（T-APT-15）组织是来自朝鲜的APT组织，该组织长期对韩国、美国进行渗透攻击，此外还对全球的金融机构进行攻击，堪称全球金融机构的最大威胁。该组织最早的攻击活动可以追溯到2007年。据国外安全公司的调查显示，Lazarus组织与2014 年索尼影业遭黑客攻击事件，2016 年孟加拉国银行数据泄露事件，2017年美国国防承包商、美国能源部门及英国、韩国等比特币交易所被攻击等事件有关。而2017年席卷全球的最臭名昭著的安全事件“Wannacry”勒索病毒也被怀疑是该组织所为。\n\n近日腾讯御见威胁情报中心监测到多个利用最新Flash漏洞CVE-2018-4878发动的攻击。攻击对象为数字货币交易所等，攻击事件所使用的样本都是docx文件，docx文件内嵌了一个包含漏洞攻击swf文件的doc文档。经分析，发现该恶意文档卸载的载荷为FALLCHILL远程控制木马最新变种，FALLCHILL木马是朝鲜的黑客组织Lazarus开发并使用的木马。\n\n二、载荷投递\n\n该次攻击依然采用该组织最常用的攻击方式，采用内嵌恶意文档的钓鱼邮件对攻击目标进行鱼叉攻击。投递的诱饵文件具有极强的迷惑性和诱惑性。\n\n1) 诱饵文档内容\n\n本次共捕获三个不同的诱饵文档，分别伪装成协议、最流行的加密货币交易所的安全分析、IT安全等热门话题。最终使用的漏洞以及漏洞触发后执行的恶意代码均相同，可确定是同一个打包器生成的。\n\n图1）诱饵文档内容\n\nFilename MD5\nIT Security-BOSEN.docx 66eb4b505f1ae8308fb73906e7d245af\nSecurity analysis of the most popular cryptocurrency exchanges.docx 1b3ebec6ce48241c6715e19713a95f1b\nAGREEMENT.docx 3b1f4d1d0d7a40b449244b8a9e1649ae\n\n表1）捕获的攻击文件列表\n\n图2）攻击文档结构\n\n2）CVE-2018-4878漏洞原理\n\nCVE-2018-4878与2017年10月发现的0Day漏洞CVE-2017-11292一样，都位于Flash的com.adobe.tvsdk包中。CVE-2018-4878是一个UAF漏洞，需要借助强制GC或者刷新页面来触发该漏洞。\n\nPOC关键代码如下：\n\n图3）关键代码\n\nMyListener是一个继承自DRMOperationCompleteListener类的对象：\n\n图4）关键代码\n\n将MyListener对象注册为MediaPlayer对象的一个通知回调接口，然后释放MyListener对象，但是在MediaPlayer对象中仍然保存着MyListener对象，当强制系统进行垃圾回收时，MediaPlayer对象的回调会执行，但此时MyListener已经被释放，从而导致了UAF漏洞。\n\n以下所有分析的环境均是win7 32os，flash版本为28.0.0.137。\n\n下图是POC在IE运行时crash位置：\n\n图5）crash位置\n\necx正是MediaPlayer对象里的DRMManager成员，偏移0xC处存放的正是MyListener对象，可以看到MyListener对象已经被释放了。\n\n图6）关键代码\n\n3）漏洞利用分析\n\n漏洞通过修改Flash脚本对象ByteArray的长度为0xFFFFFFFF，从而实现任意地址读写。其后的利用技术与HackingTeam曝光所使用的exploits一致，不再做详细阐述。\n\n在HackingTeam泄漏事件后，Vector这种能简单稳定的用于漏洞利用中实现任意地址读写的方式迅速传播开来，Adobe随后对Flash采取了一系列的安全加固措施，包括堆隔离、对Vector、ByteArray等常见可被利用的对象进行长度校验、数据区校验等安全验证措施，这些措施在一定程度上增加了Flash漏洞攻击的难度，但并不能完全阻止此类攻击。在这次利用中，ByteArray就被用来实现任意地址读写。ByteArray的结构包括两部分，第一部分结构如下，其中一个关键成员是m_buffer:\n\n图7）ByteArray结构\n\nm_buffer中包含了该ByteArray的数据区地址array，数据区的容量，长度等重要值，紧挨着存放的是这几个值的加密备份，当Flash检测到可能因漏洞利用程序而导致这两个值不一致时，就会触发异常终止执行。该结构如下：\n\n图8）结构代码\n\n触发漏洞，修改m_buffer的值，使得array地址为0，而容量和长度修改为0xFFFFFFFF：\n\n图9）漏洞触发关键代码\n\n进而在32位地址空间下实现了任意地址读写。\n\n4）ShellCode分析\n\n该Shellcode的一大特点是所有系统api都是动态获得地址然后再调用。\n\n图10）shellcode关键代码\n\nShellCode运行后，将自己注入到桌面管理器explorer.exe中。在explorer.exe中访问falcancoin.io获取恶意dll并加载。\n\n图11）shellcode关键代码\n\n三、RAT分析\n1）RAT行为：\n\n从falcancoin.io/data/package32.zip（32位版）和falcancoin.io/data/package64.zip（64位版）下载回来的文件是一个远程控制木马，能够实现远程文件操作、远程进程操作、远程信息获取、自卸载等各种功能。\n\n木马使用http协议进行通信，内置了3个c2地址，分别如下表：\n\nC2 当前指向IP IP参考归属地\nwww.530hr.com/data/common.php 107.151.163.68 美国\nwww.028xmz.com/include/common.php 45.34.66.30 美国\n168wangpi.com/include/charset.php 104.217.233.68 美国\n\n表2）c2信息表\n\n图12）精心构造的post数据包\n\n图13）木马内置的三个C2地址\n\n图14）命令分发，一共支持27种远控指令\n\n2）辅助模块\n\n我们在分析过程中，服务器还下发了部分辅助模块到本地加载执行，其功能分别如下：\n\n文件名 MD5 功能描述\nSysxHn32.dll 1940bcf534d51fe5cd083b17041c6dc0 读取%TEMP%\\~tmp117.tmp文件内容，将读到的内容作为命令执行（存储的是文件路径信息）\nmtmnsi.dll ed5458de272171feee479c355ab4a9f3 使用AES解密C:\\Windows\\SoftwareDistribution\\Download\\c4654f9e3710c20a1a4b62256d904b03452fcbcc文件，得到PE文件内存加载执行\nSysxVer32.exe 836cd7d0da6bbf68c61465e73249e04b 将运行时命令行参数传入的数据（文件路径）写入到%TEMP%\\~tmp117.tmp文件中\njuzwf.exe 1379a943530c651ac26a58e0f2b36532 将运行时命令行参数传入的dll文件拷贝到系统目录中，并注入到系统svchost.exe进程中，并设置开机自启动SYSTEM\\CurrentControlSet\\Control\\Lsa 值：Security Packages\n\n表3）相关辅助模块信息\n\n图15）SysxHn32.dll核心代码\n\n图16）mtmnsi.dll核心代码\n\n图17）SysxVer32.exe核心代码\n\n图18）juzwf.exe核心代码\n\n3）关联分析\n\n经过分析溯源，发现该RAT代码与FALLCHILL木马具有较高的相似度，在部分代码细节、远控命令分发、总体逻辑流程上具有非常明显的相似性。在api加密、通讯协议伪装上有较大变种改进。FALLCHILL木马被认为是朝鲜背景的APT组织Lazarus Group 所用。该RAT文件的资源语言为朝鲜语，也从侧面印证与Lazarus组织的相关性。\n\n图19）RAT资源中的语言信息为朝鲜语\n\n从Adobe漏洞公告致谢来看，CVE-2018-4878这个漏洞的野外攻击样本最早是由韩国计算机应急响应小组（KR-CERT）发现的，而KR-CERT也表示，来自朝鲜的黑客组织已经成功利用这个0Day 漏洞发起攻击，与Lazarus主要攻击目标一致。\n\n图20）入口核心代码逻辑相似（左侧为FALLCHILL，下同）\n\n图21）部分特征代码及其相似\n\n图22）远控核心命令分发逻辑相似，功能相似\n\n此外，我们通过本次攻击样本与历史样本进行关联分析，发现此版本FALLCHILL最早出现于2017年初，通过样本的出现时间和C2的活跃时间可以发现该组织是持续活跃的。关联到的样本hash及相关C2信息见文章附录。\n\n四、总结\n\nLazarus APT组织擅长使用邮件钓鱼进行鱼叉攻击，同时武器库强大，具有使用0Day发起攻击的能力。而从披露的该组织的活动来看，该组织发起攻击的规模都巨大。虽然该组织的攻击活动被不断的披露，但是该组织从未停止攻击活动的脚步，相反攻击活动还更加的活跃，同时还把攻击目标不断扩大，从能源、军事、政府等部门到专项金融机构，尤其是数字货币交易所等。因此，我们提醒政府、企业等广大用户，切勿随意打开来历不明的邮件附件，同时安装安全软件。\n\n目前，腾讯御界高级威胁检测系统基于腾讯反病毒实验室的安全能力，依托腾讯在云和端的大数据，形成了强大且独特的威胁情报和恶意检测模型，凭借基于行为的防护和智能模型两大核心能力，能高效检测未知威胁，并实时阻拦此类钓鱼邮件、恶意宏文档、证书管理程序白利用等攻击方式。\n\n图23）腾讯御界图\n\n五、 附录（IOCs）\n\nhash：\n\n3b1f4d1d0d7a40b449244b8a9e1649ae\n\n1b3ebec6ce48241c6715e19713a95f1b\n\n66eb4b505f1ae8308fb73906e7d245af\n\n12c786c490366727cf7279fc141921d8（package32.zip）\n\nc6801f90aaa11ce81c9b66450e002972 （package64.zip）\n\nc2：\n\nwww.530hr.com/data/common.php\n\nwww.028xmz.com/include/common.php\n\n168wangpi.com/include/charset.php\n\nfalcancoin.io/data/package32.zip\n\nfalcancoin.io/data/package64.zip\n\n关联IOC：\n\nhash：\n\nf3d6a7b317dfb80dab7a9115691c0016\n\n29e273fcfee8c5a90f4de6214a0fde87\n\n75f2972cc953e26f8fc43eb0456fdc7a\n\n74e609f63f5ce332ef58af6b1c95de77\n\nb778d887a3649fba57a8fb64852ad071\n\nC2：\n\nwww.paulkaren.com/synthpop/main.asp\n\nwww.51up.com/ace/main.asp\n\nwww.shieldonline.co.za/sitemap.asp\n\nando.co.kr/service/s_top.asp\n\nansetech.co.kr/smarteditor/common.asp\n\nmileage.krb.co.kr/common/db_conf.asp\n\nwww.kcnp.or.kr/include/license.asp\n\nkosic.or.kr/common/mod_parametcr.asp\n\ndaedong.or.kr/inc/imagescale.asp\n\nhyeolgongdo.com/commonness/header.asp\n\nwww.jeynet.com/include/top_menu_left.asp\n\nedu4.co.kr/bbs/bbs_post.asp",
+  "content_hash": "sha256:dc9861a32e3a5abd71172685321ecf9e0ecca509ead0840efade93d038094a21",
+  "published_at": "2018-03-14",
+  "retrieved_at": "2026-07-07T16:56:03Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "基础安全",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_002",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_002.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

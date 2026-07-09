@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_046",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/news/347187.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "FreeBuf早报 | Hashcat可在60分钟内破解八位密码；Lazarus疯狂盗取加密货币",
+  "language": "zh",
+  "clean_text": "全球动态\n1.黑客组织 Lazarus 在日本利用网络钓鱼攻击加密货币交易所\n\n日本当地媒体报道称，Lazarus 一直在攻击当地的加密货币公司。一些公司成为内部系统黑客攻击的受害者，导致加密货币被盗。【外刊-阅读原文】\n\n2.Black Basta勒索黑客通过Qakbot渗透网络并部署Brute Ratel C4\n\n安全专家观察到Black Basta勒索软件使用Qakbot特洛伊木马部署Brute Ratel C4框架作为第二阶段的有效载荷。【外刊-阅读原文】\n\n3.向窃贼出售汽车黑客工具的欧洲团伙被捕\n\n法国警方逮捕了一个有组织的犯罪集团31名成员，该集团出售技术，让窃贼能够入侵和窃取无钥匙进入汽车。被捕者包括这些工具背后的软件开发人员，以及在街上使用它们的经销商和偷车贼。【外刊-阅读原文】\n\n4.勒索软件攻击中断了一些德国报纸的发行\n\n德国报纸“Heilbronn Stimme”在周五的勒索软件攻击导致其打印系统瘫痪后，该报社只能暂时发行电子版。该报发布了“紧急”六页版，电话和电子邮件通信仍处于离线状态。【外刊-阅读原文】\n\n5.八块RTX 4090显卡阵列可在60分钟内破解八位密码\n\n暴力密码破解工具 Hashcat的核心开发者Sam Croley和来自德克萨斯州奥斯汀的安全分析师合作，表示 NVIDIA GeForce RTX 4090 显卡运行 Hashcat 来破解某人密码，其效率是前代 RTX 3090 GPU 的两倍。【阅读原文】\n\n6.0patch比微软官方更早推出MotW零日漏洞补丁\n\n存在于 Windows Mark of the Web (MotW) 中的零日漏洞正被攻击者积极利用。MotW 应用于提取 ZIP 存档文件、可执行文件和源自网络上不受信任位置的文档。 【阅读原文】\n\n安全事件\n1.黑客称他们从英国一保险公司窃取了 1.4TB 数据\n\n勒索软件组织 LockBit 在其泄密网站上发布了 Kingfisher Insurance 的名字，称被盗数据包括员工和客户的个人详细信息。【外刊-阅读原文】\n\n2.澳大利亚零售巨头泄露220万用户数据，并被黑客在线出售\n\n据Security affairs等网站消息，澳大利亚零售巨头Woolworths 批露了近期旗下子公司MyDeal一起影响 220 万用户的数据泄露事件，攻击者已在黑客论坛上发帖出售被盗数据。【外刊-阅读原文】\n\n3.俄罗斯对保加利亚发起网络攻击\n\n保加利亚政府机构的基础设施遭到大规模 DDoS 攻击，包括内务部、国防部、司法部、宪法法院等多个政府部门受到严重影响。【外刊-阅读原文】\n\n4.施耐德 UMAS 协议中的漏洞被发现\n\n利用施耐德电气专有的统一消息应用服务 (UMAS) 协议上的漏洞，攻击者可以访问实体的整个自动化系统。【外刊-阅读原文】\n\n5.Google 宣布安全操作系统 KataOS 及其实现 Sparrow\n\nGoogle 宣布了新操作系统 KataOS 及其参考实现 Sparrow，搜索巨人旨在创造一种安全的嵌入式系统。项目源代码托管在 GitHub 上，采用 Apache License 2.0 许可证。【阅读原文】\n\n6.8220 Gang 已将其云服务僵尸网络扩展到全球约 30000 台主机\n\n2022 年 7 月，8220 Gang通过已知漏洞和远程访问暴力破解感染媒介感染云主机。注意到 8220 Gang 已将其云服务僵尸网络扩展到全球约 30000 台主机。【阅读原文】\n\n优质文章\n1.浅析Tomcat架构上的Valve内存马(内存马系列篇十一)\n\n这篇也是在Tomcat容器上面构造的内存马，是建立在Tomcat的管道上面做文章的一个内存马的实现方式。【阅读原文】\n\n2.API上出现了恶意机器人！如何击败API机器人攻击？\n\n根据Perimeterx最新调查数据显示，通过API端点进行登录尝试的流量中，高达75%都是恶意的。攻击者正在系统地使用机器人进行恶意登录尝试。那么如何保护API免受机器人侵扰和攻击呢？下文将为大家介绍API 机器人检测和防护的有效方法。【阅读原文】\n\n3.CATS：一款功能强大的针对OpenAPI的REST API模糊与逆向测试工具\n\nCATS是一款功能强大的针对OpenAPI的REST API模糊与逆向测试工具，在不需要复杂配置和代码编写的情况下，CATS能够自动生成和运行测试，并提供测试报告。【阅读原文】\n\n*本文内容收集自全球范围内的媒体与刊物，制作者对其完整性负责，但不对其真实性和有效性负责。\n\n*标明为【外刊】的内容主要来源为英语国家的媒体与刊物，部分内容需要注册免费账号后方可阅读。",
+  "content_hash": "sha256:d3149c2382da03c0284839f64cf880bd0b63a5fa285ed2462461c4237bef4e80",
+  "published_at": "2022-10-18",
+  "retrieved_at": "2026-07-07T17:01:44Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_046",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_046.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

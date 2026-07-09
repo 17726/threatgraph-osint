@@ -1,0 +1,34 @@
+{
+  "doc_id": "kimsuky_045",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://ti.qianxin.com/blog/articles/Analysis-of-attack-activities-of-Kimsuky-APT-group-using-blogspot-to-distribute-malicious-payloads",
+  "source_type": "vendor_report",
+  "source_name": "奇安信威胁情报中心",
+  "title": "Kimsuky APT组织利用blogspot分发恶意载荷的攻击活动分析",
+  "language": "zh",
+  "clean_text": "概述\nKimsuky，别名Mystery Baby、Baby Coin、Smoke Screen、Black Banshe等。是疑似具有东亚国家背景的APT组织，该团伙长期针对韩国政府、新闻机构等目标发起攻击活动。该组织常用社会工程学、鱼叉邮件、水坑攻击等手段投递恶意软件，拥有功能完善的恶意代码武器库。与Konni APT组织存在基础设施重叠等关联性。\n近日，奇安信红雨滴团队在日常高价值样本狩猎过程中，捕获多例疑似Kimsuky组织的攻击样本。根据红雨滴研究人员跟踪分析，此次的攻击活动有如下特点：\n此次发现的样本都以案件费用支付委托书为诱饵。\n此次活动中的样本所加载的Payload均采用多层下载链，最终使用blogspot博客系统分发最终载荷，为溯源增加了难度。\n文档使用恶意VBA代码，捕获到文本输入再执行核心恶意宏代码。\n未发现影响国内，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括威胁情报平台（TIP）、天眼高级威胁检测系统、NGSOC、奇安信态势感知等，都已经支持对此APT攻击团伙攻击活动的精准检测。\n样本分析\n基本信息\n-\n-\nMD5\nFileName\n8de75256d0e579416263cb3c61fc6c55\n악성.docm（酬劳委托书（内容））\n0821884168a644f3c27176a52763acc9\n사례비지급 의뢰서.doc（案件费用支付申请表）\n95c92bcfc39ceafc1735f190a575c60c\n사례비지급 의뢰서(양식).doc （案件费用支付申请表 （表格））\n本次捕获的样本打开后都会直接展示诱饵内容，诱导迷惑受害者启用恶意宏。\n详细分析\n-\n-\nMD5\n8de75256d0e579416263cb3c61fc6c55\n创建时间\n2021-07-19T08:24:00Z\n创建者\nUSER\n本文以MD5: 8de75256d0e579416263cb3c61fc6c55为主要分析对象。原始样本为docx格式文件，运行后启用宏，执行恶意宏代码。\n通过AutoOpen函数将标志qazwsx置为0，随后通过Selection.TypeText监控文本输入动作,执行恶意VBA函数。仅仅通过打开word是无法执行核心宏代码的，实现了一定的免杀效果。\n核心函数的功能是从hxxp://1213rt.atwebpages.com/cohb/d.php?filename=corona下载Base64下载Base64数据解码后，写入到%Temp%\\OneDriver.exe文件中，并使用wcript.ex执行VBS代码。\n请求到的数据如下，折叠的Afghhhah函数作为Base64解码函数。\n以下是VBS执行后的行为。\n创建并写入名为%appdata%\\Microsoft\\desktop.ini的VBS文件。\n在启动程序路径中创建Internet Explorer的快捷方式文件，%startup%\\Internet Explorer.lnk。\nInternet Explorer快捷方式运行 %AppData%\\Microsoft\\desktop.ini 文件。\n以下是desktop.ini的文件内容，请求后hxxps://kimshan600000.blogspot.com/2021/07/1.html，其网页携带的Payload解析，再次Base64解码执行载荷。Payload直接嵌入到正文中。\n根据历史披露文章，最终后门是收集用户系统信息，侦察受感染的系统。\n收集进程列表\n收集操作系统信息\n收集 .NET 版本信息\n收集 Microsoft Office Excel 程序版本信息\n收集最近的可执行文件列表\n收集固定到任务栏的快捷方式列表\n收集到的信息作为参数发送到攻击者服务器。\n关联分析\n下述样本为Kimsuky组织在过往的攻击活动中使用的样本。\n-\n-\nMD5\n95c92bcfc39ceafc1735f190a575c60c\n文件名\n사례비지급 의뢰서(양식)\n而我们此次捕获样本与之前的已知样本在VBA执行流程，代码和攻击载荷落地极其相似。但不同的是，此次是从网络设施中下载载荷，增加了溯源的困难度和增加了查杀难度。\n总结\nKimsuky APT组织是一个长期活跃的攻击团伙，武器库十分强大，奇安信威胁情报中心红雨滴团队将持续关注披露相关攻击活动。同时，奇安信威胁情报中心提醒用户在日常的工作中，切勿随意打开来历不明的文件，不安装未知来源的APP，提高个人网络安全意识。\n奇安信红雨滴团队提醒广大用户，切勿打开社交媒体分享的来历不明的链接，不点击执行未知来源的邮件附件，不运行夸张的标题的未知文件，不安装非正规途径来源的APP。做到及时备份重要文件，更新安装补丁。若需运行，安装来历不明的应用，可先通过奇安信威胁情报文件深度分析平台\nhttps://sandbox.ti.qianxin.com/sandbox/page\n进行简单判别。目前已支持包括Windows、安卓平台在内的多种格式文件深度分析。\n目前，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括奇安信威胁情报平台（TIP）、天擎、天眼高级威胁检测系统、奇安信NGSOC、奇安信态势感知等，都已经支持对此类攻击的精确检测。\nIOCS\nMD5\n8de75256d0e579416263cb3c61fc6c55\n0821884168a644f3c27176a52763acc9\n95c92bcfc39ceafc1735f190a575c60c\nURL\nhttp://1213rt.atwebpages.com/cohb/d.php?filename=corona\nhxxp://wbg0909.scienceontheweb.net/0412/download.php?filename=corona\nhxxps://kimshan600000.blogspot.com/2021/07/1.html\nhxxps://smyun0272.blogspot.com/2021/06/dootakim.html\nhxxp://alyssalove.getenjoyment.net/0423/v.php\n参考链接\nhttps://asec.ahnlab.com/ko/24220/",
+  "content_hash": "sha256:8f0508f59feef8a9916eb9070ace8f28077ed543c722a6b106b664e852fc4dbf",
+  "published_at": "2021-07-26",
+  "retrieved_at": "2026-07-08T07:37:15Z",
+  "source_reliability": "A",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "KIMSUKY",
+    "APT",
+    "南亚地区",
+    "事件追踪",
+    "vendor_report"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_045",
+    "legacy_source_type": "threat_report",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_045.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

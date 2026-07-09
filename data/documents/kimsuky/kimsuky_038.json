@@ -1,0 +1,30 @@
+{
+  "doc_id": "kimsuky_038",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/articles/444487.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "FreeBuf周报 | GPT-5安全机制不堪一击；朝鲜攻击组织Kimsuky内部数据泄露",
+  "language": "zh",
+  "clean_text": "各位 Buffer 周末好，以下是本周「FreeBuf周报」，我们总结推荐了本周的热点资讯、一周好文，保证大家不错过本周的每一个重点！\n\n热点资讯\n1. GPT-5安全机制不堪一击，研究人员通过回声室与叙事攻击成功破解\n\n研究人员成功利用回声室和叙事攻击突破GPT-5安全防护，暴露其关键漏洞，攻击成功率高达95%。这些隐蔽攻击手段利用模型推理能力反制自身，揭示当前AI安全框架缺陷，凸显部署前强化防护的必要性。\n\n2. 朝鲜攻击组织Kimsuky内部数据泄露，攻击基础设施全曝光\n\n朝鲜黑客组织Kimsuky内部工具遭泄露，曝光34,000页数据，包括钓鱼攻击基础设施、内核后门、定制Cobalt Strike信标及窃取的韩国政府证书与内网权限，揭示其长期渗透手段，为防御者提供关键情报。\n\n3. 2025年上半年Web DDoS与应用层攻击激增：AI技术推动攻击策略升级\n\n2025年网络安全形势恶化，DDoS攻击数量激增39%，转向小而持久的AI驱动策略，峰值达1000万RPS。恶意机器人活动增长57%，AI工具降低攻击门槛，威胁行为者更高效持久。\n\n4. 40美元即可成为FBI？暗网低价兜售外国执法机构邮箱账号\n\n网络犯罪团伙在暗网低价兜售全球执法机构有效邮箱账号（最低40美元/个），通过三大入侵途径获取权限后，可冒充官方实施欺诈、访问敏感系统并滥用执法特权。此类攻击因使用合法凭证，能规避常规安全检测，威胁升级。\n\n5. 历史漏洞阴魂不散：2017年Office漏洞为何仍在威胁企业安全\n\n微软Office漏洞CVE-2017-11882仍被利用，攻击者通过恶意文档实现远程代码执行。尽管微软2018年修复漏洞，但使用旧版的企业（如制造业）易受钓鱼攻击，需警惕伪装订单的恶意文件。\n\n6. CISA将WinRAR零日漏洞（CVE-2025-8088）列入已知被利用漏洞目录\n\nWinRAR曝高危漏洞CVE-2025-8088，攻击者可利用特制压缩包执行任意代码，已被俄罗斯黑客组织利用。CISA要求联邦机构限期修复，所有WinRAR 0-7.12版本用户需立即升级至7.13版，否则面临系统沦陷风险。\n\n7. 研究人员在数十个Docker Hub镜像中发现XZ Utils后门，加剧供应链风险\n\nXZ Utils后门仍在Docker Hub扩散，35个镜像携带恶意代码，攻击者可远程执行root命令。攻击者长期潜伏开源项目获取权限，事件凸显供应链风险，需加强二进制监控。\n\n8. Fortinet SSL VPN遭遇全球暴力破解浪潮\n\n全球Fortinet SSL VPN设备遭协同暴力破解攻击，780+恶意IP瞄准多国，攻击者精准定向FortiOS配置文件后转向FortiManager系统，或为高级威胁行为者预谋行动。\n\n9. Erlang/OTP SSH远程代码执行漏洞正被用于攻击工控网络\n\nErlang/OTP的SSH守护进程存在高危RCE漏洞（CVE-2025-32433），攻击者无需认证即可远程执行命令，主要针对工控网络。全球已发现超3376次攻击，70%来自工控防火墙，医疗、农业等行业受影响严重。攻击载荷复杂，利用反向shell建立持久访问，隐蔽性强。\n\n10. 攻击者将Linux摄像头武器化为攻击工具，可注入击键并发动攻击\n\n研究人员发现Linux摄像头存在关键漏洞，可被远程武器化为BadUSB工具，通过固件篡改实现击键注入攻击，系统重置后仍存活。联想已修复，但其他Linux USB设备仍面临类似风险，凸显硬件信任验证的紧迫性。\n\n一周好文共读\n1. 数字取证 | 易失性数据收集\n\n实验指导创建应急工具箱，收集易失性数据（如系统日志、网络配置、用户信息等），使用MD5校验确保数据完整性，优先处理高易失等级数据（寄存器、缓存等），通过工具（cmd、PSTools等）取证并记录时间戳，保全证据。【阅读原文】\n\n2. [XCTF-secret_file]哈希我所欲也，Shell亦我所欲也，二者可以得兼？\n\n分析XCTF-Pwn-secret_file题目，发现通过栈溢出实现命令注入漏洞。利用strcpy函数溢出覆盖栈上的命令参数，构造payload执行cat flag.txt获取flag。关键点：动态内存分配、SHA-256哈希验证绕过、popen命令注入。【阅读原文】\n\n3. 暗影加密：数据加密恶意样本深度剖析之路\n\n分析发现恶意样本为典型勒索软件：加密并截断文件，删除卷影副本阻断恢复，隐藏文件夹并创建伪装快捷方式，注册启动项弹出勒索页面，兼具破坏性、隐蔽性和持久化特征。【阅读原文】",
+  "content_hash": "sha256:c05ea588dac3ba8834f69319f7788f0ec0162baf1081502bfd8668f99c0e7de6",
+  "published_at": "2025-08-15",
+  "retrieved_at": "2026-07-07T17:17:55Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_038",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_038.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

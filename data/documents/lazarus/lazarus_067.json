@@ -1,0 +1,31 @@
+{
+  "doc_id": "lazarus_067",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "source_url": "https://www.freebuf.com/articles/454169.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "朝鲜攻击者组织Lazarus针对无人机行业发起窃密攻击",
+  "language": "zh",
+  "clean_text": "朝鲜国家背景的黑客组织Lazarus（APT38）近期发起代号\"DreamJob\"的网络间谍行动，专门针对欧洲无人机技术研发企业。自2025年3月下旬起，攻击者已成功入侵中欧和东南欧地区三家国防相关机构，通过部署高级恶意软件窃取专有无人机技术。\n\n社会工程学攻击手段\n\n该行动采用伪造职位描述的社交工程学手段：攻击者向目标企业发送带有木马化PDF阅读器的虚假招聘文件，触发多阶段感染流程。研究人员在受感染系统中发现名为DroneEXEHijackingLoader.dll的恶意投放器，其内部DLL名称直接证实该行动以无人机技术窃取为核心目标。\n\nWelivesecurity安全分析师确认主要载荷为ScoringMathTea远程访问木马（RAT）。该恶意软件自2022年底以来已成为Lazarus组织的旗舰工具，具备约40项指令控制功能，支持文件操作、进程控制和数据窃取等完整攻击链。为维持通信隐蔽性，该木马通过受控的WordPress目录服务器与C&C基础设施建立连接，并采用IDEA算法加密与Base64编码的双重加密传输机制。\n\n网络流量分析显示攻击行动关联三个已遭入侵的域名：coralsunmarine[.]com、mnmathleague[.]org和spaincaramoon[.]com。安全研究人员公布的攻击链示意图表明，Operation DreamJob通过连续投放BinMergeLoader与ScoringMathTea实现最终渗透。\n\n高级感染机制与规避技术\n\nLazarus组织展现出高超的技术能力，将恶意加载程序植入GitHub开源项目：\n\n被篡改的合法软件包括TightVNC远程桌面客户端、MuPDF阅读器及WinMerge与Notepad++的插件模块\n\n这种\"双面软件\"策略使恶意代码既保留合法应用的外观，又能执行恶意载荷\n\n感染链采用DLL侧加载与代理技术：合法可执行文件wksprt.exe和wkspbroker.exe会加载恶意动态库webservices.dll与radcui.dll。这些被篡改的DLL包含双重导出函数集：既保留原有应用功能的代理接口，又承载加载后续阶段的恶意代码。\n\n恶意软件在感染生命周期全程采用高强度加密：早期投放器从文件系统或注册表中获取加密载荷，使用AES-128或ChaCha20算法解密后，通过MemoryModule库实施反射式DLL注入。这种技术实现完全内存驻留执行，无需将解密后的组件写入磁盘，极大增强隐蔽性。\n\n参考来源：\n\nNorth Korean Hackers Attacking Unmanned Aerial Vehicle Industry to Steal Confidential Data",
+  "content_hash": "sha256:cc37dc6f073b63e294c98c955d02148bf0d979d45670bf7595701a947830e9cc",
+  "published_at": "2025-10-25",
+  "retrieved_at": "2026-07-07T16:55:28Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "技术",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_067",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_067.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

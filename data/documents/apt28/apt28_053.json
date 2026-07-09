@@ -1,0 +1,38 @@
+{
+  "doc_id": "apt28_053",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2025/10/from-phishing-to-malware-ai-becomes.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "From Phishing to Malware: AI Becomes Russia's New Cyber Weapon in War on Ukraine",
+  "language": "en",
+  "clean_text": "Russian hackers' adoption of artificial intelligence (AI) in cyber attacks against Ukraine has reached a new level in the first half of 2025 (H1 2025), the country's State Service for Special Communications and Information Protection (SSSCIP) said.\n\"Hackers now employ it not only to generate phishing messages, but some of the malware samples we have analyzed show clear signs of being generated with AI – and attackers are certainly not going to stop there,\" the agency\nsaid\nin a report published Wednesday.\nSSSCIP said 3,018 cyber incidents were recorded during the time period, up from 2,575 in the second half of 2024 (H2 2024). Local authorities and military entities witnessed an increase in attacks compared to H2 2024, while those targeting government and energy sectors declined.\nOne notable attack observed involved UAC-0219's use of malware called\nWRECKSTEEL\nin attacks aimed at state administration bodies and critical infrastructure facilities in the country. There is evidence to suggest that the PowerShell data-stealing malware was developed using AI tools.\nSome of the other campaigns registered against Ukraine are listed below -\nPhishing campaigns orchestrated by UAC-0218 targeting defense forces to deliver\nHOMESTEEL\nusing booby-trapped RAR archives\nPhishing campaigns orchestrated by UAC-0226 targeting organizations involved in the development of innovations in the defense industrial sector, local government bodies, military units, and law enforcement agencies to distribute a stealer called\nGIFTEDCROOK\nPhishing campaigns orchestrated by UAC-0227 targeting local authorities, critical infrastructure facilities, and Territorial Recruitment and Social Support Centers (TRCs and SSCs) that leverage ClickFix-style tactics or SVG file attachments to distribute stealers like\nAmatera Stealer\nand\nStrela Stealer\nPhishing campaigns orchestrated by UAC-0125, a sub-cluster with ties to Sandworm, that sent email messages containing links to a website masquerading as ESET to deliver a C#-based backdoor named\nKalambur\n(aka SUMBUR) under the guise of a threat removal program\nSSSCIP said it also observed the Russia-linked APT28 (aka UAC-0001) actors weaponizing cross-site scripting flaws in Roundcube and (\nCVE-2023-43770\n,\nCVE-2024-37383\n, and\nCVE-2025-49113\n) and Zimbra (\nCVE-2024-27443\nand\nCVE-2025-27915\n) webmail software to conduct zero-click attacks.\n\"When exploiting such vulnerabilities, attackers typically injected malicious code that, through the Roundcube or Zimbra API, gained access to credentials, contact lists, and configured filters to forward all emails to attacker-controlled mailboxes,\" SSSCIP said.\n\"Another method of stealing credentials using these vulnerabilities was to create hidden HTML blocks (visibility: hidden) with login and password input fields, where the attribute autocomplete='on' was set. This allowed the fields to be auto-filled with data stored in the browser, which was then exfiltrated.\"\nThe agency also revealed that Russia continues to engage in hybrid warfare, synchronizing its cyber operations in conjunction with kinetic attacks on the battlefield, with the Sandworm (UAC-0002) group targeting organizations in the energy, defense, internet service providers, and research sectors.\nFurthermore, several threat groups targeting Ukraine have resorted to abusing legitimate services, such as Dropbox, Google Drive, OneDrive, Bitbucket, Cloudflare Workers, Telegram, Telegra.ph, Teletype.in, Firebase, ipfs.io, mocky.io, to host malware or phishing pages, or turn them into a data exfiltration channel.\n\"The use of legitimate online resources for malicious purposes is not a new tactic,\" SSSCIP said. \"However, the number of such platforms exploited by Russian hackers has been steadily increasing in recent times.\"",
+  "content_hash": "sha256:0068180d66c28a3672f22a6b6c52db47c5fd4e8bf9bf3d900d048a76152b04e1",
+  "published_at": "2025-10-09",
+  "retrieved_at": "2026-07-08T08:01:09Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "artificial intelligence",
+    "critical infrastructure",
+    "cybersecurity",
+    "data breach",
+    "Malware",
+    "Phishing",
+    "Sandworm",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_053",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_053.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

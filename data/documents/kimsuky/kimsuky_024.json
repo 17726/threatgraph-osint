@@ -1,0 +1,31 @@
+{
+  "doc_id": "kimsuky_024",
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "target_groups": [
+    "Kimsuky"
+  ],
+  "source_url": "https://www.freebuf.com/consult/371811.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "云中谍影：Group123组织近期攻击活动分析",
+  "language": "zh",
+  "clean_text": "团伙背景\n\nGroup123，也称 ScarCruft，奇安信内部追踪编号为 APT-Q-3，在 2016 年 6 月由卡巴斯基最先进行披露，被认为是来自朝鲜的攻击组织，最早活跃于 2012 年，该组织被认为与 2016 年的 Operation Daybreak 和 Operation Erebus 有关，且 Group123 和 APT 组织 Kimsuky 存在特征重叠。\n\nGroup123 早期主要针对韩国，2017 年后延伸攻击目标至半岛范围，包括日本，越南和中东。其主要针对工业垂直领域，包括化学品、电子、制造、航空航天、汽车和医疗保健实体。Group123 会专门针对所需目标量身定制社会工程策略，利用定制化的鱼叉邮件投放压缩附件，包含伪装成文档的快捷方式文件。受害者点击打开后会释放恶意的RTF文档，并下载 HTA，通过 HTA 文件执行 PowerShell 以触发后续阶段的攻击载荷植入。该组织使用文件共享站点分发恶意软件，同时也经常利用韩文处理器(HWP)和 Adobe Flash 中的漏洞[1]。\n\n活动概述\n\n奇安信威胁情报中心红雨滴团队一直以来都在对全球各大 APT 组织进行追踪，在对东亚相关 APT 组织进行追踪时我们发现该组织近期针对韩国的攻击频繁发生。\n\n自微软宣布 Office 应用程序将阻止来自 Internet 的宏以来，各大 APT 组织纷纷改变他们的攻击策略和技术手段，以适应新的安全措施。在此背景下，Group123 组织积极扩展新的攻击方式，使用伪装成合法文档的 LNK 文件进行攻击。这些 LNK 文件一般都比较大，因为里面内嵌了诱饵文档和混淆过后的 PowerShell 命令，仅一次双击过后即可运行，这或许比单纯使用已知的 Nday 漏洞进行攻击更为有效。其攻击流程如下图所示：\n\n初始攻击文件通常为压缩包，里面包含诱饵PDF和伪装成PDF文件的LNK文件。\n\n根据 Group123 组织常用的 TTP 进行推测，猜测其初始入口载荷为鱼叉式钓鱼邮件，而部分执行链包含韩语，以及包含 Hangul Word Processor（HWP，韩国流行的文档格式）文件，足以说明其以韩国为相关攻击目标。\n\n捕获的诱饵内容包括 2023 年 5 月 23 日在首尔空军酒店举行会议的活动日程表。出席者包括韩国国防部副部长、国家安保战略研究院、韩国防卫产业学会会长等。\n\n以及最近的实时政治内容，4 月 26 日美国总统拜登和韩国总统尹锡悦在白宫发表《华盛顿宣言》，韩国 Jeong Seongjang 于 5 月 8 日发表文章“《华盛顿宣言》对于应对朝核威胁有何帮助？”，被 Group123 组织从网站摘抄并生成 hwp 文档用作诱饵。\n\n还有以朝鲜民主化网络 NKnet 相关内容作为诱饵。\n\n以上诱饵均为 hwp 文档，另外还以 pdf 文件作为诱饵。例如以韩国对外经济政策研究院发布的简报“美中矛盾时代中国的通商战略变化及启示”相关内容作为诱饵。\n\n还有以当前朝鲜的动向与社会变化、朝鲜政权的双重性等主题为诱饵。\n\n另外在7月份捕获到的文件来看，Group123 组织还以 wav 音频文件作为诱饵，包括防空警报声、韩国歌曲“백두와 한나는 내 조국-MR(-2키올림)”等。\n\nLNK文件\n\n通过对 Group123 组织的了 LNK 文件进行分析，我们发现在执行过程中会在 %temp% 释放以固定日期命名的 BAT 文件，据此我们相信 Group123 组织使用的 LNK 文件应该是使用工具生成的。\n\n通过对样本执行过程中的 PowerShell 进行搜索，我们找到了 EmbedExeLnk 项目[2]。其功能是创建一个嵌入 EXE 文件的 LNK 文件，而不需要外部下载。通过创建 LNK 文件并将 EXE 文件附加到末尾来实现。LNK 文件执行一些 PowerShell 命令，从 LNK 末尾读取 EXE 的内容，将其复制到 %temp% 文件夹中，然后执行。\n\nGroup123 组织使用该项目，定制化修改代码，在生成的 LNK 文件中嵌入诱饵。该项目不仅可以自定义执行的 PowerShell 命令，还可以修改生成的 LNK 文件图标。\n\n样本分析\n\n这里我们以近期攻击的样本为例，双击恶意 LNK 文件会触发 PowerShell 的执行。\n\nPowerShell 从 LNK 文件中提取数据，并将其放入 %temp% 目录下，然后打开它，这个文件通常是一个诱饵，该样本释放的诱饵是一首歌曲。\n\nPowerShell 的另半部分是在 %temp% 目录下释放以日期命名的 BAT 脚本并执行。\n\n去混淆后该脚本如下：\n\n该脚本功能是从 OneDrive 下载后续载荷，通过后续载荷的第一个字节作为密钥对后面的内容进行异或解密，然后将解密后的数据反射注入到 PowerShell 进程中执行。\n\n解密后的 Shellcode 首先利用 GetTickCount 和 IsDebuggerPresent 函数进行反调试，确定不被调试才会进入后续解密流程。\n\n对 Shellcode 后面嵌入的内容进行解密，使用四字节的 key 进行异或解密。\n\n解密的内容为 Group123 组织常用的 RokRAT，随后将 RokRAT 在内存中展开，修复导入表，最终通过 GetTickCount 函数来判断整个加载过程是否超过 700 毫秒，未超过则调用入口点执行，超过则直接调用文件偏移 0x400 处的 .text 段执行。\n\nRokRAT 远控木马最早于 2017 年活跃，并且经历了一系列的演进和变化。其通常作为加密后的二进制文件进行分发，RokRAT 能够捕获屏幕截图、键盘记录、反虚拟机检测，并利用云存储服务的 API 作为其命令和控制（C&C）基础设施的一部分。它使用 Cloud、Box、Dropbox 和 Yandex 等云存储平台进行通信和数据交换，使得攻击者能够远程控制受感染系统并执行恶意操作。RokRAT 的持续演进和适应性使其能够跨多个操作系统和设备类型进行渗透和控制。除了针对韩国目标的活动外，还发现了 RokRAT 的 macOS 版本（称为CloudMensis）和 Android 版本。\n\n此次捕获的 RokRAT 为 2023 年 6 月13 日编译，其攻击链释放的 bat 文件被命名为 230630.bat，据此我们有很大把握认定该样本为 Group123 组织近期攻击活动使用的样本。\n\n其 RokRAT 执行的命令如下表所示：\n\n指令 功能\ni 发送收集的信息到 C2\nj、b 发送收集的信息到 C2 后终止进程\nd 发送收集的信息后执行清理脚本，然后终止进程\nf 发送收集的信息后执行清理脚本，然后终止进程(与 d 指令执行的脚本不同)\nh 枚举磁盘上的文件\n1、2、5、6 从 URL 下载执行 shellcode\n3、4、7、8、9 初始化云服务信息，下载执行 shellcode\ne 使用 cmd.exe 执行命令\nc 遍历文件，窃取指定后缀文件\n\n总结\n\n通过追踪发现，Group123 组织近期活动十分猖獗，其 TTP 复杂多变，仅近两个月的追踪我们便发现了数种 TTP，但是攻击的核心都离不开诱饵文档。此次捕获的超大 LNK 文件，里面填充了大量垃圾数据，此举无非是为了绕过部分杀软或者部分安全监控软件。RokRAT 作为 Group123 组织一直维护使用的木马，且其整个执行过程都是与云服务进行通信，从而极大地减少了被发现的风险。\n\nAPT 组织攻击一直以来对于国家和企业来说都是一个巨大的网络安全威胁，并且会在长时间的攻击活动中保持高度的隐蔽性，需时刻提防，并采取相应的防御措施来应对这些持续威胁的存在。\n\n防护建议\n\n奇安信威胁情报中心提醒广大用户，谨防钓鱼攻击，切勿打开社交媒体分享的来历不明的链接，不点击执行未知来源的邮件附件，不运行标题夸张的未知文件，不安装非正规途径来源的 APP。做到及时备份重要文件，更新安装补丁。\n\n若需运行，安装来历不明的应用，可先通过奇安信威胁情报文件深度分析平台（https://sandbox.ti.qianxin.com/sandbox/page）进行判别。目前已支持包括 Windows、安卓平台在内的多种格式文件深度分析。\n\n目前，基于奇安信威胁情报中心的威胁情报数据的全线产品，包括奇安信威胁情报平台（TIP）、天擎、天眼高级威胁检测系统、奇安信NGSOC、奇安信态势感知等，都已经支持对此类攻击的精确检测。\n\n部分IOC\n\nMD5\n\n487769a19f032e981f33023b2cb7fe10\n\n02685c2ffc30c55667076cfb01033060\n\n484bcb44845946e444f05295cf19e98e\n\n72b3765580c8c8588feccf06f98c090b\n\n5776368e1a8483d11f3ee1c383f193c4\n\n7095811df4cb1ee4135ce605af7f163f\n\n61f4946837d7cd1701eedb3c372121c6\n\n1da701990560b8b0db2c4441145a3ee3\n\n71dbebb8a31ea3de0115851bb15fd2bc\n\n74e3d84492845067a0da6cfa00c064eb\n\n445e7fd6bb684420d6b8523fe0c55228\n\nfe5520783f715549cc3c4df9deaf89bf\n\n44ba46dfff78bc62a3b2619d308ca40c\n\nc14a66e1a039d2e51cb70adb609df872\n\n7504a626993179e5819246234ca6c4c9\n\nPDB\n\nD:\\Sources\\MainWork\\Group2017\\Sample\\Release\\DogCall.pdb\n\nURL\n\nhttp[:]//vmi810830.contaboserver[.]net/local/cache-js/f93754e660802d7cc70924cceb4738ef.gz\n\nhttps[:]//api.onedrive[.]com/v1.0/shares/u!aHR0cHM6Ly8xZHJ2Lm1zL2kvcyFBZ0s4V1ZDeXlfX0plNGo4QlRMWWg0bmhZazA_ZT1vMHI1QmQ/root/content\n\nhttps[:]//api.onedrive[.]com/v1.0/shares/u!aHR0cHM6Ly8xZHJ2Lm1zL2kvcyFBbURRNTNEY0xNVUVmRjBjTG5uckhOMGVJcmc_ZT14U083alE/root/content\n\nhttps[:]//api.onedrive[.]com/v1.0/shares/u!aHR0cHM6Ly8xZHJ2Lm1zL3UvcyFBdHp5SUlSR3JuQnhhblU5UW1DZWplU1RNZ1U_ZT14SDY0dks/root/content\n\n参考链接\n\n[1].https://ti.qianxin.com/apt/detail/5acc5730596a10001ca81c3b\n\n[2].https://www.x86matthew.com/view_pos",
+  "content_hash": "sha256:e1bc1bb94bec6b76a3493e524146e5d90196f400e0c5c1dbafdc91a6cddec873",
+  "published_at": "2023-07-12",
+  "retrieved_at": "2026-07-07T17:22:16Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "咨询",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "kimsuky_024",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_kimsuky/kimsuky_024.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

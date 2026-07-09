@@ -1,0 +1,41 @@
+{
+  "doc_id": "apt28_049",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "APT28 Uses Signal Chat to Deploy BEARDSHELL Malware and COVENANT in Ukraine",
+  "language": "en",
+  "clean_text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.\nBEARDSHELL, per CERT-UA, is written in C++ and offers the ability to download and execute PowerShell scripts, as well as upload the results of the execution back to a remote server over the Icedrive API.\nThe agency said it first observed BEARDSHELL, alongside a screenshot-taking tool named SLIMAGENT, as part of incident response efforts in March-April 2024 in a Windows computer.\nWhile there were no details available on how the infection took place at that time, the agency said it received threat intelligence from ESET more than a year later that detected evidence of unauthorized access to a \"gov.ua\" email account.\nThe exact nature of the information shared was not disclosed, but it likely pertains to a report from the Slovak cybersecurity company last month that\ndetailed\nAPT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.\nFurther investigation triggered as a result of this discovery unearthed crucial evidence, including the initial access vector used in the 2024 attack, as well as the presence of BEARDSHELL and a malware framework dubbed COVENANT.\nSpecifically, it has come to light that the threat actors are sending messages on Signal to deliver a macro-laced Microsoft Word document (\"Акт.doc\"), which, when launched, drops two payloads: A malicious DLL (\"ctec.dll\") and a PNG image (\"windows.png\").\nThe embedded macro also makes Windows Registry modifications to ensure that the DLL is loaded when Windows File Explorer (\"explorer.exe\") is launched the next time. The primary task of the DLL is to load shellcode from the PNG file, resulting in the execution of the memory-resident COVENANT framework.\nCOVENANT subsequently downloads two more intermediate payloads that are designed to launch the BEARDSHELL backdoor on the compromised host.\nTo mitigate potential risks associated with the threat, state organizations are recommended to keep an eye on network traffic associated with the domains \"app.koofr[.]net\" and \"api.icedrive[.]net.\"\nThe disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.\nThe email \"contained a content bait in the form of an article from the publication 'NV' (nv.ua), as well as an exploit for the Roundcube XSS vulnerability CVE-2020-35730 and the corresponding JavaScript code designed to download and run additional JavaScript files: 'q.js' and 'e.js,'\" CERT-UA said.\n\"E.js\" ensures the creation of a mailbox rule for redirecting incoming emails to a third-party email address, in addition to exfiltrating the victim's address book and session cookies via HTTP POST requests. On the other hand, \"q.js\" features an exploit for an SQL injection flaw in Roundcube (CVE-2021-44026) that's used to gather information from the Roundcube database.\nCERT-UA said it also discovered a third JavaScript file named \"c.js\" that includes an exploit for a third Roundcube flaw (CVE-2020-12641) to execute arbitrary commands on the mail server. In all, similar phishing emails were sent to the email addresses of more than 40 Ukrainian organizations.\nMore Details About BEARDSHELL Campaign Emerge\nSekoia, which is tracking the activity under the name Operation Phantom Net Voxel, said it uncovered additional weaponized Office documents shared via Signal that are used to deliver the\nCOVENANT\ncommand-and-control (C2) framework and the BEARDSHELL backdoor.\nOne of COVENANT's components is an HTTP Grunt Stager written in .NET assembly that's designed to establish an API-driven channel to the Koofr cloud infrastructure using a custom outbound C2 protocol by creating a\nC2Bridge\nand awaiting additional payloads.\n\"The analysis of spear-phishing lure documents reveals a consistent focus on Ukrainian military administrative procedures,\" the French cybersecurity company\nsaid\n. \"It suggests targeting of on-the-ground soldiers or personnel embedded within military HR, logistics, or command structures.\"\n\"They are highly likely used by Russian military intelligence to gather cyber intelligence on frontline combatants, possibly on specific units in the Ukrainian military theatre. This activity is coherent with GRU mandate and APT28’s previous operations.\"\n(The story was updated after publication on September 17, 2025, with additional insights from Sekoia.)",
+  "content_hash": "sha256:9d88346c7c47ad3fd5cba03bdf1e266b90d51d820fd126cf5f5a8a233e4d6b13",
+  "published_at": "2025-06-24",
+  "retrieved_at": "2026-07-08T08:01:18Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "CERT-UA",
+    "cybersecurity",
+    "email security",
+    "Malware",
+    "malware analysis",
+    "Phishing",
+    "powershell",
+    "Threat Intelligence",
+    "Ukraine",
+    "Windows",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_049",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_049.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

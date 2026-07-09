@@ -1,0 +1,31 @@
+{
+  "doc_id": "apt28_001",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.freebuf.com/articles/network/162715.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "“奇幻熊”（APT28）组织最新攻击",
+  "language": "zh",
+  "clean_text": "近日腾讯御见威胁情报中心在监测Fancy Bear“奇幻熊”组织的攻击活动过程中，发现了其使用的最新攻击样本。下文将详细披露该组织的攻击手法，和各企业一起共同抵御此类高级攻击。\n\n0x1 概况\n\n“奇幻熊”（Fancy Bear，T-APT-12）组织，也被称作APT28, Pawn Storm, Sofacy Group, Sednit或STRONTIUM，是一个长期从事网络间谍活动并与俄罗斯军方情报机构相关的APT组织，从该组织的历史攻击活动可以看出，获取国家利益一直是该组织的主要攻击目的。据国外安全公司报道，该组织最早的攻击活动可以追溯到2004年至2007年期间。\n\n腾讯御见威胁情报中心近日检测到该组织利用英国信息服务提供商IHS Markit公司的邮箱账号向罗马尼亚外交部发送钓鱼邮件进行定向攻击。在攻击技术利用方面，该组织使用了最新的白利用技术，白利用程序为证书管理程序certutil.exe。此外，该组织还使用了最新的后门技术，利用UserInitMprLogonScript注册表键值来实现开机自启动。本次攻击中使用的木马为Carberp银行木马的变种，在隐藏网络行为及保护胜利果实方面做出了优化。此前，该组织也曾使用钓鱼邮件及Carberp变种木马对美国政府机构进行攻击。\n\n0x2 荷载投递\n\n此次攻击使用了钓鱼邮件进行定向攻击，诱饵邮件主题为《Upcoming Events February 2018》，邮件附件名Upcoming Events February 2018.xls，邮件内容如下图所示。当打开邮件附件中的excel表格时，会发现表格中大部分内容为空，同时会弹出“启用宏”的醒目提示。\n\n一旦点击“启用内容”按钮，电脑就会执行宏代码。分析宏代码时，发现代码被加密保护，破解密码后，可看到宏代码的主要功能是从表格中取出加密的pe文件，再利用微软的签名程序certutil.exe解密此pe文件，最后再执行此解密的pe文件。\n\n上文表格中存储的base64加密的pe文件，会被宏代码存储为N9A6C5T3.txt文件，之后宏代码会利用微软的签名程序certutil.exe对释放的N9A6C5T3.txt（文件名随机生成）文件进行base64解密从而得到木马exe，解密时命令行为”certutil -decode C:\\Programdata\\N9A6C5T3.txt C:\\Programdata\\C3E4U3B1.exe”\n\nc3e4u3b1.exe执行后会释放cdnver.dll和cdnver.bat到“C:\\Users\\Administrator\\AppData\\Local”目录，接着会修改UserInitMprLogonScript注册表的键值为“C:\\Users\\Administrator\\AppData\\Local\\cdnver.bat”，从而实现开机自启动。 修改完注册表后会利用rundll32.exe 来执行cdnver.dll，命令行为\"C:\\Windows\\System32\\rundll32.exe\" \"C:\\Users\\Administrator\\AppData\\Local\\cdnver.dll\",#1\n\n0x3 RAT分析\n\n木马的主要功能都集中在cdnver.dll中，此功能主要包括信息收集、上传与下载文件、下载与执行pe、截屏等。在此dll的导出函数cdnver_1中会创建一个线程，木马的主要功能都是从此线程开始。\n\nPe中的关键明文字符串同样使用了简单的异或算法加密。\n\n木马运行后会创建名为“vgekW8b1st6yjzPA9fewB70o7KC” 的互斥对象，还会创建名为“SNFIRNW” 的FileMap对象，方便后续进行进程间通信。在读写FileMap对象时，会对tag进行验证，主要tag有0x1234ABCD、0x0DCBA4321、0x98761234、0x43216789\n\n该木马配置了两个c2地址，一真一假，第一个c2的域名为”google.com”。第二个c2为“cdnverify.net”，在传输数据中途会不断地切换两个c2，从而达到隐藏通信的目的。如果通信失败，还会将自身注入进firefox.exe或iexplore.exe等浏览器进程，直接在这些进程里将收集的信息上传到c2，木马还会将c2信息加密后存储在注册表下HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Servers的Domain项中。\n\n在通信过程中会读取firefox的配置文件prefs.js中的“network.proxy.http”和\"network.proxy.http_port\"字段来获取本地代理的地址，进而方便将收集的信息成功传送出去。\n\n注入dll时先使用ZwWriteVirtualMemory等函数将pe文件写进目标进程，再创建远线程将注入dll依赖的dll全部加载，最后再创建远线程开启进程间通信功能。\n\n在查找待注入的进程时，直接比较的是进程名的hash值，而不是直接的明文字符串。\n\nHash 进程名\n0x0CDCB4E50 iexplore.exe\n0x70297938 firefox.exe\n0x723F0158h Chrome.exe\n\n该木马会使用HttpSendRequestA等函数进行网络发包，在发上线包时会将当前所有进程名及计算机截屏等信息上传。截屏时使用模拟printscreen按键进行截屏，再从剪贴板取出图像数据。\n\n在进行发包时，会将收集的内容存储在“disk”、“ build”、“img”、“id”等标签中，主要标签如下表所示，之后进行加密后，再随机生成url后进行post发包。\n\n标签名 含义\nID 硬盘序列号，dword\ndisk 磁盘名称\nbuild 木马版本号0x9104f000\nImg 加密成字符串后的截屏bmp文件\n\n木马使用InternetReadFile函数来接收服务器下发的指令，解密后再进行解析。指令标签主要有Execute、Delete、LoadLib、ReadFile、shell、FileName、PathToSave、Rundll、IP等。\n\n0x4 总结\n\n从上文可以看出，此次攻击未使用主流的offfice漏洞，反而使用了office固有的宏技术，但该组织在诱饵制作、诱饵投递、胜利果实回收方面，确实下了一番功夫。目前，腾讯御界高级威胁检测系统基于腾讯反病毒实验室的安全能力，依托腾讯在云和端的大数据，形成了强大且独特的威胁情报和恶意检测模型，凭借基于行为的防护和智能模型两大核心能力，能高效检测未知威胁，并实时阻拦此类钓鱼邮件、恶意宏文档、证书管理程序白利用等攻击方式。\n\n附录（IOCs）\nMD5:\n\n56F98E3ED00E48FF9CB89DEA5F6E11C1 (Upcoming Events February 2018.xls)\n\n36524C90CA1FAC2102E7653DFADB31B2(C3E4U3B1.exe)\n\n4FD196D9ADD7194E27C2591D30E3A90A(cdnver.bat)\n\n2361181C5D9A15EC3D5249DE1985B83D(N9A6C5T3.txt)\n\nAA2CD9D9FC5D196CAA6F8FD5979E3F14(cdnver.dll)\n\nC2:\n\ncdnverify.net\n\n151.80.74.167\n\nEmail:\n\nevents@ihsmarkit.com(发信邮箱)\n\n注册表项：\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Servers\nHKEY_CURRENT_USER\\Environment\\UserInitMprLogonScript",
+  "content_hash": "sha256:8b5c06eda01b558d4c074923b42a2b2288ceff7cdc7dbb0f91b6d0f7e97821c3",
+  "published_at": "2018-02-15",
+  "retrieved_at": "2026-07-07T16:20:45Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "基础安全",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_001",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_001.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

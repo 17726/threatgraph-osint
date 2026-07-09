@@ -1,0 +1,42 @@
+{
+  "doc_id": "apt28_041",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2024/02/cybersecurity-agencies-warn-ubiquiti.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "Cybersecurity Agencies Warn Ubiquiti EdgeRouter Users of APT28's MooBot Threat",
+  "language": "en",
+  "clean_text": "In a new joint advisory, cybersecurity and intelligence agencies from the U.S. and other countries are urging users of Ubiquiti EdgeRouter to take protective measures, weeks after a botnet comprising infected routers was\nfelled by law enforcement\nas part of an operation codenamed Dying Ember.\nThe botnet, named MooBot, is said to have been used by a Russia-linked threat actor known as APT28 to facilitate covert cyber operations and drop custom malware for follow-on exploitation. APT28, affiliated with Russia's Main Directorate of the General Staff (GRU), is known to be active since at least 2007.\nAPT28 actors have \"used compromised EdgeRouters globally to harvest credentials, collect NTLMv2 digests, proxy network traffic, and host spear-phishing landing pages and custom tools,\" the authorities\nsaid\n[PDF].\nThe adversary's use of EdgeRouters dates back to 2022, with the attacks targeting aerospace and defense, education, energy and utilities, governments, hospitality, manufacturing, oil and gas, retail, technology, and transportation sectors in the Czech Republic, Italy, Lithuania, Jordan, Montenegro, Poland, Slovakia, Turkey, Ukraine, the U.A.E., and the U.S.\nMooBot attacks entail targeting routers with default or weak credentials to deploy OpenSSH trojans, with APT28 acquiring this access to deliver bash script and other ELF binaries to collect credentials, proxy network traffic, host phishing pages, and other tooling.\nThis includes Python scripts to upload account credentials belonging to specifically targeted webmail users, which are collected via cross-site scripting and browser-in-the-browser (\nBitB\n) spear-phishing campaigns.\nAPT28 has also been linked to the exploitation of\nCVE-2023-23397\n(CVSS score: 9.8), a now-patched critical privilege escalation flaw in Microsoft Outlook that could enable the theft of NT LAN Manager (NTLM) hashes and mount a relay attack without requiring any user interaction.\nAnother tool in its malware arsenal is\nMASEPIE\n, a Python backdoor capable of executing arbitrary commands on victim machines utilizing compromised Ubiquiti EdgeRouters as command-and-control (C2) infrastructure.\n\"With root access to compromised Ubiquiti EdgeRouters, APT28 actors have unfettered access to Linux-based operating systems to install tooling and to obfuscate their identity while conducting malicious campaigns,\" the agencies noted.\nOrganizations are recommended to perform a hardware factory reset of the routers to flush file systems of malicious files, upgrade to the latest firmware version, change default credentials, and implement firewall rules to prevent exposure of remote management services.\nThe revelations are a sign that nation-state hackers are increasingly relying on routers as a launchpad for attacks, using them to create botnets such as\nVPNFilter\n,\nCyclops Blink\n, and\nKV-botnet\nand conduct their malicious activities.\nThe bulletin arrives a day after the Five Eyes nations\ncalled out APT29\n– the threat group affiliated with Russia's Foreign Intelligence Service (SVR) and the entity behind the attacks on SolarWinds, Microsoft, and HPE – for employing service accounts and dormant accounts to access cloud environments at target organizations.",
+  "content_hash": "sha256:dbe4469057eea0fe518412e39b5c8d4e29b7c25ff113ee23e3575f70d3980e2d",
+  "published_at": "2024-02-28",
+  "retrieved_at": "2026-07-08T08:01:40Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "botnet",
+    "Cyber Defense",
+    "cyber espionage",
+    "cybersecurity",
+    "Firmware Security",
+    "MooBot",
+    "NT LAN Manager",
+    "OpenSSH",
+    "phishing attack",
+    "Ubiquiti",
+    "Vulnerability",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_041",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_041.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

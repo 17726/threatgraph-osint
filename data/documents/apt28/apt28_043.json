@@ -1,0 +1,39 @@
+{
+  "doc_id": "apt28_043",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2024/02/us-government-disrupts-russian-linked.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "U.S. Government Disrupts Russia-Linked Botnet Engaged in Cyber Espionage",
+  "language": "en",
+  "clean_text": "The U.S. government on Thursday said it disrupted a botnet comprising hundreds of small office and home office (SOHO) routers in the country that was put to use by the Russia-linked APT28 actor to conceal its malicious activities.\n\"These crimes included vast spear-phishing and similar credential harvesting campaigns against targets of intelligence interest to the Russian government, such as U.S. and foreign governments and military, security, and corporate organizations,\" the U.S. Department of Justice (DoJ)\nsaid\nin a statement.\nAPT28\n, also tracked under the monikers BlueDelta, Fancy Bear, Fighting Ursa, Forest Blizzard (formerly Strontium), FROZENLAKE, Iron Twilight, Pawn Storm, Sednit, Sofacy, and TA422, is\nassessed\nto be linked to Unit 26165 of Russia's Main Directorate of the General Staff (GRU). It's known to be active since at least 2007.\nCourt documents allege that the attackers pulled off their cyber espionage campaigns by relying on\nMooBot\n, a Mirai-based botnet that has singled out routers made by Ubiquiti to co-opt them into a mesh of devices that can be modified to act as a proxy, relaying malicious traffic while shielding their actual IP addresses.\nThe botnet, the DoJ said, allowed the threat actors to mask their true location and harvest credentials and NT LAN Manager (NTLM) v2 hashes via bespoke scripts, as well as host spear-phishing landing pages and other custom tooling for brute-forcing passwords, stealing router user passwords, and propagating the MooBot malware to other appliances.\nIn a redacted affidavit filed by the U.S. Federal Bureau of Investigation (FBI), the agency said MooBot exploits vulnerable and publicly accessible Ubiquiti routers by using default credentials and implants an SSH malware that permits persistent remote access to the device.\n\"Non-GRU cybercriminals installed the MooBot malware on Ubiquiti Edge OS routers that still used publicly known default administrator passwords,\" the DoJ explained. \"GRU hackers then used the MooBot malware to install their own bespoke scripts and files that repurposed the botnet, turning it into a global cyber espionage platform.\"\nThe APT28 actors are suspected to have found and illegally accessed compromised Ubiquiti routers by conducting public scans of the internet using a specific OpenSSH version number as a search parameter, and then using MooBot to access those routers.\nSpear-phishing campaigns undertaken by the hacking group have also leveraged a then-zero-day in Outlook (CVE-2023-23397) to siphon login credentials and transmit them to the routers.\n\"In another identified campaign, APT28 actors designed a fake Yahoo! landing page to send credentials entered on the false page to a compromised Ubiquiti router to be collected by APT28 actors at their convenience,\" the FBI said.\nAs part of its efforts to disrupt the botnet in the U.S. and prevent further crime, a series of unspecified commands have been issued to copy the stolen data and malicious files prior to deleting them and modify firewall rules to block APT28's remote access to the routers.\nThe precise number of devices that were compromised in the U.S. has been censored, although the FBI noted that it could change. Infected Ubiquiti devices have been detected in \"almost every state,\" it added.\nThe court-authorized operation – referred to as\nDying Ember\n– comes merely weeks after the U.S. dismantled another state-sponsored hacking campaign originating from China that leveraged a different botnet codenamed\nKV-botnet\nto target critical infrastructure facilities.\nLast May, the U.S. also announced the takedown of a global network compromised by an advanced malware strain dubbed\nSnake\nwielded by hackers associated with Russia's Federal Security Service (FSB), otherwise known as\nTurla\n.",
+  "content_hash": "sha256:23b712504121f032181d7d014ac5257fefe7098c1063563e8495683a848b1299",
+  "published_at": "2024-02-16",
+  "retrieved_at": "2026-07-08T08:01:43Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "botnet",
+    "cyber espionage",
+    "cybersecurity",
+    "FBI",
+    "Malware",
+    "MooBot",
+    "network security",
+    "Ubiquiti",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_043",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_043.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

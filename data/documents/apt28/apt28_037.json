@@ -1,0 +1,34 @@
+{
+  "doc_id": "apt28_037",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://thehackernews.com/2022/09/hackers-using-powerpoint-mouseover.html",
+  "source_type": "news",
+  "source_name": "The Hacker News",
+  "title": "Hackers Using PowerPoint Mouseover Trick to Infect Systems with Malware",
+  "language": "en",
+  "clean_text": "The Russian state-sponsored threat actor known as\nAPT28\nhas been found leveraging a new code execution method that makes use of mouse movement in decoy Microsoft PowerPoint documents to deploy malware.\nThe technique \"is designed to be triggered when the user starts the presentation mode and moves the mouse,\" cybersecurity firm Cluster25\nsaid\nin a technical report. \"The code execution runs a PowerShell script that downloads and executes a dropper from OneDrive.\"\nThe dropper, a seemingly harmless image file, functions as a pathway for a follow-on payload, a variant of a malware known as Graphite, which uses the Microsoft Graph API and OneDrive for command-and-control (C2) communications to retrieve additional payloads.\nThe attack employs a lure document that makes use of a template potentially linked to the Organisation for Economic Co-operation and Development (\nOECD\n), a Paris-based intergovernmental entity.\nCluster25 noted the attacks may be ongoing, considering that the URLs used in the attacks appeared active in August and September, although the hackers had previously laid the groundwork for the campaign between January and February.\nPotential targets of the operation likely include entities and individuals operating in the defense and government sectors of Europe and Eastern Europe, the company added, citing an analysis of geopolitical objectives and the gathered artifacts.\nThis is not the first time the adversarial collective has deployed Graphite. In January 2022, Trellix\ndisclosed\na similar attack chain that exploited the MSHTML remote code execution vulnerability (\nCVE-2021-40444\n) to drop the backdoor.\nThe development is a sign that APT28 (aka Fancy Bear) continues to hone its technical tradecraft and evolve its methods for maximum impact as exploitation routes once deemed viable (e.g., macros) cease to be profitable.",
+  "content_hash": "sha256:25f27a8ce8d1d475fa61b3493bde3c6a99b481fc9bd44ee46d90c59898cf067f",
+  "published_at": "2022-09-28",
+  "retrieved_at": "2026-07-08T08:01:55Z",
+  "source_reliability": "B",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "APT28",
+    "Microsoft",
+    "OneDrive",
+    "Russian hackers",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_037",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_037.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "doc_id": "apt28_025",
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "target_groups": [
+    "APT28"
+  ],
+  "source_url": "https://www.freebuf.com/articles/447325.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "俄罗斯APT28组织通过微软Outlook部署\"NotDoor\"后门程序",
+  "language": "zh",
+  "clean_text": "攻击手法分析\n\n俄罗斯国家支持的黑客组织APT28（长期从事针对北约国家的网络间谍活动）近期被发现利用微软Outlook实施新型攻击。网络安全公司S2 Grupo旗下威胁情报团队Lab52披露，该组织使用名为NotDoor的定制后门程序，通过Outlook电子邮件客户端窃取数据并获取远程控制权限。\n\nNotDoor以VBA（Visual Basic for Applications）宏的形式在Outlook内部运行。其工作机制是监控收件箱中特定触发短语（如\"Daily Report\"），一旦发现即激活隐藏功能。被触发后，该恶意软件可发送窃取的文件、上传新文件至受害者设备并执行命令，整个过程与正常邮件流量无异。\n\n图片来源：Lab52\n\n入侵技术细节\n\nNotDoor的入侵方式同样值得警惕。据Lab52报告，APT28（又名Fancy Bear、Sofacy、STRONTIUM[微软命名]、Sednit和Pawn Storm）通过滥用微软签名的OneDrive.exe文件实施攻击，该文件存在DLL侧加载（DLL sideloading）技术漏洞。\n\n攻击者加载名为SSPICLI.dll的恶意DLL文件，该文件会禁用Outlook的宏安全设置并安装后门程序。随后，恶意软件使用编码的PowerShell命令将自身复制到Outlook宏项目文件夹，通过向webhook.site发送DNS查询确认感染成功，并通过修改Windows注册表实现持久化驻留。\n\n隐蔽性特征\n\nNotDoor在设计上极难被检测。其VBA项目经过混淆处理，变量名被随机打乱，并采用字符串编码技术将代码伪装成随机Base64数据。所有窃取的文件均经加密后通过Outlook发送，随后从受害者设备删除。该恶意软件甚至会清除激活它的触发邮件，几乎不留防御方可追踪的痕迹。\n\n功能指令分析\n\nLab52研究发现NotDoor支持四种主要指令：执行系统命令（可选择是否返回输出）、外泄文件、上传新载荷。执行结果会被打包成看似正常的邮件回复，使用\"Re: 0\"或\"Re: .\"等主题。窃取文件被伪装成\"report\"或\"invoice\"等常见名称，扩展名采用.pdf、.docx或.jpg等格式，与日常工作文件无异。\n\n安全专家建议\n\nSectigo高级研究员Jason Soroko指出，此次攻击表明安全团队不能仅依赖边界防护工具：\"APT28通过名为NotDoor的VBA宏后门将Outlook作为隐蔽通道。攻击利用已签名的OneDrive.exe加载恶意SSPICLI.dll实施DLL侧加载，从而禁用宏保护并分阶段执行命令。该宏监视入站邮件中的触发词，可实现数据外泄、文件上传和命令执行。由于混入可信二进制文件和正常邮件流，可绕过边界工具和基础检测。\"\n\nSoroko建议立即采取防御措施，包括通过组策略禁用Outlook VBA和互联网宏，启用Microsoft Defender攻击面缩减规则（阻止Office应用启动子进程），使用Windows Defender应用程序控制(WDAC)或AppLocker限制DLL加载。在监控方面，团队应排查OneDrive生成含编码命令的PowerShell进程的情况，并对异常的DNS查询或向webhook.site的外发流量设置警报。\n\n参考来源：\n\nRussian APT28 Deploys “NotDoor” Backdoor Through Microsoft Outlook",
+  "content_hash": "sha256:7aba281a1d034416c6be60c4b83c5ea172faa2b572df26ab3c791d323da3fcb3",
+  "published_at": "2025-09-04",
+  "retrieved_at": "2026-07-07T16:19:15Z",
+  "source_reliability": "C",
+  "tlp": "TLP:CLEAR",
+  "tags": [
+    "技术",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "apt28_025",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_apt28/apt28_025.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}
