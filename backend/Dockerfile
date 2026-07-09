@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir --retries 5 -r /app/backend/requirements.txt
 
 COPY backend /app/backend
 COPY scripts /app/scripts
+COPY docs/schemas /app/docs/schemas
 
 EXPOSE 8000
 
