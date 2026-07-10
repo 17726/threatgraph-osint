@@ -62,6 +62,7 @@ Schema 文件：
 ```text
 docs/schemas/document.schema.json
 docs/schemas/extraction-result.schema.json
+docs/schemas/golden.schema.json
 docs/schemas/graph.schema.json
 docs/schemas/relationship-matrix.md
 ```
@@ -90,7 +91,7 @@ data/documents/<target_group>/*.json
 2. arch / qa / be 做标准名和别名对齐时，参考 `reference.apt28.mitre.example.json`。
 3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系。
 4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.thn.beardshell.example.json`。
-5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展。
+5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展，并保持兼容 `docs/schemas/golden.schema.json`。
 6. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
 
 APT28 首个样例的字段标准：
@@ -110,6 +111,9 @@ document.json
 extraction_result.json
   llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入
 
+golden.json
+  qa 组维护的人工标准答案，用于评测候选抽取质量；结构和 extraction_result 一样按 chunks 归属实体和关系，但不包含候选状态、置信度或后端最终图谱关系 ID
+
 graph.json
   be 从 SQLite 正式图谱导出的快照，是演示兜底和 Neo4j 同步输入；如用于前端 mock，需要先适配为 API 的轻量图谱视图
 ```
@@ -118,10 +122,12 @@ graph.json
 
 1. `document.json` 只承载来源元信息和清洗正文 `clean_text`，不承载最终实体 ID，也不要求 data 组手写 chunks。
 2. `extraction_result.json` 只承载 LLM 候选结果，不承载最终 `entity_id` / `relation_id`。
-3. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
-4. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
-5. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
-6. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
+3. `golden.json` 只承载人工标准答案，实体和关系都必须归属到后端生成的 `chunk_id`；临时 mock 阶段可以使用 `${doc_id}_c001`，但不能由 data / QA / LLM 自行引入新的切块规则。
+4. `golden.json` 的关系字段和 `extraction_result.json` 保持一致，统一使用 `head_name`、`head_type`、`relation_type`、`tail_name`、`tail_type`。
+5. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
+6. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
+7. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
+8. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
 
 ### 1.4 P0 文档清洗边界
 
@@ -166,6 +172,8 @@ data/threatgraph_osint.db
 ### 3.1 sources
 
 保存可采集来源配置。第一阶段可先使用本地文本或 `document.json` 导入；课程验收增强阶段用于手动触发三类来源最小采集；后续增强用于调度和增量更新。
+
+来源字段语义以本节和 SQLite `sources` 表为准，不再依赖 `data/sources/` 下的解释性 JSON。历史转换工具产出的来源索引如果只用于复查或迁移，放在 `data/raw/<collector>/`，不要作为 P0 主数据目录。
 
 字段含义：
 

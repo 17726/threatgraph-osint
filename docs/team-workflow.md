@@ -77,11 +77,12 @@ docs/docker-runtime.md
 data/documents/<target_group>/*.json
 data/raw/*.json
 data/evaluation/golden.json
-数据来源索引表
+docs/schemas/golden.schema.json
 数据导入和清洗相关实现
 ```
 
 P0 主交付是 `data/documents/<target_group>/*.json`。`data/raw/*` 只作为可选采集暂存或复现材料，不阻塞离线闭环。
+来源字段语义写在 `docs/data-contract.md` 的 `sources` 表契约中；历史来源索引或转换器输出放入 `data/raw/<collector>/` 复查，不再单独维护 `data/sources/` 目录。
 
 golden.json 原则：
 
@@ -89,6 +90,7 @@ golden.json 原则：
 不是全量数据集，而是小型人工标注标准答案。
 建议每个目标组织 2 篇文本片段，8-12 个实体，5-8 条关系。
 总量控制在 6 篇文档片段、30-40 个实体、20-25 条关系。
+格式必须通过 `docs/schemas/golden.schema.json`，关系字段统一使用 head/tail 命名。
 ```
 
 不负责：
