@@ -36,9 +36,10 @@ qa 组
 
 1. `document.json` 只放来源元信息和清洗正文 `clean_text`，不放最终实体 ID，也不放 chunks。
 2. `extraction_result.json` 只放 LLM 候选实体和候选关系，不放最终关系 ID。
-3. `graph.json` 只能由 SQLite 正式图谱导出，不能由 LLM 或人工直接当事实源维护。
-4. 前端默认使用 `/api/v1/graph`，不直接读取 `graph.json`。
-5. 字段变更先改 schema 和样例，再同步相关组。
+3. `golden.json` 只放人工标准答案，按后端 chunk 归属实体和关系，关系字段和 extraction_result 保持 `head_name` / `tail_name` 命名。
+4. `graph.json` 只能由 SQLite 正式图谱导出，不能由 LLM 或人工直接当事实源维护。
+5. 前端默认使用 `/api/v1/graph`，不直接读取 `graph.json`。
+6. 字段变更先改 schema 和样例，再同步相关组。
 
 ## 2. data 组：如何准备 document.json
 
@@ -243,23 +244,27 @@ qa 组负责把样例变成可评测、可答辩、可复现的证据。
 
 ```text
 data/examples/golden.apt28.thn.beardshell.example.json
+docs/schemas/golden.schema.json
 docs/team-workflow.md
 docs/references/course-requirements.md
 ```
 
 操作步骤：
 
-1. 基于 `golden.apt28.thn.beardshell.example.json` 扩充人工标准答案。
-2. 记录 LLM 漏抽、错抽、关系类型错误和证据不足样例。
-3. 检查 data 组文档是否有来源、时间、语言和清洗说明。
-4. 检查 be 导出的 `graph.json` 是否能追溯到 evidence。
-5. 准备答辩材料时区分“已经实现”“手动步骤”“P1/P2 展望”。
+1. 基于 `golden.apt28.thn.beardshell.example.json` 扩充人工标准答案，并通过 `golden.schema.json`。
+2. 使用后端生成的 `chunk_id` 归属实体和关系；后端切块不可用时，可以临时使用 `${doc_id}_c001` 单 chunk 约定。
+3. 关系字段统一填写 `head_name`、`head_type`、`relation_type`、`tail_name`、`tail_type`，不要再使用 `source` / `target` 作为 golden 字段名。
+4. 记录 LLM 漏抽、错抽、关系类型错误和证据不足样例。
+5. 检查 data 组文档是否有来源、时间、语言和清洗说明。
+6. 检查 be 导出的 `graph.json` 是否能追溯到 evidence。
+7. 准备答辩材料时区分“已经实现”“手动步骤”“P1/P2 展望”。
 
 交付检查：
 
 1. golden 样例不追求全量，只追求小而准确。
 2. 每条标准关系都带可核对的 `evidence_text`。
-3. 评测结论说明样本规模和局限，不夸大能力。
+3. 每条标准实体和关系都放在对应 `chunks[].entities` 或 `chunks[].relations` 中。
+4. 评测结论说明样本规模和局限，不夸大能力。
 
 ## 7. 最小协作节奏
 

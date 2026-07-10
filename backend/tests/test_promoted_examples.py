@@ -14,6 +14,7 @@ EXTRACTION_PATH = ROOT / "data/examples/extraction_result.apt28.thn.beardshell.e
 GOLDEN_PATH = ROOT / "data/examples/golden.apt28.thn.beardshell.example.json"
 GRAPH_PATH = ROOT / "data/examples/graph.apt28.thn.beardshell.example.json"
 EXTRACTION_SCHEMA_PATH = ROOT / "docs/schemas/extraction-result.schema.json"
+GOLDEN_SCHEMA_PATH = ROOT / "docs/schemas/golden.schema.json"
 GRAPH_SCHEMA_PATH = ROOT / "docs/schemas/graph.schema.json"
 
 
@@ -65,15 +66,68 @@ def test_promoted_graph_example_matches_export_schema():
     }
 
 
-def test_promoted_golden_example_uses_same_document_and_evidence():
+def test_promoted_golden_example_matches_schema_document_and_evidence():
     document = load_json(DOCUMENT_PATH)
     golden = load_json(GOLDEN_PATH)
+    schema = json.loads(GOLDEN_SCHEMA_PATH.read_text(encoding="utf-8"))
     clean_text = document["clean_text"]
+    validator = Draft202012Validator(schema)
 
+    errors = sorted(validator.iter_errors(golden), key=lambda item: list(item.path))
+    assert errors == []
     assert golden["doc_ids"] == [document["doc_id"]]
-    for relation in golden["relations"]:
-        assert relation["chunk_id"] == f"{document['doc_id']}_c001"
-        assert relation["evidence_text"] in clean_text
+    for chunk in golden["chunks"]:
+        assert chunk["doc_id"] == document["doc_id"]
+        assert chunk["chunk_id"] == f"{document['doc_id']}_c001"
+        for entity in chunk["entities"]:
+            assert entity["evidence_text"] in clean_text
+        for relation in chunk["relations"]:
+            assert relation["evidence_text"] in clean_text
+
+
+def test_promoted_golden_example_uses_extraction_relation_fields():
+    extraction_result = load_json(EXTRACTION_PATH)
+    golden = load_json(GOLDEN_PATH)
+
+    extraction_entities = {
+        (chunk["chunk_id"], entity["name"], entity["type"], entity["evidence_text"])
+        for chunk in extraction_result["chunks"]
+        for entity in chunk["entities"]
+    }
+    golden_entities = {
+        (chunk["chunk_id"], entity["name"], entity["type"], entity["evidence_text"])
+        for chunk in golden["chunks"]
+        for entity in chunk["entities"]
+    }
+    extraction_relations = {
+        (
+            chunk["chunk_id"],
+            relation["head_name"],
+            relation["head_type"],
+            relation["relation_type"],
+            relation["tail_name"],
+            relation["tail_type"],
+            relation["evidence_text"],
+        )
+        for chunk in extraction_result["chunks"]
+        for relation in chunk["relations"]
+    }
+    golden_relations = {
+        (
+            chunk["chunk_id"],
+            relation["head_name"],
+            relation["head_type"],
+            relation["relation_type"],
+            relation["tail_name"],
+            relation["tail_type"],
+            relation["evidence_text"],
+        )
+        for chunk in golden["chunks"]
+        for relation in chunk["relations"]
+    }
+
+    assert golden_entities == extraction_entities
+    assert golden_relations == extraction_relations
 
 
 def test_promoted_graph_example_can_be_regenerated(tmp_path):

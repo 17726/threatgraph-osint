@@ -1147,7 +1147,7 @@ MVP 用来证明团队可以交付和继续开发，必须满足：
 
 1. 后端包管理用 `uv`、`pip` 还是 Poetry。
 2. LLM 使用 OpenAI、DeepSeek、通义，还是统一 OpenAI-compatible API。
-3. 评测集 `golden.json` 是否由数据组维护为唯一人工标注基准。
+3. 评测集 `golden.json` 由 qa 组维护为小型人工标注基准，是否需要扩展为跨目标组织统一评测包。
 4. 是否使用单根目录统一启动脚本。
 
 ---

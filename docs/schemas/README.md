@@ -13,6 +13,9 @@ docs/schemas/document.schema.json
 docs/schemas/extraction-result.schema.json
   llm 组提交候选抽取结果时使用
 
+docs/schemas/golden.schema.json
+  qa 组提交人工标准答案时使用
+
 docs/schemas/graph.schema.json
   be 导出 data/graph/graph.json 快照时使用；/api/v1/graph 响应以 docs/api-contract.md 为准
 
@@ -54,10 +57,11 @@ The Hacker News 字段口径如下：
 
 1. `document.json` 必须包含来源、时间、语言、清洗正文 `clean_text`、目标组织和 `content_hash`；真实文档默认放在 `data/documents/<target_group>/`。
 2. `extraction_result.json` 只表示 LLM 候选结果，不能包含最终 `entity_id` 或 `relation_id`。
-3. `graph.json` 只能由 SQLite canonical graph 导出，不能直接由 LLM 生成。
-4. 所有实体和关系都必须能追溯到 `evidence_ids`。
-5. 关系类型必须先通过 `relationship-matrix.md` 的最小合法性检查。
-6. `RELATED_TO` 只能作为兜底关系，不能作为常规抽取结果滥用。
+3. `golden.json` 表示人工标准答案，按 `chunks[].entities` 和 `chunks[].relations` 组织，关系字段和 extraction_result 统一使用 `head_name`、`head_type`、`tail_name`、`tail_type`。
+4. `graph.json` 只能由 SQLite canonical graph 导出，不能直接由 LLM 生成。
+5. 所有实体和关系都必须能追溯到 `evidence_ids`。
+6. 关系类型必须先通过 `relationship-matrix.md` 的最小合法性检查。
+7. `RELATED_TO` 只能作为兜底关系，不能作为常规抽取结果滥用。
 
 ## 今日交付口径
 
@@ -69,4 +73,4 @@ be 组按 `graph.apt28.thn.beardshell.example.json` 的格式导出 `data/graph/
 
 如果后续需要对 `/api/v1/graph` 做机器校验，应新增独立的 `graph-view.schema.json`，不要复用完整 GraphSnapshot 的 `graph.schema.json`。
 
-qa 组按 `golden.apt28.thn.beardshell.example.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。
+qa 组按 `golden.apt28.thn.beardshell.example.json` 和 `golden.schema.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。正式 golden 不手写新的切块逻辑；后端切块不可用时，可以临时沿用样例中的 `${doc_id}_c001` 单 chunk 约定。
