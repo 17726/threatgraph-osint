@@ -1,0 +1,566 @@
+{
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "doc_ids": [
+    "apt28_080"
+  ],
+  "chunks": [
+    {
+      "chunk_id": "apt28_080_c001",
+      "doc_id": "apt28_080",
+      "char_start": 0,
+      "char_end": 21738,
+      "note": "当前文档长度约 21.7k 字符，作为单 chunk 标注；正式后端切块超过阈值时应继续使用 doc_id_cNNN。",
+      "entities": [
+        {
+          "name": "Sofacy",
+          "type": "APT_GROUP",
+          "aliases": [
+            "APT28",
+            "Fancy Bear",
+            "STRONTIUM",
+            "Sednit",
+            "Tsar Team",
+            "Pawn Storm"
+          ],
+          "evidence_text": "The Sofacy group (AKA APT28, Fancy Bear, STRONTIUM, Sednit, Tsar Team, Pawn Storm) is a well-known adversary that remains highly active in the new calendar year of 2018.",
+          "char_start": 381,
+          "char_end": 550,
+          "canonical_id": "apt_group:apt28"
+        },
+        {
+          "name": "Unit 42",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "Unit 42 actively monitors this group",
+          "char_start": 551,
+          "char_end": 587,
+          "canonical_id": "organization:unit-42"
+        },
+        {
+          "name": "Ministries of Foreign Affairs",
+          "type": "TARGET",
+          "aliases": [],
+          "evidence_text": "a campaign launched at various Ministries of Foreign Affairs around the world.",
+          "char_start": 683,
+          "char_end": 761,
+          "canonical_id": "target:ministries-of-foreign-affairs"
+        },
+        {
+          "name": "government institutions",
+          "type": "TARGET",
+          "aliases": [],
+          "evidence_text": "we discovered an attack targeting two government institutions related to foreign affairs.",
+          "char_start": 1092,
+          "char_end": 1181,
+          "canonical_id": "target:government-institutions"
+        },
+        {
+          "name": "Europe",
+          "type": "REGION",
+          "aliases": [],
+          "evidence_text": "one organization is geographically located in Europe",
+          "char_start": 1314,
+          "char_end": 1366,
+          "canonical_id": "region:europe"
+        },
+        {
+          "name": "North America",
+          "type": "REGION",
+          "aliases": [],
+          "evidence_text": "the other in North America.",
+          "char_start": 1371,
+          "char_end": 1398,
+          "canonical_id": "region:north-america"
+        },
+        {
+          "name": "phishing email",
+          "type": "TECHNIQUE",
+          "aliases": [
+            "spear-phishing"
+          ],
+          "evidence_text": "The initial attack vector leveraged a phishing email",
+          "char_start": 1399,
+          "char_end": 1451,
+          "canonical_id": "technique:phishing-emails"
+        },
+        {
+          "name": "Microsoft Excel",
+          "type": "TOOL",
+          "aliases": [
+            "Excel"
+          ],
+          "evidence_text": "The attachment itself is an Microsoft Excel XLS document that contains malicious macro script.",
+          "char_start": 2198,
+          "char_end": 2292,
+          "canonical_id": "tool:microsoft-excel"
+        },
+        {
+          "name": "certutil",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "The macro then uses the command certutil -decode to decode the contents of this text file",
+          "char_start": 3842,
+          "char_end": 3931,
+          "canonical_id": "tool:certutil"
+        },
+        {
+          "name": "SofacyCarberp",
+          "type": "MALWARE",
+          "aliases": [],
+          "evidence_text": "The cdnver.dll payload installed by the loader executable is a variant of the SofacyCarberp payload, which is used extensively by the Sofacy threat group.",
+          "char_start": 4965,
+          "char_end": 5119,
+          "canonical_id": "malware:sofacycarberp"
+        },
+        {
+          "name": "Carberp",
+          "type": "MALWARE",
+          "aliases": [],
+          "evidence_text": "Previous versions of this Trojan used code taken from the leaked Carberp source code",
+          "char_start": 14652,
+          "char_end": 14736,
+          "canonical_id": "malware:carberp"
+        },
+        {
+          "name": "Luckystrike",
+          "type": "TOOL",
+          "aliases": [
+            "LuckyStrike"
+          ],
+          "evidence_text": "It appears that Sofacy may have used an open-source tool called Luckystrike to generate the delivery document and/or the macro used in this attack.",
+          "char_start": 5811,
+          "char_end": 5958,
+          "canonical_id": "tool:luckystrike"
+        },
+        {
+          "name": "PowerShell",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "Luckystrike, which was presented at DerbyCon 6 in September 2016, is a Microsoft PowerShell-based tool that generates malicious delivery documents by allowing a user to add a macro to an Excel or Word document to execute an embedded payload.",
+          "char_start": 5959,
+          "char_end": 6200,
+          "canonical_id": "tool:power-shell"
+        },
+        {
+          "name": "cdnverify[.]net",
+          "type": "TOOL",
+          "aliases": [
+            "cdnverify.net"
+          ],
+          "evidence_text": "This variant of SofacyCarberp was configured to use the following domain as its C2 server:\ncdnverify[.]net",
+          "char_start": 5288,
+          "char_end": 5394,
+          "canonical_id": "tool:cdnverify-net"
+        },
+        {
+          "name": "hotfixmsupload[.]com",
+          "type": "TOOL",
+          "aliases": [
+            "hotfixmsupload.com"
+          ],
+          "evidence_text": "Hotfixmsupload[.]com is particularly interesting as it has been identified as a Sofacy C2 domain repeatedly",
+          "char_start": 8586,
+          "char_end": 8693,
+          "canonical_id": "tool:hotfixmsupload-com"
+        },
+        {
+          "name": "Palo Alto Networks",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "Palo Alto Networks customers are protected from this threat by:",
+          "char_start": 9740,
+          "char_end": 9803,
+          "canonical_id": "organization:palo-alto-networks"
+        },
+        {
+          "name": "UserInitMprLogonScript",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "the loader will add the following registry key UserInitMprLogonScript to HKCU",
+          "char_start": 13945,
+          "char_end": 14022,
+          "canonical_id": "technique:userinitmprlogonscript"
+        },
+        {
+          "name": "IHSMarkit",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "Jane’s by IHSMarkit is a well-known supplier of information and analysis often times associated with the defense and government sector.",
+          "char_start": 1627,
+          "char_end": 1762,
+          "canonical_id": "organization:ihsmarkit"
+        },
+        {
+          "name": "Jane's 360",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "a sender address claiming to be from Jane's 360 defense events <events@ihsmarkit.com>",
+          "char_start": 1540,
+          "char_end": 1625,
+          "canonical_id": "organization:janes-360"
+        },
+        {
+          "name": "loader Trojan",
+          "type": "MALWARE",
+          "aliases": [],
+          "evidence_text": "The newly dropped executable is a loader Trojan responsible for installing and running the payload of this attack.",
+          "char_start": 4122,
+          "char_end": 4236,
+          "canonical_id": "malware:loader-trojan"
+        },
+        {
+          "name": "iexplore.exe",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "0xCDCB4E50 - iexplore.exe",
+          "char_start": 16992,
+          "char_end": 17017,
+          "canonical_id": "tool:iexplore-exe"
+        },
+        {
+          "name": "firefox.exe",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "0x70297938 - firefox.exe",
+          "char_start": 17018,
+          "char_end": 17042,
+          "canonical_id": "tool:firefox-exe"
+        },
+        {
+          "name": "chrome.exe",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "0x723F0158 - chrome.exe",
+          "char_start": 17043,
+          "char_end": 17066,
+          "canonical_id": "tool:chrome-exe"
+        },
+        {
+          "name": "January 30, 2018",
+          "type": "TIME",
+          "aliases": [],
+          "evidence_text": "the domain cdnverify[.]net was registered on January 30, 2018",
+          "char_start": 8953,
+          "char_end": 9014,
+          "canonical_id": "time:2018-01-30"
+        },
+        {
+          "name": "September 2016",
+          "type": "TIME",
+          "aliases": [],
+          "evidence_text": "Luckystrike, which was presented at DerbyCon 6 in September 2016",
+          "char_start": 5959,
+          "char_end": 6023,
+          "canonical_id": "time:2016-09"
+        },
+        {
+          "name": "February 2018",
+          "type": "TIME",
+          "aliases": [],
+          "evidence_text": "At the beginning of February 2018, we discovered an attack targeting two government institutions",
+          "char_start": 1057,
+          "char_end": 1153,
+          "canonical_id": "time:2018-02"
+        },
+        {
+          "name": "DealersChoice",
+          "type": "EVENT",
+          "aliases": [],
+          "evidence_text": "This executable contains the same decryption algorithm as the loader we analyzed in the DealersChoice attacks in late 2016.",
+          "char_start": 10615,
+          "char_end": 10738,
+          "canonical_id": "event:dealerschoice"
+        },
+        {
+          "name": "rundll32.exe",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "start rundll32.exe \"C:\\Users\\user\\AppData\\Local\\cdnver.dll\",#1",
+          "char_start": 4621,
+          "char_end": 4683,
+          "canonical_id": "tool:rundll32-exe"
+        },
+        {
+          "name": "explorer.exe",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "the loader will enumerate the system’s processes searching for explorer.exe. This process was most likely chosen as it typically runs with administrator privileges.",
+          "char_start": 13368,
+          "char_end": 13532,
+          "canonical_id": "tool:explorer-exe"
+        },
+        {
+          "name": "CreateProcessAsUser",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "execute the dropped DLL via CreateProcessAsUser",
+          "char_start": 13598,
+          "char_end": 13645,
+          "canonical_id": "technique:createprocessasuser"
+        },
+        {
+          "name": "RtlDecompressBuffer",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "decompressing it using the RtlDecompressBuffer API",
+          "char_start": 11388,
+          "char_end": 11438,
+          "canonical_id": "technique:rtldecompressbuffer"
+        },
+        {
+          "name": "LZNT1",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "The compression algorithm used is LZNT1 with maximum compression level.",
+          "char_start": 11596,
+          "char_end": 11667,
+          "canonical_id": "technique:lznt1"
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "phishing email",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "The initial attack vector leveraged a phishing email (seen in Figure 1), using the subject line of Upcoming Defense events February 2018 and a sender address claiming to be from Jane's 360 defense events",
+          "char_start": 1399,
+          "char_end": 1602
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Microsoft Excel",
+          "tail_type": "TOOL",
+          "evidence_text": "The attachment itself is an Microsoft Excel XLS document that contains malicious macro script.",
+          "char_start": 2198,
+          "char_end": 2292
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "certutil",
+          "tail_type": "TOOL",
+          "evidence_text": "The macro then uses the command certutil -decode to decode the contents of this text file and outputs the decoded content to a randomly named file with a .exe extension",
+          "char_start": 3842,
+          "char_end": 4010
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Luckystrike",
+          "tail_type": "TOOL",
+          "evidence_text": "It appears that Sofacy may have used an open-source tool called Luckystrike to generate the delivery document and/or the macro used in this attack.",
+          "char_start": 5811,
+          "char_end": 5958
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "PowerShell",
+          "tail_type": "TOOL",
+          "evidence_text": "Luckystrike, which was presented at DerbyCon 6 in September 2016, is a Microsoft PowerShell-based tool that generates malicious delivery documents",
+          "char_start": 5959,
+          "char_end": 6105
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "SofacyCarberp",
+          "tail_type": "MALWARE",
+          "evidence_text": "The cdnver.dll payload installed by the loader executable is a variant of the SofacyCarberp payload, which is used extensively by the Sofacy threat group.",
+          "char_start": 4965,
+          "char_end": 5119
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "Ministries of Foreign Affairs",
+          "tail_type": "TARGET",
+          "evidence_text": "a campaign launched at various Ministries of Foreign Affairs around the world.",
+          "char_start": 683,
+          "char_end": 761
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "government institutions",
+          "tail_type": "TARGET",
+          "evidence_text": "we discovered an attack targeting two government institutions related to foreign affairs.",
+          "char_start": 1092,
+          "char_end": 1181
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "Europe",
+          "tail_type": "REGION",
+          "evidence_text": "one organization is geographically located in Europe and the other in North America.",
+          "char_start": 1314,
+          "char_end": 1398
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "North America",
+          "tail_type": "REGION",
+          "evidence_text": "one organization is geographically located in Europe and the other in North America.",
+          "char_start": 1314,
+          "char_end": 1398
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "UserInitMprLogonScript",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "the loader will add the following registry key UserInitMprLogonScript to HKCU",
+          "char_start": 13945,
+          "char_end": 14022
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "cdnverify[.]net",
+          "tail_type": "TOOL",
+          "evidence_text": "Leveraging this intelligence allowed us to begin predicting potential C2 domains that would eventually be used by the Sofacy group. In this scenario, the domain cdnverify[.]net was registered on January 30, 2018 and just two days later, an attack was launched using this domain as a C2.",
+          "char_start": 8803,
+          "char_end": 9089
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "hotfixmsupload[.]com",
+          "tail_type": "TOOL",
+          "evidence_text": "Hotfixmsupload[.]com is particularly interesting as it has been identified as a Sofacy C2 domain repeatedly",
+          "char_start": 8586,
+          "char_end": 8693
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "loader Trojan",
+          "tail_type": "MALWARE",
+          "evidence_text": "The newly dropped executable is a loader Trojan responsible for installing and running the payload of this attack.",
+          "char_start": 4122,
+          "char_end": 4236
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "iexplore.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "The Trojan then subjects this unicode string in ASCII format to the hashing algorithm, looking for the following:\n\n0xCDCB4E50 - iexplore.exe\n0x70297938 - firefox.exe\n0x723F0158 - chrome.exe\n\nThe Trojan will attempt to inject code into these browsers to carry out its C2 communications.",
+          "char_start": 16877,
+          "char_end": 17162
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "firefox.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "The Trojan then subjects this unicode string in ASCII format to the hashing algorithm, looking for the following:\n\n0xCDCB4E50 - iexplore.exe\n0x70297938 - firefox.exe\n0x723F0158 - chrome.exe\n\nThe Trojan will attempt to inject code into these browsers to carry out its C2 communications.",
+          "char_start": 16877,
+          "char_end": 17162
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "chrome.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "The Trojan then subjects this unicode string in ASCII format to the hashing algorithm, looking for the following:\n\n0xCDCB4E50 - iexplore.exe\n0x70297938 - firefox.exe\n0x723F0158 - chrome.exe\n\nThe Trojan will attempt to inject code into these browsers to carry out its C2 communications.",
+          "char_start": 16877,
+          "char_end": 17162
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "RELATED_TO",
+          "tail_name": "DealersChoice",
+          "tail_type": "EVENT",
+          "evidence_text": "This executable contains the same decryption algorithm as the loader we analyzed in the DealersChoice attacks in late 2016.",
+          "char_start": 10615,
+          "char_end": 10738
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "rundll32.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "start rundll32.exe \"C:\\Users\\user\\AppData\\Local\\cdnver.dll\",#1",
+          "char_start": 4621,
+          "char_end": 4683
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "explorer.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "the loader will enumerate the system’s processes searching for explorer.exe. This process was most likely chosen as it typically runs with administrator privileges.",
+          "char_start": 13368,
+          "char_end": 13532
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "CreateProcessAsUser",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "execute the dropped DLL via CreateProcessAsUser",
+          "char_start": 13598,
+          "char_end": 13645
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "RtlDecompressBuffer",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "decompressing it using the RtlDecompressBuffer API",
+          "char_start": 11388,
+          "char_end": 11438
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "LZNT1",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "The compression algorithm used is LZNT1 with maximum compression level.",
+          "char_start": 11596,
+          "char_end": 11667
+        },
+        {
+          "head_name": "SofacyCarberp",
+          "head_type": "MALWARE",
+          "relation_type": "RELATED_TO",
+          "tail_name": "Carberp",
+          "tail_type": "MALWARE",
+          "evidence_text": "Previous versions of this Trojan used code taken from the leaked Carberp source code",
+          "char_start": 14652,
+          "char_end": 14736
+        }
+      ]
+    }
+  ],
+  "notes": "人工核验后的标准答案，用于评测 LLM 针对 apt28_080（Unit42 Sofacy 多政府机构攻击报告）单文档单 chunk 的实体和关系抽取。\n\n包含 32 个实体：Sofacy（APT28）、攻击目标（Ministries of Foreign Affairs、government institutions）、目标区域（Europe、North America）、攻击工具（Microsoft Excel、certutil、Luckystrike、PowerShell、cdnverify[.]net、hotfixmsupload[.]com、iexplore.exe、firefox.exe、chrome.exe、rundll32.exe、explorer.exe）、恶意软件（SofacyCarberp、Carberp、loader Trojan）、攻击技术（phishing email、UserInitMprLogonScript、CreateProcessAsUser、RtlDecompressBuffer、LZNT1）、时间实体（January 30, 2018、September 2016、February 2018）、防御方与被冒用组织（Unit 42、Palo Alto Networks、IHSMarkit、Jane's 360）、历史事件（DealersChoice）。\n\n【已过滤 — 纯文档元数据，无图谱语义关系】\n- Bryan Lee（作者）、Mike Harbison（作者）、Robert Falcone（作者）\n\n【语义分析后决定忽略的候选实体】\n- ThreatConnect（ORGANIZATION）：仅外部引用来源，与攻击无互动\n- Microsoft（ORGANIZATION）：法律诉讼方，未参与攻击链条\n- ESET（ORGANIZATION）：仅历史报告引用来源\n- ISC/Internet Storm Center（ORGANIZATION）：仅背景引用\n- kernel32.dll / ntdll.dll（TOOL）：哈希查找目标，非主动使用；过于底层无独立攻击意义\n- api-ms-win-core-synch-l1-2-0.dll（TOOL）：仅背景提及，未说明攻击者主动使用\n- WindowsApp.lib（TOOL）：开发背景提及，与攻击行为无关\n- June 2016（TIME）：历史博客时间，与本次攻击（2018年2月）无时间线关联\n- February 28, 2018（TIME）：文章发布日期，属文档元数据\n- defense and government sector（INDUSTRY）：已通过具体 TARGET 实体隐含\n- WildFire / AutoFocus / Traps（TOOL）：Palo Alto 产品细节，不产生新语义关系\n- cmd.exe（TOOL）：原文清洗文本中无显式出现，无法提取"
+}
