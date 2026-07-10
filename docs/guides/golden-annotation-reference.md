@@ -1,219 +1,304 @@
 # 黄金集标注参考手册
 
-> 适用于 `data/evaluation/golden.<lang>.<dataset>.json` 格式，契约格式见 `data/examples/golden.apt28.thn.beardshell.example.json`。
+> 适用对象：QA 组人工制作 `golden.json`。正式契约以 `docs/schemas/golden.schema.json`、`docs/data-contract.md` 和 `data/examples/golden.apt28.thn.beardshell.example.json` 为准。
 
 ---
 
-## 1. 文件顶层字段
+## 1. 基本定位
 
-| 字段 | 值 | 说明 |
-|---|---|---|
-| `schema_version` | `"1.0"` | **固定值**，不允许改 |
-| `target_group` | `"APT28"` / `"Kimsuky"` / `"Lazarus"` | 本次标注目标组织 |
-| `doc_ids` | `["apt28_001"]` | 该 golden 文件覆盖的文档 ID |
-| `chunks` | [...] | 后端切块信息，标注时已填好，不需要改 |
-| `entities` | [...] | **你要填的实体列表** |
-| `relations` | [...] | **你要填的关系列表** |
+`golden.json` 是人工标准答案，用来评测 LLM 候选抽取结果，不是 LLM 输出，也不是最终图谱快照。
+
+必须遵守：
+
+1. `golden.json` 按 `chunks[].entities` 和 `chunks[].relations` 组织，不再使用顶层 `entities` / `relations`。
+2. `chunk_id` 由后端切块生成；后端切块不可用时，临时使用 `${doc_id}_c001` 单 chunk 约定。
+3. 关系字段和 `extraction_result.json` 保持一致，统一使用 `head_name`、`head_type`、`relation_type`、`tail_name`、`tail_type`。
+4. 每条实体和关系都要有可回到原文的 `evidence_text`。
+5. 不标注原文没有明确支撑的推断关系。
+
+建议文件位置：
+
+```text
+data/evaluation/golden.<target_group>.<dataset>.json
+```
+
+示例：
+
+```text
+data/evaluation/golden.apt28.core.json
+data/evaluation/golden.kimsuky.core.json
+```
+
+历史迁移材料或旧格式文件不要直接放入 `data/evaluation/` 作为正式 golden；需要复查时放在 `data/raw/<collector>/`。
 
 ---
 
-## 2. entities 字段详解
+## 2. 顶层结构
+
+```json
+{
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "doc_ids": ["apt28_049"],
+  "chunks": [
+    {
+      "chunk_id": "apt28_049_c001",
+      "doc_id": "apt28_049",
+      "char_start": 0,
+      "char_end": 4849,
+      "note": "临时单 chunk 样例；正式流程使用后端生成的 chunk。",
+      "entities": [],
+      "relations": []
+    }
+  ],
+  "notes": "人工核验后的标准答案，用于评测实体和关系抽取。"
+}
+```
+
+| 字段 | 填写规则 |
+| --- | --- |
+| `schema_version` | 固定 `"1.0"`。 |
+| `target_group` | 本 golden 主评测目标组织，例如 `APT28`、`Kimsuky`、`Lazarus`。 |
+| `doc_ids` | 本 golden 覆盖的文档 ID 列表，必须能对应到 `data/documents/<target_group>/*.json` 或样例文档。 |
+| `chunks` | 后端切块结果。实体和关系都写在对应 chunk 内。 |
+| `notes` | 写明数据来源、标注范围、已知限制。 |
+
+---
+
+## 3. chunk 填写规则
+
+```json
+{
+  "chunk_id": "apt28_049_c001",
+  "doc_id": "apt28_049",
+  "char_start": 0,
+  "char_end": 4849,
+  "note": "当前文档作为单 chunk 标注。",
+  "entities": [],
+  "relations": []
+}
+```
+
+| 字段 | 填写规则 |
+| --- | --- |
+| `chunk_id` | 使用后端生成值。mock 阶段可用 `${doc_id}_c001`。 |
+| `doc_id` | 该 chunk 所属文档 ID。 |
+| `char_start` / `char_end` | chunk 在文档 `clean_text` 中的位置；不确定时先用后端输出，不手写新切块规则。 |
+| `note` | 可选，说明临时单 chunk、截断、人工复查等情况。 |
+| `entities` | 当前 chunk 的人工标准实体。 |
+| `relations` | 当前 chunk 的人工标准关系。 |
+
+QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后端或架构组，而不是在 golden 中自行发明新的 chunk 规则。
+
+---
+
+## 4. entities 填写规则
+
+实体写在所属 chunk 的 `entities` 数组里，不再带 `chunk_id` 字段。
 
 ```json
 {
   "name": "APT28",
   "type": "APT_GROUP",
-  "aliases": ["Fancy Bear", "Sofacy"],
-  "chunk_id": "apt28_001_c001",
-  "evidence_text": "APT28, Pawn Storm, Sofacy Group, Sednit或STRONTIUM",
-  "char_start": 0,
-  "char_end": 271,
+  "aliases": ["UAC-0001"],
+  "evidence_text": "Russia-linked APT28 (aka UAC-0001) threat actors",
+  "char_start": 92,
+  "char_end": 142,
   "canonical_id": "apt_group:apt28"
 }
 ```
 
-### name（实体标准名）
-- **类型**：字符串，**任意填写**
-- **填写规则**：选取文档中最通用的称呼
-- **示例**：`"APT28"`（不写 `"Fancy Bear"`），`"Carberp"`，`"腾讯御见威胁情报中心"`
+| 字段 | 填写规则 |
+| --- | --- |
+| `name` | 实体标准名。优先使用文档中的主称呼；同一实体跨文档尽量保持一致。 |
+| `type` | 只能从实体类型枚举中选择。拿不准时先记录为待确认，不要为了过 schema 随便填。 |
+| `aliases` | 文档中出现的别名；没有别名填 `[]`。 |
+| `evidence_text` | 从当前 chunk 文本中连续截取的证据片段。 |
+| `char_start` / `char_end` | `evidence_text` 在当前 chunk 文本中的 0-based 起止位置；单 chunk mock 时等同于在 `clean_text` 中的位置。 |
+| `canonical_id` | QA 标准答案用于对齐实体的规范 ID，不是 LLM 输出字段。 |
 
-### type（实体类型）
-- **类型**：字符串，**只能从下方列表选一个**
-- **填写规则**：选最匹配的类型，不确定时填 `ORGANIZATION`
+实体类型枚举：
 
-| 类型 | 中文含义 | 适用场景 |
-|---|---|---|
-| `APT_GROUP` | APT组织 | 高级持续性威胁组织、黑客团伙，如 APT28, Lazarus, Kimsuky, KONNI |
-| `ORGANIZATION` | 组织机构 | 公司、机构、安全厂商、政府单位，如 腾讯御见, 奇安信, ESTsecurity, CERT-UA, 罗马尼亚外交部 |
-| `PERSON` | 个人 | 个人姓名（中文报告中出现较少） |
-| `MALWARE` | 恶意软件 | 木马、后门、病毒、恶意程序，如 Carberp, PowerRatankba, cdnver.dll, Ratankba |
-| `TOOL` | 工具 | 软件工具、系统程序、协议、框架（非恶意），如 certutil.exe, PowerShell, KakaoTalk, rundll32.exe |
-| `CVE` | 漏洞编号 | 标准 CVE 漏洞编号，如 CVE-2017-0199 |
-| `TECHNIQUE` | 攻击技术 | 攻击手法、技术，如 钓鱼邮件, XSS, DLL侧加载 |
-| `TARGET` | 攻击目标 | 攻击的目标行业/群体/机构类型，如 韩国政府, 加密货币交易所, 金融机构 |
-| `COUNTRY` | 国家 | 国家名称，如 俄罗斯, 韩国, 朝鲜, 乌克兰 |
-| `REGION` | 区域 | 地理区域（不常用），如 东亚, 东欧 |
-| `INDUSTRY` | 行业 | 行业分类（不常用），如 金融业, 国防工业 |
-| `TIME` | 时间 | 时间点或时间段（不常用） |
-| `EVENT` | 攻击事件 | 单次攻击事件（不常用） |
-| `CAMPAIGN` | 攻击活动 | 系列攻击活动（不常用） |
-| `BEHAVIOR_PATTERN` | 行为模式 | 攻击行为模式（不常用） |
+```text
+APT_GROUP
+ORGANIZATION
+PERSON
+MALWARE
+TOOL
+CVE
+TECHNIQUE
+TARGET
+COUNTRY
+REGION
+INDUSTRY
+TIME
+EVENT
+CAMPAIGN
+BEHAVIOR_PATTERN
+```
 
-### aliases（别名列表）
-- **类型**：字符串数组，**任意填写**
-- **填写规则**：文档中提到的该实体其他名称，无别名填 `[]`
-- **示例**：`["Fancy Bear", "Sofacy"]`，`["Computer Emergency Response Team of Ukraine"]`
+常见选择：
 
-### chunk_id（文档块 ID）
-- **类型**：字符串，**固定值**，不需要填写
-- **填写规则**：格式为 `{doc_id}_c001`，已预先填好
-
-### evidence_text（证据文本）
-- **类型**：字符串，**任意填写**
-- **填写规则**：从原文中截取的连续短句，能证明该实体在文档中出现，必须**唯一命中**原文
-- **示例**：`"APT28, Pawn Storm, Sofacy Group, Sednit或STRONTIUM"`
-
-### char_start / char_end（字符起止位置）
-- **类型**：整数，自动计算，不需要填写
-- **填写规则**：`char_start = clean_text.find(evidence_text)`，`char_end = char_start + len(evidence_text)`，满足 `clean_text[char_start:char_end] == evidence_text`
-
-### canonical_id（规范 ID）
-- **类型**：字符串，**只能按下方 ID 规则填写**
-- **填写规则**：`{类型前缀}:{英文小写名}`，不能随意编造
-
-**ID 规则详解：**
-
-| 类型 | ID 格式 | 示例 |
-|---|---|---|
-| `APT_GROUP` | `apt_group:{英文小写名}` | `apt_group:apt28` |
-| `ORGANIZATION` | `organization:{英文小写名}` | `organization:tencent-yujian` |
-| `PERSON` | `person:{英文小写名}` | |
-| `MALWARE` | `malware:{英文小写名}` | `malware:carberp` |
-| `TOOL` | `tool:{英文小写名}` | `tool:certutil-exe` |
-| `CVE` | `cve:{小写编号}` | `cve:cve-2017-0199` |
-| `TECHNIQUE` | `technique:{英文小写名}` | `technique:phishing-emails` |
-| `TARGET` | `target:{英文小写名}` | `target:korean-government` |
-| `COUNTRY` | `country:{英文小写名}` | `country:russia` |
-| `REGION` | `region:{英文小写名}` | |
-| `INDUSTRY` | `industry:{英文小写名}` | |
-| `TIME` | `time:{英文小写名}` | |
-| `EVENT` | `event:{英文小写名}` | |
-| `CAMPAIGN` | `campaign:{英文小写名}` | |
-| `BEHAVIOR_PATTERN` | `behavior:{英文小写名}` | |
-
-**ID 命名规则：**
-1. 小写字母，空格变连字符 `-`
-2. 特殊字符保留（如 `cve-2017-0199` 中的 `-`）
-3. `CVE` 格式固定为 `cve:cve-xxxx-xxxx`
-4. 中文名翻译为英文（如 `罗马尼亚外交部` → `romanian-ministry-of-foreign-affairs`）
-5. **同一个实体在不同文档中应使用相同的 `canonical_id`**
+| 类型 | 适用对象 |
+| --- | --- |
+| `APT_GROUP` | APT28、Lazarus、Kimsuky、KONNI 等组织或攻击团伙。 |
+| `ORGANIZATION` | 安全厂商、政府机构、受害组织、研究机构。 |
+| `MALWARE` | 恶意软件、后门、木马、载荷家族。 |
+| `TOOL` | PowerShell、certutil.exe、KakaoTalk、合法管理工具、协议或 API。 |
+| `CVE` | 标准 CVE 编号。 |
+| `TECHNIQUE` | 钓鱼邮件、DLL 侧加载、XSS、凭据窃取等攻击手法。 |
+| `TARGET` | 目标群体、行业、机构类型，例如外交人员、加密货币交易所。 |
+| `COUNTRY` / `REGION` | 国家或地区。 |
+| `CAMPAIGN` / `EVENT` | 系列攻击活动或单次事件。 |
 
 ---
 
-## 3. relations 字段详解
+## 5. canonical_id 规则
+
+`canonical_id` 用于人工评测时对齐同一实体。它不等同于 LLM 候选输出，也不要求 QA 生成关系 ID。
+
+推荐格式：
+
+| 类型 | ID 格式 | 示例 |
+| --- | --- | --- |
+| `APT_GROUP` | `apt_group:{name}` | `apt_group:apt28` |
+| `ORGANIZATION` | `organization:{name}` | `organization:cert-ua` |
+| `PERSON` | `person:{name}` | `person:john-smith` |
+| `MALWARE` | `malware:{name}` | `malware:beardshell` |
+| `TOOL` | `tool:{name}` | `tool:powershell` |
+| `CVE` | `cve:{cve-id}` | `cve:cve-2020-35730` |
+| `TECHNIQUE` | `technique:{name}` | `technique:phishing-emails` |
+| `TARGET` | `target:{name}` | `target:ukrainian-government-entities` |
+| `COUNTRY` | `country:{name}` | `country:ukraine` |
+| `REGION` | `region:{name}` | `region:eastern-europe` |
+| `INDUSTRY` | `industry:{name}` | `industry:finance` |
+| `TIME` | `time:{name}` | `time:2025-06` |
+| `EVENT` | `event:{name}` | `event:apt28-roundcube-2025` |
+| `CAMPAIGN` | `campaign:{name}` | `campaign:car-for-sale-phishing` |
+| `BEHAVIOR_PATTERN` | `behavior_pattern:{name}` | `behavior_pattern:spear-phishing` |
+
+命名规则：
+
+1. 使用小写英文、数字和连字符。
+2. 空格转为 `-`。
+3. CVE 固定写成 `cve:cve-xxxx-xxxx`。
+4. 中文实体需要翻译成稳定英文名；不确定时先查标准英文名或提交给架构组确认。
+5. 同一实体在不同文档里应使用同一个 `canonical_id`。
+
+---
+
+## 6. relations 填写规则
+
+关系写在所属 chunk 的 `relations` 数组里，不再带 `chunk_id` 字段。
 
 ```json
 {
-  "source": "APT28",
-  "source_type": "APT_GROUP",
+  "head_name": "APT28",
+  "head_type": "APT_GROUP",
   "relation_type": "USES",
-  "target": "Carberp",
-  "target_type": "MALWARE",
-  "chunk_id": "apt28_001_c001",
-  "evidence_text": "本次攻击中使用的木马为Carberp银行木马的变种",
-  "char_start": 430,
-  "char_end": 480
+  "tail_name": "BEARDSHELL",
+  "tail_type": "MALWARE",
+  "evidence_text": "APT28 ... deliver two previously undocumented malware families dubbed BEARDSHELL and COVENANT.",
+  "char_start": 92,
+  "char_end": 235
 }
 ```
 
-### source（关系主体名称）
-- **类型**：字符串，**任意填写**
-- **填写规则**：关系的发出者，**必须在本文件的 entities 列表中已存在**（name 完全一致）
-- **示例**：`"APT28"`，`"Lazarus"`
+| 字段 | 填写规则 |
+| --- | --- |
+| `head_name` | 关系主体名称，必须能在当前 chunk 的 `entities[].name` 中找到。 |
+| `head_type` | 关系主体类型，必须和对应实体 `type` 一致。 |
+| `relation_type` | 只能从关系类型枚举中选择，并满足关系矩阵。 |
+| `tail_name` | 关系客体名称，必须能在当前 chunk 的 `entities[].name` 中找到。 |
+| `tail_type` | 关系客体类型，必须和对应实体 `type` 一致。 |
+| `evidence_text` | 从当前 chunk 文本中连续截取，能证明该关系成立。 |
+| `char_start` / `char_end` | `evidence_text` 在当前 chunk 文本中的 0-based 起止位置。 |
 
-### source_type（关系主体类型）
-- **类型**：字符串，**只能从实体类型列表选**
-- **填写规则**：与 source 对应的 type，**必须在本文件的 entities 列表中已存在**
-- **示例**：`"APT_GROUP"`
+关系类型：
 
-### relation_type（关系类型）
-- **类型**：字符串，**只能从下方列表选**
-- **填写规则**：必须满足关系矩阵对 `(source_type, relation_type, target_type)` 的限制，否则校验不通过
+```text
+USES
+TARGETS
+EXPLOITS
+ATTRIBUTED_TO
+AFFILIATED_WITH
+LOCATED_IN
+HAPPENED_AT
+PART_OF
+LEADS_TO
+RELATED_TO
+DISCOVERED_BY
+CAUSES
+HAS_BEHAVIOR
+```
 
-| 关系类型 | 中文含义 | 允许主体类型（source_type） | 允许客体类型（target_type） |
-|---|---|---|---|
-| `USES` | 使用 | APT_GROUP, CAMPAIGN | MALWARE, TOOL, TECHNIQUE, CVE |
-| `TARGETS` | 攻击目标（针对） | APT_GROUP, CAMPAIGN, MALWARE | TARGET, COUNTRY, REGION, INDUSTRY, ORGANIZATION |
-| `EXPLOITS` | 利用漏洞 | APT_GROUP, CAMPAIGN, MALWARE, TOOL | CVE |
-| `ATTRIBUTED_TO` | 归因于 | APT_GROUP, CAMPAIGN, MALWARE | COUNTRY, ORGANIZATION |
-| `AFFILIATED_WITH` | 关联 | APT_GROUP, ORGANIZATION, PERSON | APT_GROUP, ORGANIZATION, COUNTRY |
-| `LOCATED_IN` | 位于 | ORGANIZATION, PERSON, TARGET, EVENT | COUNTRY, REGION |
-| `HAPPENED_AT` | 发生于 | EVENT, CAMPAIGN | TIME |
-| `PART_OF` | 属于、组成部分 | EVENT, CAMPAIGN | CAMPAIGN, APT_GROUP |
-| `LEADS_TO` | 导致、递进 | TECHNIQUE, BEHAVIOR_PATTERN, EVENT | TECHNIQUE, BEHAVIOR_PATTERN, EVENT |
-| `DISCOVERED_BY` | 被...发现 | CVE, MALWARE, TOOL, CAMPAIGN | ORGANIZATION, PERSON |
-| `CAUSES` | 引起 | CVE, TECHNIQUE, MALWARE | EVENT, BEHAVIOR_PATTERN |
-| `HAS_BEHAVIOR` | 具备行为 | APT_GROUP, CAMPAIGN | BEHAVIOR_PATTERN, TECHNIQUE |
-| `RELATED_TO` | 相关（兜底） | 任意 | 任意 |
+最小关系矩阵以 `docs/schemas/relationship-matrix.md` 为准。常用关系可按下面理解：
 
-### target（关系客体名称）
-- **类型**：字符串，**任意填写**
-- **填写规则**：关系的承受者，**必须在本文件的 entities 列表中已存在**（name 完全一致）
-- **示例**：`"Carberp"`，`"韩国政府"`
+| 关系 | 含义 | 常见主体 | 常见客体 |
+| --- | --- | --- | --- |
+| `USES` | 使用工具、恶意软件、技术或漏洞 | `APT_GROUP` / `CAMPAIGN` | `MALWARE` / `TOOL` / `TECHNIQUE` / `CVE` |
+| `TARGETS` | 攻击或针对 | `APT_GROUP` / `CAMPAIGN` / `MALWARE` | `TARGET` / `COUNTRY` / `REGION` / `INDUSTRY` / `ORGANIZATION` |
+| `EXPLOITS` | 利用漏洞 | `APT_GROUP` / `CAMPAIGN` / `MALWARE` / `TOOL` | `CVE` |
+| `ATTRIBUTED_TO` | 归因于 | `APT_GROUP` / `CAMPAIGN` / `MALWARE` | `COUNTRY` / `ORGANIZATION` |
+| `DISCOVERED_BY` | 被披露或发现 | `CVE` / `MALWARE` / `TOOL` / `CAMPAIGN` | `ORGANIZATION` / `PERSON` |
+| `HAS_BEHAVIOR` | 具备某种行为模式 | `APT_GROUP` / `CAMPAIGN` | `BEHAVIOR_PATTERN` / `TECHNIQUE` |
 
-### target_type（关系客体类型）
-- **类型**：字符串，**只能从实体类型列表选**
-- **填写规则**：与 target 对应的 type，**必须在本文件的 entities 列表中已存在**
-
-### chunk_id（文档块 ID）
-- **类型**：字符串，**固定值**，不需要填写
-
-### evidence_text（证据文本）
-- **类型**：字符串，**任意填写**
-- **填写规则**：原文中支撑该关系存在的连续短句，必须**唯一命中**
-- **注意**：可以和实体使用同一句 evidence_text
-
-### char_start / char_end（字符起止位置）
-- **类型**：整数，自动计算，不需要填写
+`RELATED_TO` 只能作为兜底关系。除非原文确实只表达弱关联且评测需要保留上下文，否则不要使用。
 
 ---
 
-## 4. 补充规则
+## 7. 证据和字符位置
 
-### 4.1 该标什么，不该标什么
+### 7.1 evidence_text
 
-**应该标注：**
-- 文档中明确提到的实体（APT组织名、恶意软件名、CVE编号、攻击手法、目标国家/行业、安全厂商等）
-- 原文有明显证据支撑的关系
+证据必须满足：
 
-**不应该标注：**
-- 没有出现在原文中的实体
-- 凭自己知识推断的关系（原文没有明确说"APT28使用xxx"就不要标）
-- `RELATED_TO`（作为兜底关系，尽量不要用）
+1. 来自当前 chunk 文本的连续片段，不能拼接多处句子。
+2. 尽量短，但足够证明实体或关系。
+3. 如果短片段重复出现，应扩大上下文，或准确填写 `char_start` / `char_end`。
+4. 一条证据可以同时支撑实体和关系。
 
-### 4.2 证据文本选取原则
+不允许：
 
-1. 必须从 `clean_text` 中连续截取，不能拼接
-2. 尽量短但保证唯一命中（如果 "APT28" 出现多次，就多截几个字）
-3. 一条 evidence_text 可以同时作为实体和关系的证据
+1. 使用自己的总结代替原文。
+2. 使用原文没有出现的实体或关系。
+3. 为了补全图谱凭常识添加关系。
 
-### 4.3 char 位置规则
+### 7.2 char_start / char_end
+
+位置规则：
 
 ```text
-char_start: evidence_text 在 clean_text 中的起始位置（包含，0-indexed）
-char_end:   evidence_text 在 clean_text 中的结束位置（不包含，Python切片规则）
+chunk_text[char_start:char_end] == evidence_text
 ```
 
-验证条件：`clean_text[char_start:char_end] == evidence_text`
+`char_start` 从 0 开始，包含起始字符；`char_end` 不包含结束字符。
 
-> 标注时你不需要算这个，我帮你自动算。但你给的 evidence_text 必须是从原文连续截取的。
+如果工具自动计算位置，应优先使用工具结果。手工填写时必须复核切片是否等于 `evidence_text`。
 
-### 4.4 标注时的常见问题
+---
 
-| 问题 | 建议 |
-|---|---|
-| 一个实体在文档中出现多次 | 选第一次出现的位置截 evidence_text |
-| 多个别名指向同一个实体 | 只标一个实体，别名放 aliases 数组 |
-| 关系证据不足 | 不标，宁可少不要错 |
-| 不知道用哪个 type | 优先选文档中明确定义的，不确定用 ORGANIZATION |
-| canonical_id 怎么确定英文名 | 搜一下标准英文翻译，保持一致性 |
+## 8. 标注流程
+
+1. 读取对应 `document.json`，确认 `doc_id`、`target_group`、`clean_text` 和来源信息。
+2. 使用后端生成的 chunk 列表；后端暂不可用时，只能临时按 `${doc_id}_c001` 单 chunk 标注。
+3. 逐个 chunk 标注实体，先保证实体证据能回到原文。
+4. 只在关系证据明确时标注关系。
+5. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
+6. 检查实体类型、关系类型和关系矩阵。
+7. 用 `docs/schemas/golden.schema.json` 校验 JSON。
+8. 在 `notes` 中写明样本规模和限制，不夸大评测结论。
+
+---
+
+## 9. 常见问题
+
+| 问题 | 处理方式 |
+| --- | --- |
+| 一个实体多次出现 | 选择最能证明实体身份的一处证据；必要时使用更长上下文。 |
+| 一个实体有多个别名 | 只写一个实体，其他名称放入 `aliases`。 |
+| 关系证据不足 | 不标注该关系，宁可少不要错。 |
+| 实体类型不确定 | 先提交待确认，不要为了过 schema 随意填 `ORGANIZATION`。 |
+| 关系两端实体不在同一 chunk | 先不标该关系，或反馈切块/跨 chunk 评测需求给架构组。 |
+| 原文是推测语气 | 可以标实体；关系需谨慎，必要时在 `notes` 说明边界。 |
+| 需要记录 LLM 错误 | 错误样例和评测结果放在 evaluation 结果文件或报告中，不塞进 golden 标准答案字段。 |
