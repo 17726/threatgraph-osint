@@ -22,7 +22,6 @@ frontend/vite.config.d.ts
 # Data outputs
 data/*.db
 data/*.sqlite
-data/sources/*
 data/raw/*
 data/cleaned/*
 data/extracted/*
@@ -30,9 +29,9 @@ data/graph/*
 data/reports/*
 data/evaluation/*
 !data/.gitkeep
-!data/sources/.gitkeep
-!data/sources/sources_index*.json
 !data/raw/.gitkeep
+!data/raw/suqi625/
+!data/raw/suqi625/*.legacy.json
 !data/cleaned/.gitkeep
 !data/extracted/.gitkeep
 !data/extracted/extraction_result.*.v*.json

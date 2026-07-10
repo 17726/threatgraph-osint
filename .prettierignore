@@ -8,7 +8,6 @@ output/
 venv/
 data/*.db
 data/*.sqlite
-data/sources/
 data/raw/
 data/cleaned/
 data/extracted/
