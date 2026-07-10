@@ -97,8 +97,7 @@ QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后�
   "aliases": ["UAC-0001"],
   "evidence_text": "Russia-linked APT28 (aka UAC-0001) threat actors",
   "char_start": 92,
-  "char_end": 142,
-  "canonical_id": "apt_group:apt28"
+  "char_end": 142
 }
 ```
 
@@ -106,10 +105,9 @@ QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后�
 | ------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `name`                    | 实体标准名。优先使用文档中的主称呼；同一实体跨文档尽量保持一致。                                         |
 | `type`                    | 只能从实体类型枚举中选择。拿不准时先记录为待确认，不要为了过 schema 随便填。                             |
-| `aliases`                 | 文档中出现的别名；没有别名填 `[]`。                                                                      |
+| `aliases`                 | 同一实体的其他名称；没有别名填 `[]`，不要把别名拆成多个实体。                                             |
 | `evidence_text`           | 从当前 chunk 文本中连续截取的证据片段。                                                                  |
 | `char_start` / `char_end` | `evidence_text` 在当前 chunk 文本中的 0-based 起止位置；单 chunk mock 时等同于在 `clean_text` 中的位置。 |
-| `canonical_id`            | QA 标准答案用于对齐实体的规范 ID，不是 LLM 输出字段。                                                    |
 
 实体类型枚举：
 
@@ -147,37 +145,18 @@ BEHAVIOR_PATTERN
 
 ---
 
-## 5. canonical_id 规则
+## 5. 实体名称、别名和 ID 归属
 
-`canonical_id` 用于人工评测时对齐同一实体。它不等同于 LLM 候选输出，也不要求 QA 生成关系 ID。
+golden 实体不填写 `canonical_id` 或最终 `entity_id`。QA 负责确认 `name`、`type`、`aliases` 和证据，后端归一化服务负责合并同一实体并生成正式 `entity_id`。
 
-推荐格式：
+对齐规则：
 
-| 类型               | ID 格式                   | 示例                                   |
-| ------------------ | ------------------------- | -------------------------------------- |
-| `APT_GROUP`        | `apt_group:{name}`        | `apt_group:apt28`                      |
-| `ORGANIZATION`     | `organization:{name}`     | `organization:cert-ua`                 |
-| `PERSON`           | `person:{name}`           | `person:john-smith`                    |
-| `MALWARE`          | `malware:{name}`          | `malware:beardshell`                   |
-| `TOOL`             | `tool:{name}`             | `tool:powershell`                      |
-| `CVE`              | `cve:{cve-id}`            | `cve:cve-2020-35730`                   |
-| `TECHNIQUE`        | `technique:{name}`        | `technique:phishing-emails`            |
-| `TARGET`           | `target:{name}`           | `target:ukrainian-government-entities` |
-| `COUNTRY`          | `country:{name}`          | `country:ukraine`                      |
-| `REGION`           | `region:{name}`           | `region:eastern-europe`                |
-| `INDUSTRY`         | `industry:{name}`         | `industry:finance`                     |
-| `TIME`             | `time:{name}`             | `time:2025-06`                         |
-| `EVENT`            | `event:{name}`            | `event:apt28-roundcube-2025`           |
-| `CAMPAIGN`         | `campaign:{name}`         | `campaign:car-for-sale-phishing`       |
-| `BEHAVIOR_PATTERN` | `behavior_pattern:{name}` | `behavior_pattern:spear-phishing`      |
-
-命名规则：
-
-1. 使用小写英文、数字和连字符。
-2. 空格转为 `-`。
-3. CVE 固定写成 `cve:cve-xxxx-xxxx`。
-4. 中文实体需要翻译成稳定英文名；不确定时先查标准英文名或提交给架构组确认。
-5. 同一实体在不同文档里应使用同一个 `canonical_id`。
+1. `name` 使用团队确认的首选名称；有权威标准名时优先使用标准名。
+2. 同一实体的其他名称写入 `aliases`，不要按别名重复创建实体。
+3. 实体匹配同时考虑 `type`、标准化后的 `name` 和 `aliases`，不能只比较原始字符串。
+4. 同名但类型不同的对象不能直接合并。
+5. 无法确认两个名称是否指向同一实体时，先在 chunk 的 `note` 中记录待复核，不强行合并。
+6. 正式 `entity_id` 及候选实体的 `normalized_entity_id` 均由后端生成，不由 data、QA 或 LLM 手工填写。
 
 ---
 
