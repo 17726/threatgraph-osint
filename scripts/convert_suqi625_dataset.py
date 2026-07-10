@@ -29,9 +29,9 @@ CONVERTER_NAME = "scripts/convert_suqi625_dataset.py"
 DEFAULT_INPUT_DIR = REPO_ROOT / "tmp/cleaned"
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "data/documents"
 DEFAULT_SOURCES_INPUT = REPO_ROOT / "tmp/sources/sources_index.json"
-DEFAULT_SOURCES_OUTPUT = REPO_ROOT / "data/sources/sources_index.suqi625.json"
+DEFAULT_SOURCES_OUTPUT = REPO_ROOT / "data/raw/suqi625/sources_index.suqi625.legacy.json"
 DEFAULT_GOLDEN_INPUT = REPO_ROOT / "tmp/evaluation/golden.json"
-DEFAULT_GOLDEN_OUTPUT = REPO_ROOT / "data/evaluation/golden.suqi625.json"
+DEFAULT_GOLDEN_OUTPUT = REPO_ROOT / "data/raw/suqi625/golden.suqi625.legacy.json"
 DOC_ID_PREFIX = "suqi625"
 COLLECTOR_GITHUB = "SuQi625"
 
@@ -273,9 +273,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT_DIR, help="SuQi625 cleaned JSON 根目录")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_DIR, help="标准 document 输出根目录")
     parser.add_argument("--sources-input", type=Path, default=DEFAULT_SOURCES_INPUT, help="来源索引输入文件")
-    parser.add_argument("--sources-output", type=Path, default=DEFAULT_SOURCES_OUTPUT, help="来源索引输出文件")
+    parser.add_argument("--sources-output", type=Path, default=DEFAULT_SOURCES_OUTPUT, help="legacy 来源索引输出文件")
     parser.add_argument("--golden-input", type=Path, default=DEFAULT_GOLDEN_INPUT, help="golden 输入文件")
-    parser.add_argument("--golden-output", type=Path, default=DEFAULT_GOLDEN_OUTPUT, help="golden 输出文件")
+    parser.add_argument("--golden-output", type=Path, default=DEFAULT_GOLDEN_OUTPUT, help="legacy golden 输出文件")
     parser.add_argument("--min-clean-chars", type=int, default=500, help="清洗正文少于该长度时跳过")
     parser.add_argument("--write", action="store_true", help="实际写入输出文件；默认只 dry-run")
     parser.add_argument("--overwrite", action="store_true", help="允许覆盖已有输出文件")
