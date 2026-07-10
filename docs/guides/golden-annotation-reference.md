@@ -1,0 +1,298 @@
+# 黄金集标注参考手册
+
+> 适用对象：QA 组人工制作 `golden.json`。正式契约以 `docs/schemas/golden.schema.json`、`docs/data-contract.md` 和 `data/examples/golden.apt28.thn.beardshell.example.json` 为准。
+
+---
+
+## 1. 基本定位
+
+`golden.json` 是人工标准答案，用来评测 LLM 候选抽取结果，不是 LLM 输出，也不是最终图谱快照。
+
+`chunk_id` 由后端切块生成；后端切块不可用时，临时使用 `${doc_id}_c001` 单 chunk 约定。
+
+建议文件位置：
+
+```text
+data/evaluation/golden.<target_group>.<dataset>.json
+```
+
+示例：
+
+```text
+data/evaluation/golden.apt28.core.json
+data/evaluation/golden.kimsuky.core.json
+```
+
+历史迁移材料或旧格式文件不要直接放入 `data/evaluation/` 作为正式 golden；需要复查时放在 `data/raw/<collector>/`。
+
+---
+
+## 2. 顶层结构
+
+```json
+{
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "doc_ids": ["apt28_049"],
+  "chunks": [
+    {
+      "chunk_id": "apt28_049_c001",
+      "doc_id": "apt28_049",
+      "char_start": 0,
+      "char_end": 4849,
+      "note": "临时单 chunk 样例；正式流程使用后端生成的 chunk。",
+      "entities": [],
+      "relations": []
+    }
+  ],
+  "notes": "人工核验后的标准答案，用于评测实体和关系抽取。"
+}
+```
+
+| 字段             | 填写规则                                                                                       |
+| ---------------- | ---------------------------------------------------------------------------------------------- |
+| `schema_version` | 固定 `"1.0"`。                                                                                 |
+| `target_group`   | 本 golden 主评测目标组织，例如 `APT28`、`Kimsuky`、`Lazarus`。                                 |
+| `doc_ids`        | 本 golden 覆盖的文档 ID 列表，必须能对应到 `data/documents/<target_group>/*.json` 或样例文档。 |
+| `chunks`         | 后端切块结果。实体和关系都写在对应 chunk 内。                                                  |
+| `notes`          | 写明数据来源、标注范围、已知限制。                                                             |
+
+---
+
+## 3. chunk 填写规则
+
+```json
+{
+  "chunk_id": "apt28_049_c001",
+  "doc_id": "apt28_049",
+  "char_start": 0,
+  "char_end": 4849,
+  "note": "当前文档作为单 chunk 标注。",
+  "entities": [],
+  "relations": []
+}
+```
+
+| 字段                      | 填写规则                                                                     |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| `chunk_id`                | 使用后端生成值。mock 阶段可用 `${doc_id}_c001`。                             |
+| `doc_id`                  | 该 chunk 所属文档 ID。                                                       |
+| `char_start` / `char_end` | chunk 在文档 `clean_text` 中的位置；不确定时先用后端输出，不手写新切块规则。 |
+| `note`                    | 可选，说明临时单 chunk、截断、人工复查等情况。                               |
+| `entities`                | 当前 chunk 的人工标准实体。                                                  |
+| `relations`               | 当前 chunk 的人工标准关系。                                                  |
+
+QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后端或架构组，而不是在 golden 中自行发明新的 chunk 规则。
+
+---
+
+## 4. entities 填写规则
+
+实体写在所属 chunk 的 `entities` 数组里，不再带 `chunk_id` 字段。
+
+```json
+{
+  "name": "APT28",
+  "type": "APT_GROUP",
+  "aliases": ["UAC-0001"],
+  "evidence_text": "Russia-linked APT28 (aka UAC-0001) threat actors",
+  "char_start": 92,
+  "char_end": 142,
+  "canonical_id": "apt_group:apt28"
+}
+```
+
+| 字段                      | 填写规则                                                                                                 |
+| ------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `name`                    | 实体标准名。优先使用文档中的主称呼；同一实体跨文档尽量保持一致。                                         |
+| `type`                    | 只能从实体类型枚举中选择。拿不准时先记录为待确认，不要为了过 schema 随便填。                             |
+| `aliases`                 | 文档中出现的别名；没有别名填 `[]`。                                                                      |
+| `evidence_text`           | 从当前 chunk 文本中连续截取的证据片段。                                                                  |
+| `char_start` / `char_end` | `evidence_text` 在当前 chunk 文本中的 0-based 起止位置；单 chunk mock 时等同于在 `clean_text` 中的位置。 |
+| `canonical_id`            | QA 标准答案用于对齐实体的规范 ID，不是 LLM 输出字段。                                                    |
+
+实体类型枚举：
+
+```text
+APT_GROUP
+ORGANIZATION
+PERSON
+MALWARE
+TOOL
+CVE
+TECHNIQUE
+TARGET
+COUNTRY
+REGION
+INDUSTRY
+TIME
+EVENT
+CAMPAIGN
+BEHAVIOR_PATTERN
+```
+
+常见选择：
+
+| 类型                 | 适用对象                                                        |
+| -------------------- | --------------------------------------------------------------- |
+| `APT_GROUP`          | APT28、Lazarus、Kimsuky、KONNI 等组织或攻击团伙。               |
+| `ORGANIZATION`       | 安全厂商、政府机构、受害组织、研究机构。                        |
+| `MALWARE`            | 恶意软件、后门、木马、载荷家族。                                |
+| `TOOL`               | PowerShell、certutil.exe、KakaoTalk、合法管理工具、协议或 API。 |
+| `CVE`                | 标准 CVE 编号。                                                 |
+| `TECHNIQUE`          | 钓鱼邮件、DLL 侧加载、XSS、凭据窃取等攻击手法。                 |
+| `TARGET`             | 目标群体、行业、机构类型，例如外交人员、加密货币交易所。        |
+| `COUNTRY` / `REGION` | 国家或地区。                                                    |
+| `CAMPAIGN` / `EVENT` | 系列攻击活动或单次事件。                                        |
+
+---
+
+## 5. canonical_id 规则
+
+`canonical_id` 用于人工评测时对齐同一实体。它不等同于 LLM 候选输出，也不要求 QA 生成关系 ID。
+
+推荐格式：
+
+| 类型               | ID 格式                   | 示例                                   |
+| ------------------ | ------------------------- | -------------------------------------- |
+| `APT_GROUP`        | `apt_group:{name}`        | `apt_group:apt28`                      |
+| `ORGANIZATION`     | `organization:{name}`     | `organization:cert-ua`                 |
+| `PERSON`           | `person:{name}`           | `person:john-smith`                    |
+| `MALWARE`          | `malware:{name}`          | `malware:beardshell`                   |
+| `TOOL`             | `tool:{name}`             | `tool:powershell`                      |
+| `CVE`              | `cve:{cve-id}`            | `cve:cve-2020-35730`                   |
+| `TECHNIQUE`        | `technique:{name}`        | `technique:phishing-emails`            |
+| `TARGET`           | `target:{name}`           | `target:ukrainian-government-entities` |
+| `COUNTRY`          | `country:{name}`          | `country:ukraine`                      |
+| `REGION`           | `region:{name}`           | `region:eastern-europe`                |
+| `INDUSTRY`         | `industry:{name}`         | `industry:finance`                     |
+| `TIME`             | `time:{name}`             | `time:2025-06`                         |
+| `EVENT`            | `event:{name}`            | `event:apt28-roundcube-2025`           |
+| `CAMPAIGN`         | `campaign:{name}`         | `campaign:car-for-sale-phishing`       |
+| `BEHAVIOR_PATTERN` | `behavior_pattern:{name}` | `behavior_pattern:spear-phishing`      |
+
+命名规则：
+
+1. 使用小写英文、数字和连字符。
+2. 空格转为 `-`。
+3. CVE 固定写成 `cve:cve-xxxx-xxxx`。
+4. 中文实体需要翻译成稳定英文名；不确定时先查标准英文名或提交给架构组确认。
+5. 同一实体在不同文档里应使用同一个 `canonical_id`。
+
+---
+
+## 6. relations 填写规则
+
+关系写在所属 chunk 的 `relations` 数组里，不再带 `chunk_id` 字段。
+
+```json
+{
+  "head_name": "APT28",
+  "head_type": "APT_GROUP",
+  "relation_type": "USES",
+  "tail_name": "BEARDSHELL",
+  "tail_type": "MALWARE",
+  "evidence_text": "APT28 ... deliver two previously undocumented malware families dubbed BEARDSHELL and COVENANT.",
+  "char_start": 92,
+  "char_end": 235
+}
+```
+
+| 字段                      | 填写规则                                                       |
+| ------------------------- | -------------------------------------------------------------- |
+| `head_name`               | 关系主体名称，必须能在当前 chunk 的 `entities[].name` 中找到。 |
+| `head_type`               | 关系主体类型，必须和对应实体 `type` 一致。                     |
+| `relation_type`           | 只能从关系类型枚举中选择，并满足关系矩阵。                     |
+| `tail_name`               | 关系客体名称，必须能在当前 chunk 的 `entities[].name` 中找到。 |
+| `tail_type`               | 关系客体类型，必须和对应实体 `type` 一致。                     |
+| `evidence_text`           | 从当前 chunk 文本中连续截取，能证明该关系成立。                |
+| `char_start` / `char_end` | `evidence_text` 在当前 chunk 文本中的 0-based 起止位置。       |
+
+关系类型：
+
+```text
+USES
+TARGETS
+EXPLOITS
+ATTRIBUTED_TO
+AFFILIATED_WITH
+LOCATED_IN
+HAPPENED_AT
+PART_OF
+LEADS_TO
+RELATED_TO
+DISCOVERED_BY
+CAUSES
+HAS_BEHAVIOR
+```
+
+最小关系矩阵以 `docs/schemas/relationship-matrix.md` 为准。常用关系可按下面理解：
+
+| 关系            | 含义                           | 常见主体                                      | 常见客体                                                      |
+| --------------- | ------------------------------ | --------------------------------------------- | ------------------------------------------------------------- |
+| `USES`          | 使用工具、恶意软件、技术或漏洞 | `APT_GROUP` / `CAMPAIGN`                      | `MALWARE` / `TOOL` / `TECHNIQUE` / `CVE`                      |
+| `TARGETS`       | 攻击或针对                     | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `TARGET` / `COUNTRY` / `REGION` / `INDUSTRY` / `ORGANIZATION` |
+| `EXPLOITS`      | 利用漏洞                       | `APT_GROUP` / `CAMPAIGN` / `MALWARE` / `TOOL` | `CVE`                                                         |
+| `ATTRIBUTED_TO` | 归因于                         | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `COUNTRY` / `ORGANIZATION`                                    |
+| `DISCOVERED_BY` | 被披露或发现                   | `CVE` / `MALWARE` / `TOOL` / `CAMPAIGN`       | `ORGANIZATION` / `PERSON`                                     |
+| `HAS_BEHAVIOR`  | 具备某种行为模式               | `APT_GROUP` / `CAMPAIGN`                      | `BEHAVIOR_PATTERN` / `TECHNIQUE`                              |
+
+`RELATED_TO` 只能作为兜底关系。除非原文确实只表达弱关联且评测需要保留上下文，否则不要使用。
+
+---
+
+## 7. 证据和字符位置
+
+### 7.1 evidence_text
+
+证据必须满足：
+
+1. 来自当前 chunk 文本的连续片段，不能拼接多处句子。
+2. 尽量短，但足够证明实体或关系。
+3. 如果短片段重复出现，应扩大上下文，或准确填写 `char_start` / `char_end`。
+4. 一条证据可以同时支撑实体和关系。
+
+不允许：
+
+1. 使用自己的总结代替原文。
+2. 使用原文没有出现的实体或关系。
+3. 为了补全图谱凭常识添加关系。
+
+### 7.2 char_start / char_end
+
+位置规则：
+
+```text
+chunk_text[char_start:char_end] == evidence_text
+```
+
+`char_start` 从 0 开始，包含起始字符；`char_end` 不包含结束字符。
+
+如果工具自动计算位置，应优先使用工具结果。手工填写时必须复核切片是否等于 `evidence_text`。
+
+---
+
+## 8. 标注流程
+
+1. 读取对应 `document.json`，确认 `doc_id`、`target_group`、`clean_text` 和来源信息。
+2. 使用后端生成的 chunk 列表；后端暂不可用时，只能临时按 `${doc_id}_c001` 单 chunk 标注。
+3. 逐个 chunk 标注实体，先保证实体证据能回到原文。
+4. 只在关系证据明确时标注关系。
+5. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
+6. 检查实体类型、关系类型和关系矩阵。
+7. 用 `docs/schemas/golden.schema.json` 校验 JSON。
+8. 在 `notes` 中写明样本规模和限制，不夸大评测结论。
+
+---
+
+## 9. 常见问题
+
+| 问题                       | 处理方式                                                                         |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| 一个实体多次出现           | 选择最能证明实体身份的一处证据；必要时使用更长上下文。                           |
+| 一个实体有多个别名         | 只写一个实体，其他名称放入 `aliases`。                                           |
+| 关系证据不足               | 不标注该关系，宁可少不要错。                                                     |
+| 实体类型不确定             | 先提交待确认，不要为了过 schema 随意填 `ORGANIZATION`。                          |
+| 关系两端实体不在同一 chunk | 先不标该关系，或反馈切块/跨 chunk 评测需求给架构组。                             |
+| 原文是推测语气             | 可以标实体；关系需谨慎，必要时在 `notes` 说明边界。                              |
+| 需要记录 LLM 错误          | 错误样例和评测结果放在 evaluation 结果文件或报告中，不塞进 golden 标准答案字段。 |
