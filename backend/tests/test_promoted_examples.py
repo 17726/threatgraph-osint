@@ -85,6 +85,20 @@ def test_promoted_golden_example_matches_schema_document_and_evidence():
             assert relation["evidence_text"] in clean_text
 
 
+def test_promoted_golden_entities_leave_identity_to_backend():
+    golden = load_json(GOLDEN_PATH)
+    schema = json.loads(GOLDEN_SCHEMA_PATH.read_text(encoding="utf-8"))
+    entity_schema = schema["$defs"]["golden_entity"]
+
+    assert "canonical_id" not in entity_schema["required"]
+    assert "canonical_id" not in entity_schema["properties"]
+    assert all(
+        "canonical_id" not in entity
+        for chunk in golden["chunks"]
+        for entity in chunk["entities"]
+    )
+
+
 def test_promoted_golden_example_uses_extraction_relation_fields():
     extraction_result = load_json(EXTRACTION_PATH)
     golden = load_json(GOLDEN_PATH)

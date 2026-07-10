@@ -121,8 +121,7 @@
         "aliases",
         "evidence_text",
         "char_start",
-        "char_end",
-        "canonical_id"
+        "char_end"
       ],
       "properties": {
         "name": {
@@ -148,10 +147,6 @@
         },
         "char_end": {
           "$ref": "#/$defs/char_offset"
-        },
-        "canonical_id": {
-          "type": "string",
-          "minLength": 1
         }
       }
     },

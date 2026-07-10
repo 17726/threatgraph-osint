@@ -112,7 +112,7 @@ extraction_result.json
   llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入
 
 golden.json
-  qa 组维护的人工标准答案，用于评测候选抽取质量；结构和 extraction_result 一样按 chunks 归属实体和关系，但不包含候选状态、置信度或后端最终图谱关系 ID
+  qa 组维护的人工标准答案，用于评测候选抽取质量；结构和 extraction_result 一样按 chunks 归属实体和关系，但不包含候选状态、置信度或后端最终实体/关系 ID
 
 graph.json
   be 从 SQLite 正式图谱导出的快照，是演示兜底和 Neo4j 同步输入；如用于前端 mock，需要先适配为 API 的轻量图谱视图
@@ -123,11 +123,12 @@ graph.json
 1. `document.json` 只承载来源元信息和清洗正文 `clean_text`，不承载最终实体 ID，也不要求 data 组手写 chunks。
 2. `extraction_result.json` 只承载 LLM 候选结果，不承载最终 `entity_id` / `relation_id`。
 3. `golden.json` 只承载人工标准答案，实体和关系都必须归属到后端生成的 `chunk_id`；临时 mock 阶段可以使用 `${doc_id}_c001`，但不能由 data / QA / LLM 自行引入新的切块规则。
-4. `golden.json` 的关系字段和 `extraction_result.json` 保持一致，统一使用 `head_name`、`head_type`、`relation_type`、`tail_name`、`tail_type`。
-5. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
-6. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
-7. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
-8. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
+4. `golden.json` 的实体使用 `name`、`type`、`aliases` 和证据字段描述，不包含人工生成的 `canonical_id` 或最终 `entity_id`；正式 `entity_id` 由后端归一化服务生成。
+5. `golden.json` 的关系字段和 `extraction_result.json` 保持一致，统一使用 `head_name`、`head_type`、`relation_type`、`tail_name`、`tail_type`。
+6. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
+7. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
+8. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
+9. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
 
 ### 1.4 P0 文档清洗边界
 
@@ -700,9 +701,10 @@ ev_{doc_id}_{hash}
 规则：
 
 1. LLM 不生成最终 ID。
-2. 后端归一化服务负责生成 ID。
-3. 别名归并到同一实体。
-4. CVE、MITRE ATT&CK 编号保留原始编号。
+2. data / QA 不手工生成最终 ID，golden 实体不携带 `canonical_id` 或 `entity_id`。
+3. 后端归一化服务负责基于实体名称、类型和别名生成 ID。
+4. 别名归并到同一实体。
+5. CVE、MITRE ATT&CK 编号保留原始编号。
 
 ---
 

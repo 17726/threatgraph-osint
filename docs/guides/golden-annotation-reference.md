@@ -8,6 +8,8 @@
 
 `golden.json` 是人工标准答案，用来评测 LLM 候选抽取结果，不是 LLM 输出，也不是最终图谱快照。
 
+正式 golden 应当是在当前标注范围和规则下可直接用于评测的完整正确答案。`entities` 和 `relations` 只放人工确认的正例；待确认项、被排除项和 LLM 错误样例不混入标准答案。
+
 `chunk_id` 由后端切块生成；后端切块不可用时，临时使用 `${doc_id}_c001` 单 chunk 约定。
 
 建议文件位置：
@@ -55,7 +57,7 @@ data/evaluation/golden.kimsuky.core.json
 | `target_group`   | 本 golden 主评测目标组织，例如 `APT28`、`Kimsuky`、`Lazarus`。                                 |
 | `doc_ids`        | 本 golden 覆盖的文档 ID 列表，必须能对应到 `data/documents/<target_group>/*.json` 或样例文档。 |
 | `chunks`         | 后端切块结果。实体和关系都写在对应 chunk 内。                                                  |
-| `notes`          | 写明数据来源、标注范围、已知限制。                                                             |
+| `notes`          | 写明数据来源、统一排除口径、标注范围和已知限制。                                                 |
 
 ---
 
@@ -84,6 +86,14 @@ data/evaluation/golden.kimsuky.core.json
 
 QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后端或架构组，而不是在 golden 中自行发明新的 chunk 规则。
 
+顶层 `notes` 适合记录整份 golden 共用的口径，例如：
+
+```text
+本黄金集只标注与威胁事件、攻击活动、工具、漏洞、目标、归因、发现或披露等情报事实相关的实体；文章作者、编辑和页面维护者等来源元信息主体不列入 entities。
+```
+
+单个 chunk 的局部排除或争议写在该 chunk 的 `note` 中，例如：`排除 John Doe：仅为文章署名作者，与威胁事件事实无关。`
+
 ---
 
 ## 4. entities 填写规则
@@ -97,8 +107,7 @@ QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后�
   "aliases": ["UAC-0001"],
   "evidence_text": "Russia-linked APT28 (aka UAC-0001) threat actors",
   "char_start": 92,
-  "char_end": 142,
-  "canonical_id": "apt_group:apt28"
+  "char_end": 142
 }
 ```
 
@@ -106,10 +115,9 @@ QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后�
 | ------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `name`                    | 实体标准名。优先使用文档中的主称呼；同一实体跨文档尽量保持一致。                                         |
 | `type`                    | 只能从实体类型枚举中选择。拿不准时先记录为待确认，不要为了过 schema 随便填。                             |
-| `aliases`                 | 文档中出现的别名；没有别名填 `[]`。                                                                      |
+| `aliases`                 | 同一实体的其他名称；没有别名填 `[]`，不要把别名拆成多个实体。                                             |
 | `evidence_text`           | 从当前 chunk 文本中连续截取的证据片段。                                                                  |
 | `char_start` / `char_end` | `evidence_text` 在当前 chunk 文本中的 0-based 起止位置；单 chunk mock 时等同于在 `clean_text` 中的位置。 |
-| `canonical_id`            | QA 标准答案用于对齐实体的规范 ID，不是 LLM 输出字段。                                                    |
 
 实体类型枚举：
 
@@ -147,37 +155,25 @@ BEHAVIOR_PATTERN
 
 ---
 
-## 5. canonical_id 规则
+## 5. 实体名称、别名和 ID 归属
 
-`canonical_id` 用于人工评测时对齐同一实体。它不等同于 LLM 候选输出，也不要求 QA 生成关系 ID。
+golden 实体不填写 `canonical_id` 或最终 `entity_id`。QA 负责确认 `name`、`type`、`aliases` 和证据，后端归一化服务负责合并同一实体并生成正式 `entity_id`。
 
-推荐格式：
+对齐规则：
 
-| 类型               | ID 格式                   | 示例                                   |
-| ------------------ | ------------------------- | -------------------------------------- |
-| `APT_GROUP`        | `apt_group:{name}`        | `apt_group:apt28`                      |
-| `ORGANIZATION`     | `organization:{name}`     | `organization:cert-ua`                 |
-| `PERSON`           | `person:{name}`           | `person:john-smith`                    |
-| `MALWARE`          | `malware:{name}`          | `malware:beardshell`                   |
-| `TOOL`             | `tool:{name}`             | `tool:powershell`                      |
-| `CVE`              | `cve:{cve-id}`            | `cve:cve-2020-35730`                   |
-| `TECHNIQUE`        | `technique:{name}`        | `technique:phishing-emails`            |
-| `TARGET`           | `target:{name}`           | `target:ukrainian-government-entities` |
-| `COUNTRY`          | `country:{name}`          | `country:ukraine`                      |
-| `REGION`           | `region:{name}`           | `region:eastern-europe`                |
-| `INDUSTRY`         | `industry:{name}`         | `industry:finance`                     |
-| `TIME`             | `time:{name}`             | `time:2025-06`                         |
-| `EVENT`            | `event:{name}`            | `event:apt28-roundcube-2025`           |
-| `CAMPAIGN`         | `campaign:{name}`         | `campaign:car-for-sale-phishing`       |
-| `BEHAVIOR_PATTERN` | `behavior_pattern:{name}` | `behavior_pattern:spear-phishing`      |
+1. `name` 使用团队确认的首选名称；有权威标准名时优先使用标准名。
+2. 同一实体的其他名称写入 `aliases`，不要按别名重复创建实体。
+3. 实体匹配同时考虑 `type`、标准化后的 `name` 和 `aliases`，不能只比较原始字符串。
+4. 同名但类型不同的对象不能直接合并。
+5. 无法确认两个名称是否指向同一实体时，先在 chunk 的 `note` 中记录待复核，不强行合并。
+6. 正式 `entity_id` 及候选实体的 `normalized_entity_id` 均由后端生成，不由 data、QA 或 LLM 手工填写。
 
-命名规则：
+### 5.1 实体是否进入 golden
 
-1. 使用小写英文、数字和连字符。
-2. 空格转为 `-`。
-3. CVE 固定写成 `cve:cve-xxxx-xxxx`。
-4. 中文实体需要翻译成稳定英文名；不确定时先查标准英文名或提交给架构组确认。
-5. 同一实体在不同文档里应使用同一个 `canonical_id`。
+1. 与威胁事件相关的实体应写入 `entities`，即使当前 chunk 没有足够证据标注它与其他实体的关系。
+2. 文章作者、编辑、页面维护者等只承担来源元信息角色的对象，不写入 `entities`。
+3. 如果作者或研究人员在正文中承担发现、披露、归因等情报事实角色，可以按证据标注对应实体和关系。
+4. 不要先把无关实体写进 `entities`，再依赖 `notes` 将其排除；评测器会把 `entities` 中的内容视为正例。
 
 ---
 
@@ -239,6 +235,12 @@ HAS_BEHAVIOR
 
 `RELATED_TO` 只能作为兜底关系。除非原文确实只表达弱关联且评测需要保留上下文，否则不要使用。
 
+### 6.1 关系置信度
+
+golden 关系不填写 `confidence`。`extraction_result.confidence` 是模型对候选结果的自评，不是人工黄金答案的置信度，两者不能直接比较或复制。
+
+证据不足或标注员无法确认的关系不进入正式 `relations`，应先记录在 chunk 的 `note` 中并提交复核。不要用较低的人工分数把待定关系混入正例；如后续确实需要评测标注一致性，应另行设计标注状态和裁决流程，并同步修改 Schema、数据契约和评测算法。
+
 ---
 
 ## 7. 证据和字符位置
@@ -276,12 +278,15 @@ chunk_text[char_start:char_end] == evidence_text
 
 1. 读取对应 `document.json`，确认 `doc_id`、`target_group`、`clean_text` 和来源信息。
 2. 使用后端生成的 chunk 列表；后端暂不可用时，只能临时按 `${doc_id}_c001` 单 chunk 标注。
-3. 逐个 chunk 标注实体，先保证实体证据能回到原文。
-4. 只在关系证据明确时标注关系。
-5. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
-6. 检查实体类型、关系类型和关系矩阵。
-7. 用 `docs/schemas/golden.schema.json` 校验 JSON。
-8. 在 `notes` 中写明样本规模和限制，不夸大评测结论。
+3. 先判断实体是否与威胁情报事实相关，排除只承担署名、编辑或页面维护角色的来源元信息主体。
+4. 逐个 chunk 标注相关实体，先保证实体证据能回到原文；相关但没有关系的实体仍需保留。
+5. 只在关系证据明确时标注关系，不为待定关系填写人工置信度。
+6. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
+7. 检查实体类型、关系类型和关系矩阵。
+8. 用 `docs/schemas/golden.schema.json` 校验 JSON。
+9. 在 `notes` 中写明统一排除口径、样本规模和限制，不夸大评测结论。
+
+实体和关系应分开评测：相关但没有关系的实体属于实体正例；模型抽取无关实体计为实体假阳性，遗漏相关实体计为实体假阴性，无证据关系计为关系假阳性。
 
 ---
 
@@ -291,7 +296,10 @@ chunk_text[char_start:char_end] == evidence_text
 | -------------------------- | -------------------------------------------------------------------------------- |
 | 一个实体多次出现           | 选择最能证明实体身份的一处证据；必要时使用更长上下文。                           |
 | 一个实体有多个别名         | 只写一个实体，其他名称放入 `aliases`。                                           |
+| 实体相关但没有关系         | 仍写入 `entities`；不要为了形成关系而补写无证据关系。                            |
+| 实体与威胁事件无关         | 不写入 `entities`；统一口径写顶层 `notes`，具体争议可写 chunk 的 `note`。         |
 | 关系证据不足               | 不标注该关系，宁可少不要错。                                                     |
+| 是否给关系填写人工置信度   | 不填写；golden 只保留确认正例，模型 `confidence` 只属于候选抽取结果。             |
 | 实体类型不确定             | 先提交待确认，不要为了过 schema 随意填 `ORGANIZATION`。                          |
 | 关系两端实体不在同一 chunk | 先不标该关系，或反馈切块/跨 chunk 评测需求给架构组。                             |
 | 原文是推测语气             | 可以标实体；关系需谨慎，必要时在 `notes` 说明边界。                              |

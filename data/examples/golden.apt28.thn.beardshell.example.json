@@ -20,8 +20,7 @@
           ],
           "evidence_text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
           "char_start": 0,
-          "char_end": 271,
-          "canonical_id": "organization:cert-ua"
+          "char_end": 271
         },
         {
           "name": "APT28",
@@ -31,8 +30,7 @@
           ],
           "evidence_text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
           "char_start": 0,
-          "char_end": 271,
-          "canonical_id": "apt_group:apt28"
+          "char_end": 271
         },
         {
           "name": "Signal",
@@ -40,8 +38,7 @@
           "aliases": [],
           "evidence_text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
           "char_start": 0,
-          "char_end": 271,
-          "canonical_id": "tool:signal"
+          "char_end": 271
         },
         {
           "name": "BEARDSHELL",
@@ -49,8 +46,7 @@
           "aliases": [],
           "evidence_text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
           "char_start": 0,
-          "char_end": 271,
-          "canonical_id": "malware:beardshell"
+          "char_end": 271
         },
         {
           "name": "COVENANT",
@@ -58,8 +54,7 @@
           "aliases": [],
           "evidence_text": "The Computer Emergency Response Team of Ukraine (CERT-UA) has\nwarned\nof a new cyber attack campaign by the Russia-linked APT28 (aka UAC-0001) threat actors using Signal chat messages to deliver two previously undocumented malware families dubbedd BEARDSHELL and COVENANT.",
           "char_start": 0,
-          "char_end": 271,
-          "canonical_id": "tool:covenant"
+          "char_end": 271
         },
         {
           "name": "PowerShell",
@@ -67,8 +62,7 @@
           "aliases": [],
           "evidence_text": "BEARDSHELL, per CERT-UA, is written in C++ and offers the ability to download and execute PowerShell scripts, as well as upload the results of the execution back to a remote server over the Icedrive API.",
           "char_start": 272,
-          "char_end": 475,
-          "canonical_id": "tool:power-shell"
+          "char_end": 475
         },
         {
           "name": "Icedrive API",
@@ -78,8 +72,7 @@
           ],
           "evidence_text": "BEARDSHELL, per CERT-UA, is written in C++ and offers the ability to download and execute PowerShell scripts, as well as upload the results of the execution back to a remote server over the Icedrive API.",
           "char_start": 272,
-          "char_end": 475,
-          "canonical_id": "tool:icedrive-api"
+          "char_end": 475
         },
         {
           "name": "cross-site scripting (XSS)",
@@ -89,8 +82,7 @@
           ],
           "evidence_text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
           "char_start": 1054,
-          "char_end": 1235,
-          "canonical_id": "technique:cross-site-scripting-xss"
+          "char_end": 1235
         },
         {
           "name": "Roundcube",
@@ -98,8 +90,7 @@
           "aliases": [],
           "evidence_text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
           "char_start": 1054,
-          "char_end": 1235,
-          "canonical_id": "tool:roundcube"
+          "char_end": 1235
         },
         {
           "name": "Ukrainian government entities",
@@ -109,8 +100,7 @@
           ],
           "evidence_text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
           "char_start": 1054,
-          "char_end": 1235,
-          "canonical_id": "target:ukrainian-government-entities"
+          "char_end": 1235
         },
         {
           "name": "Ukraine",
@@ -118,8 +108,7 @@
           "aliases": [],
           "evidence_text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
           "char_start": 2362,
-          "char_end": 2672,
-          "canonical_id": "country:ukraine"
+          "char_end": 2672
         },
         {
           "name": "CVE-2020-35730",
@@ -127,8 +116,7 @@
           "aliases": [],
           "evidence_text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
           "char_start": 2362,
-          "char_end": 2672,
-          "canonical_id": "cve:cve-2020-35730"
+          "char_end": 2672
         },
         {
           "name": "CVE-2021-44026",
@@ -136,8 +124,7 @@
           "aliases": [],
           "evidence_text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
           "char_start": 2362,
-          "char_end": 2672,
-          "canonical_id": "cve:cve-2021-44026"
+          "char_end": 2672
         },
         {
           "name": "CVE-2020-12641",
@@ -145,8 +132,7 @@
           "aliases": [],
           "evidence_text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
           "char_start": 2362,
-          "char_end": 2672,
-          "canonical_id": "cve:cve-2020-12641"
+          "char_end": 2672
         },
         {
           "name": "phishing emails",
@@ -154,8 +140,7 @@
           "aliases": [],
           "evidence_text": "The disclosure comes as CERT-UA\nrevealed\nAPT28's targeting of outdated Roundcube webmail instances in Ukraine to deliver exploits for CVE-2020-35730, CVE-2021-44026, and CVE-2020-12641 via phishing emails that ostensibly contain text about news events but weaponize these flaws to execute arbitrary JavaScript.",
           "char_start": 2362,
-          "char_end": 2672,
-          "canonical_id": "technique:phishing-emails"
+          "char_end": 2672
         }
       ],
       "relations": [
