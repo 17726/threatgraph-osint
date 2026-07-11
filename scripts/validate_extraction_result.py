@@ -13,12 +13,20 @@ DEFAULT_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
 
 ALLOWED_RELATIONS = {
     "USES": {
-        "heads": {"APT_GROUP", "CAMPAIGN"},
-        "tails": {"MALWARE", "TOOL", "TECHNIQUE", "CVE"},
+        "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE"},
+        "tails": {"MALWARE", "TOOL", "TECHNIQUE", "CVE", "INFRASTRUCTURE"},
     },
     "TARGETS": {
         "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE"},
-        "tails": {"TARGET", "COUNTRY", "REGION", "INDUSTRY", "ORGANIZATION"},
+        "tails": {
+            "TARGET",
+            "COUNTRY",
+            "REGION",
+            "LOCATION",
+            "INDUSTRY",
+            "ORGANIZATION",
+            "INFRASTRUCTURE",
+        },
     },
     "EXPLOITS": {
         "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE", "TOOL"},
@@ -26,7 +34,7 @@ ALLOWED_RELATIONS = {
     },
     "ATTRIBUTED_TO": {
         "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE"},
-        "tails": {"COUNTRY", "ORGANIZATION"},
+        "tails": {"APT_GROUP", "COUNTRY", "ORGANIZATION"},
     },
     "AFFILIATED_WITH": {
         "heads": {"APT_GROUP", "ORGANIZATION", "PERSON"},
@@ -39,6 +47,10 @@ ALLOWED_RELATIONS = {
     "HAPPENED_AT": {
         "heads": {"EVENT", "CAMPAIGN"},
         "tails": {"TIME"},
+    },
+    "PRECEDES": {
+        "heads": {"EVENT", "CAMPAIGN"},
+        "tails": {"EVENT", "CAMPAIGN"},
     },
     "PART_OF": {
         "heads": {"EVENT", "CAMPAIGN"},
@@ -59,6 +71,14 @@ ALLOWED_RELATIONS = {
     "HAS_BEHAVIOR": {
         "heads": {"APT_GROUP", "CAMPAIGN"},
         "tails": {"BEHAVIOR_PATTERN", "TECHNIQUE"},
+    },
+    "INSTANCE_OF": {
+        "heads": {"ORGANIZATION", "PERSON", "COUNTRY", "REGION", "LOCATION"},
+        "tails": {"TARGET"},
+    },
+    "IN_INDUSTRY": {
+        "heads": {"ORGANIZATION", "TARGET"},
+        "tails": {"INDUSTRY"},
     },
     "RELATED_TO": {
         "heads": None,

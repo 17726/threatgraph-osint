@@ -219,3 +219,12 @@ def test_technique_entity_id_preserves_mitre_subtechnique_dot():
         canonical_entity_id("TECHNIQUE", "Spearphishing Attachment (T1566.001)")
         == "technique:t1566.001"
     )
+
+
+def test_new_entity_types_use_stable_canonical_id_prefixes():
+    assert canonical_entity_id("INFRASTRUCTURE", "cdn.example.com") == (
+        "infrastructure:cdn-example-com"
+    )
+    assert canonical_entity_id("LOCATION", "Ramstein Air Base") == (
+        "location:ramstein-air-base"
+    )

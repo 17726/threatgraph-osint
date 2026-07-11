@@ -51,7 +51,9 @@
         "TIME",
         "EVENT",
         "CAMPAIGN",
-        "BEHAVIOR_PATTERN"
+        "BEHAVIOR_PATTERN",
+        "INFRASTRUCTURE",
+        "LOCATION"
       ]
     },
     "relation_type": {
@@ -69,7 +71,10 @@
         "RELATED_TO",
         "DISCOVERED_BY",
         "CAUSES",
-        "HAS_BEHAVIOR"
+        "HAS_BEHAVIOR",
+        "PRECEDES",
+        "INSTANCE_OF",
+        "IN_INDUSTRY"
       ]
     },
     "candidate_status": {

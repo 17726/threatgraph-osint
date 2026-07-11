@@ -30,6 +30,9 @@ RELATION_LABELS = {
     "DISCOVERED_BY": "发现者",
     "CAUSES": "导致",
     "HAS_BEHAVIOR": "具备行为",
+    "PRECEDES": "先于",
+    "INSTANCE_OF": "实例属于",
+    "IN_INDUSTRY": "属于行业",
 }
 
 ENTITY_PREFIXES = {
@@ -48,6 +51,8 @@ ENTITY_PREFIXES = {
     "EVENT": "event",
     "CAMPAIGN": "campaign",
     "BEHAVIOR_PATTERN": "behavior_pattern",
+    "INFRASTRUCTURE": "infrastructure",
+    "LOCATION": "location",
 }
 
 
