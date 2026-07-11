@@ -131,7 +131,7 @@
         },
         {
           "name": "cdnverify[.]net",
-          "type": "TOOL",
+          "type": "INFRASTRUCTURE",
           "aliases": [
             "cdnverify.net"
           ],
@@ -141,7 +141,7 @@
         },
         {
           "name": "hotfixmsupload[.]com",
-          "type": "TOOL",
+          "type": "INFRASTRUCTURE",
           "aliases": [
             "hotfixmsupload.com"
           ],
@@ -402,7 +402,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "USES",
           "tail_name": "cdnverify[.]net",
-          "tail_type": "TOOL",
+          "tail_type": "INFRASTRUCTURE",
           "evidence_text": "Leveraging this intelligence allowed us to begin predicting potential C2 domains that would eventually be used by the Sofacy group. In this scenario, the domain cdnverify[.]net was registered on January 30, 2018 and just two days later, an attack was launched using this domain as a C2.",
           "char_start": 8803,
           "char_end": 9089
@@ -412,7 +412,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "USES",
           "tail_name": "hotfixmsupload[.]com",
-          "tail_type": "TOOL",
+          "tail_type": "INFRASTRUCTURE",
           "evidence_text": "Hotfixmsupload[.]com is particularly interesting as it has been identified as a Sofacy C2 domain repeatedly",
           "char_start": 8586,
           "char_end": 8693

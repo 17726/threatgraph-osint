@@ -313,7 +313,7 @@
         {
           "head_name": "Andariel",
           "head_type": "APT_GROUP",
-          "relation_type": "PART_OF",
+          "relation_type": "AFFILIATED_WITH",
           "tail_name": "Lazarus Group",
           "tail_type": "APT_GROUP",
           "evidence_text": "Andariel (aka Onyx Sleet or Silent Chollima), a sub-group within the Lazarus umbrella.",
@@ -491,21 +491,21 @@
           "char_end": 532
         },
         {
-          "head_name": "Cisco Talos",
-          "head_type": "ORGANIZATION",
+          "head_name": "Operation Blacksmith",
+          "head_type": "CAMPAIGN",
           "relation_type": "DISCOVERED_BY",
-          "tail_name": "Operation Blacksmith",
-          "tail_type": "CAMPAIGN",
+          "tail_name": "Cisco Talos",
+          "tail_type": "ORGANIZATION",
           "evidence_text": "Cisco Talos is tracking the activity under the name Operation Blacksmith, noting the use of three DLang-based malware families, including a RAT called NineRAT that leverages Telegram for command-and-control (C2), DLRAT, and a downloader dubbed BottomLoader.",
           "char_start": 275,
           "char_end": 532
         },
         {
-          "head_name": "Microsoft",
-          "head_type": "ORGANIZATION",
+          "head_name": "HazyLoad",
+          "head_type": "TOOL",
           "relation_type": "DISCOVERED_BY",
-          "tail_name": "HazyLoad",
-          "tail_type": "TOOL",
+          "tail_name": "Microsoft",
+          "tail_type": "ORGANIZATION",
           "evidence_text": "Also used in the attacks after initial reconnaissance is a custom proxy tool called HazyLoad that was\npreviously identified by Microsoft\nas used by the threat actor as part of intrusions weaponizing critical security flaws in JetBrains TeamCity (\nCVE-2023-42793\n, CVSS score: 9.8).",
           "char_start": 2707,
           "char_end": 2988
