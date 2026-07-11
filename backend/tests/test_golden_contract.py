@@ -1,4 +1,6 @@
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -25,3 +27,16 @@ def test_formal_golden_matches_contract_matrix_and_documents(
     report = validate_golden_file(golden_path, document_paths=document_paths)
 
     assert report.ok, "\n".join(report.errors)
+
+
+def test_golden_validator_can_run_by_file_path():
+    golden_path, document_paths = GOLDEN_CASES[0]
+
+    result = subprocess.run(
+        [sys.executable, ROOT / "scripts/validate_golden.py", golden_path, *document_paths],
+        cwd=ROOT,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr.decode(errors="replace")
