@@ -25,8 +25,7 @@
           ],
           "evidence_text": "The Sofacy group (AKA APT28, Fancy Bear, STRONTIUM, Sednit, Tsar Team, Pawn Storm) is a well-known adversary that remains highly active in the new calendar year of 2018.",
           "char_start": 381,
-          "char_end": 550,
-          "canonical_id": "apt_group:apt28"
+          "char_end": 550
         },
         {
           "name": "Unit 42",
@@ -34,8 +33,7 @@
           "aliases": [],
           "evidence_text": "Unit 42 actively monitors this group",
           "char_start": 551,
-          "char_end": 587,
-          "canonical_id": "organization:unit-42"
+          "char_end": 587
         },
         {
           "name": "Ministries of Foreign Affairs",
@@ -43,8 +41,7 @@
           "aliases": [],
           "evidence_text": "a campaign launched at various Ministries of Foreign Affairs around the world.",
           "char_start": 683,
-          "char_end": 761,
-          "canonical_id": "target:ministries-of-foreign-affairs"
+          "char_end": 761
         },
         {
           "name": "government institutions",
@@ -52,8 +49,7 @@
           "aliases": [],
           "evidence_text": "we discovered an attack targeting two government institutions related to foreign affairs.",
           "char_start": 1092,
-          "char_end": 1181,
-          "canonical_id": "target:government-institutions"
+          "char_end": 1181
         },
         {
           "name": "Europe",
@@ -61,8 +57,7 @@
           "aliases": [],
           "evidence_text": "one organization is geographically located in Europe",
           "char_start": 1314,
-          "char_end": 1366,
-          "canonical_id": "region:europe"
+          "char_end": 1366
         },
         {
           "name": "North America",
@@ -70,8 +65,7 @@
           "aliases": [],
           "evidence_text": "the other in North America.",
           "char_start": 1371,
-          "char_end": 1398,
-          "canonical_id": "region:north-america"
+          "char_end": 1398
         },
         {
           "name": "phishing email",
@@ -81,8 +75,7 @@
           ],
           "evidence_text": "The initial attack vector leveraged a phishing email",
           "char_start": 1399,
-          "char_end": 1451,
-          "canonical_id": "technique:phishing-emails"
+          "char_end": 1451
         },
         {
           "name": "Microsoft Excel",
@@ -92,8 +85,7 @@
           ],
           "evidence_text": "The attachment itself is an Microsoft Excel XLS document that contains malicious macro script.",
           "char_start": 2198,
-          "char_end": 2292,
-          "canonical_id": "tool:microsoft-excel"
+          "char_end": 2292
         },
         {
           "name": "certutil",
@@ -101,8 +93,7 @@
           "aliases": [],
           "evidence_text": "The macro then uses the command certutil -decode to decode the contents of this text file",
           "char_start": 3842,
-          "char_end": 3931,
-          "canonical_id": "tool:certutil"
+          "char_end": 3931
         },
         {
           "name": "SofacyCarberp",
@@ -110,8 +101,7 @@
           "aliases": [],
           "evidence_text": "The cdnver.dll payload installed by the loader executable is a variant of the SofacyCarberp payload, which is used extensively by the Sofacy threat group.",
           "char_start": 4965,
-          "char_end": 5119,
-          "canonical_id": "malware:sofacycarberp"
+          "char_end": 5119
         },
         {
           "name": "Carberp",
@@ -119,8 +109,7 @@
           "aliases": [],
           "evidence_text": "Previous versions of this Trojan used code taken from the leaked Carberp source code",
           "char_start": 14652,
-          "char_end": 14736,
-          "canonical_id": "malware:carberp"
+          "char_end": 14736
         },
         {
           "name": "Luckystrike",
@@ -130,8 +119,7 @@
           ],
           "evidence_text": "It appears that Sofacy may have used an open-source tool called Luckystrike to generate the delivery document and/or the macro used in this attack.",
           "char_start": 5811,
-          "char_end": 5958,
-          "canonical_id": "tool:luckystrike"
+          "char_end": 5958
         },
         {
           "name": "PowerShell",
@@ -139,8 +127,7 @@
           "aliases": [],
           "evidence_text": "Luckystrike, which was presented at DerbyCon 6 in September 2016, is a Microsoft PowerShell-based tool that generates malicious delivery documents by allowing a user to add a macro to an Excel or Word document to execute an embedded payload.",
           "char_start": 5959,
-          "char_end": 6200,
-          "canonical_id": "tool:power-shell"
+          "char_end": 6200
         },
         {
           "name": "cdnverify[.]net",
@@ -150,8 +137,7 @@
           ],
           "evidence_text": "This variant of SofacyCarberp was configured to use the following domain as its C2 server:\ncdnverify[.]net",
           "char_start": 5288,
-          "char_end": 5394,
-          "canonical_id": "tool:cdnverify-net"
+          "char_end": 5394
         },
         {
           "name": "hotfixmsupload[.]com",
@@ -161,8 +147,7 @@
           ],
           "evidence_text": "Hotfixmsupload[.]com is particularly interesting as it has been identified as a Sofacy C2 domain repeatedly",
           "char_start": 8586,
-          "char_end": 8693,
-          "canonical_id": "tool:hotfixmsupload-com"
+          "char_end": 8693
         },
         {
           "name": "Palo Alto Networks",
@@ -170,8 +155,7 @@
           "aliases": [],
           "evidence_text": "Palo Alto Networks customers are protected from this threat by:",
           "char_start": 9740,
-          "char_end": 9803,
-          "canonical_id": "organization:palo-alto-networks"
+          "char_end": 9803
         },
         {
           "name": "UserInitMprLogonScript",
@@ -179,8 +163,7 @@
           "aliases": [],
           "evidence_text": "the loader will add the following registry key UserInitMprLogonScript to HKCU",
           "char_start": 13945,
-          "char_end": 14022,
-          "canonical_id": "technique:userinitmprlogonscript"
+          "char_end": 14022
         },
         {
           "name": "IHSMarkit",
@@ -188,8 +171,7 @@
           "aliases": [],
           "evidence_text": "Jane’s by IHSMarkit is a well-known supplier of information and analysis often times associated with the defense and government sector.",
           "char_start": 1627,
-          "char_end": 1762,
-          "canonical_id": "organization:ihsmarkit"
+          "char_end": 1762
         },
         {
           "name": "Jane's 360",
@@ -197,8 +179,7 @@
           "aliases": [],
           "evidence_text": "a sender address claiming to be from Jane's 360 defense events <events@ihsmarkit.com>",
           "char_start": 1540,
-          "char_end": 1625,
-          "canonical_id": "organization:janes-360"
+          "char_end": 1625
         },
         {
           "name": "loader Trojan",
@@ -206,8 +187,7 @@
           "aliases": [],
           "evidence_text": "The newly dropped executable is a loader Trojan responsible for installing and running the payload of this attack.",
           "char_start": 4122,
-          "char_end": 4236,
-          "canonical_id": "malware:loader-trojan"
+          "char_end": 4236
         },
         {
           "name": "iexplore.exe",
@@ -215,8 +195,7 @@
           "aliases": [],
           "evidence_text": "0xCDCB4E50 - iexplore.exe",
           "char_start": 16992,
-          "char_end": 17017,
-          "canonical_id": "tool:iexplore-exe"
+          "char_end": 17017
         },
         {
           "name": "firefox.exe",
@@ -224,8 +203,7 @@
           "aliases": [],
           "evidence_text": "0x70297938 - firefox.exe",
           "char_start": 17018,
-          "char_end": 17042,
-          "canonical_id": "tool:firefox-exe"
+          "char_end": 17042
         },
         {
           "name": "chrome.exe",
@@ -233,8 +211,7 @@
           "aliases": [],
           "evidence_text": "0x723F0158 - chrome.exe",
           "char_start": 17043,
-          "char_end": 17066,
-          "canonical_id": "tool:chrome-exe"
+          "char_end": 17066
         },
         {
           "name": "January 30, 2018",
@@ -242,8 +219,7 @@
           "aliases": [],
           "evidence_text": "the domain cdnverify[.]net was registered on January 30, 2018",
           "char_start": 8953,
-          "char_end": 9014,
-          "canonical_id": "time:2018-01-30"
+          "char_end": 9014
         },
         {
           "name": "September 2016",
@@ -251,8 +227,7 @@
           "aliases": [],
           "evidence_text": "Luckystrike, which was presented at DerbyCon 6 in September 2016",
           "char_start": 5959,
-          "char_end": 6023,
-          "canonical_id": "time:2016-09"
+          "char_end": 6023
         },
         {
           "name": "February 2018",
@@ -260,8 +235,7 @@
           "aliases": [],
           "evidence_text": "At the beginning of February 2018, we discovered an attack targeting two government institutions",
           "char_start": 1057,
-          "char_end": 1153,
-          "canonical_id": "time:2018-02"
+          "char_end": 1153
         },
         {
           "name": "DealersChoice",
@@ -269,8 +243,7 @@
           "aliases": [],
           "evidence_text": "This executable contains the same decryption algorithm as the loader we analyzed in the DealersChoice attacks in late 2016.",
           "char_start": 10615,
-          "char_end": 10738,
-          "canonical_id": "event:dealerschoice"
+          "char_end": 10738
         },
         {
           "name": "rundll32.exe",
@@ -278,8 +251,7 @@
           "aliases": [],
           "evidence_text": "start rundll32.exe \"C:\\Users\\user\\AppData\\Local\\cdnver.dll\",#1",
           "char_start": 4621,
-          "char_end": 4683,
-          "canonical_id": "tool:rundll32-exe"
+          "char_end": 4683
         },
         {
           "name": "explorer.exe",
@@ -287,8 +259,7 @@
           "aliases": [],
           "evidence_text": "the loader will enumerate the system’s processes searching for explorer.exe. This process was most likely chosen as it typically runs with administrator privileges.",
           "char_start": 13368,
-          "char_end": 13532,
-          "canonical_id": "tool:explorer-exe"
+          "char_end": 13532
         },
         {
           "name": "CreateProcessAsUser",
@@ -296,8 +267,7 @@
           "aliases": [],
           "evidence_text": "execute the dropped DLL via CreateProcessAsUser",
           "char_start": 13598,
-          "char_end": 13645,
-          "canonical_id": "technique:createprocessasuser"
+          "char_end": 13645
         },
         {
           "name": "RtlDecompressBuffer",
@@ -305,8 +275,7 @@
           "aliases": [],
           "evidence_text": "decompressing it using the RtlDecompressBuffer API",
           "char_start": 11388,
-          "char_end": 11438,
-          "canonical_id": "technique:rtldecompressbuffer"
+          "char_end": 11438
         },
         {
           "name": "LZNT1",
@@ -314,8 +283,7 @@
           "aliases": [],
           "evidence_text": "The compression algorithm used is LZNT1 with maximum compression level.",
           "char_start": 11596,
-          "char_end": 11667,
-          "canonical_id": "technique:lznt1"
+          "char_end": 11667
         }
       ],
       "relations": [
