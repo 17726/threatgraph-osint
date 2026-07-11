@@ -253,7 +253,23 @@
           "char_end": 1896
         },
         {
-          "name": "manufacturing, agriculture, and physical security",
+          "name": "manufacturing",
+          "type": "INDUSTRY",
+          "aliases": [],
+          "evidence_text": "Some of the prominent sectors targeted include manufacturing, agriculture, and physical security.",
+          "char_start": 1213,
+          "char_end": 1310
+        },
+        {
+          "name": "agriculture",
+          "type": "INDUSTRY",
+          "aliases": [],
+          "evidence_text": "Some of the prominent sectors targeted include manufacturing, agriculture, and physical security.",
+          "char_start": 1213,
+          "char_end": 1310
+        },
+        {
+          "name": "physical security",
           "type": "INDUSTRY",
           "aliases": [],
           "evidence_text": "Some of the prominent sectors targeted include manufacturing, agriculture, and physical security.",
@@ -438,7 +454,27 @@
           "head_name": "Lazarus Group",
           "head_type": "APT_GROUP",
           "relation_type": "TARGETS",
-          "tail_name": "manufacturing, agriculture, and physical security",
+          "tail_name": "manufacturing",
+          "tail_type": "INDUSTRY",
+          "evidence_text": "Some of the prominent sectors targeted include manufacturing, agriculture, and physical security.",
+          "char_start": 1213,
+          "char_end": 1310
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "agriculture",
+          "tail_type": "INDUSTRY",
+          "evidence_text": "Some of the prominent sectors targeted include manufacturing, agriculture, and physical security.",
+          "char_start": 1213,
+          "char_end": 1310
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "physical security",
           "tail_type": "INDUSTRY",
           "evidence_text": "Some of the prominent sectors targeted include manufacturing, agriculture, and physical security.",
           "char_start": 1213,
@@ -557,5 +593,5 @@
       ]
     }
   ],
-  "notes": "人工核验后的标准答案，用于评测 LLM 针对 kimsuky_060（The Hacker News 关于 Lazarus Group 使用 Log4j 漏洞及 Kimsuky 活动的报道）单文档单 chunk 的实体和关系抽取。\n\n包含 33 个实体：Lazarus Group、Andariel、Kimsuky、Konni（APT组织），Operation Blacksmith（行动），NineRAT、DLRAT、BottomLoader、MagicRAT、EarlyRat、Amadey、RftRAT（恶意软件），HazyLoad、Telegram、VMWare Horizon、JetBrains TeamCity、DLang、AutoIt（工具），CVE-2021-44228、CVE-2021-44832、CVE-2023-42793（漏洞），Cisco Talos、Microsoft、ASEC、RGB、U.S. Treasury Department（组织），South American agricultural organization、European manufacturing entity（目标），manufacturing, agriculture, and physical security（行业），spear-phishing（技术），March 2023、September 2023、November 30, 2023（时间）。\n\n【已过滤 — 纯文档元数据/背景板，无图谱语义关系】\n- The Hacker News（发布平台）\n- Jung soo An、Asheer Malhotra、Vitor Ventura（报告作者，已通过 Cisco Talos 组织覆盖）\n- Veracode（仅被引用的统计数据来源）\n- Log4j（已通过三个 CVE 实体覆盖）\n- North Korean government（已通过 RGB 具体机构覆盖）"
+  "notes": "人工核验后的标准答案，用于评测 LLM 针对 kimsuky_060（The Hacker News 关于 Lazarus Group 使用 Log4j 漏洞及 Kimsuky 活动的报道）单文档单 chunk 的实体和关系抽取。\n\n包含 35 个实体：Lazarus Group、Andariel、Kimsuky、Konni（APT组织），Operation Blacksmith（行动），NineRAT、DLRAT、BottomLoader、MagicRAT、EarlyRat、Amadey、RftRAT（恶意软件），HazyLoad、Telegram、VMWare Horizon、JetBrains TeamCity、DLang、AutoIt（工具），CVE-2021-44228、CVE-2021-44832、CVE-2023-42793（漏洞），Cisco Talos、Microsoft、ASEC、RGB、U.S. Treasury Department（组织），South American agricultural organization、European manufacturing entity（目标），manufacturing、agriculture、physical security（行业），spear-phishing（技术），March 2023、September 2023、November 30, 2023（时间）。\n\n【已过滤 — 纯文档元数据/背景板，无图谱语义关系】\n- The Hacker News（发布平台）\n- Jung soo An、Asheer Malhotra、Vitor Ventura（报告作者，已通过 Cisco Talos 组织覆盖）\n- Veracode（仅被引用的统计数据来源）\n- Log4j（已通过三个 CVE 实体覆盖）\n- North Korean government（已通过 RGB 具体机构覆盖）"
 }
