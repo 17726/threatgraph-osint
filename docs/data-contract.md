@@ -847,7 +847,11 @@ TIME
 EVENT
 CAMPAIGN
 BEHAVIOR_PATTERN
+INFRASTRUCTURE
+LOCATION
 ```
+
+一个文本实体只能选择一个主类型。命名组织、人、国家、地区或地点使用对应具体类型；`TARGET` 仅用于原文明示的泛指受害群体或机构类别；`INDUSTRY` 仅表示原文明示的行业。P0 不根据常识从具体组织自动补行业或目标类别。
 
 ---
 
@@ -867,7 +871,12 @@ RELATED_TO
 DISCOVERED_BY
 CAUSES
 HAS_BEHAVIOR
+PRECEDES
+INSTANCE_OF
+IN_INDUSTRY
 ```
+
+关系方向和合法端点以 `docs/schemas/relationship-matrix.md` 为准。`PART_OF` 不得用于表示实例归类或行业归属。
 
 ---
 

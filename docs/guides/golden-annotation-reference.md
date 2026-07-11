@@ -137,6 +137,8 @@ TIME
 EVENT
 CAMPAIGN
 BEHAVIOR_PATTERN
+INFRASTRUCTURE
+LOCATION
 ```
 
 常见选择：
@@ -149,9 +151,24 @@ BEHAVIOR_PATTERN
 | `TOOL`               | PowerShell、certutil.exe、KakaoTalk、合法管理工具、协议或 API。 |
 | `CVE`                | 标准 CVE 编号。                                                 |
 | `TECHNIQUE`          | 钓鱼邮件、DLL 侧加载、XSS、凭据窃取等攻击手法。                 |
-| `TARGET`             | 目标群体、行业、机构类型，例如外交人员、加密货币交易所。        |
+| `TARGET`             | 原文明示的泛指目标群体或机构类别，例如外交人员、金融机构。      |
 | `COUNTRY` / `REGION` | 国家或地区。                                                    |
+| `INDUSTRY`           | 原文明示的行业，例如金融业、制造业；不是某一家企业。            |
+| `INFRASTRUCTURE`     | P0 粗粒度的域名、IP、URL 和 C2 地址。                           |
+| `LOCATION`           | 军事基地、机场、设施或其他具体地点。                            |
 | `CAMPAIGN` / `EVENT` | 系列攻击活动或单次事件。                                        |
+
+### 4.1 单主类型决策
+
+| 原文对象 | 主类型 | 处理原则 |
+| -------- | ------ | -------- |
+| 招商银行、某政府部门 | `ORGANIZATION` | 命名组织保持具体类型，即使它是攻击目标。 |
+| 张三 | `PERSON` | 不因其受害者身份改成 `TARGET`。 |
+| 金融机构、外交人员 | `TARGET` | 只用于原文明示的泛指目标类别。 |
+| 金融业、制造业 | `INDUSTRY` | 只在原文明示行业时标注，不从具体企业推导。 |
+| 某军事基地、某机场 | `LOCATION` | 国家和大区仍分别使用 `COUNTRY`、`REGION`。 |
+
+一个文本实体只能有一个主类型。原文写“攻击了招商银行以及其他金融机构”时，同时保留 `招商银行 (ORGANIZATION)` 和 `金融机构 (TARGET)`，并在原文明确表达归类时标注 `招商银行 INSTANCE_OF 金融机构`。原文只写具体银行时，不自动补“金融机构”或“金融业”。
 
 ---
 
@@ -220,18 +237,26 @@ RELATED_TO
 DISCOVERED_BY
 CAUSES
 HAS_BEHAVIOR
+PRECEDES
+INSTANCE_OF
+IN_INDUSTRY
 ```
 
 最小关系矩阵以 `docs/schemas/relationship-matrix.md` 为准。常用关系可按下面理解：
 
 | 关系            | 含义                           | 常见主体                                      | 常见客体                                                      |
 | --------------- | ------------------------------ | --------------------------------------------- | ------------------------------------------------------------- |
-| `USES`          | 使用工具、恶意软件、技术或漏洞 | `APT_GROUP` / `CAMPAIGN`                      | `MALWARE` / `TOOL` / `TECHNIQUE` / `CVE`                      |
-| `TARGETS`       | 攻击或针对                     | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `TARGET` / `COUNTRY` / `REGION` / `INDUSTRY` / `ORGANIZATION` |
+| `USES`          | 使用工具、恶意软件、技术或基础设施 | `APT_GROUP` / `CAMPAIGN` / `MALWARE`       | `MALWARE` / `TOOL` / `TECHNIQUE` / `CVE` / `INFRASTRUCTURE`   |
+| `TARGETS`       | 攻击或针对                     | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | 见关系矩阵中的目标类型                                        |
 | `EXPLOITS`      | 利用漏洞                       | `APT_GROUP` / `CAMPAIGN` / `MALWARE` / `TOOL` | `CVE`                                                         |
-| `ATTRIBUTED_TO` | 归因于                         | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `COUNTRY` / `ORGANIZATION`                                    |
+| `ATTRIBUTED_TO` | 归因于                         | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `APT_GROUP` / `COUNTRY` / `ORGANIZATION`                      |
 | `DISCOVERED_BY` | 被披露或发现                   | `CVE` / `MALWARE` / `TOOL` / `CAMPAIGN`       | `ORGANIZATION` / `PERSON`                                     |
 | `HAS_BEHAVIOR`  | 具备某种行为模式               | `APT_GROUP` / `CAMPAIGN`                      | `BEHAVIOR_PATTERN` / `TECHNIQUE`                              |
+| `PRECEDES`      | 先于另一事件或活动             | `EVENT` / `CAMPAIGN`                          | `EVENT` / `CAMPAIGN`                                         |
+| `INSTANCE_OF`   | 具体对象属于泛指目标类别       | 具体命名对象类型                              | `TARGET`                                                     |
+| `IN_INDUSTRY`   | 组织或目标类别属于行业         | `ORGANIZATION` / `TARGET`                     | `INDUSTRY`                                                   |
+
+`PART_OF` 只表示事件或活动的组成关系，不能用来表达“招商银行属于金融机构”或“招商银行属于金融业”。`DISCOVERED_BY` 的方向固定为“被发现/披露对象 → 发现组织或人员”。
 
 `RELATED_TO` 只能作为兜底关系。除非原文确实只表达弱关联且评测需要保留上下文，否则不要使用。
 
@@ -283,7 +308,7 @@ chunk_text[char_start:char_end] == evidence_text
 5. 只在关系证据明确时标注关系，不为待定关系填写人工置信度。
 6. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
 7. 检查实体类型、关系类型和关系矩阵。
-8. 用 `docs/schemas/golden.schema.json` 校验 JSON。
+8. 运行 `python scripts/validate_golden.py <golden.json> <document.json...>` 校验 Schema、关系矩阵、端点和证据位置。
 9. 在 `notes` 中写明统一排除口径、样本规模和限制，不夸大评测结论。
 
 实体和关系应分开评测：相关但没有关系的实体属于实体正例；模型抽取无关实体计为实体假阳性，遗漏相关实体计为实体假阴性，无证据关系计为关系假阳性。

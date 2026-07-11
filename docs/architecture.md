@@ -636,9 +636,16 @@ TIME
 EVENT
 CAMPAIGN
 BEHAVIOR_PATTERN
+INFRASTRUCTURE
+LOCATION
 ```
 
 说明：
+
+1. 每个文本实体只标一个主类型；具体类型优先于 `TARGET`。
+2. `TARGET` 只承载原文明示、但无法落到具体命名对象的目标群体或机构类别。
+3. `INDUSTRY` 表示行业，不表示某一家企业；只有原文明示行业时才标注，不从具体组织自动推导。
+4. `INFRASTRUCTURE` 在 P0 统一承载域名、IP、URL 和 C2 地址；`LOCATION` 承载基地、机场、设施和具体地点。
 
 1. `TARGET` 用于课程要求里的攻击目标。
 2. `INDUSTRY` 用于行业目标，如金融、政府、能源。
@@ -662,14 +669,19 @@ RELATED_TO
 DISCOVERED_BY
 CAUSES
 HAS_BEHAVIOR
+PRECEDES
+INSTANCE_OF
+IN_INDUSTRY
 ```
 
 说明：
 
-1. 关系类型控制在 10-13 个，避免 LLM 输出过散。
+1. 关系类型保持 P0 最小集合，避免 LLM 输出发散。
 2. `RELATED_TO` 只作为兜底关系，不能滥用。
 3. 时间、因果、攻击链关系必须保留证据。
 4. `HAS_BEHAVIOR` 用于连接 APT 组织和行为模式节点。
+5. `PART_OF` 只表示事件或活动的组成；具体对象属于泛指目标类别使用 `INSTANCE_OF`，组织或目标类别属于行业使用 `IN_INDUSTRY`。
+6. `PRECEDES` 表示有原文证据的事件或活动先后顺序，用于满足课程时间序列关系要求。
 
 ---
 

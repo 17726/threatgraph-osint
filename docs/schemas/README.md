@@ -62,6 +62,7 @@ The Hacker News 字段口径如下：
 5. 所有实体和关系都必须能追溯到 `evidence_ids`。
 6. 关系类型必须先通过 `relationship-matrix.md` 的最小合法性检查。
 7. `RELATED_TO` 只能作为兜底关系，不能作为常规抽取结果滥用。
+8. 每个实体只保留一个主类型；`TARGET`、`INDUSTRY` 与具体命名实体的边界以黄金集标注指南为准。
 
 ## 今日交付口径
 
@@ -74,3 +75,11 @@ be 组按 `graph.apt28.thn.beardshell.example.json` 的格式导出 `data/graph/
 如果后续需要对 `/api/v1/graph` 做机器校验，应新增独立的 `graph-view.schema.json`，不要复用完整 GraphSnapshot 的 `graph.schema.json`。
 
 qa 组按 `golden.apt28.thn.beardshell.example.json` 和 `golden.schema.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。正式 golden 不手写新的切块逻辑；后端切块不可用时，可以临时沿用样例中的 `${doc_id}_c001` 单 chunk 约定。
+
+正式黄金集提交前运行：
+
+```bash
+python scripts/validate_golden.py data/evaluation/golden.en.apt28_080.json data/documents/apt28/apt28_080.json
+```
+
+该命令同时检查 Golden Schema、关系矩阵、同 chunk 端点、文档映射、证据位置和明显的基础设施类型错误。

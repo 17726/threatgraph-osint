@@ -26,6 +26,9 @@
 10. 不要生成 entity_id、relation_id、normalized_entity_id、normalized_relation_id 或 evidence_id。
 11. 不要把推断关系当作原文事实。原文没有明确支撑时不要抽取关系。
 12. RELATED_TO 只能在关系非常弱但必须保留上下文时使用；常规抽取不要使用 RELATED_TO。
+13. 每个文本实体只选择一个主类型；命名对象优先使用具体类型，不因它是受害者而改成 TARGET。
+14. TARGET 只用于原文明示的泛指目标群体或机构类别；INDUSTRY 只在原文明示行业时抽取，不做常识补全。
+15. 域名、IP、URL 和 C2 地址在 P0 统一标为 INFRASTRUCTURE；基地、机场、设施和具体地点标为 LOCATION。
 ```
 
 ## 允许的实体类型
@@ -46,6 +49,8 @@ TIME
 EVENT
 CAMPAIGN
 BEHAVIOR_PATTERN
+INFRASTRUCTURE
+LOCATION
 ```
 
 ## 允许的关系类型
@@ -64,6 +69,9 @@ RELATED_TO
 DISCOVERED_BY
 CAUSES
 HAS_BEHAVIOR
+PRECEDES
+INSTANCE_OF
+IN_INDUSTRY
 ```
 
 关系合法性必须参考 `docs/schemas/relationship-matrix.md`。例如：
@@ -78,6 +86,9 @@ APT_GROUP TARGETS TARGET
 APT_GROUP TARGETS ORGANIZATION
 MALWARE EXPLOITS CVE
 CAMPAIGN PART_OF APT_GROUP
+EVENT PRECEDES EVENT
+ORGANIZATION INSTANCE_OF TARGET
+ORGANIZATION IN_INDUSTRY INDUSTRY
 ```
 
 ## 用户提示词模板
