@@ -296,10 +296,10 @@ chunk_text[char_start:char_end] == evidence_text
 4. 逐个 chunk 标注相关实体，先保证实体证据能回到原文；相关但没有关系的实体仍需保留。
 5. 只在关系证据明确时标注关系，不为待定关系填写人工置信度。
 6. `MEMBER_OF`、`CONTROLS`、`TRANSFERS_TO`、`INSTANCE_OF`、`PRECEDES` 不得根据共现、控制链或常识推断。
-6. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
-7. 检查实体类型、关系类型和关系矩阵。
-8. 用 `docs/schemas/golden.schema.json` 校验 JSON。
-9. 在 `notes` 中写明统一排除口径、样本规模和限制，不夸大评测结论。
+7. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
+8. 检查实体类型、关系类型和关系矩阵。
+9. 用 `docs/schemas/golden.schema.json` 校验 JSON。
+10. 在 `notes` 中写明统一排除口径、样本规模和限制，不夸大评测结论。
 
 实体和关系应分开评测：相关但没有关系的实体属于实体正例；模型抽取无关实体计为实体假阳性，遗漏相关实体计为实体假阴性，无证据关系计为关系假阳性。
 
