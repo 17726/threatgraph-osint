@@ -157,9 +157,7 @@
         {
           "name": "短链接",
           "type": "TECHNIQUE",
-          "aliases": [
-            "TinyCC"
-          ],
+          "aliases": [],
           "evidence_text": "攻击者通过使用TinyCC短链接服务来跳转和托管PowerSpritz攻击载荷",
           "char_start": 1463,
           "char_end": 1502
@@ -319,6 +317,14 @@
         {
           "name": "TinyCC",
           "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "使用TinyCC短链接服务",
+          "char_start": 1468,
+          "char_end": 1481
+        },
+        {
+          "name": "TinyCC短链接",
+          "type": "INFRASTRUCTURE",
           "aliases": [],
           "evidence_text": "使用TinyCC短链接服务",
           "char_start": 1468,
@@ -530,11 +536,11 @@
           "head_name": "Lazarus Group",
           "head_type": "APT_GROUP",
           "relation_type": "USES",
-          "tail_name": "TinyCC",
-          "tail_type": "ORGANIZATION",
-          "evidence_text": "攻击者通过使用TinyCC短链接服务来跳转和托管PowerSpritz攻击载荷",
-          "char_start": 1463,
-          "char_end": 1502
+          "tail_name": "TinyCC短链接",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "使用TinyCC短链接服务",
+          "char_start": 1468,
+          "char_end": 1481
         },
         {
           "head_name": "Lazarus Group",
@@ -542,9 +548,9 @@
           "relation_type": "TARGETS",
           "tail_name": "加密货币",
           "tail_type": "INDUSTRY",
-          "evidence_text": "本报告中，我们着重对Lazarus Group从未被外界披露的一个加密货币攻击工具集进行分析",
-          "char_start": 156,
-          "char_end": 202
+          "evidence_text": "该工具集被Lazarus Group广泛用于全球加密货币组织、个人和相关机构的入侵攻击",
+          "char_start": 203,
+          "char_end": 246
         },
         {
           "head_name": "Lazarus Group",
@@ -552,9 +558,9 @@
           "relation_type": "TARGETS",
           "tail_name": "韩国",
           "tail_type": "COUNTRY",
-          "evidence_text": "目前，攻击者还只是在韩国范围内释放RatankbaPOS",
-          "char_start": 7644,
-          "char_end": 7672
+          "evidence_text": "我们还发现 Lazarus 在韩国开展了针对销售终端系统（POS）的数据窃取",
+          "char_start": 6600,
+          "char_end": 6638
         },
         {
           "head_name": "Lazarus Group",
@@ -639,5 +645,5 @@
       ]
     }
   ],
-  "notes": "中文黄金集 - lazarus_001，人工标注，不含 canonical_id。\n1. SWIFT 作为金融通信系统标为 TOOL，Lazarus Group 使用该系统入侵台湾远东国际商业银行；SWIFT 不是攻击目标。\n2. 销售终端系统（POS）在现有 Schema 下近似标为 TOOL，但 TARGETS -> TOOL 不满足当前关系矩阵，因此只保留实体，不建立该目标关系。\n3. Bithumb、Coinbase 和 Falcon Coin 出现在恶意 ZIP 的诱饵主题中，不据此建立 TARGETS；Falcon Coin 作为 ORGANIZATION 实体纳入。\n4. 加密货币标为 INDUSTRY，TARGETS 关系使用明确表达全球加密货币组织、个人和相关机构入侵的证据。\n5. 数据擦除、PowerShell、BITSAdmin、WMIC、AppLocker、VBScript 和 LNK 纳入现有类型可表达的技术或工具实体。\n6. 多家安全厂商与 Lazarus 的 RELATED_TO 表示厂商归因分析，不表示一般关联；趋势科技保留 Trend Micro 和 TrendMicro 别名。\n7. TinyCC 作为独立 ORGANIZATION 实体，不作为短链接别名；当前关系矩阵不支持 Lazarus Group USES ORGANIZATION，因此不单独建立 TinyCC 关系。\n8. PowerRatankba.A/B 按家族级粒度保留为别名。\n9. 在现有 Schema 能合理表达的范围内补充实体；无法合理映射的文件、进程、邮箱、哈希等对象仅记录在 notes，不进入正式实体。"
+  "notes": "中文黄金集 - lazarus_001，人工标注，不含 canonical_id。\n1. SWIFT 作为金融通信系统标为 TOOL，Lazarus Group 使用该系统入侵台湾远东国际商业银行；SWIFT 不是攻击目标。\n2. 销售终端系统（POS）在现有 Schema 下近似标为 TOOL，但 TARGETS -> TOOL 不满足当前关系矩阵，因此只保留实体，不建立该目标关系。\n3. Bithumb、Coinbase 和 Falcon Coin 出现在恶意 ZIP 的诱饵主题中，不据此建立 TARGETS；Falcon Coin 作为 ORGANIZATION 实体纳入。\n4. 加密货币标为 INDUSTRY，TARGETS 关系使用“该工具集被Lazarus Group广泛用于全球加密货币组织、个人和相关机构的入侵攻击”证据。\n5. 韩国 TARGETS 关系使用“我们还发现 Lazarus 在韩国开展了针对销售终端系统（POS）的数据窃取”这一明确归属证据，不使用匿名“攻击者”证据。\n6. 数据擦除、PowerShell、BITSAdmin、WMIC、AppLocker、VBScript 和 LNK 纳入现有类型可表达的技术或工具实体。\n7. 多家安全厂商与 Lazarus 的 RELATED_TO 表示厂商归因分析，不表示一般关联；趋势科技保留 Trend Micro 和 TrendMicro 别名。\n8. TinyCC 保留为独立 ORGANIZATION；TinyCC短链接另标为 INFRASTRUCTURE，并建立 Lazarus Group USES TinyCC短链接。现有 Schema 不满足 TinyCC CONTROLS TinyCC短链接，该语义需后续商讨 Schema。\n9. PowerRatankba.A/B 按家族级粒度保留为别名。\n10. 在现有 Schema 能合理表达的范围内补充实体；无法合理映射的文件、进程、邮箱、哈希等对象仅记录在 notes，不进入正式实体。"
 }

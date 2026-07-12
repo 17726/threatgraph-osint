@@ -61,6 +61,14 @@
           "char_end": 337
         },
         {
+          "name": "IHS Markit",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "该组织利用英国信息服务提供商IHS Markit公司的邮箱账号",
+          "char_start": 306,
+          "char_end": 337
+        },
+        {
           "name": "罗马尼亚外交部",
           "type": "ORGANIZATION",
           "aliases": [],
@@ -367,5 +375,5 @@
       ]
     }
   ],
-  "notes": "中文黄金集 - apt28_001，人工标注，不含 canonical_id。\n1. 俄罗斯军方情报机构使用 AFFILIATED_WITH，原文仅表达“相关”，不表达明确归因。\n2. IHS Markit邮箱使用 INFRASTRUCTURE 表示被侵用的邮箱基础设施；当前 Schema 没有 COMPROMISES 关系。\n3. APT28攻击活动是根据 Fancy Bear 组织的攻击活动规范化生成的 CAMPAIGN，使用 PART_OF 关联 APT28。\n4. N9A6C5T3.txt 是文件工件，当前 Schema 没有合适类型，因此不纳入正式实体。\n5. 注册表启动项持久化是对 UserInitMprLogonScript 注册表键值行为的规范化技术名称。\n6. cdnver.dll 按攻击组织级样本归因口径保留 USES 关系。\n7. 进程注入和截屏纳入 TECHNIQUE；API 和浏览器进程暂不纳入。\n8. 腾讯御界高级威胁检测系统在末段作为背景工具实体加入，与 APT28 无直接关系。"
+  "notes": "中文黄金集 - apt28_001，人工标注，不含 canonical_id。\n1. 俄罗斯军方情报机构使用 AFFILIATED_WITH，原文仅表达“相关”，不表达明确归因。\n2. IHS Markit邮箱使用 INFRASTRUCTURE 表示被侵用的邮箱基础设施；IHS Markit作为背景组织实体保留，两者使用相同证据。当前 Schema 没有 COMPROMISES 关系，也不建立 IHS Markit CONTROLS IHS Markit邮箱；该语义需后续商讨 Schema。\n3. APT28攻击活动是根据 Fancy Bear 组织的攻击活动规范化生成的 CAMPAIGN，使用 PART_OF 关联 APT28。\n4. N9A6C5T3.txt 是文件工件，当前 Schema 没有合适类型，因此不纳入正式实体。\n5. 注册表启动项持久化是对 UserInitMprLogonScript 注册表键值行为的规范化技术名称。\n6. cdnver.dll 按攻击组织级样本归因口径保留 USES 关系。\n7. 进程注入和截屏纳入 TECHNIQUE；API 和浏览器进程暂不纳入。\n8. 腾讯御界高级威胁检测系统在末段作为背景工具实体加入，与 APT28 无直接关系。"
 }

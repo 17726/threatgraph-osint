@@ -137,14 +137,6 @@
           "char_end": 536
         },
         {
-          "name": "奇安信威胁情报中心",
-          "type": "ORGANIZATION",
-          "aliases": [],
-          "evidence_text": "希望提供奇安信威胁情报中心视野内更多的信息来构成该APT组织更大的拼图",
-          "char_start": 318,
-          "char_end": 353
-        },
-        {
           "name": "GooglePlay",
           "type": "TOOL",
           "aliases": [],
@@ -345,16 +337,6 @@
           "char_end": 1011
         },
         {
-          "head_name": "奇安信威胁情报中心红雨滴团队",
-          "head_type": "ORGANIZATION",
-          "relation_type": "PART_OF",
-          "tail_name": "奇安信威胁情报中心",
-          "tail_type": "ORGANIZATION",
-          "evidence_text": "希望提供奇安信威胁情报中心视野内更多的信息来构成该APT组织更大的拼图",
-          "char_start": 318,
-          "char_end": 353
-        },
-        {
           "head_name": "KONNI攻击活动",
           "head_type": "CAMPAIGN",
           "relation_type": "PART_OF",
@@ -407,5 +389,5 @@
       ]
     }
   ],
-  "notes": "中文黄金集 - kimsuky_001，人工标注，不含 canonical_id。\n1. Android用户将平台限定与用户群体统一为 PERSON，保留韩国目标关系。\n2. UTC+9 仅作为攻击者时区推断保留，不建立 KONNI 的位置关系。\n3. 本 campaign 暂时合并 ESTsecurity 披露的 KONNI Android 活动与红雨滴团队发现的技术一致活动。\n4. 腾讯作为 KakaoTalk 的第二大股东，与本次攻击无直接关系，仅作为 KakaoTalk 的背景实体。"
+  "notes": "中文黄金集 - kimsuky_001，人工标注，不含 canonical_id。\n1. Android用户将平台限定与用户群体统一为 PERSON，保留韩国目标关系。\n2. UTC+9 仅作为攻击者时区推断保留，不建立 KONNI 的位置关系。\n3. 本 campaign 暂时合并 ESTsecurity 披露的 KONNI Android 活动与红雨滴团队发现的技术一致活动。\n4. 腾讯作为 KakaoTalk 的第二大股东，与本次攻击无直接关系，仅作为 KakaoTalk 的背景实体。\n5. 奇安信威胁情报中心仅作为红雨滴团队名称中的背景机构出现，未作为独立实体纳入；红雨滴团队与该中心不建立 PART_OF 关系。"
 }
