@@ -196,7 +196,7 @@
         },
         {
           "name": "SWIFT",
-          "type": "ORGANIZATION",
+          "type": "TOOL",
           "aliases": [],
           "evidence_text": "Lazarus Group 以窃取金钱为目的，通过SWIFT系统入侵了台湾远东国际商业银行（FEIB）",
           "char_start": 8472,
@@ -204,13 +204,21 @@
         },
         {
           "name": "销售终端系统",
-          "type": "ORGANIZATION",
+          "type": "TOOL",
           "aliases": [
             "POS"
           ],
           "evidence_text": "针对销售终端系统（POS）的数据窃取，而其利用程序RatankbaPOS很可能是首个被发现的",
           "char_start": 6620,
           "char_end": 6666
+        },
+        {
+          "name": "数据擦除",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "数据擦除攻击",
+          "char_start": 99,
+          "char_end": 105
         },
         {
           "name": "DDoS",
@@ -251,6 +259,70 @@
           "evidence_text": "BAE、Kaspersky、ESET、TrendMicro和Symantec都把这系列攻击归因为Lazarus Group",
           "char_start": 7800,
           "char_end": 7861
+        },
+        {
+          "name": "Falcon Coin",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "Coinbase、Bithumb和Falcon Coin",
+          "char_start": 3073,
+          "char_end": 3101
+        },
+        {
+          "name": "PowerShell",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "基于PowerShell",
+          "char_start": 775,
+          "char_end": 787
+        },
+        {
+          "name": "BITSAdmin",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "VB脚本和BITSAdmin工具",
+          "char_start": 2724,
+          "char_end": 2740
+        },
+        {
+          "name": "WMIC",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "WMIC命令",
+          "char_start": 5290,
+          "char_end": 5296
+        },
+        {
+          "name": "AppLocker",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "使用AppLocker绕过方式",
+          "char_start": 2362,
+          "char_end": 2377
+        },
+        {
+          "name": "VBScript",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "基于宏的VBScript XOR dropper",
+          "char_start": 8865,
+          "char_end": 8889
+        },
+        {
+          "name": "LNK",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "恶意LNK文件",
+          "char_start": 2353,
+          "char_end": 2360
+        },
+        {
+          "name": "TinyCC",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "使用TinyCC短链接服务",
+          "char_start": 1468,
+          "char_end": 1481
         }
       ],
       "relations": [
@@ -387,6 +459,86 @@
         {
           "head_name": "Lazarus Group",
           "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "数据擦除",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "它们可以轻松实施DDoS僵尸网络攻击和数据擦除攻击",
+          "char_start": 80,
+          "char_end": 105
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "PowerShell",
+          "tail_type": "TOOL",
+          "evidence_text": "基于PowerShell，与Ratankba相似且名为PowerRatankba的新型恶意植入软件",
+          "char_start": 775,
+          "char_end": 824
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "BITSAdmin",
+          "tail_type": "TOOL",
+          "evidence_text": "使用VB脚本和BITSAdmin工具",
+          "char_start": 2722,
+          "char_end": 2740
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "WMIC",
+          "tail_type": "TOOL",
+          "evidence_text": "通过WMIC命令执行输出",
+          "char_start": 5288,
+          "char_end": 5300
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "AppLocker",
+          "tail_type": "TOOL",
+          "evidence_text": "它使用AppLocker绕过方式",
+          "char_start": 2361,
+          "char_end": 2377
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "VBScript",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "利用了基于宏的VBScript XOR dropper",
+          "char_start": 8862,
+          "char_end": 8889
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "LNK",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "发现了恶意LNK文件",
+          "char_start": 2350,
+          "char_end": 2360
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "TinyCC",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "攻击者通过使用TinyCC短链接服务来跳转和托管PowerSpritz攻击载荷",
+          "char_start": 1463,
+          "char_end": 1502
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
           "relation_type": "TARGETS",
           "tail_name": "加密货币",
           "tail_type": "INDUSTRY",
@@ -408,26 +560,6 @@
           "head_name": "Lazarus Group",
           "head_type": "APT_GROUP",
           "relation_type": "TARGETS",
-          "tail_name": "Bithumb",
-          "tail_type": "ORGANIZATION",
-          "evidence_text": "另一个恶意宏文档为bithumb.xls，它伪装为比特币交易公司Bithumb的内部文档",
-          "char_start": 3800,
-          "char_end": 3844
-        },
-        {
-          "head_name": "Lazarus Group",
-          "head_type": "APT_GROUP",
-          "relation_type": "TARGETS",
-          "tail_name": "Coinbase",
-          "tail_type": "ORGANIZATION",
-          "evidence_text": "在11月，攻击者以加密货币交易所Coinbase、Bithumb和Falcon Coin为主题的恶意ZIP文件",
-          "char_start": 3057,
-          "char_end": 3112
-        },
-        {
-          "head_name": "Lazarus Group",
-          "head_type": "APT_GROUP",
-          "relation_type": "TARGETS",
           "tail_name": "台湾远东国际商业银行",
           "tail_type": "ORGANIZATION",
           "evidence_text": "Lazarus Group 以窃取金钱为目的，通过SWIFT系统入侵了台湾远东国际商业银行（FEIB）",
@@ -437,22 +569,12 @@
         {
           "head_name": "Lazarus Group",
           "head_type": "APT_GROUP",
-          "relation_type": "TARGETS",
+          "relation_type": "USES",
           "tail_name": "SWIFT",
-          "tail_type": "ORGANIZATION",
+          "tail_type": "TOOL",
           "evidence_text": "Lazarus Group 以窃取金钱为目的，通过SWIFT系统入侵了台湾远东国际商业银行（FEIB）",
           "char_start": 8472,
           "char_end": 8523
-        },
-        {
-          "head_name": "Lazarus Group",
-          "head_type": "APT_GROUP",
-          "relation_type": "TARGETS",
-          "tail_name": "销售终端系统",
-          "tail_type": "ORGANIZATION",
-          "evidence_text": "针对销售终端系统（POS）的数据窃取，而其利用程序RatankbaPOS很可能是首个被发现的",
-          "char_start": 6620,
-          "char_end": 6666
         },
         {
           "head_name": "PowerRatankba",
@@ -517,5 +639,5 @@
       ]
     }
   ],
-  "notes": "中文黄金集 - lazarus_001，人工标注，不含 canonical_id。\n不确定关系说明：\n1. Proofpoint 是报告参考来源，仅提及一次，列在总结末尾。\n2. 加密货币标为 INDUSTRY（目标行业），Bithumb/Coinbase 标为 ORGANIZATION（具体目标公司）。\n3. 短链接/TinyCC 是 PowerSpritz 的分发方式，也归为 Lazarus Group 使用的 TECHNIQUE。"
+  "notes": "中文黄金集 - lazarus_001，人工标注，不含 canonical_id。\n1. SWIFT 作为金融通信系统标为 TOOL，Lazarus Group 使用该系统入侵台湾远东国际商业银行；SWIFT 不是攻击目标。\n2. 销售终端系统（POS）在现有 Schema 下近似标为 TOOL，但 TARGETS -> TOOL 不满足当前关系矩阵，因此只保留实体，不建立该目标关系。\n3. Bithumb、Coinbase 和 Falcon Coin 出现在恶意 ZIP 的诱饵主题中，不据此建立 TARGETS；Falcon Coin 作为 ORGANIZATION 实体纳入。\n4. 加密货币标为 INDUSTRY，TARGETS 关系使用明确表达全球加密货币组织、个人和相关机构入侵的证据。\n5. 数据擦除、PowerShell、BITSAdmin、WMIC、AppLocker、VBScript 和 LNK 纳入现有类型可表达的技术或工具实体。\n6. 多家安全厂商与 Lazarus 的 RELATED_TO 表示厂商归因分析，不表示一般关联；趋势科技保留 Trend Micro 和 TrendMicro 别名。\n7. TinyCC 作为独立 ORGANIZATION 实体，不作为短链接别名；当前关系矩阵不支持 Lazarus Group USES ORGANIZATION，因此不单独建立 TinyCC 关系。\n8. PowerRatankba.A/B 按家族级粒度保留为别名。\n9. 在现有 Schema 能合理表达的范围内补充实体；无法合理映射的文件、进程、邮箱、哈希等对象仅记录在 notes，不进入正式实体。"
 }

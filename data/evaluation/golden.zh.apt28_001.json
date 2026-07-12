@@ -53,8 +53,8 @@
           "char_end": 213
         },
         {
-          "name": "IHS Markit",
-          "type": "ORGANIZATION",
+          "name": "IHS Markit邮箱",
+          "type": "INFRASTRUCTURE",
           "aliases": [],
           "evidence_text": "该组织利用英国信息服务提供商IHS Markit公司的邮箱账号",
           "char_start": 306,
@@ -119,7 +119,7 @@
           "char_end": 2670
         },
         {
-          "name": "UserInitMprLogonScript",
+          "name": "注册表启动项持久化",
           "type": "TECHNIQUE",
           "aliases": [],
           "evidence_text": "利用UserInitMprLogonScript注册表键值来实现开机自启动",
@@ -144,7 +144,7 @@
         },
         {
           "name": "cdnverify.net",
-          "type": "TOOL",
+          "type": "INFRASTRUCTURE",
           "aliases": [],
           "evidence_text": "第二个c2为“cdnverify.net”",
           "char_start": 1684,
@@ -152,7 +152,7 @@
         },
         {
           "name": "151.80.74.167",
-          "type": "TOOL",
+          "type": "INFRASTRUCTURE",
           "aliases": [],
           "evidence_text": "151.80.74.167",
           "char_start": 3128,
@@ -175,14 +175,6 @@
           "char_end": 2734
         },
         {
-          "name": "N9A6C5T3.txt",
-          "type": "TOOL",
-          "aliases": [],
-          "evidence_text": "宏代码存储为N9A6C5T3.txt文件",
-          "char_start": 860,
-          "char_end": 880
-        },
-        {
           "name": "rundll32.exe",
           "type": "TOOL",
           "aliases": [],
@@ -195,7 +187,7 @@
         {
           "head_name": "APT28",
           "head_type": "APT_GROUP",
-          "relation_type": "ATTRIBUTED_TO",
+          "relation_type": "AFFILIATED_WITH",
           "tail_name": "俄罗斯军方情报机构",
           "tail_type": "ORGANIZATION",
           "evidence_text": "与俄罗斯军方情报机构相关的APT组织",
@@ -276,7 +268,7 @@
           "head_name": "APT28",
           "head_type": "APT_GROUP",
           "relation_type": "USES",
-          "tail_name": "UserInitMprLogonScript",
+          "tail_name": "注册表启动项持久化",
           "tail_type": "TECHNIQUE",
           "evidence_text": "利用UserInitMprLogonScript注册表键值来实现开机自启动",
           "char_start": 426,
@@ -307,7 +299,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "USES",
           "tail_name": "cdnverify.net",
-          "tail_type": "TOOL",
+          "tail_type": "INFRASTRUCTURE",
           "evidence_text": "第二个c2为“cdnverify.net”",
           "char_start": 1684,
           "char_end": 1705
@@ -317,7 +309,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "USES",
           "tail_name": "151.80.74.167",
-          "tail_type": "TOOL",
+          "tail_type": "INFRASTRUCTURE",
           "evidence_text": "151.80.74.167",
           "char_start": 3128,
           "char_end": 3141
@@ -336,16 +328,6 @@
           "head_name": "APT28",
           "head_type": "APT_GROUP",
           "relation_type": "USES",
-          "tail_name": "N9A6C5T3.txt",
-          "tail_type": "TOOL",
-          "evidence_text": "宏代码存储为N9A6C5T3.txt文件",
-          "char_start": 860,
-          "char_end": 880
-        },
-        {
-          "head_name": "APT28",
-          "head_type": "APT_GROUP",
-          "relation_type": "USES",
           "tail_name": "rundll32.exe",
           "tail_type": "TOOL",
           "evidence_text": "会利用rundll32.exe 来执行cdnver.dll",
@@ -356,18 +338,18 @@
           "head_name": "APT28",
           "head_type": "APT_GROUP",
           "relation_type": "USES",
-          "tail_name": "IHS Markit",
-          "tail_type": "ORGANIZATION",
+          "tail_name": "IHS Markit邮箱",
+          "tail_type": "INFRASTRUCTURE",
           "evidence_text": "该组织利用英国信息服务提供商IHS Markit公司的邮箱账号",
           "char_start": 306,
           "char_end": 337
         },
         {
-          "head_name": "APT28",
-          "head_type": "APT_GROUP",
-          "relation_type": "RELATED_TO",
-          "tail_name": "APT28攻击活动",
-          "tail_type": "CAMPAIGN",
+          "head_name": "APT28攻击活动",
+          "head_type": "CAMPAIGN",
+          "relation_type": "PART_OF",
+          "tail_name": "APT28",
+          "tail_type": "APT_GROUP",
           "evidence_text": "近日腾讯御见威胁情报中心在监测Fancy Bear“奇幻熊”组织的攻击活动过程中",
           "char_start": 0,
           "char_end": 40
@@ -385,5 +367,5 @@
       ]
     }
   ],
-  "notes": "中文黄金集 - apt28_001，人工标注，不含 canonical_id。\n不确定关系说明：\n1. APT28 -> USES -> IHS Markit：文中说“利用...IHS Markit公司的邮箱账号”，实质是侵用了该组织的邮件基础设施，\n   USES 可能不够精确（更接近 COMPROMISES 但无此关系类型）。\n2. “腾讯御界高级威胁检测系统” 在末段出现，是该系统可检测此类攻击，与 APT28 无直接关系，仅作为背景实体加入。"
+  "notes": "中文黄金集 - apt28_001，人工标注，不含 canonical_id。\n1. 俄罗斯军方情报机构使用 AFFILIATED_WITH，原文仅表达“相关”，不表达明确归因。\n2. IHS Markit邮箱使用 INFRASTRUCTURE 表示被侵用的邮箱基础设施；当前 Schema 没有 COMPROMISES 关系。\n3. APT28攻击活动是根据 Fancy Bear 组织的攻击活动规范化生成的 CAMPAIGN，使用 PART_OF 关联 APT28。\n4. N9A6C5T3.txt 是文件工件，当前 Schema 没有合适类型，因此不纳入正式实体。\n5. 注册表启动项持久化是对 UserInitMprLogonScript 注册表键值行为的规范化技术名称。\n6. cdnver.dll 按攻击组织级样本归因口径保留 USES 关系。\n7. 进程注入和截屏纳入 TECHNIQUE；API 和浏览器进程暂不纳入。\n8. 腾讯御界高级威胁检测系统在末段作为背景工具实体加入，与 APT28 无直接关系。"
 }
