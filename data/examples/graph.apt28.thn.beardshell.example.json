@@ -206,9 +206,9 @@
       ]
     },
     {
-      "id": "target:ukrainian-government-entities",
+      "id": "organization:ukrainian-government-entities",
       "name": "Ukrainian government entities",
-      "type": "TARGET",
+      "type": "ORGANIZATION",
       "aliases": [
         "Ukrainian government entities"
       ],
@@ -502,9 +502,9 @@
       ]
     },
     {
-      "id": "rel:apt_group:apt28:TARGETS:target:ukrainian-government-entities",
+      "id": "rel:apt_group:apt28:TARGETS:organization:ukrainian-government-entities",
       "source": "apt_group:apt28",
-      "target": "target:ukrainian-government-entities",
+      "target": "organization:ukrainian-government-entities",
       "type": "TARGETS",
       "label": "攻击目标",
       "confidence": 0.9,
@@ -801,7 +801,7 @@
       "id": "ev_apt28_049_acfe7bbb190cbbdf",
       "doc_id": "apt28_049",
       "chunk_id": "apt28_049_c001",
-      "entity_id": "target:ukrainian-government-entities",
+      "entity_id": "organization:ukrainian-government-entities",
       "relation_id": null,
       "text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
       "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
@@ -1018,7 +1018,7 @@
       "doc_id": "apt28_049",
       "chunk_id": "apt28_049_c001",
       "entity_id": null,
-      "relation_id": "rel:apt_group:apt28:TARGETS:target:ukrainian-government-entities",
+      "relation_id": "rel:apt_group:apt28:TARGETS:organization:ukrainian-government-entities",
       "text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
       "source_url": "https://thehackernews.com/2025/06/apt28-uses-signal-chat-to-deploy.html",
       "source_type": "news",
@@ -1061,7 +1061,7 @@
         "technique_ids": [],
         "relation_ids": [
           "rel:apt_group:apt28:TARGETS:country:ukraine",
-          "rel:apt_group:apt28:TARGETS:target:ukrainian-government-entities"
+          "rel:apt_group:apt28:TARGETS:organization:ukrainian-government-entities"
         ],
         "evidence_ids": [
           "ev_apt28_049_d9543f3c343d0e62",

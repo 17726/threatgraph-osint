@@ -314,7 +314,9 @@
         "TOOL",
         "CVE",
         "TECHNIQUE",
-        "TARGET",
+        "INFRASTRUCTURE",
+        "LOCATION",
+        "FINANCIAL_ACCOUNT",
         "COUNTRY",
         "REGION",
         "INDUSTRY",
@@ -340,6 +342,11 @@
         "DISCOVERED_BY",
         "CAUSES",
         "HAS_BEHAVIOR"
+        ,"MEMBER_OF"
+        ,"CONTROLS"
+        ,"TRANSFERS_TO"
+        ,"INSTANCE_OF"
+        ,"PRECEDES"
       ]
     }
   }

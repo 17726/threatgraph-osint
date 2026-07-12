@@ -13,52 +13,160 @@ DEFAULT_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
 
 ALLOWED_RELATIONS = {
     "USES": {
-        "heads": {"APT_GROUP", "CAMPAIGN"},
-        "tails": {"MALWARE", "TOOL", "TECHNIQUE", "CVE"},
+        "heads": {"PERSON", "ORGANIZATION", "COUNTRY", "APT_GROUP", "CAMPAIGN"},
+        "tails": {"MALWARE", "TOOL", "TECHNIQUE", "INFRASTRUCTURE"},
+        "pairs": {
+            (head, tail)
+            for head in {"PERSON", "ORGANIZATION", "COUNTRY", "APT_GROUP", "CAMPAIGN"}
+            for tail in {"MALWARE", "TOOL", "TECHNIQUE", "INFRASTRUCTURE"}
+        },
     },
     "TARGETS": {
         "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE"},
-        "tails": {"TARGET", "COUNTRY", "REGION", "INDUSTRY", "ORGANIZATION"},
+        "tails": {"COUNTRY", "REGION", "INDUSTRY", "ORGANIZATION", "PERSON", "LOCATION"},
+        "pairs": {
+            (head, tail)
+            for head in {"APT_GROUP", "CAMPAIGN", "MALWARE"}
+            for tail in {"COUNTRY", "REGION", "INDUSTRY", "ORGANIZATION", "PERSON", "LOCATION"}
+        },
     },
     "EXPLOITS": {
-        "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE", "TOOL"},
+        "heads": {
+            "PERSON",
+            "ORGANIZATION",
+            "COUNTRY",
+            "APT_GROUP",
+            "CAMPAIGN",
+            "MALWARE",
+            "TOOL",
+        },
         "tails": {"CVE"},
+        "pairs": {
+            (head, "CVE")
+            for head in {
+                "PERSON",
+                "ORGANIZATION",
+                "COUNTRY",
+                "APT_GROUP",
+                "CAMPAIGN",
+                "MALWARE",
+                "TOOL",
+            }
+        },
     },
     "ATTRIBUTED_TO": {
         "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE"},
         "tails": {"COUNTRY", "ORGANIZATION"},
+        "pairs": {
+            (head, tail)
+            for head in {"APT_GROUP", "CAMPAIGN", "MALWARE"}
+            for tail in {"COUNTRY", "ORGANIZATION"}
+        },
     },
     "AFFILIATED_WITH": {
-        "heads": {"APT_GROUP", "ORGANIZATION", "PERSON"},
+        "heads": {"APT_GROUP", "ORGANIZATION"},
         "tails": {"APT_GROUP", "ORGANIZATION", "COUNTRY"},
+        "pairs": {
+            (head, tail)
+            for head in {"APT_GROUP", "ORGANIZATION"}
+            for tail in {"APT_GROUP", "ORGANIZATION", "COUNTRY"}
+        },
     },
     "LOCATED_IN": {
-        "heads": {"ORGANIZATION", "PERSON", "TARGET", "EVENT"},
-        "tails": {"COUNTRY", "REGION"},
+        "heads": {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE", "EVENT"},
+        "tails": {"COUNTRY", "REGION", "LOCATION"},
+        "pairs": {
+            (head, tail)
+            for head in {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE", "EVENT"}
+            for tail in {"COUNTRY", "REGION", "LOCATION"}
+        },
     },
     "HAPPENED_AT": {
         "heads": {"EVENT", "CAMPAIGN"},
         "tails": {"TIME"},
+        "pairs": {(head, "TIME") for head in {"EVENT", "CAMPAIGN"}},
     },
     "PART_OF": {
-        "heads": {"EVENT", "CAMPAIGN"},
-        "tails": {"CAMPAIGN", "APT_GROUP"},
+        "heads": {"ORGANIZATION", "EVENT", "CAMPAIGN"},
+        "tails": {"ORGANIZATION", "CAMPAIGN", "APT_GROUP"},
+        "pairs": {
+            ("ORGANIZATION", "ORGANIZATION"),
+            ("ORGANIZATION", "APT_GROUP"),
+            ("EVENT", "CAMPAIGN"),
+            ("CAMPAIGN", "APT_GROUP"),
+        },
     },
     "LEADS_TO": {
         "heads": {"TECHNIQUE", "BEHAVIOR_PATTERN", "EVENT"},
         "tails": {"TECHNIQUE", "BEHAVIOR_PATTERN", "EVENT"},
+        "pairs": {
+            (head, tail)
+            for head in {"TECHNIQUE", "BEHAVIOR_PATTERN", "EVENT"}
+            for tail in {"TECHNIQUE", "BEHAVIOR_PATTERN", "EVENT"}
+        },
     },
     "DISCOVERED_BY": {
         "heads": {"CVE", "MALWARE", "TOOL", "CAMPAIGN"},
         "tails": {"ORGANIZATION", "PERSON"},
+        "pairs": {
+            (head, tail)
+            for head in {"CVE", "MALWARE", "TOOL", "CAMPAIGN"}
+            for tail in {"ORGANIZATION", "PERSON"}
+        },
     },
     "CAUSES": {
         "heads": {"CVE", "TECHNIQUE", "MALWARE"},
         "tails": {"EVENT", "BEHAVIOR_PATTERN"},
+        "pairs": {
+            (head, tail)
+            for head in {"CVE", "TECHNIQUE", "MALWARE"}
+            for tail in {"EVENT", "BEHAVIOR_PATTERN"}
+        },
     },
     "HAS_BEHAVIOR": {
         "heads": {"APT_GROUP", "CAMPAIGN"},
         "tails": {"BEHAVIOR_PATTERN", "TECHNIQUE"},
+        "pairs": {
+            (head, tail)
+            for head in {"APT_GROUP", "CAMPAIGN"}
+            for tail in {"BEHAVIOR_PATTERN", "TECHNIQUE"}
+        },
+    },
+    "MEMBER_OF": {
+        "heads": {"PERSON"},
+        "tails": {"APT_GROUP", "ORGANIZATION"},
+        "pairs": {("PERSON", tail) for tail in {"APT_GROUP", "ORGANIZATION"}},
+    },
+    "CONTROLS": {
+        "heads": {"PERSON", "APT_GROUP", "ORGANIZATION"},
+        "tails": {"FINANCIAL_ACCOUNT", "INFRASTRUCTURE", "ORGANIZATION"},
+        "pairs": {
+            (head, tail)
+            for head in {"PERSON", "APT_GROUP", "ORGANIZATION"}
+            for tail in {"FINANCIAL_ACCOUNT", "INFRASTRUCTURE", "ORGANIZATION"}
+        },
+    },
+    "TRANSFERS_TO": {
+        "heads": {"FINANCIAL_ACCOUNT"},
+        "tails": {"FINANCIAL_ACCOUNT"},
+        "pairs": {("FINANCIAL_ACCOUNT", "FINANCIAL_ACCOUNT")},
+    },
+    "INSTANCE_OF": {
+        "heads": {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"},
+        "tails": {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"},
+        "pairs": {
+            (entity_type, entity_type)
+            for entity_type in {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"}
+        },
+    },
+    "PRECEDES": {
+        "heads": {"EVENT", "CAMPAIGN", "TECHNIQUE", "BEHAVIOR_PATTERN"},
+        "tails": {"EVENT", "CAMPAIGN", "TECHNIQUE", "BEHAVIOR_PATTERN"},
+        "pairs": {
+            (head, tail)
+            for head in {"EVENT", "CAMPAIGN", "TECHNIQUE", "BEHAVIOR_PATTERN"}
+            for tail in {"EVENT", "CAMPAIGN", "TECHNIQUE", "BEHAVIOR_PATTERN"}
+        },
     },
     "RELATED_TO": {
         "heads": None,
@@ -137,6 +245,10 @@ def validate_relation_matrix(payload: dict[str, Any], report: ValidationReport) 
                 if tail_type not in rule["tails"]:
                     report.add_error(
                         f"{prefix}: {relation_type} 不允许客体类型 {tail_type}"
+                    )
+                if (head_type, tail_type) not in rule["pairs"]:
+                    report.add_error(
+                        f"{prefix}: 不允许类型组合 {head_type} -> {relation_type} -> {tail_type}"
                     )
 
             head = (relation.get("head_name"), head_type)

@@ -129,7 +129,9 @@ MALWARE
 TOOL
 CVE
 TECHNIQUE
-TARGET
+INFRASTRUCTURE
+LOCATION
+FINANCIAL_ACCOUNT
 COUNTRY
 REGION
 INDUSTRY
@@ -149,7 +151,9 @@ BEHAVIOR_PATTERN
 | `TOOL`               | PowerShell、certutil.exe、KakaoTalk、合法管理工具、协议或 API。 |
 | `CVE`                | 标准 CVE 编号。                                                 |
 | `TECHNIQUE`          | 钓鱼邮件、DLL 侧加载、XSS、凭据窃取等攻击手法。                 |
-| `TARGET`             | 目标群体、行业、机构类型，例如外交人员、加密货币交易所。        |
+| `INFRASTRUCTURE`    | 域名、IP、URL、C2 地址或服务器等攻击基础设施。                 |
+| `LOCATION`          | 具体地点、军事基地、机场或设施位置。                            |
+| `FINANCIAL_ACCOUNT` | 银行账户、支付账户或加密货币钱包。                              |
 | `COUNTRY` / `REGION` | 国家或地区。                                                    |
 | `CAMPAIGN` / `EVENT` | 系列攻击活动或单次事件。                                        |
 
@@ -220,18 +224,28 @@ RELATED_TO
 DISCOVERED_BY
 CAUSES
 HAS_BEHAVIOR
+MEMBER_OF
+CONTROLS
+TRANSFERS_TO
+INSTANCE_OF
+PRECEDES
 ```
 
 最小关系矩阵以 `docs/schemas/relationship-matrix.md` 为准。常用关系可按下面理解：
 
 | 关系            | 含义                           | 常见主体                                      | 常见客体                                                      |
 | --------------- | ------------------------------ | --------------------------------------------- | ------------------------------------------------------------- |
-| `USES`          | 使用工具、恶意软件、技术或漏洞 | `APT_GROUP` / `CAMPAIGN`                      | `MALWARE` / `TOOL` / `TECHNIQUE` / `CVE`                      |
-| `TARGETS`       | 攻击或针对                     | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `TARGET` / `COUNTRY` / `REGION` / `INDUSTRY` / `ORGANIZATION` |
+| `USES`          | 使用工具、恶意软件、技术或基础设施 | `PERSON` / `ORGANIZATION` / `COUNTRY` / `APT_GROUP` / `CAMPAIGN` | `MALWARE` / `TOOL` / `TECHNIQUE` / `INFRASTRUCTURE` |
+| `TARGETS`       | 攻击或针对                     | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `COUNTRY` / `REGION` / `INDUSTRY` / `ORGANIZATION` / `PERSON` / `LOCATION` |
 | `EXPLOITS`      | 利用漏洞                       | `APT_GROUP` / `CAMPAIGN` / `MALWARE` / `TOOL` | `CVE`                                                         |
 | `ATTRIBUTED_TO` | 归因于                         | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `COUNTRY` / `ORGANIZATION`                                    |
 | `DISCOVERED_BY` | 被披露或发现                   | `CVE` / `MALWARE` / `TOOL` / `CAMPAIGN`       | `ORGANIZATION` / `PERSON`                                     |
 | `HAS_BEHAVIOR`  | 具备某种行为模式               | `APT_GROUP` / `CAMPAIGN`                      | `BEHAVIOR_PATTERN` / `TECHNIQUE`                              |
+| `MEMBER_OF`     | 人员属于团体或组织             | `PERSON`                                      | `APT_GROUP` / `ORGANIZATION`                                  |
+| `CONTROLS`      | 主体控制对象                 | `PERSON` / `APT_GROUP` / `ORGANIZATION`     | `FINANCIAL_ACCOUNT` / `INFRASTRUCTURE` / `ORGANIZATION`       |
+| `TRANSFERS_TO`  | 账户之间资金转移             | `FINANCIAL_ACCOUNT`                           | `FINANCIAL_ACCOUNT`                                           |
+| `INSTANCE_OF`   | 具体实例属于泛指类别           | 同类实体                                      | 同类实体                                                       |
+| `PRECEDES`      | 纯时间先后                   | `EVENT` / `CAMPAIGN` / `TECHNIQUE` / `BEHAVIOR_PATTERN` | 同左                                                         |
 
 `RELATED_TO` 只能作为兜底关系。除非原文确实只表达弱关联且评测需要保留上下文，否则不要使用。
 
@@ -281,10 +295,11 @@ chunk_text[char_start:char_end] == evidence_text
 3. 先判断实体是否与威胁情报事实相关，排除只承担署名、编辑或页面维护角色的来源元信息主体。
 4. 逐个 chunk 标注相关实体，先保证实体证据能回到原文；相关但没有关系的实体仍需保留。
 5. 只在关系证据明确时标注关系，不为待定关系填写人工置信度。
-6. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
-7. 检查实体类型、关系类型和关系矩阵。
-8. 用 `docs/schemas/golden.schema.json` 校验 JSON。
-9. 在 `notes` 中写明统一排除口径、样本规模和限制，不夸大评测结论。
+6. `MEMBER_OF`、`CONTROLS`、`TRANSFERS_TO`、`INSTANCE_OF`、`PRECEDES` 不得根据共现、控制链或常识推断。
+7. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
+8. 检查实体类型、关系类型和关系矩阵。
+9. 用 `docs/schemas/golden.schema.json` 校验 JSON。
+10. 在 `notes` 中写明统一排除口径、样本规模和限制，不夸大评测结论。
 
 实体和关系应分开评测：相关但没有关系的实体属于实体正例；模型抽取无关实体计为实体假阳性，遗漏相关实体计为实体假阴性，无证据关系计为关系假阳性。
 

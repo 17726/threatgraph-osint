@@ -37,7 +37,7 @@
         },
         {
           "name": "Ministries of Foreign Affairs",
-          "type": "TARGET",
+          "type": "ORGANIZATION",
           "aliases": [],
           "evidence_text": "a campaign launched at various Ministries of Foreign Affairs around the world.",
           "char_start": 683,
@@ -45,7 +45,7 @@
         },
         {
           "name": "government institutions",
-          "type": "TARGET",
+          "type": "ORGANIZATION",
           "aliases": [],
           "evidence_text": "we discovered an attack targeting two government institutions related to foreign affairs.",
           "char_start": 1092,
@@ -352,7 +352,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "TARGETS",
           "tail_name": "Ministries of Foreign Affairs",
-          "tail_type": "TARGET",
+          "tail_type": "ORGANIZATION",
           "evidence_text": "a campaign launched at various Ministries of Foreign Affairs around the world.",
           "char_start": 683,
           "char_end": 761
@@ -362,7 +362,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "TARGETS",
           "tail_name": "government institutions",
-          "tail_type": "TARGET",
+          "tail_type": "ORGANIZATION",
           "evidence_text": "we discovered an attack targeting two government institutions related to foreign affairs.",
           "char_start": 1092,
           "char_end": 1181

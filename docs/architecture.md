@@ -628,7 +628,9 @@ MALWARE
 TOOL
 CVE
 TECHNIQUE
-TARGET
+INFRASTRUCTURE
+LOCATION
+FINANCIAL_ACCOUNT
 COUNTRY
 REGION
 INDUSTRY
@@ -640,11 +642,12 @@ BEHAVIOR_PATTERN
 
 说明：
 
-1. `TARGET` 用于课程要求里的攻击目标。
-2. `INDUSTRY` 用于行业目标，如金融、政府、能源。
-3. `EVENT` 用于关键攻击事件。
-4. `CAMPAIGN` 用于攻击活动。
-5. `BEHAVIOR_PATTERN` 用于把行为分析结果纳入图谱展示。
+1. 攻击目标直接使用 `ORGANIZATION`、`PERSON`、`COUNTRY`、`REGION`、`INDUSTRY` 或 `LOCATION`，目标角色由 `TARGETS` 表达。
+2. `INFRASTRUCTURE` 用于域名、IP、URL、C2 地址或服务器等攻击基础设施。
+3. `FINANCIAL_ACCOUNT` 用于银行账户、支付账户或加密货币钱包。
+4. `EVENT` 用于关键攻击事件。
+5. `CAMPAIGN` 用于攻击活动。
+6. `BEHAVIOR_PATTERN` 用于把行为分析结果纳入图谱展示。
 
 ### 6.2 关系类型
 
@@ -662,11 +665,16 @@ RELATED_TO
 DISCOVERED_BY
 CAUSES
 HAS_BEHAVIOR
+MEMBER_OF
+CONTROLS
+TRANSFERS_TO
+INSTANCE_OF
+PRECEDES
 ```
 
 说明：
 
-1. 关系类型控制在 10-13 个，避免 LLM 输出过散。
+1. 关系类型由 `docs/schemas/relationship-matrix.md` 统一约束。
 2. `RELATED_TO` 只作为兜底关系，不能滥用。
 3. 时间、因果、攻击链关系必须保留证据。
 4. `HAS_BEHAVIOR` 用于连接 APT 组织和行为模式节点。
