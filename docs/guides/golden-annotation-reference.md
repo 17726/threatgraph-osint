@@ -141,21 +141,34 @@ CAMPAIGN
 BEHAVIOR_PATTERN
 ```
 
-常见选择：
+常用实体类型表：
 
-| 类型                 | 适用对象                                                        |
-| -------------------- | --------------------------------------------------------------- |
-| `APT_GROUP`          | APT28、Lazarus、Kimsuky、KONNI 等组织或攻击团伙。               |
-| `ORGANIZATION`       | 安全厂商、政府机构、受害组织、研究机构。                        |
-| `MALWARE`            | 恶意软件、后门、木马、载荷家族。                                |
-| `TOOL`               | PowerShell、certutil.exe、KakaoTalk、合法管理工具、协议或 API。 |
-| `CVE`                | 标准 CVE 编号。                                                 |
-| `TECHNIQUE`          | 钓鱼邮件、DLL 侧加载、XSS、凭据窃取等攻击手法。                 |
-| `INFRASTRUCTURE`    | 域名、IP、URL、C2 地址或服务器等攻击基础设施。                 |
-| `LOCATION`          | 具体地点、军事基地、机场或设施位置。                            |
-| `FINANCIAL_ACCOUNT` | 银行账户、支付账户或加密货币钱包。                              |
-| `COUNTRY` / `REGION` | 国家或地区。                                                    |
-| `CAMPAIGN` / `EVENT` | 系列攻击活动或单次事件。                                        |
+| 类型 | 适用对象 | 常见边界与示例 |
+| --- | --- | --- |
+| `APT_GROUP` | APT28、Lazarus、Kimsuky、KONNI 等威胁组织或攻击团伙。 | 统一承载 APT 组织和犯罪团伙。 |
+| `ORGANIZATION` | 安全厂商、政府机构、受害组织、研究机构、公司和服务提供商。 | 只有组织或机构才使用；仿冒品牌不自动是实际攻击目标。 |
+| `PERSON` | 明确指向的研究人员、受害者、攻击者或组织成员。 | 纯来源元信息主体不写入 golden。 |
+| `MALWARE` | 恶意软件、后门、木马、恶意植入物、恶意载荷家族或明确的恶意样本。 | 普通文档、脚本、日志和临时文件不是自动的 `MALWARE`。 |
+| `TOOL` | PowerShell、certutil.exe、BITSAdmin、合法管理工具、协议、API、系统服务或软件工具。 | 域名、IP、URL、C2、VPS 优先使用 `INFRASTRUCTURE`。 |
+| `CVE` | 标准 CVE 编号，例如 `CVE-2021-44228`。 | 只标注规范 CVE 标识。 |
+| `TECHNIQUE` | 钓鱼邮件、DLL 侧加载、XSS、凭据窃取、进程注入、数据擦除等攻击手法。 | 当前无专门渠道类型时，短信和短链接可统一标为技术。 |
+| `INFRASTRUCTURE` | 域名、IP、URL、C2 地址、邮箱地址、VPS、服务器或其他攻击网络资产。 | 不要将 C2、VPS、域名或 IP 标为 `TOOL`。 |
+| `LOCATION` | 具体地点、军事基地、机场、建筑、设施或物理位置。 | 国家和地区分别使用 `COUNTRY`、`REGION`。 |
+| `FINANCIAL_ACCOUNT` | 银行账户、支付账户、加密货币钱包或其他资金账户。 | 加密货币行业或资产类别不是账户。 |
+| `COUNTRY` | 国家或明确的国家级政治实体，例如韩国、朝鲜、日本。 | IP 所在国家不自动等于组织所在地。 |
+| `REGION` | 地区、时区覆盖区域或国家以下的地理区域。 | 时区推测不能直接断言组织位置。 |
+| `INDUSTRY` | 行业、产业或泛化的受害类别，例如金融业、加密货币行业。 | 具体公司使用 `ORGANIZATION`。 |
+| `TIME` | 日期、时间、时间段、年份、月份或明确的活动时间点。 | 样本签名时间不自动等于攻击活动时间。 |
+| `EVENT` | 单次攻击事件、漏洞事件、数据泄露事件或一次性事件。 | 可通过 `HAPPENED_AT` 关联时间。 |
+| `CAMPAIGN` | 系列攻击活动、持续行动或共同目标/工具/主体的活动集合。 | 不要无说明地合并不同时间或不同主体的活动。 |
+| `BEHAVIOR_PATTERN` | 重复行为模式、攻击流程模式或高层行为特征。 | 用于概括行为模式，不替代具体技术。 |
+
+实体类型边界：
+
+1. `TOOL` 表示可被使用的工具、软件、协议、API 或服务；`TECHNIQUE` 表示做事的方法；`INFRASTRUCTURE` 表示承载通信、投递或控制的网络资产。
+2. 操作系统、平台、POS 系统、文件工件、进程、邮箱账号、哈希和 IOC 若没有契约中明确的类型，不得为了通过 Schema 随意标成 `ORGANIZATION` 或 `TOOL`。
+3. 仿冒品牌、诱饵主题和被提及组织可以作为实体保留，但不因出现于攻击文档就自动建立 `TARGETS` 关系。
+4. 当前枚举没有合适类型时，记录为待复核或在 chunk `note` 中说明，不擅自使用语义明显不匹配的类型。
 
 ---
 
@@ -231,21 +244,35 @@ INSTANCE_OF
 PRECEDES
 ```
 
-最小关系矩阵以 `docs/schemas/relationship-matrix.md` 为准。常用关系可按下面理解：
+最小关系矩阵以 `docs/schemas/relationship-matrix.md` 为准。常用关系表覆盖当前 Schema 的全部关系类型；实际标注还必须满足矩阵中的精确类型配对。
 
-| 关系            | 含义                           | 常见主体                                      | 常见客体                                                      |
-| --------------- | ------------------------------ | --------------------------------------------- | ------------------------------------------------------------- |
-| `USES`          | 使用工具、恶意软件、技术或基础设施 | `PERSON` / `ORGANIZATION` / `COUNTRY` / `APT_GROUP` / `CAMPAIGN` | `MALWARE` / `TOOL` / `TECHNIQUE` / `INFRASTRUCTURE` |
-| `TARGETS`       | 攻击或针对                     | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `COUNTRY` / `REGION` / `INDUSTRY` / `ORGANIZATION` / `PERSON` / `LOCATION` |
-| `EXPLOITS`      | 利用漏洞                       | `APT_GROUP` / `CAMPAIGN` / `MALWARE` / `TOOL` | `CVE`                                                         |
-| `ATTRIBUTED_TO` | 归因于                         | `APT_GROUP` / `CAMPAIGN` / `MALWARE`          | `COUNTRY` / `ORGANIZATION`                                    |
-| `DISCOVERED_BY` | 被披露或发现                   | `CVE` / `MALWARE` / `TOOL` / `CAMPAIGN`       | `ORGANIZATION` / `PERSON`                                     |
-| `HAS_BEHAVIOR`  | 具备某种行为模式               | `APT_GROUP` / `CAMPAIGN`                      | `BEHAVIOR_PATTERN` / `TECHNIQUE`                              |
-| `MEMBER_OF`     | 人员属于团体或组织             | `PERSON`                                      | `APT_GROUP` / `ORGANIZATION`                                  |
-| `CONTROLS`      | 主体控制对象                 | `PERSON` / `APT_GROUP` / `ORGANIZATION`     | `FINANCIAL_ACCOUNT` / `INFRASTRUCTURE` / `ORGANIZATION`       |
-| `TRANSFERS_TO`  | 账户之间资金转移             | `FINANCIAL_ACCOUNT`                           | `FINANCIAL_ACCOUNT`                                           |
-| `INSTANCE_OF`   | 具体实例属于泛指类别           | 同类实体                                      | 同类实体                                                       |
-| `PRECEDES`      | 纯时间先后                   | `EVENT` / `CAMPAIGN` / `TECHNIQUE` / `BEHAVIOR_PATTERN` | 同左                                                         |
+| 关系 | 含义 | 常见主体 | 常见客体 | 标注注意事项 |
+| --- | --- | --- | --- | --- |
+| `USES` | 主体使用恶意软件、工具、技术或基础设施。 | `PERSON` / `ORGANIZATION` / `COUNTRY` / `APT_GROUP` / `CAMPAIGN` | `MALWARE` / `TOOL` / `TECHNIQUE` / `INFRASTRUCTURE` | 必须有使用、采用、投递或调用的明确证据。 |
+| `TARGETS` | 主体攻击、针对或选择某对象作为目标。 | `APT_GROUP` / `CAMPAIGN` / `MALWARE` | `COUNTRY` / `REGION` / `INDUSTRY` / `ORGANIZATION` / `PERSON` / `LOCATION` | 仿冒品牌、邮件主题和诱饵对象不自动是实际攻击目标。 |
+| `EXPLOITS` | 主体利用漏洞。 | `PERSON` / `ORGANIZATION` / `COUNTRY` / `APT_GROUP` / `CAMPAIGN` / `MALWARE` / `TOOL` | `CVE` | 必须有利用漏洞的明确证据。 |
+| `ATTRIBUTED_TO` | 威胁主体、活动或恶意软件被归因于国家或组织。 | `APT_GROUP` / `CAMPAIGN` / `MALWARE` | `COUNTRY` / `ORGANIZATION` | “相关”“疑似关联”不足以支持归因。 |
+| `AFFILIATED_WITH` | 两个组织、团体或国家之间存在关联、合作或联系。 | `APT_GROUP` / `ORGANIZATION` | `APT_GROUP` / `ORGANIZATION` / `COUNTRY` | 不表示成员、控制、组成或同一组织。 |
+| `LOCATED_IN` | 主体位于某国家、地区或具体地点。 | `ORGANIZATION` / `PERSON` / `LOCATION` / `INFRASTRUCTURE` / `EVENT` | `COUNTRY` / `REGION` / `LOCATION` | IP 所在地、活动时区和攻击者推测位置不自动等于组织所在地。 |
+| `HAPPENED_AT` | 事件或活动发生在某时间。 | `EVENT` / `CAMPAIGN` | `TIME` | 样本签名时间、文件创建时间和攻击发生时间不能混用。 |
+| `PART_OF` | 组织、事件或活动属于更大的组织或活动。 | `ORGANIZATION` / `EVENT` / `CAMPAIGN` | `ORGANIZATION` / `CAMPAIGN` / `APT_GROUP` | `CAMPAIGN -> PART_OF -> APT_GROUP`；不表示人员成员或实例分类。 |
+| `LEADS_TO` | 技术、行为或事件在攻击链中导致后续技术、行为或事件。 | `TECHNIQUE` / `BEHAVIOR_PATTERN` / `EVENT` | `TECHNIQUE` / `BEHAVIOR_PATTERN` / `EVENT` | 不能只依据文章叙述顺序推断。 |
+| `RELATED_TO` | 两个对象之间存在无法用更精确关系表达的弱关联。 | 任意 | 任意 | 仅作为人工确认的兜底关系；有更精确关系时不得使用。 |
+| `DISCOVERED_BY` | 漏洞、恶意软件、工具或活动被组织或人员发现、披露或分析。 | `CVE` / `MALWARE` / `TOOL` / `CAMPAIGN` | `ORGANIZATION` / `PERSON` | 厂商归因与发现/披露不同，不能混用。 |
+| `CAUSES` | 漏洞、技术或恶意软件导致某事件或行为。 | `CVE` / `TECHNIQUE` / `MALWARE` | `EVENT` / `BEHAVIOR_PATTERN` | 共同出现不等于因果。 |
+| `HAS_BEHAVIOR` | 组织或活动具有某种行为模式或技术行为。 | `APT_GROUP` / `CAMPAIGN` | `BEHAVIOR_PATTERN` / `TECHNIQUE` | 高层行为使用 `BEHAVIOR_PATTERN`，具体方法使用 `TECHNIQUE`。 |
+| `MEMBER_OF` | 人员明确属于某团体或组织。 | `PERSON` | `APT_GROUP` / `ORGANIZATION` | 只有原文明确表达成员、隶属或归属时才标注。 |
+| `CONTROLS` | 主体明确控制、管理或支配某对象。 | `PERSON` / `APT_GROUP` / `ORGANIZATION` | `FINANCIAL_ACCOUNT` / `INFRASTRUCTURE` / `ORGANIZATION` | 不能从 `USES`、访问、关联或共现推断控制。 |
+| `TRANSFERS_TO` | 一个资金账户或钱包向另一个账户或钱包转账。 | `FINANCIAL_ACCOUNT` | `FINANCIAL_ACCOUNT` | 必须有明确的资金转移方向。 |
+| `INSTANCE_OF` | 具体实例属于同类型的泛指类别。 | `ORGANIZATION` / `PERSON` / `LOCATION` / `INFRASTRUCTURE` | 对应同类型实体 | 只有原文明确表达“属于某类”才标注。 |
+| `PRECEDES` | 一个事件、活动、技术或行为模式在时间上先于另一个对象。 | `EVENT` / `CAMPAIGN` / `TECHNIQUE` / `BEHAVIOR_PATTERN` | 同左 | 只表达时间先后，不表达因果、组成或使用。 |
+
+关系判断边界：
+
+1. 原文中的推测、可能、大概或关联分析可以支持实体，但不自动支持确定的组织归因、地理位置或控制关系。
+2. 组织、活动、恶意软件、工具和攻击者之间不能仅凭上下文共现建立 `USES`、`CONTROLS`、`MEMBER_OF` 或 `ATTRIBUTED_TO`。
+3. `DISCOVERED_BY` 表示发现、披露或分析；安全厂商“将某活动归因于某组织”是不同语义，当前矩阵没有专门的厂商归因关系时不得改变方向强行使用 `ATTRIBUTED_TO`。
+4. 关系证据应尽量包含明确的主体和客体；如果只能依赖跨句代词或外部知识，应缩小关系范围、补充 chunk `note`，或不进入正式 `relations`。
 
 `RELATED_TO` 只能作为兜底关系。除非原文确实只表达弱关联且评测需要保留上下文，否则不要使用。
 
@@ -300,6 +327,10 @@ chunk_text[char_start:char_end] == evidence_text
 8. 检查实体类型、关系类型和关系矩阵。
 9. 用 `docs/schemas/golden.schema.json` 校验 JSON。
 10. 在 `notes` 中写明统一排除口径、样本规模和限制，不夸大评测结论。
+11. 复核推测语气：可以保留“可能位于某地区”对应的实体，但不要直接建立确定的组织位置、归因或控制关系。
+12. 复核目标语义：品牌、诱饵主题、仿冒对象和邮件主题不等于实际受害者；只有原文明确表达攻击或针对时才建立 `TARGETS`。
+13. 复核实体边界：域名、IP、URL、C2 和 VPS 优先归为 `INFRASTRUCTURE`；工具、技术、恶意软件和普通文件工件不能混用。
+14. 如果当前枚举没有合适类型，不要为了通过 Schema 随意标为 `ORGANIZATION` 或 `TOOL`；应记录待复核项或在 chunk `note` 中说明排除。
 
 实体和关系应分开评测：相关但没有关系的实体属于实体正例；模型抽取无关实体计为实体假阳性，遗漏相关实体计为实体假阴性，无证据关系计为关系假阳性。
 
@@ -318,4 +349,9 @@ chunk_text[char_start:char_end] == evidence_text
 | 实体类型不确定             | 先提交待确认，不要为了过 schema 随意填 `ORGANIZATION`。                          |
 | 关系两端实体不在同一 chunk | 先不标该关系，或反馈切块/跨 chunk 评测需求给架构组。                             |
 | 原文是推测语气             | 可以标实体；关系需谨慎，必要时在 `notes` 说明边界。                              |
+| 仿冒品牌或诱饵主题          | 可以保留相关组织实体，但不自动建立 `TARGETS`；除非原文明确说该组织是实际受害者。 |
+| 域名、IP、C2 或 VPS          | 默认使用 `INFRASTRUCTURE`，不要标为 `TOOL`；关系仍需原文支持。                  |
+| 当前枚举没有合适实体类型     | 不要强行选择近似类型；记录待复核或明确排除，必要时提交 Schema 变更建议。         |
+| 厂商归因与发现/披露           | `DISCOVERED_BY` 只表示发现、披露或分析；厂商归因语义不能改变关系方向硬套 `ATTRIBUTED_TO`。 |
+| 攻击者位置与组织位置         | IP 地理位置、活动时区或匿名攻击者推断不能自动转成 APT 组织的 `LOCATED_IN`。       |
 | 需要记录 LLM 错误          | 错误样例和评测结果放在 evaluation 结果文件或报告中，不塞进 golden 标准答案字段。 |
