@@ -8,6 +8,7 @@ from backend.app.services.demo_store import DemoStore
 from backend.app.services.offline_extraction_pipeline import (
     OfflineExtractionPipeline,
     canonical_entity_id,
+    relation_validation_errors,
 )
 from scripts.export_graph_json import export_graph_json
 from scripts.import_extraction_result import import_extraction_result
@@ -220,3 +221,74 @@ def test_technique_entity_id_preserves_mitre_subtechnique_dot():
         canonical_entity_id("TECHNIQUE", "Spearphishing Attachment (T1566.001)")
         == "technique:t1566.001"
     )
+
+
+def test_relation_validation_rejects_invalid_type_pair():
+    errors = relation_validation_errors(
+        {
+            "head_name": "CERT-UA",
+            "head_type": "ORGANIZATION",
+            "relation_type": "PART_OF",
+            "tail_name": "Operation Blacksmith",
+            "tail_type": "CAMPAIGN",
+        },
+        {("CERT-UA", "ORGANIZATION"), ("Operation Blacksmith", "CAMPAIGN")},
+    )
+
+    assert "不允许类型组合 ORGANIZATION -> PART_OF -> CAMPAIGN" in errors
+
+
+def test_offline_pipeline_keeps_invalid_type_pair_out_of_canonical_graph(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    invalid_path = tmp_path / "invalid_pair_extraction.json"
+    payload = json.loads(EXTRACTION_PATH.read_text(encoding="utf-8"))
+    chunk = payload["chunks"][0]
+    chunk["entities"].append(
+        {
+            "name": "Operation Blacksmith",
+            "type": "CAMPAIGN",
+            "aliases": [],
+            "description": "",
+            "mention_text": "Operation Blacksmith",
+            "evidence_text": chunk["relations"][0]["evidence_text"],
+            "char_start": chunk["relations"][0]["char_start"],
+            "char_end": chunk["relations"][0]["char_end"],
+            "confidence": 0.8,
+            "candidate_status": "candidate",
+            "validation_status": "unchecked",
+            "validation_errors": [],
+        }
+    )
+    relation = chunk["relations"][0]
+    relation.update(
+        {
+            "head_name": "CERT-UA",
+            "head_type": "ORGANIZATION",
+            "relation_type": "PART_OF",
+            "tail_name": "Operation Blacksmith",
+            "tail_type": "CAMPAIGN",
+        }
+    )
+    invalid_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    summary = OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, invalid_path)
+
+    assert summary.canonical_relations == 9
+    with connect(db_path) as connection:
+        invalid_relation = connection.execute(
+            """
+            SELECT validation_status, normalized_relation_id, validation_errors_json
+            FROM extracted_relations
+            WHERE relation_type = 'PART_OF'
+            """
+        ).fetchone()
+        canonical_relation = connection.execute(
+            "SELECT 1 FROM relations WHERE relation_type = 'PART_OF'"
+        ).fetchone()
+
+    assert invalid_relation["validation_status"] == "invalid"
+    assert invalid_relation["normalized_relation_id"] is None
+    assert "不允许类型组合 ORGANIZATION -> PART_OF -> CAMPAIGN" in json.loads(
+        invalid_relation["validation_errors_json"]
+    )
+    assert canonical_relation is None

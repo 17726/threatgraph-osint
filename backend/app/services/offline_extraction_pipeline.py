@@ -1036,6 +1036,11 @@ def relation_validation_errors(
             errors.append(f"{relation_type} 不允许主体类型 {relation['head_type']}")
         if relation["tail_type"] not in rule["tails"]:
             errors.append(f"{relation_type} 不允许客体类型 {relation['tail_type']}")
+        if (relation["head_type"], relation["tail_type"]) not in rule["pairs"]:
+            errors.append(
+                f"不允许类型组合 {relation['head_type']} -> "
+                f"{relation_type} -> {relation['tail_type']}"
+            )
     if (relation["head_name"], relation["head_type"]) not in known_entities:
         errors.append("主体实体未在同一 chunk 的候选实体中声明")
     if (relation["tail_name"], relation["tail_type"]) not in known_entities:
