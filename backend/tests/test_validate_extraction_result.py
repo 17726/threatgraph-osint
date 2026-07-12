@@ -134,3 +134,30 @@ def test_validator_accepts_crime_network_relationships():
     report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
 
     assert report.ok, report.errors
+
+
+def test_validator_accepts_person_exploits_cve():
+    payload, document = _load_valid_payload()
+    payload["chunks"][0]["entities"][0]["type"] = "PERSON"
+    relation = payload["chunks"][0]["relations"][6]
+    relation["head_name"] = "CERT-UA"
+    relation["head_type"] = "PERSON"
+    relation["relation_type"] = "EXPLOITS"
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert report.ok, report.errors
+
+
+def test_validator_rejects_invalid_relation_type_pairs():
+    payload, document = _load_valid_payload()
+    invalid_payload = copy.deepcopy(payload)
+    relation = invalid_payload["chunks"][0]["relations"][0]
+    relation["relation_type"] = "PART_OF"
+    relation["head_type"] = "ORGANIZATION"
+    relation["tail_type"] = "CAMPAIGN"
+
+    report = validate_payload(invalid_payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert not report.ok
+    assert any("不允许类型组合 ORGANIZATION -> PART_OF -> CAMPAIGN" in error for error in report.errors)
