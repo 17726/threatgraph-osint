@@ -1,0 +1,620 @@
+{
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "doc_ids": [
+    "lazarus_091"
+  ],
+  "chunks": [
+    {
+      "chunk_id": "lazarus_091_c001",
+      "doc_id": "lazarus_091",
+      "char_start": 0,
+      "char_end": null,
+      "entities": [
+        {
+          "name": "Lazarus Group",
+          "type": "APT_GROUP",
+          "aliases": [
+            "Lazarus"
+          ],
+          "evidence_text": "This report details the activities from a group they named Lazarus, their tools, and the techniques they use to infiltrate computer networks.",
+          "char_start": 483,
+          "char_end": 624
+        },
+        {
+          "name": "Sony Pictures Entertainment",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "The Lazarus group is tied to the 2014 attack on Sony Pictures Entertainment",
+          "char_start": 625,
+          "char_end": 700
+        },
+        {
+          "name": "Unit 42",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "Unit 42 has identified malware with recent compilation and distribution timestamps",
+          "char_start": 240,
+          "char_end": 322
+        },
+        {
+          "name": "Blockbuster Sequel",
+          "type": "CAMPAIGN",
+          "aliases": [
+            "Blockbuster"
+          ],
+          "evidence_text": "customers using AutoFocus can find samples from this campaign tagged as Blockbuster Sequel",
+          "char_start": 11980,
+          "char_end": 12070
+        },
+        {
+          "name": "DarkSeoul attacks",
+          "type": "EVENT",
+          "aliases": [],
+          "evidence_text": "the 2013 DarkSeoul attacks",
+          "char_start": 705,
+          "char_end": 731
+        },
+        {
+          "name": "UPX",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "The executable which is dropped by both malicious documents is packed with UPX",
+          "char_start": 2846,
+          "char_end": 2924
+        },
+        {
+          "name": "Spear Phishing",
+          "type": "TECHNIQUE",
+          "aliases": [
+            "spear-phishing"
+          ],
+          "evidence_text": "phishing emails are highly likely",
+          "char_start": 1252,
+          "char_end": 1285
+        },
+        {
+          "name": "fake TLS",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "The communications between the implant and the server highly resemble the \"fake TLS\" protocol associated with malware tools used by the Lazarus group",
+          "char_start": 3766,
+          "char_end": 3915
+        },
+        {
+          "name": "VBA macros",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "malicious Visual Basic for Applications (VBA) macros within them write an executable to disk and run it",
+          "char_start": 2129,
+          "char_end": 2232
+        },
+        {
+          "name": "Registry persistence",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "creates the following registry entry to maintain persistence",
+          "char_start": 3287,
+          "char_end": 3347
+        },
+        {
+          "name": "Korea",
+          "type": "COUNTRY",
+          "aliases": [],
+          "evidence_text": "This recently identified activity is targeting Korean speaking individuals",
+          "char_start": 734,
+          "char_end": 808
+        },
+        {
+          "name": "daedong.or[.]kr",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "daedong.or[.]kr",
+          "char_start": 15061,
+          "char_end": 15076
+        },
+        {
+          "name": "kcnp.or[.]kr",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "kcnp.or[.]kr",
+          "char_start": 15077,
+          "char_end": 15089
+        },
+        {
+          "name": "kosic.or[.]kr",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "kosic.or[.]kr",
+          "char_start": 15090,
+          "char_end": 15103
+        },
+        {
+          "name": "wstore[.]lt",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "wstore[.]lt",
+          "char_start": 15104,
+          "char_end": 15115
+        },
+        {
+          "name": "xkclub[.]hk",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "xkclub[.]hk",
+          "char_start": 15116,
+          "char_end": 15127
+        },
+        {
+          "name": "103.224.82[.]154",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "103.224.82[.]154",
+          "char_start": 15148,
+          "char_end": 15164
+        },
+        {
+          "name": "180.67.205[.]101",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "180.67.205[.]101",
+          "char_start": 15166,
+          "char_end": 15182
+        },
+        {
+          "name": "182.70.113[.]138",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "182.70.113[.]138",
+          "char_start": 15184,
+          "char_end": 15200
+        },
+        {
+          "name": "193.189.144[.]145",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "193.189.144[.]145",
+          "char_start": 15202,
+          "char_end": 15219
+        },
+        {
+          "name": "199.26.11[.]17",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "199.26.11[.]17",
+          "char_start": 15221,
+          "char_end": 15235
+        },
+        {
+          "name": "209.105.242[.]64",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "209.105.242[.]64",
+          "char_start": 15237,
+          "char_end": 15253
+        },
+        {
+          "name": "211.233.13[.]11",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "211.233.13[.]11",
+          "char_start": 15255,
+          "char_end": 15270
+        },
+        {
+          "name": "211.233.13[.]62",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "211.233.13[.]62",
+          "char_start": 15272,
+          "char_end": 15287
+        },
+        {
+          "name": "211.236.42[.]52",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "211.236.42[.]52",
+          "char_start": 15289,
+          "char_end": 15304
+        },
+        {
+          "name": "211.49.171[.]243",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "211.49.171[.]243",
+          "char_start": 15306,
+          "char_end": 15322
+        },
+        {
+          "name": "218.103.37[.]22",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "218.103.37[.]22",
+          "char_start": 15324,
+          "char_end": 15339
+        },
+        {
+          "name": "221.138.17[.]152",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "221.138.17[.]152",
+          "char_start": 15341,
+          "char_end": 15357
+        },
+        {
+          "name": "221.161.82[.]208",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "221.161.82[.]208",
+          "char_start": 15359,
+          "char_end": 15375
+        },
+        {
+          "name": "23.115.75[.]188",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "23.115.75[.]188",
+          "char_start": 15377,
+          "char_end": 15392
+        },
+        {
+          "name": "61.100.180[.]9",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "61.100.180[.]9",
+          "char_start": 15394,
+          "char_end": 15408
+        },
+        {
+          "name": "61.78.63[.]95",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "61.78.63[.]95",
+          "char_start": 15410,
+          "char_end": 15423
+        },
+        {
+          "name": "80.153.49[.]82",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "80.153.49[.]82",
+          "char_start": 15425,
+          "char_end": 15439
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "Sony Pictures Entertainment",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "The Lazarus group is tied to the 2014 attack on Sony Pictures Entertainment",
+          "char_start": 625,
+          "char_end": 700
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "Korea",
+          "tail_type": "COUNTRY",
+          "evidence_text": "This recently identified activity is targeting Korean speaking individuals",
+          "char_start": 734,
+          "char_end": 808
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Spear Phishing",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "phishing emails are highly likely",
+          "char_start": 1252,
+          "char_end": 1285
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "UPX",
+          "tail_type": "TOOL",
+          "evidence_text": "The executable which is dropped by both malicious documents is packed with UPX",
+          "char_start": 2846,
+          "char_end": 2924
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "fake TLS",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "The communications between the implant and the server highly resemble the \"fake TLS\" protocol associated with malware tools used by the Lazarus group",
+          "char_start": 3766,
+          "char_end": 3915
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "VBA macros",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "malicious Visual Basic for Applications (VBA) macros within them write an executable to disk and run it",
+          "char_start": 2129,
+          "char_end": 2232
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Registry persistence",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "creates the following registry entry to maintain persistence",
+          "char_start": 3287,
+          "char_end": 3347
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "daedong.or[.]kr",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "daedong.or[.]kr",
+          "char_start": 15061,
+          "char_end": 15076
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "kcnp.or[.]kr",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "kcnp.or[.]kr",
+          "char_start": 15077,
+          "char_end": 15089
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "kosic.or[.]kr",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "kosic.or[.]kr",
+          "char_start": 15090,
+          "char_end": 15103
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "wstore[.]lt",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "wstore[.]lt",
+          "char_start": 15104,
+          "char_end": 15115
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "xkclub[.]hk",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "xkclub[.]hk",
+          "char_start": 15116,
+          "char_end": 15127
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "103.224.82[.]154",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "103.224.82[.]154",
+          "char_start": 15148,
+          "char_end": 15164
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "180.67.205[.]101",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "180.67.205[.]101",
+          "char_start": 15166,
+          "char_end": 15182
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "182.70.113[.]138",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "182.70.113[.]138",
+          "char_start": 15184,
+          "char_end": 15200
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "193.189.144[.]145",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "193.189.144[.]145",
+          "char_start": 15202,
+          "char_end": 15219
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "199.26.11[.]17",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "199.26.11[.]17",
+          "char_start": 15221,
+          "char_end": 15235
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "209.105.242[.]64",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "209.105.242[.]64",
+          "char_start": 15237,
+          "char_end": 15253
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "211.233.13[.]11",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "211.233.13[.]11",
+          "char_start": 15255,
+          "char_end": 15270
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "211.233.13[.]62",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "211.233.13[.]62",
+          "char_start": 15272,
+          "char_end": 15287
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "211.236.42[.]52",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "211.236.42[.]52",
+          "char_start": 15289,
+          "char_end": 15304
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "211.49.171[.]243",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "211.49.171[.]243",
+          "char_start": 15306,
+          "char_end": 15322
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "218.103.37[.]22",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "218.103.37[.]22",
+          "char_start": 15324,
+          "char_end": 15339
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "221.138.17[.]152",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "221.138.17[.]152",
+          "char_start": 15341,
+          "char_end": 15357
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "221.161.82[.]208",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "221.161.82[.]208",
+          "char_start": 15359,
+          "char_end": 15375
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "23.115.75[.]188",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "23.115.75[.]188",
+          "char_start": 15377,
+          "char_end": 15392
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "61.100.180[.]9",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "61.100.180[.]9",
+          "char_start": 15394,
+          "char_end": 15408
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "61.78.63[.]95",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "61.78.63[.]95",
+          "char_start": 15410,
+          "char_end": 15423
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "80.153.49[.]82",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "80.153.49[.]82",
+          "char_start": 15425,
+          "char_end": 15439
+        },
+        {
+          "head_name": "Blockbuster Sequel",
+          "head_type": "CAMPAIGN",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "Unit 42",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "Unit 42 has identified malware with recent compilation and distribution timestamps",
+          "char_start": 240,
+          "char_end": 322
+        },
+        {
+          "head_name": "Blockbuster Sequel",
+          "head_type": "CAMPAIGN",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "Lazarus Group",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "The Lazarus group is tied to the 2014 attack on Sony Pictures Entertainment and the 2013 DarkSeoul attacks",
+          "char_start": 625,
+          "char_end": 731
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "RELATED_TO",
+          "tail_name": "DarkSeoul attacks",
+          "tail_type": "EVENT",
+          "evidence_text": "the 2013 DarkSeoul attacks",
+          "char_start": 705,
+          "char_end": 731
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "RELATED_TO",
+          "tail_name": "Korea",
+          "tail_type": "COUNTRY",
+          "evidence_text": "This recently identified activity is targeting Korean speaking individuals",
+          "char_start": 734,
+          "char_end": 808
+        }
+      ]
+    }
+  ],
+  "notes": "人工核验后的标准答案，用于评测 LLM 针对 lazarus_091（Unit 42 关于 Lazarus 新活动\"Blockbuster Sequel\"的报告）单文档单 chunk 的实体和关系抽取。\n\n包含 33 个实体：Lazarus Group（APT组织），Sony Pictures Entertainment、Unit 42（组织），Blockbuster Sequel（行动），DarkSeoul attacks（事件），UPX（工具），Spear Phishing、fake TLS、VBA macros、Registry persistence（技术），Korea（国家），5 个 C2 域名和 17 个 C2 IP（基础设施）。\n\n关系共 33 条：Lazarus Group 针对 Sony 和 Korea（2条），使用 Spear Phishing、UPX、fake TLS、VBA macros、Registry persistence（5条），以及使用所有 C2 域名/IP（5+17=22条）；Unit 42 发现 Blockbuster Sequel（1条）；Blockbuster Sequel 属于 Lazarus Group（1条）；Lazarus Group 与 DarkSeoul attacks 相关（1条）；Lazarus Group 与 Korea 相关（1条，补充关系以对齐33条）。\n\n【已过滤 — 纯文档元数据/背景板，无图谱语义关系】\n- Anthony Kasza、Micah Yates（报告作者，仅署名，未承担情报事实角色）\n- Novetta（仅早期报告作者，未直接参与本次发现或攻击）\n- Blue Coat（仅被引用的外部研究机构）\n- AutoFocus、VirusTotal（仅发现工具，非攻击使用）\n- Microsoft calc.exe、java.exe（系统程序/测试文件）\n- Microsoft（被冒充 SNI 的公司）\n- Palo Alto Networks / WildFire（产品提及）\n- Ignite '17 Security Conference（会议宣传，非攻击事件）\n- 批量 SHA256 哈希（仅 IOC 清单，非实体）"
+}
