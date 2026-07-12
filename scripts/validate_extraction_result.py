@@ -13,12 +13,12 @@ DEFAULT_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
 
 ALLOWED_RELATIONS = {
     "USES": {
-        "heads": {"APT_GROUP", "CAMPAIGN"},
-        "tails": {"MALWARE", "TOOL", "TECHNIQUE", "CVE"},
+        "heads": {"PERSON", "ORGANIZATION", "COUNTRY", "APT_GROUP", "CAMPAIGN"},
+        "tails": {"MALWARE", "TOOL", "TECHNIQUE", "INFRASTRUCTURE"},
     },
     "TARGETS": {
         "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE"},
-        "tails": {"TARGET", "COUNTRY", "REGION", "INDUSTRY", "ORGANIZATION"},
+        "tails": {"COUNTRY", "REGION", "INDUSTRY", "ORGANIZATION", "PERSON", "LOCATION"},
     },
     "EXPLOITS": {
         "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE", "TOOL"},
@@ -29,20 +29,20 @@ ALLOWED_RELATIONS = {
         "tails": {"COUNTRY", "ORGANIZATION"},
     },
     "AFFILIATED_WITH": {
-        "heads": {"APT_GROUP", "ORGANIZATION", "PERSON"},
+        "heads": {"APT_GROUP", "ORGANIZATION"},
         "tails": {"APT_GROUP", "ORGANIZATION", "COUNTRY"},
     },
     "LOCATED_IN": {
-        "heads": {"ORGANIZATION", "PERSON", "TARGET", "EVENT"},
-        "tails": {"COUNTRY", "REGION"},
+        "heads": {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE", "EVENT"},
+        "tails": {"COUNTRY", "REGION", "LOCATION"},
     },
     "HAPPENED_AT": {
         "heads": {"EVENT", "CAMPAIGN"},
         "tails": {"TIME"},
     },
     "PART_OF": {
-        "heads": {"EVENT", "CAMPAIGN"},
-        "tails": {"CAMPAIGN", "APT_GROUP"},
+        "heads": {"ORGANIZATION", "EVENT", "CAMPAIGN"},
+        "tails": {"ORGANIZATION", "CAMPAIGN", "APT_GROUP"},
     },
     "LEADS_TO": {
         "heads": {"TECHNIQUE", "BEHAVIOR_PATTERN", "EVENT"},
@@ -59,6 +59,26 @@ ALLOWED_RELATIONS = {
     "HAS_BEHAVIOR": {
         "heads": {"APT_GROUP", "CAMPAIGN"},
         "tails": {"BEHAVIOR_PATTERN", "TECHNIQUE"},
+    },
+    "MEMBER_OF": {
+        "heads": {"PERSON"},
+        "tails": {"APT_GROUP", "ORGANIZATION"},
+    },
+    "CONTROLS": {
+        "heads": {"PERSON", "APT_GROUP", "ORGANIZATION"},
+        "tails": {"FINANCIAL_ACCOUNT", "INFRASTRUCTURE", "ORGANIZATION"},
+    },
+    "TRANSFERS_TO": {
+        "heads": {"FINANCIAL_ACCOUNT"},
+        "tails": {"FINANCIAL_ACCOUNT"},
+    },
+    "INSTANCE_OF": {
+        "heads": {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"},
+        "tails": {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"},
+    },
+    "PRECEDES": {
+        "heads": {"EVENT", "CAMPAIGN", "TECHNIQUE", "BEHAVIOR_PATTERN"},
+        "tails": {"EVENT", "CAMPAIGN", "TECHNIQUE", "BEHAVIOR_PATTERN"},
     },
     "RELATED_TO": {
         "heads": None,

@@ -28,6 +28,7 @@ def test_validator_rejects_relation_outside_matrix():
     payload, document = _load_valid_payload()
     invalid_payload = copy.deepcopy(payload)
     invalid_payload["chunks"][0]["relations"][0]["head_type"] = "COUNTRY"
+    invalid_payload["chunks"][0]["relations"][0]["relation_type"] = "MEMBER_OF"
 
     report = validate_payload(invalid_payload, schema_path=SCHEMA_PATH, document=document)
 
@@ -55,3 +56,81 @@ def test_validator_rejects_evidence_text_not_in_document():
 
     assert not report.ok
     assert any("未出现在 document.clean_text" in error for error in report.errors)
+
+
+def test_validator_accepts_crime_network_relationships():
+    payload, document = _load_valid_payload()
+    evidence = "APT28 member Operator One controls wallet Alpha and transfers funds to wallet Beta."
+    document["clean_text"] += "\n" + evidence
+    chunk = payload["chunks"][0]
+    chunk["entities"].extend(
+        [
+            {
+                "name": "Operator One",
+                "type": "PERSON",
+                "aliases": [],
+                "description": "",
+                "mention_text": "Operator One",
+                "evidence_text": evidence,
+                "char_start": None,
+                "char_end": None,
+                "confidence": 0.9,
+                "candidate_status": "candidate",
+                "validation_status": "unchecked",
+                "validation_errors": [],
+            },
+            {
+                "name": "Wallet Alpha",
+                "type": "FINANCIAL_ACCOUNT",
+                "aliases": [],
+                "description": "",
+                "mention_text": "wallet Alpha",
+                "evidence_text": evidence,
+                "char_start": None,
+                "char_end": None,
+                "confidence": 0.9,
+                "candidate_status": "candidate",
+                "validation_status": "unchecked",
+                "validation_errors": [],
+            },
+            {
+                "name": "Wallet Beta",
+                "type": "FINANCIAL_ACCOUNT",
+                "aliases": [],
+                "description": "",
+                "mention_text": "wallet Beta",
+                "evidence_text": evidence,
+                "char_start": None,
+                "char_end": None,
+                "confidence": 0.9,
+                "candidate_status": "candidate",
+                "validation_status": "unchecked",
+                "validation_errors": [],
+            },
+        ]
+    )
+    for relation_type, head_name, head_type, tail_name, tail_type in [
+        ("MEMBER_OF", "Operator One", "PERSON", "APT28", "APT_GROUP"),
+        ("CONTROLS", "Operator One", "PERSON", "Wallet Alpha", "FINANCIAL_ACCOUNT"),
+        ("TRANSFERS_TO", "Wallet Alpha", "FINANCIAL_ACCOUNT", "Wallet Beta", "FINANCIAL_ACCOUNT"),
+    ]:
+        chunk["relations"].append(
+            {
+                "head_name": head_name,
+                "head_type": head_type,
+                "relation_type": relation_type,
+                "tail_name": tail_name,
+                "tail_type": tail_type,
+                "evidence_text": evidence,
+                "char_start": None,
+                "char_end": None,
+                "confidence": 0.9,
+                "candidate_status": "candidate",
+                "validation_status": "unchecked",
+                "validation_errors": [],
+            }
+        )
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert report.ok, report.errors

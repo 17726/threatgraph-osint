@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "doc_ids": [
+    "crime-network-acceptance-001"
+  ],
+  "chunks": [
+    {
+      "chunk_id": "crime-network-acceptance-001_c001",
+      "doc_id": "crime-network-acceptance-001",
+      "char_start": 0,
+      "char_end": 190,
+      "note": "结构验收 fixture，用于验证成员、账户控制和资金转移关系；不是外部真实来源材料。",
+      "entities": [
+        {
+          "name": "Operator One",
+          "type": "PERSON",
+          "aliases": [],
+          "evidence_text": "Operator One is a member of Lazarus and controls wallet Alpha, which transfers funds to wallet Beta.",
+          "char_start": 0,
+          "char_end": 101
+        },
+        {
+          "name": "Lazarus",
+          "type": "APT_GROUP",
+          "aliases": [],
+          "evidence_text": "Operator One is a member of Lazarus and controls wallet Alpha, which transfers funds to wallet Beta.",
+          "char_start": 0,
+          "char_end": 101
+        },
+        {
+          "name": "wallet Alpha",
+          "type": "FINANCIAL_ACCOUNT",
+          "aliases": [],
+          "evidence_text": "Operator One is a member of Lazarus and controls wallet Alpha, which transfers funds to wallet Beta.",
+          "char_start": 0,
+          "char_end": 101
+        },
+        {
+          "name": "wallet Beta",
+          "type": "FINANCIAL_ACCOUNT",
+          "aliases": [],
+          "evidence_text": "Operator One is a member of Lazarus and controls wallet Alpha, which transfers funds to wallet Beta.",
+          "char_start": 0,
+          "char_end": 101
+        },
+        {
+          "name": "spear-phishing",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "The group uses spear-phishing techniques.",
+          "char_start": 145,
+          "char_end": 186
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "Operator One",
+          "head_type": "PERSON",
+          "relation_type": "MEMBER_OF",
+          "tail_name": "Lazarus",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "Operator One is a member of Lazarus and controls wallet Alpha, which transfers funds to wallet Beta.",
+          "char_start": 0,
+          "char_end": 101
+        },
+        {
+          "head_name": "Operator One",
+          "head_type": "PERSON",
+          "relation_type": "CONTROLS",
+          "tail_name": "wallet Alpha",
+          "tail_type": "FINANCIAL_ACCOUNT",
+          "evidence_text": "Operator One is a member of Lazarus and controls wallet Alpha, which transfers funds to wallet Beta.",
+          "char_start": 0,
+          "char_end": 101
+        },
+        {
+          "head_name": "wallet Alpha",
+          "head_type": "FINANCIAL_ACCOUNT",
+          "relation_type": "TRANSFERS_TO",
+          "tail_name": "wallet Beta",
+          "tail_type": "FINANCIAL_ACCOUNT",
+          "evidence_text": "Operator One is a member of Lazarus and controls wallet Alpha, which transfers funds to wallet Beta.",
+          "char_start": 0,
+          "char_end": 101
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "spear-phishing",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "The group uses spear-phishing techniques.",
+          "char_start": 145,
+          "char_end": 186
+        }
+      ]
+    }
+  ],
+  "notes": "结构验收 fixture，待替换为经过脱敏和来源登记的真实犯罪网络材料。"
+}

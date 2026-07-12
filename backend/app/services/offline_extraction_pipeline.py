@@ -30,6 +30,11 @@ RELATION_LABELS = {
     "DISCOVERED_BY": "发现者",
     "CAUSES": "导致",
     "HAS_BEHAVIOR": "具备行为",
+    "MEMBER_OF": "成员属于",
+    "CONTROLS": "控制",
+    "TRANSFERS_TO": "转账至",
+    "INSTANCE_OF": "实例属于类别",
+    "PRECEDES": "先于",
 }
 
 ENTITY_PREFIXES = {
@@ -40,7 +45,9 @@ ENTITY_PREFIXES = {
     "TOOL": "tool",
     "CVE": "cve",
     "TECHNIQUE": "technique",
-    "TARGET": "target",
+    "INFRASTRUCTURE": "infrastructure",
+    "LOCATION": "location",
+    "FINANCIAL_ACCOUNT": "financial_account",
     "COUNTRY": "country",
     "REGION": "region",
     "INDUSTRY": "industry",

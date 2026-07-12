@@ -94,7 +94,7 @@
         },
         {
           "name": "Ukrainian government entities",
-          "type": "TARGET",
+          "type": "ORGANIZATION",
           "aliases": [
             "Ukrainian government entities"
           ],
@@ -189,7 +189,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "TARGETS",
           "tail_name": "Ukrainian government entities",
-          "tail_type": "TARGET",
+          "tail_type": "ORGANIZATION",
           "evidence_text": "APT28's exploitation of cross-site scripting (XSS) vulnerabilities in various webmail software such as Roundcube, Horde, MDaemon, and Zimbra to breach Ukrainian government entities.",
           "char_start": 1054,
           "char_end": 1235

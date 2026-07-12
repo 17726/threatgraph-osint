@@ -238,7 +238,7 @@
         },
         {
           "name": "South American agricultural organization",
-          "type": "TARGET",
+          "type": "ORGANIZATION",
           "aliases": [],
           "evidence_text": "NineRAT, first developed around May 2022, is said to have been put to use as early as March 2023 in an attack aimed at a South American agricultural organization, and then again in September 2023 on a European manufacturing entity.",
           "char_start": 1665,
@@ -246,7 +246,7 @@
         },
         {
           "name": "European manufacturing entity",
-          "type": "TARGET",
+          "type": "ORGANIZATION",
           "aliases": [],
           "evidence_text": "NineRAT, first developed around May 2022, is said to have been put to use as early as March 2023 in an attack aimed at a South American agricultural organization, and then again in September 2023 on a European manufacturing entity.",
           "char_start": 1665,
@@ -435,7 +435,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "TARGETS",
           "tail_name": "South American agricultural organization",
-          "tail_type": "TARGET",
+          "tail_type": "ORGANIZATION",
           "evidence_text": "NineRAT, first developed around May 2022, is said to have been put to use as early as March 2023 in an attack aimed at a South American agricultural organization, and then again in September 2023 on a European manufacturing entity.",
           "char_start": 1665,
           "char_end": 1896
@@ -445,7 +445,7 @@
           "head_type": "APT_GROUP",
           "relation_type": "TARGETS",
           "tail_name": "European manufacturing entity",
-          "tail_type": "TARGET",
+          "tail_type": "ORGANIZATION",
           "evidence_text": "NineRAT, first developed around May 2022, is said to have been put to use as early as March 2023 in an attack aimed at a South American agricultural organization, and then again in September 2023 on a European manufacturing entity.",
           "char_start": 1665,
           "char_end": 1896

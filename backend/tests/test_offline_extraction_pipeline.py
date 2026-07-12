@@ -149,6 +149,7 @@ def test_offline_pipeline_keeps_invalid_relation_as_candidate(tmp_path):
     invalid_path = tmp_path / "invalid_extraction.json"
     payload = json.loads(EXTRACTION_PATH.read_text(encoding="utf-8"))
     payload["chunks"][0]["relations"][0]["head_type"] = "COUNTRY"
+    payload["chunks"][0]["relations"][0]["relation_type"] = "MEMBER_OF"
     invalid_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
     summary = OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, invalid_path)
