@@ -279,7 +279,7 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
 ```bash
 docker compose run --rm backend python scripts/run_llm_extraction.py \
   --document data/documents/apt28/apt28_080.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --json
 ```
 

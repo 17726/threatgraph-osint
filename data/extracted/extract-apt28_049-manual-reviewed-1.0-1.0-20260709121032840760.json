@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "run_id": "extract_apt28_thn_beardshell_v1",
+  "run_id": "extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760",
   "doc_id": "apt28_049",
   "model_name": "manual-reviewed",
-  "prompt_version": "extract-v1",
+  "prompt_version": "1.0",
   "chunks": [
     {
       "chunk_id": "apt28_049_c001",
@@ -372,5 +372,6 @@
         }
       ]
     }
-  ]
+  ],
+  "generated_at": "2026-07-09T12:10:32.840760+00:00"
 }

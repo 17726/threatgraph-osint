@@ -8,7 +8,10 @@ from scripts.validate_extraction_result import load_json, validate_payload
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "docs/schemas/extraction-result.schema.json"
 DOCUMENT_PATH = ROOT / "data/examples/document.apt28.thn.beardshell.example.json"
-EXTRACTION_PATH = ROOT / "data/extracted/extraction_result.apt28.thn.beardshell.v1.json"
+EXTRACTION_PATH = (
+    ROOT
+    / "data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json"
+)
 
 
 def _load_valid_payload():

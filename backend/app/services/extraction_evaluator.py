@@ -6,12 +6,12 @@ import json
 import re
 import unicodedata
 from collections import defaultdict
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from backend.app.services.artifact_naming import SCHEMA_VERSION, iso_timestamp, now_utc
 from scripts.validate_extraction_result import ALLOWED_RELATIONS
 
 
@@ -509,15 +509,20 @@ def evaluate_extraction(
     )
 
     return {
-        "schema_version": "1.0",
-        "evaluated_at": datetime.now(UTC).isoformat(),
+        "schema_version": SCHEMA_VERSION,
+        "evaluated_at": iso_timestamp(now_utc()),
         "extraction": {
             "run_id": extraction_result.get("run_id", ""),
             "doc_id": doc_id,
             "model_name": extraction_result.get("model_name", ""),
             "prompt_version": extraction_result.get("prompt_version", ""),
+            "schema_version": extraction_result.get("schema_version", ""),
         },
         "golden": {
+            "language": golden.get("language", ""),
+            "doc_id": doc_id,
+            "schema_version": golden.get("schema_version", ""),
+            "golden_version": golden.get("golden_version", ""),
             "target_group": golden.get("target_group", ""),
             "doc_ids": golden.get("doc_ids", []),
         },

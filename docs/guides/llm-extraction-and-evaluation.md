@@ -67,7 +67,7 @@ APT28：
 ```bash
 docker compose run --rm backend python scripts/run_llm_extraction.py \
   --document data/documents/apt28/apt28_080.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --json
 ```
 
@@ -75,10 +75,10 @@ Kimsuky 和 Lazarus 分别替换为：
 
 ```text
 data/documents/kimsuky/kimsuky_060.json
-data/evaluation/golden.en.kimsuky_060.json
+data/golden/golden-en-kimsuky_060-1.0-1.0.json
 
 data/documents/lazarus/lazarus_091.json
-data/evaluation/golden.en.lazarus_091.json
+data/golden/golden-en-lazarus_091-1.0-1.0.json
 ```
 
 截至 2026-07-13，最新 `main` 的 Kimsuky golden 已通过门禁；Lazarus golden 仍缺少 chunk
@@ -87,9 +87,9 @@ data/evaluation/golden.en.lazarus_091.json
 命令会写出两类运行工件：
 
 ```text
-data/extracted/extract_<doc_id>_<prompt>_<timestamp>.json
-data/extracted/extract_<doc_id>_<prompt>_<timestamp>.candidate-audit.json
-data/evaluation/evaluation_result.<doc_id>.<model>.<prompt>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
+data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
 ```
 
 ## 5. 独立评测
@@ -99,10 +99,9 @@ data/evaluation/evaluation_result.<doc_id>.<model>.<prompt>.json
 ```bash
 python scripts/evaluate_extraction_against_golden.py \
   --extraction-result data/extracted/<result>.json \
-  --candidate-audit data/extracted/<run>.candidate-audit.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --candidate-audit data/extracted/<run>-candidate-audit.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --document data/documents/apt28/apt28_080.json \
-  --output data/evaluation/evaluation_result.apt28_080.json
 ```
 
 实体按“同一 chunk、类型相同、标准化名称或别名相交”做最大基数、再最大匹配分数的一对一
@@ -126,7 +125,7 @@ python scripts/evaluate_extraction_against_golden.py \
 ```bash
 docker compose run --rm backend python scripts/run_llm_extraction.py \
   --document data/documents/apt28/apt28_080.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --import --export-graph --json
 ```
 

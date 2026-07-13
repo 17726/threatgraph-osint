@@ -17,6 +17,7 @@ from backend.app.services.extraction_evaluator import (
     validate_golden_payload,
     validate_golden_schema,
 )
+from backend.app.services.artifact_naming import evaluation_filename
 from scripts.validate_extraction_result import load_json, validate_payload
 
 
@@ -70,6 +71,16 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     serialized = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    if args.output is None:
+        args.output = Path("data/evaluation") / evaluation_filename(
+            doc_id=result["extraction"]["doc_id"],
+            model_name=result["extraction"]["model_name"],
+            prompt_version=result["extraction"]["prompt_version"],
+            schema_version=result["extraction"]["schema_version"],
+            golden_version=result["golden"]["golden_version"],
+            evaluated_at=result["evaluated_at"],
+        )
+
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(serialized, encoding="utf-8")
@@ -89,8 +100,7 @@ def main(argv: list[str] | None = None) -> int:
             f"P={relation['precision']:.4f} R={relation['recall']:.4f} F1={relation['f1']:.4f} "
             f"(TP={relation['true_positive']} FP={relation['false_positive']} FN={relation['false_negative']})"
         )
-        if args.output:
-            print(f"完整报告: {args.output}")
+        print(f"完整报告: {args.output}")
 
     entity_failed = result["entity_metrics"]["f1"] < args.min_entity_f1
     relation_failed = result["relation_metrics"]["f1"] < args.min_relation_f1

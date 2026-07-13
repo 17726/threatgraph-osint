@@ -8,6 +8,7 @@ from backend.app.services.llm_service import (
     ENTITY_TYPES,
     RELATION_TYPES,
     LLMExtractionService,
+    generate_run_id,
     load_system_prompt,
     parse_llm_response,
     parse_llm_response_with_audit,
@@ -236,7 +237,8 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
 
     def handler(request: httpx.Request) -> httpx.Response:
         body = json.loads(request.content)
-        assert "extract-v1" in body["messages"][0]["content"] or "ThreatGraph" in body["messages"][0]["content"]
+        assert "ThreatGraph" in body["messages"][0]["content"]
+        assert "prompt_version=1.0" in body["messages"][1]["content"]
         return api_response(
             {
                 "entities": [
@@ -286,6 +288,9 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
 
     assert result["doc_id"] == "doc"
     assert result["model_name"] == "test-model"
+    assert result["prompt_version"] == "1.0"
+    assert result["generated_at"].endswith("+00:00")
+    assert result["run_id"].startswith("extract-doc-test-model-1.0-1.0-")
     assert result["chunks"][0]["chunk_id"] == "doc_c001"
     assert len(result["chunks"][0]["entities"]) == 2
     assert len(result["chunks"][0]["relations"]) == 1
@@ -293,7 +298,20 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
     audit_path = service.save_candidate_audit(tmp_path)
     saved_audit = json.loads(audit_path.read_text(encoding="utf-8"))
     assert saved_audit["run_id"] == result["run_id"]
+    assert saved_audit["generated_at"] == result["generated_at"]
+    assert audit_path.name == f"{result['run_id']}-candidate-audit.json"
     assert saved_audit["chunks"][0]["rejected_entities"] == []
+
+
+def test_generate_run_id_uses_versioned_artifact_contract():
+    run_id = generate_run_id(
+        "apt28_080",
+        "deepseek-v4-flash",
+        "1.0",
+        generated_at="2026-07-13T08:39:26.515108+00:00",
+    )
+
+    assert run_id == "extract-apt28_080-deepseek-v4-flash-1.0-1.0-20260713083926515108"
 
 
 def test_service_requires_environment_key(monkeypatch):

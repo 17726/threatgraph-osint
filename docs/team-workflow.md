@@ -76,7 +76,7 @@ docs/docker-runtime.md
 ```text
 data/documents/<target_group>/*.json
 data/raw/*.json
-data/evaluation/golden.json
+data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 docs/schemas/golden.schema.json
 数据导入和清洗相关实现
 ```
@@ -202,7 +202,7 @@ Evaluation：评测结果
 关键产出：
 
 ```text
-data/evaluation/evaluation_result.json
+data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
 实验报告
 最终汇报 PPT
 演示脚本

@@ -116,13 +116,14 @@ EVENT PRECEDES CAMPAIGN
 - run_id: {run_id}
 - doc_id: {doc_id}
 - model_name: {model_name}
-- prompt_version: extract-v1
+- prompt_version: 1.0
+- generated_at: {generated_at}
 
 chunk 列表：
 {chunks}
 
 输出要求：
-1. 顶层字段只能包含 schema_version、run_id、doc_id、model_name、prompt_version、chunks。
+1. 顶层字段只能包含 schema_version、run_id、doc_id、model_name、prompt_version、generated_at、chunks。
 2. chunks 中每个对象只能包含 chunk_id、entities、relations。
 3. entities 中每个对象必须包含 name、type、aliases、description、mention_text、evidence_text、char_start、char_end、confidence、candidate_status、validation_status、validation_errors。
 4. relations 中每个对象必须包含 head_name、head_type、relation_type、tail_name、tail_type、evidence_text、char_start、char_end、confidence、candidate_status、validation_status、validation_errors。
@@ -138,7 +139,7 @@ chunk 列表：
 
 ```bash
 python scripts/validate_extraction_result.py \
-  data/extracted/extraction_result.apt28.thn.beardshell.v1.json \
+  data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json \
   --document data/examples/document.apt28.thn.beardshell.example.json
 ```
 

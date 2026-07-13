@@ -263,6 +263,8 @@ def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path):
     report = load_json(output_path)
     assert report["entity_metrics"]["f1"] == 1.0
     assert report["relation_metrics"]["f1"] == 1.0
+    assert report["extraction"]["schema_version"] == "1.0"
+    assert report["golden"]["golden_version"] == "1.0"
 
 
 def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
@@ -313,3 +315,25 @@ def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
     report = load_json(output_path)
     assert report["entity_metrics"]["false_positive"] == 1
     assert report["entity_metrics"]["f1"] < 1.0
+
+
+def test_evaluation_cli_defaults_to_versioned_filename(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    exit_code = main(
+        [
+            "--extraction-result",
+            str(EXTRACTION_PATH),
+            "--golden",
+            str(GOLDEN_PATH),
+            "--document",
+            str(DOCUMENT_PATH),
+        ]
+    )
+
+    assert exit_code == 0
+    outputs = list((tmp_path / "data/evaluation").glob("evaluation_result-*.json"))
+    assert len(outputs) == 1
+    assert outputs[0].name.startswith(
+        "evaluation_result-apt28_049-manual-reviewed-1.0-1.0-1.0-"
+    )

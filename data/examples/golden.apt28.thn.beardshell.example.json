@@ -247,5 +247,7 @@
       ]
     }
   ],
-  "notes": "该 golden 示例是人工核验后的标准答案样例，用于评估 LLM 针对 apt28_049 单文档单 chunk 的实体和关系抽取。"
+  "notes": "该 golden 示例是人工核验后的标准答案样例，用于评估 LLM 针对 apt28_049 单文档单 chunk 的实体和关系抽取。",
+  "golden_version": "1.0",
+  "language": "en"
 }
