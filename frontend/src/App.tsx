@@ -152,7 +152,7 @@ export function App() {
       <header className="topbar">
         <div>
           <p className="eyebrow">ThreatGraph-OSINT</p>
-          <h1>开源威胁情报知识图谱研判系统</h1>
+          <h1>开源威胁情报知识图谱研判系统1</h1>
         </div>
         <button
           className="icon-button"
@@ -415,31 +415,23 @@ export function App() {
                   </div>
                   <div className="evidence-list">
                     {graph?.evidence.map((item) => (
-                      <button
-                        className={
-                          selectedEvidence?.id === item.id
-                            ? "evidence-item active"
-                            : "evidence-item"
-                        }
-                        key={item.id}
-                        type="button"
-                        onClick={() => setSelectedEvidence(item)}
-                      >
-                        <strong>{item.id}</strong>
-                        <span>{item.text}</span>
-                      </button>
+                      <div
+                      className={
+                        selectedEvidence?.id === item.id
+                          ? "evidence-item active"
+                          : "evidence-item"
+                      }
+                      key={item.id}
+                      onClick={() => setSelectedEvidence(item)}
+                    >
+                      <a href={item.source_url} target="_blank" rel="noreferrer">{item.id}</a>
+                      <span>{item.text}</span>
+                    </div>
                     ))}
                   </div>
                   {selectedEvidence ? (
                     <div className="evidence-detail">
                       <p>{selectedEvidence.text}</p>
-                      <a
-                        href={selectedEvidence.source_url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        来源链接
-                      </a>
                     </div>
                   ) : null}
                 </>
