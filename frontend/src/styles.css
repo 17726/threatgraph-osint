@@ -226,7 +226,8 @@ h2 {
   display: grid;
   gap: 8px;
   padding: 12px;
-  overflow: auto;
+  overflow-y: auto;
+  max-height: 300px;
 }
 
 .evidence-item {
@@ -236,7 +237,6 @@ h2 {
   justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
-  min-height: 76px;
   padding: 10px;
   text-align: left;
 }
@@ -265,10 +265,13 @@ h2 {
   padding: 14px;
   border-top: 1px solid #e2e8e6;
   background: #f8faf9;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .evidence-detail p {
   margin-bottom: 10px;
+  margin-top: 0;
   color: #334155;
   line-height: 1.55;
 }

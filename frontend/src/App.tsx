@@ -40,6 +40,10 @@ export function App() {
   const [page, setPage] = useState<"graph" | "analysis" | "evaluation">(
     "graph",
   );
+  const firstSentence = (text: string): string => {
+    const match = text.match(/^.*?[。！？.!?]/);
+    return match ? match[0] : text;
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -152,7 +156,7 @@ export function App() {
       <header className="topbar">
         <div>
           <p className="eyebrow">ThreatGraph-OSINT</p>
-          <h1>开源威胁情报知识图谱研判系统1</h1>
+          <h1>开源威胁情报知识图谱研判系统</h1>
         </div>
         <button
           className="icon-button"
@@ -425,7 +429,7 @@ export function App() {
                       onClick={() => setSelectedEvidence(item)}
                     >
                       <a href={item.source_url} target="_blank" rel="noreferrer">{item.id}</a>
-                      <span>{item.text}</span>
+                      <span>{firstSentence(item.text)}</span>
                     </div>
                     ))}
                   </div>
