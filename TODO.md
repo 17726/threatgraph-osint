@@ -100,6 +100,7 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 
 4. [x] **S1.4 生成候选抽取结果**（llm / be）
    - [x] 先用 mock LLM 输出或手写 `extraction_result.json` 跑通流程。
+   - [x] 提供 DeepSeek V4 / OpenAI-compatible 真实 API 抽取、预检和失败重试入口。
    - [x] 候选实体写入 `extracted_entities`，不直接写入正式 `entities`。
    - [x] 候选关系写入 `extracted_relations`，不直接写入正式 `relations`。
    - [x] 每个候选实体和候选关系都要带 `chunk_id`、`evidence_text` 和 `confidence`。
@@ -180,12 +181,12 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
    - [ ] 每个 MITRE 映射都保留 `evidence_ids`。
    - [ ] 报告中能解释行为模式如何从图谱和证据得到。
 
-4. [ ] **S3.4 完成基础评测**（qa / llm）
-   - [ ] 准备一小份人工标注或人工核对清单。
-   - [ ] 统计实体抽取的正确、错误和遗漏样例。
-   - [ ] 统计关系抽取的正确、错误和遗漏样例。
-   - [ ] 给出 precision、recall、F1 或简化版准确率说明。
-   - [ ] 在报告中说明评测数据规模和局限。
+4. [x] **S3.4 完成基础评测**（qa / llm）
+   - [x] 使用通过 schema、关系矩阵和证据校验的 APT28 英文 golden 作为首份可信基线。
+   - [x] 实现实体抽取正确、多抽和漏抽统计。
+   - [x] 实现关系抽取正确、多抽和漏抽统计。
+   - [x] 实现实体和关系 precision、recall、F1 评测脚本。
+   - [x] 在 `docs/reports/llm-extraction-baseline.md` 记录数据规模、真实指标和局限。
 
 5. [ ] **S3.5 完成课程报告和演示材料**（qa / 全员）
    - [ ] 完成实验报告结构：背景、需求、架构、实现、结果、评测、总结。
