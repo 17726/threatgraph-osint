@@ -24,6 +24,16 @@ def test_extraction_result_v1_matches_schema_matrix_and_document_text():
     assert report.warnings == []
 
 
+def test_validator_rejects_duplicate_chunk_ids():
+    payload, document = _load_valid_payload()
+    payload["chunks"].append(copy.deepcopy(payload["chunks"][0]))
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert not report.ok
+    assert any("重复 chunk_id" in error for error in report.errors)
+
+
 def test_validator_rejects_relation_outside_matrix():
     payload, document = _load_valid_payload()
     invalid_payload = copy.deepcopy(payload)

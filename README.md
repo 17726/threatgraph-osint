@@ -283,7 +283,8 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
   --json
 ```
 
-抽取结果仍只进入候选层；需要生成正式图谱时显式追加 `--import --export-graph`。
+抽取结果仍只进入候选层；被过滤的原始候选会单独写入 `candidate-audit.json` 并在评测中计为
+false positive。需要生成正式图谱时显式追加 `--import --export-graph`。
 完整操作和评测口径见
 [`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md)。
 

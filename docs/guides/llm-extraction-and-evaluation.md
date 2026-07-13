@@ -9,7 +9,7 @@
 ```text
 document.json
   -> DeepSeek V4 候选抽取
-  -> extraction_result.json
+  -> extraction_result.json + candidate-audit.json
   -> schema / 关系矩阵 / 原文证据校验
   -> golden Precision / Recall / F1 评测
   -> 可选导入 SQLite 候选层和 canonical graph
@@ -17,8 +17,10 @@ document.json
 
 LLM 不生成正式 `entity_id`、`relation_id`，也不直接写 `graph.json` 或 Neo4j。
 模型返回后，runner 会逐项拒绝空证据、证据无法回到原文、非法类型组合或端点未声明的
-候选；剩余候选才进入 `extraction_result.json`。这不会掩盖正常的错抽，证据充分但事实判断
-错误的候选仍会由 golden 评测计为 false positive。
+候选；剩余候选才进入 `extraction_result.json`。所有被过滤、合并或去重的原始候选会写入
+同一 run 的 `candidate-audit.json`。对照 golden 评测时，审计文件中的候选全部计为 false
+positive，避免过滤步骤虚高模型指标；证据充分但事实判断错误的正式候选同样计为 false
+positive。
 
 API 请求采用紧凑草稿，模型只生成实体/关系语义字段。`run_id`、`chunk_id`、字符位置、候选
 状态和校验错误由 runner 确定性补全，最终落盘文件仍必须通过完整 extraction-result schema。
@@ -79,10 +81,14 @@ data/documents/lazarus/lazarus_091.json
 data/evaluation/golden.en.lazarus_091.json
 ```
 
+截至 2026-07-13，最新 `main` 的 Kimsuky golden 已通过门禁；Lazarus golden 仍缺少 chunk
+`char_end`，runner 会在 API 调用前拒绝该输入，待 QA 补齐后再执行。
+
 命令会写出两类运行工件：
 
 ```text
 data/extracted/extract_<doc_id>_<prompt>_<timestamp>.json
+data/extracted/extract_<doc_id>_<prompt>_<timestamp>.candidate-audit.json
 data/evaluation/evaluation_result.<doc_id>.<model>.<prompt>.json
 ```
 
@@ -93,14 +99,20 @@ data/evaluation/evaluation_result.<doc_id>.<model>.<prompt>.json
 ```bash
 python scripts/evaluate_extraction_against_golden.py \
   --extraction-result data/extracted/<result>.json \
+  --candidate-audit data/extracted/<run>.candidate-audit.json \
   --golden data/evaluation/golden.en.apt28_080.json \
   --document data/documents/apt28/apt28_080.json \
   --output data/evaluation/evaluation_result.apt28_080.json
 ```
 
-实体按“同一 chunk、类型相同、标准化名称或别名相交”一对一匹配。关系按“同一 chunk、
-两端实体已匹配、关系类型完全相同”一对一匹配。证据必须能回到 `document.clean_text`，但
-证据文本是否与 golden 使用完全相同的句子不参与 F1，以免把正确事实因截取范围不同判错。
+实体按“同一 chunk、类型相同、标准化名称或别名相交”做最大基数、再最大匹配分数的一对一
+匹配。关系按“同一 chunk、两端实体已匹配、关系类型完全相同”一对一匹配。证据必须能回到
+`document.clean_text` 且落在 golden 所属 chunk 的字符范围内，但证据文本是否与 golden 使用
+完全相同的句子不参与 F1，以免把正确事实因截取范围不同判错。
+
+评测器显式拒绝重复 `chunk_id`，并在多文档 golden 中只选择当前
+`extraction_result.doc_id` 的 chunks。独立评测不提供 `--candidate-audit` 时，输出只代表已通过
+校验的候选质量，不得表述为原始模型端到端指标。
 
 评测前会同时检查 golden 的 schema、关系方向/类型配对、端点实体和原文证据。golden
 不满足当前关系矩阵时直接拒绝评测，不输出看似精确但标准答案本身无效的指标。

@@ -10,6 +10,7 @@ from backend.app.services.llm_service import (
     LLMExtractionService,
     load_system_prompt,
     parse_llm_response,
+    parse_llm_response_with_audit,
 )
 
 
@@ -116,10 +117,19 @@ def test_parse_llm_response_rejects_candidates_without_grounded_evidence():
         ],
     }
 
-    result = parse_llm_response(json.dumps(payload), "doc_c001", "APT28")
+    result, audit = parse_llm_response_with_audit(
+        json.dumps(payload),
+        "doc_c001",
+        "APT28",
+    )
 
     assert [entity["name"] for entity in result["entities"]] == ["APT28"]
     assert result["relations"] == []
+    assert [entity["name"] for entity in audit["rejected_entities"]] == [
+        "Invented malware"
+    ]
+    assert audit["rejected_entities"][0]["audit_reason"] == "validation_failed"
+    assert len(audit["rejected_relations"]) == 1
 
 
 def test_parse_llm_response_merges_alias_entities_and_deduplicates_relations():
@@ -179,11 +189,21 @@ def test_parse_llm_response_merges_alias_entities_and_deduplicates_relations():
         ],
     }
 
-    result = parse_llm_response(json.dumps(payload), "doc_c001", clean_text)
+    result, audit = parse_llm_response_with_audit(
+        json.dumps(payload),
+        "doc_c001",
+        clean_text,
+    )
 
     assert [entity["name"] for entity in result["entities"]] == ["Sofacy", "X-Agent"]
     assert len(result["relations"]) == 1
     assert result["relations"][0]["head_name"] == "Sofacy"
+    assert len(audit["rejected_entities"]) == 1
+    assert audit["rejected_entities"][0]["audit_reason"] == "duplicate_or_alias_merged"
+    assert {item["audit_reason"] for item in audit["rejected_relations"]} == {
+        "duplicate_relation_removed",
+        "self_relation_removed",
+    }
 
 
 def test_preflight_makes_real_shape_request_without_exposing_key():
@@ -211,7 +231,7 @@ def test_preflight_makes_real_shape_request_without_exposing_key():
     assert result["usage"]["total_tokens"] == 15
 
 
-def test_extract_returns_contract_valid_candidate_result():
+def test_extract_returns_contract_valid_candidate_result(tmp_path):
     clean_text = "APT28 used X-Agent malware."
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -269,6 +289,11 @@ def test_extract_returns_contract_valid_candidate_result():
     assert result["chunks"][0]["chunk_id"] == "doc_c001"
     assert len(result["chunks"][0]["entities"]) == 2
     assert len(result["chunks"][0]["relations"]) == 1
+    assert service.last_candidate_audit is not None
+    audit_path = service.save_candidate_audit(tmp_path)
+    saved_audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    assert saved_audit["run_id"] == result["run_id"]
+    assert saved_audit["chunks"][0]["rejected_entities"] == []
 
 
 def test_service_requires_environment_key(monkeypatch):

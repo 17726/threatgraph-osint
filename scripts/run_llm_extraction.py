@@ -64,7 +64,12 @@ def run_single(
     total_entities = sum(len(chunk["entities"]) for chunk in result["chunks"])
     total_relations = sum(len(chunk["relations"]) for chunk in result["chunks"])
     output_path = service.save_result(result, output_dir)
+    audit_path = service.save_candidate_audit(output_dir)
+    audit_chunks = service.last_candidate_audit["chunks"] if service.last_candidate_audit else []
+    rejected_entities = sum(len(chunk["rejected_entities"]) for chunk in audit_chunks)
+    rejected_relations = sum(len(chunk["rejected_relations"]) for chunk in audit_chunks)
     progress(f"  已保存候选结果: {output_path}")
+    progress(f"  已保存被过滤候选审计: {audit_path}")
 
     summary: dict[str, Any] = {
         "doc_id": doc_id,
@@ -73,6 +78,11 @@ def run_single(
         "entities": total_entities,
         "relations": total_relations,
         "output_path": str(output_path),
+        "candidate_audit": {
+            "output_path": str(audit_path),
+            "rejected_entities": rejected_entities,
+            "rejected_relations": rejected_relations,
+        },
     }
     if service.last_warnings:
         summary["warnings"] = service.last_warnings
@@ -81,7 +91,11 @@ def run_single(
 
     if golden_path:
         progress(f"[3/4] 对照 golden 评测: {golden_path}")
-        evaluation = evaluate_extraction(result, golden)
+        evaluation = evaluate_extraction(
+            result,
+            golden,
+            candidate_audit=service.last_candidate_audit,
+        )
         if evaluation_output is None:
             filename = (
                 f"evaluation_result.{doc_id}.{_safe_filename(service.model)}."

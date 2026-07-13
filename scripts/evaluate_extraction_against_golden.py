@@ -27,6 +27,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--extraction-result", type=Path, required=True)
     parser.add_argument("--golden", type=Path, required=True)
     parser.add_argument("--document", type=Path, help="用于同时校验证据和字符位置")
+    parser.add_argument(
+        "--candidate-audit",
+        type=Path,
+        help="可选：runner 保存的被过滤原始候选审计，计入 false positive",
+    )
     parser.add_argument("--output", type=Path, help="可选：写入完整 JSON 评测报告")
     parser.add_argument("--golden-schema", type=Path)
     parser.add_argument("--min-entity-f1", type=float, default=0.0)
@@ -40,6 +45,7 @@ def main(argv: list[str] | None = None) -> int:
     extraction_result = load_json(args.extraction_result)
     golden = load_json(args.golden)
     document = load_json(args.document) if args.document else None
+    candidate_audit = load_json(args.candidate_audit) if args.candidate_audit else None
 
     extraction_report = validate_payload(extraction_result, document=document)
     golden_errors = [
@@ -54,7 +60,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     try:
-        result = evaluate_extraction(extraction_result, golden)
+        result = evaluate_extraction(
+            extraction_result,
+            golden,
+            candidate_audit=candidate_audit,
+        )
     except ValueError as exc:
         print(f"评测输入错误: {exc}", file=sys.stderr)
         return 1

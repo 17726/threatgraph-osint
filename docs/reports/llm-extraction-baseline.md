@@ -9,7 +9,12 @@
 `apt28_080` 单文档、单次运行；候选结果通过 extraction schema、关系矩阵、原文证据和字符
 位置校验，再与人工 golden 一对一匹配。
 
-## 可信基线
+## 已校验候选基线
+
+这次历史运行发生在候选审计文件落地之前。下表只统计通过 schema、关系矩阵和证据门禁后
+保留下来的候选，不包含模型原始输出中被过滤的无效项，因此可用于检查“可入库候选质量”，
+但不得作为原始 DeepSeek 输出的完整端到端指标，也不得与后续包含 `candidate-audit.json` 的
+运行直接横向比较。
 
 运行 ID：`extract_apt28_080_extract-v1_20260713T083926515108`
 
@@ -21,23 +26,22 @@
 完整错误明细见
 `data/evaluation/evaluation_result.apt28_080.deepseek-v4-flash.extract-v1.json`。
 
-这组结果说明当前默认 Prompt 的关系精度尚可，但实体和关系召回率偏低。下一轮 Prompt 优化
-应优先补齐工具、技术、进程和基础设施漏抽，同时维持当前证据门禁，不能用放宽 schema 的
-方式提高表面召回率。
+在上述口径限制下，这组结果说明当前默认 Prompt 的关系精度尚可，但实体和关系召回率偏低。
+下一轮 Prompt 优化应优先补齐工具、技术、进程和基础设施漏抽，同时维持当前证据门禁，不能
+用放宽 schema 的方式提高表面召回率。
 
 ## Golden 门禁发现
 
-`apt28_080` golden 通过 schema、关系矩阵和证据校验，可以作为当前可信基线。
+`apt28_080` golden 通过 schema、关系矩阵和证据校验，可以作为当前已校验候选基线。
 
-另外两份英文 golden 暂不能用于可信关系指标：
+PR #30 已修复 Kimsuky 和 Lazarus 的关系矩阵冲突。基于最新 `main` 复验：
 
-- `kimsuky_060` 有 5 条关系违反当前关系矩阵，包括 `APT_GROUP PART_OF APT_GROUP`、
-  `CAMPAIGN ATTRIBUTED_TO APT_GROUP`、`MALWARE USES TOOL`，以及两条方向反转的
-  `ORGANIZATION DISCOVERED_BY ...`。
-- `lazarus_091` 有 1 条 `CAMPAIGN ATTRIBUTED_TO APT_GROUP` 不在当前允许配对中。
+- `kimsuky_060` 已通过 schema、关系矩阵、端点、证据和 chunk 边界校验。
+- `lazarus_091` 的关系冲突已解决，但 `lazarus_091_c001` 仍是 `char_start=0`、
+  `char_end=null`，不满足 chunk 边界成对填写要求，暂不能用于可信评测。
 
-这些冲突需要 QA 与架构组共同决定：修正 golden 关系方向/类型，或正式扩展关系矩阵。评测器
-现在会在 API 调用前拒绝无效 golden，避免继续产生不可比较的分数和 API 成本。
+Lazarus 的剩余字段应由 QA 组按真实文档长度补齐。评测器会在 API 调用前拒绝无效 golden，
+避免继续产生不可比较的分数和 API 成本。
 
 ## 限制
 

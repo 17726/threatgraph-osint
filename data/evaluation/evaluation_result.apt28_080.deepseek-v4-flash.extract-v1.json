@@ -16,7 +16,12 @@
   "matching_policy": {
     "entity": "same chunk + same type + normalized name or alias overlap",
     "relation": "same chunk + matched typed endpoints + exact relation type",
-    "evidence": "validated separately against document.clean_text; not part of F1 matching"
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "scope_note": "legacy validated-candidate baseline; raw rejected candidates were not preserved"
+  },
+  "candidate_audit": {
+    "provided": false,
+    "note": "This historical run predates candidate-audit.json and is not a raw end-to-end model metric."
   },
   "entity_metrics": {
     "predicted": 23,

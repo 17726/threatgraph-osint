@@ -162,8 +162,20 @@ def _candidate_names(candidate: dict[str, Any]) -> set[str]:
     }
 
 
-def _deduplicate_entities(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _audit_candidate(candidate: dict[str, Any], reason: str) -> dict[str, Any]:
+    disposition = "merged" if "duplicate" in reason or "merged" in reason else "rejected"
+    return {
+        **candidate,
+        "candidate_status": disposition,
+        "audit_reason": reason,
+    }
+
+
+def _deduplicate_entities(
+    candidates: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     deduplicated: list[dict[str, Any]] = []
+    merged: list[dict[str, Any]] = []
     for candidate in candidates:
         existing = next(
             (
@@ -177,6 +189,8 @@ def _deduplicate_entities(candidates: list[dict[str, Any]]) -> list[dict[str, An
         if existing is None:
             deduplicated.append(candidate)
             continue
+
+        merged.append(_audit_candidate(candidate, "duplicate_or_alias_merged"))
 
         merged_aliases = [
             *existing["aliases"],
@@ -193,7 +207,7 @@ def _deduplicate_entities(candidates: list[dict[str, Any]]) -> list[dict[str, An
             seen.add(normalized_alias)
             existing["aliases"].append(alias)
         existing["confidence"] = max(existing["confidence"], candidate["confidence"])
-    return deduplicated
+    return deduplicated, merged
 
 
 def validate_entity(entity: dict[str, Any]) -> list[str]:
@@ -274,8 +288,12 @@ def _candidate_chunk(payload: dict[str, Any], chunk_id: str) -> dict[str, Any]:
     return chunk
 
 
-def parse_llm_response(response_text: str, chunk_id: str, clean_text: str) -> dict[str, Any]:
-    """Parse a model response and add candidate validation metadata."""
+def parse_llm_response_with_audit(
+    response_text: str,
+    chunk_id: str,
+    clean_text: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Split raw model candidates into a valid extraction chunk and rejected audit."""
     payload = _extract_json_object(response_text)
     chunk = _candidate_chunk(payload, chunk_id)
     entities = chunk.get("entities", [])
@@ -313,13 +331,19 @@ def parse_llm_response(response_text: str, chunk_id: str, clean_text: str) -> di
         candidate["validation_errors"] = errors
         processed_entities.append(candidate)
 
-    accepted_entities = _deduplicate_entities(
+    accepted_entities, merged_entities = _deduplicate_entities(
         [
             candidate
             for candidate in processed_entities
             if candidate["validation_status"] == "valid"
         ]
     )
+    rejected_entities = [
+        _audit_candidate(candidate, "validation_failed")
+        for candidate in processed_entities
+        if candidate["validation_status"] != "valid"
+    ]
+    rejected_entities.extend(merged_entities)
     known_entities: set[tuple[str, str]] = set()
     endpoint_names: dict[tuple[str, str], str] = {}
     for candidate in accepted_entities:
@@ -338,6 +362,7 @@ def parse_llm_response(response_text: str, chunk_id: str, clean_text: str) -> di
             ]
 
     processed_relations: list[dict[str, Any]] = []
+    rejected_relations: list[dict[str, Any]] = []
     seen_relations: set[tuple[str, str, str, str, str]] = set()
     for index, relation in enumerate(relations):
         if not isinstance(relation, dict):
@@ -378,12 +403,14 @@ def parse_llm_response(response_text: str, chunk_id: str, clean_text: str) -> di
         candidate["validation_status"] = "valid" if not errors else "invalid"
         candidate["validation_errors"] = errors
         if candidate["validation_status"] != "valid":
+            rejected_relations.append(_audit_candidate(candidate, "validation_failed"))
             continue
         if (
             candidate["head_type"] == candidate["tail_type"]
             and _normalize_candidate_name(candidate["head_name"])
             == _normalize_candidate_name(candidate["tail_name"])
         ):
+            rejected_relations.append(_audit_candidate(candidate, "self_relation_removed"))
             continue
         signature = (
             _normalize_candidate_name(candidate["head_name"]),
@@ -393,11 +420,24 @@ def parse_llm_response(response_text: str, chunk_id: str, clean_text: str) -> di
             candidate["tail_type"],
         )
         if signature in seen_relations:
+            rejected_relations.append(_audit_candidate(candidate, "duplicate_relation_removed"))
             continue
         seen_relations.add(signature)
         processed_relations.append(candidate)
 
-    return {"entities": accepted_entities, "relations": processed_relations}
+    return (
+        {"entities": accepted_entities, "relations": processed_relations},
+        {
+            "rejected_entities": rejected_entities,
+            "rejected_relations": rejected_relations,
+        },
+    )
+
+
+def parse_llm_response(response_text: str, chunk_id: str, clean_text: str) -> dict[str, Any]:
+    """Parse a model response and return only schema-valid import candidates."""
+    result, _audit = parse_llm_response_with_audit(response_text, chunk_id, clean_text)
+    return result
 
 
 def build_user_prompt(
@@ -485,6 +525,7 @@ class LLMExtractionService:
         self.transport = transport
         self.system_prompt = load_system_prompt(prompt_path)
         self.last_warnings: list[str] = []
+        self.last_candidate_audit: dict[str, Any] | None = None
 
     def _require_api_key(self) -> None:
         if not self.api_key.strip():
@@ -521,6 +562,7 @@ class LLMExtractionService:
         """Extract candidate entities and relations from one document."""
         self._require_api_key()
         self.last_warnings = []
+        self.last_candidate_audit = None
         doc_id = document["doc_id"]
         clean_text = document.get("clean_text", "")
         if not isinstance(clean_text, str) or not clean_text.strip():
@@ -555,7 +597,11 @@ class LLMExtractionService:
                     raise ValueError(
                         f"LLM 输出达到 max_tokens={attempt_max_tokens}，JSON 被截断"
                     )
-                chunk_result = parse_llm_response(response_text, chunk_id, clean_text)
+                chunk_result, chunk_audit = parse_llm_response_with_audit(
+                    response_text,
+                    chunk_id,
+                    clean_text,
+                )
                 result = {
                     "schema_version": "1.0",
                     "run_id": run_id,
@@ -564,14 +610,24 @@ class LLMExtractionService:
                     "prompt_version": prompt_version,
                     "chunks": [{"chunk_id": chunk_id, **chunk_result}],
                 }
+                candidate_audit = {
+                    "schema_version": "1.0",
+                    "run_id": run_id,
+                    "doc_id": doc_id,
+                    "model_name": self.model,
+                    "prompt_version": prompt_version,
+                    "chunks": [{"chunk_id": chunk_id, **chunk_audit}],
+                }
                 result = self._run_relation_review_passes(
                     result,
+                    candidate_audit=candidate_audit,
                     clean_text=clean_text,
                     chunk_id=chunk_id,
                 )
                 report = validate_payload(result, document=document)
                 if not report.ok:
                     raise ValueError("; ".join(report.errors))
+                self.last_candidate_audit = candidate_audit
                 return result
             except (httpx.HTTPError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
                 last_error = exc
@@ -597,6 +653,7 @@ class LLMExtractionService:
         self,
         result: dict[str, Any],
         *,
+        candidate_audit: dict[str, Any],
         clean_text: str,
         chunk_id: str,
     ) -> dict[str, Any]:
@@ -642,7 +699,7 @@ class LLMExtractionService:
                 if not isinstance(review_relations, list):
                     raise ValueError("关系复核的 relations 必须是数组")
 
-                merged_chunk = parse_llm_response(
+                merged_chunk, review_audit = parse_llm_response_with_audit(
                     json.dumps(
                         {
                             "entities": current_chunk["entities"],
@@ -657,6 +714,13 @@ class LLMExtractionService:
                     clean_text,
                 )
                 result["chunks"] = [{"chunk_id": chunk_id, **merged_chunk}]
+                audit_chunk = candidate_audit["chunks"][0]
+                audit_chunk["rejected_entities"].extend(
+                    review_audit["rejected_entities"]
+                )
+                audit_chunk["rejected_relations"].extend(
+                    review_audit["rejected_relations"]
+                )
             except (httpx.HTTPError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
                 self.last_warnings.append(
                     f"关系复核第 {review_index + 1} 轮失败，已保留首轮结果: "
@@ -730,3 +794,18 @@ class LLMExtractionService:
             encoding="utf-8",
         )
         return result_path
+
+    def save_candidate_audit(
+        self,
+        output_dir: str | Path = "data/extracted",
+    ) -> Path:
+        if self.last_candidate_audit is None:
+            raise ValueError("当前没有可保存的候选审计结果")
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        audit_path = output_path / f"{self.last_candidate_audit['run_id']}.candidate-audit.json"
+        audit_path.write_text(
+            json.dumps(self.last_candidate_audit, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        return audit_path
