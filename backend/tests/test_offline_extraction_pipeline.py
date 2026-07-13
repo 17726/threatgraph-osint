@@ -45,6 +45,20 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
         run = connection.execute("SELECT * FROM extraction_runs").fetchone()
         assert run["validation_status"] == "valid"
 
+        document_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(documents)")
+        }
+        assert "clean_text" in document_columns
+        assert "raw_text" not in document_columns
+        document = connection.execute(
+            "SELECT clean_text, content_hash FROM documents WHERE doc_id = ?",
+            ("apt28_049",),
+        ).fetchone()
+        assert "BEARDSHELL" in document["clean_text"]
+        assert document["content_hash"] == (
+            "sha256:9d88346c7c47ad3fd5cba03bdf1e266b90d51d820fd126cf5f5a8a233e4d6b13"
+        )
+
         extracted_relation = connection.execute(
             """
             SELECT validation_status, normalized_relation_id, validation_errors_json
@@ -173,6 +187,64 @@ def test_offline_pipeline_keeps_invalid_relation_as_candidate(tmp_path):
     assert "不允许主体类型 COUNTRY" in json.loads(
         invalid_relation["validation_errors_json"]
     )[0]
+
+
+def test_offline_pipeline_migrates_legacy_documents_raw_text_column(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    with connect(db_path) as connection:
+        connection.executescript(
+            """
+            CREATE TABLE documents (
+              doc_id TEXT PRIMARY KEY,
+              schema_version TEXT NOT NULL DEFAULT '1.0',
+              collection_item_id TEXT,
+              target_group TEXT NOT NULL,
+              target_groups_json TEXT NOT NULL DEFAULT '[]',
+              source_url TEXT NOT NULL,
+              source_type TEXT NOT NULL,
+              source_name TEXT NOT NULL DEFAULT '',
+              title TEXT NOT NULL,
+              language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
+              raw_text TEXT NOT NULL,
+              content_hash TEXT NOT NULL,
+              published_at TEXT,
+              retrieved_at TEXT,
+              source_reliability TEXT NOT NULL DEFAULT 'unknown',
+              tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
+              tags_json TEXT NOT NULL DEFAULT '[]',
+              metadata_json TEXT NOT NULL DEFAULT '{}',
+              created_at TEXT NOT NULL
+            );
+            INSERT INTO documents (
+              doc_id, target_group, source_url, source_type, title, language,
+              raw_text, content_hash, created_at
+            ) VALUES (
+              'legacy_doc', 'APT28', 'https://example.test/legacy', 'news',
+              'Legacy document', 'en', 'Legacy cleaned body',
+              'sha256:legacy', '2026-07-13T00:00:00Z'
+            );
+            """
+        )
+
+    OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
+
+    with connect(db_path) as connection:
+        document_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(documents)")
+        }
+        legacy_document = connection.execute(
+            "SELECT clean_text FROM documents WHERE doc_id = ?",
+            ("legacy_doc",),
+        ).fetchone()
+        imported_document = connection.execute(
+            "SELECT clean_text FROM documents WHERE doc_id = ?",
+            ("apt28_049",),
+        ).fetchone()
+
+    assert "clean_text" in document_columns
+    assert "raw_text" not in document_columns
+    assert legacy_document["clean_text"] == "Legacy cleaned body"
+    assert "BEARDSHELL" in imported_document["clean_text"]
 
 
 def test_offline_pipeline_rerun_removes_stale_canonical_relation(tmp_path):

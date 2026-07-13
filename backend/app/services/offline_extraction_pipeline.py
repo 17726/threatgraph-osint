@@ -59,7 +59,10 @@ ENTITY_PREFIXES = {
 
 
 def document_text(document: dict[str, Any]) -> str:
-    return document.get("clean_text") or document.get("raw_text", "")
+    clean_text = document.get("clean_text")
+    if not isinstance(clean_text, str) or not clean_text.strip():
+        raise ValueError("document.clean_text 不能为空")
+    return clean_text
 
 
 @dataclass
@@ -145,7 +148,7 @@ class OfflineExtractionPipeline:
               source_name TEXT NOT NULL DEFAULT '',
               title TEXT NOT NULL,
               language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
-              raw_text TEXT NOT NULL,
+              clean_text TEXT NOT NULL,
               content_hash TEXT NOT NULL,
               published_at TEXT,
               retrieved_at TEXT,
@@ -339,7 +342,89 @@ class OfflineExtractionPipeline:
             );
             """
         )
+        self._migrate_documents_clean_text_schema(connection)
         self._ensure_columns(connection)
+
+    def _migrate_documents_clean_text_schema(self, connection: sqlite3.Connection) -> None:
+        rows = connection.execute("PRAGMA table_info(documents)").fetchall()
+        columns = {row["name"] for row in rows}
+        if "clean_text" in columns and "raw_text" not in columns:
+            return
+        if "clean_text" not in columns and "raw_text" not in columns:
+            raise RuntimeError("SQLite documents 表缺少 clean_text 列")
+
+        previous_foreign_keys = connection.execute("PRAGMA foreign_keys").fetchone()[0]
+        connection.commit()
+        connection.execute("PRAGMA foreign_keys = OFF")
+        try:
+            connection.executescript(
+                """
+                CREATE TABLE documents_new (
+                  doc_id TEXT PRIMARY KEY,
+                  schema_version TEXT NOT NULL DEFAULT '1.0',
+                  collection_item_id TEXT,
+                  target_group TEXT NOT NULL,
+                  target_groups_json TEXT NOT NULL DEFAULT '[]',
+                  source_url TEXT NOT NULL,
+                  source_type TEXT NOT NULL,
+                  source_name TEXT NOT NULL DEFAULT '',
+                  title TEXT NOT NULL,
+                  language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
+                  clean_text TEXT NOT NULL,
+                  content_hash TEXT NOT NULL,
+                  published_at TEXT,
+                  retrieved_at TEXT,
+                  source_reliability TEXT NOT NULL DEFAULT 'unknown',
+                  tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
+                  tags_json TEXT NOT NULL DEFAULT '[]',
+                  metadata_json TEXT NOT NULL DEFAULT '{}',
+                  created_at TEXT NOT NULL
+                );
+                """
+            )
+            clean_text_column = "clean_text" if "clean_text" in columns else "raw_text"
+            select_expressions = {
+                "doc_id": "doc_id",
+                "schema_version": (
+                    "schema_version" if "schema_version" in columns else "'1.0'"
+                ),
+                "collection_item_id": (
+                    "collection_item_id" if "collection_item_id" in columns else "NULL"
+                ),
+                "target_group": "target_group",
+                "target_groups_json": (
+                    "target_groups_json" if "target_groups_json" in columns else "'[]'"
+                ),
+                "source_url": "source_url",
+                "source_type": "source_type",
+                "source_name": "source_name" if "source_name" in columns else "''",
+                "title": "title",
+                "language": "language",
+                "clean_text": clean_text_column,
+                "content_hash": "content_hash",
+                "published_at": "published_at" if "published_at" in columns else "NULL",
+                "retrieved_at": "retrieved_at" if "retrieved_at" in columns else "NULL",
+                "source_reliability": (
+                    "source_reliability" if "source_reliability" in columns else "'unknown'"
+                ),
+                "tlp": "tlp" if "tlp" in columns else "'TLP:CLEAR'",
+                "tags_json": "tags_json" if "tags_json" in columns else "'[]'",
+                "metadata_json": "metadata_json" if "metadata_json" in columns else "'{}'",
+                "created_at": "created_at" if "created_at" in columns else "CURRENT_TIMESTAMP",
+            }
+            target_columns = list(select_expressions)
+            connection.execute(
+                f"""
+                INSERT INTO documents_new ({", ".join(target_columns)})
+                SELECT {", ".join(select_expressions[column] for column in target_columns)}
+                FROM documents
+                """
+            )
+            connection.execute("DROP TABLE documents")
+            connection.execute("ALTER TABLE documents_new RENAME TO documents")
+            connection.commit()
+        finally:
+            connection.execute(f"PRAGMA foreign_keys = {int(previous_foreign_keys)}")
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:
         migrations = {
@@ -485,7 +570,7 @@ class OfflineExtractionPipeline:
             """
             INSERT OR REPLACE INTO documents (
               doc_id, schema_version, collection_item_id, target_group, target_groups_json,
-              source_url, source_type, source_name, title, language, raw_text, content_hash,
+              source_url, source_type, source_name, title, language, clean_text, content_hash,
               published_at, retrieved_at, source_reliability, tlp, tags_json, metadata_json,
               created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
