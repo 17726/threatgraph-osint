@@ -9,6 +9,7 @@
 | 文档                                                     | 适用对象                  | 说明                                                |
 | -------------------------------------------------------- | ------------------------- | --------------------------------------------------- |
 | [`s1-contract-onboarding.md`](s1-contract-onboarding.md) | data / llm / be / fe / qa | S1 阶段三份 JSON 契约的上手流程、字段填写和交付检查 |
+| [`llm-extraction-and-evaluation.md`](llm-extraction-and-evaluation.md) | llm / qa | DeepSeek V4 真实抽取、候选校验、golden 评测和 SQLite 导入 |
 
 ## 使用方式
 

@@ -1,371 +1,99 @@
-"""
-LLM 驱动的威胁情报实体关系抽取服务。
+"""OpenAI-compatible LLM extraction service for ThreatGraph candidate data."""
 
-支持 OpenAI-compatible API，从清洗后的文档文本中抽取
-实体 (NER) 和关系 (RE)，输出为 extraction-result schema 格式。
-"""
+from __future__ import annotations
 
 import hashlib
 import json
 import os
 import re
+import time
+import unicodedata
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import httpx
-import jsonschema
-from jsonschema import ValidationError as SchemaValidationError
+
+from scripts.validate_extraction_result import (
+    ALLOWED_RELATIONS,
+    load_json,
+    validate_payload,
+)
 
 
-DEFAULT_EXTRACTION_SCHEMA_PATH = Path("docs/schemas/extraction-result.schema.json")
-
-ENTITY_TYPES = [
-    "APT_GROUP", "ORGANIZATION", "PERSON", "MALWARE", "TOOL", "CVE",
-    "TECHNIQUE", "INFRASTRUCTURE", "LOCATION", "FINANCIAL_ACCOUNT",
-    "COUNTRY", "REGION", "INDUSTRY", "TIME", "EVENT", "CAMPAIGN",
-    "BEHAVIOR_PATTERN",
-]
-
-RELATION_TYPES = [
-    "USES", "TARGETS", "EXPLOITS", "ATTRIBUTED_TO", "AFFILIATED_WITH",
-    "LOCATED_IN", "HAPPENED_AT", "PART_OF", "LEADS_TO", "RELATED_TO",
-    "DISCOVERED_BY", "CAUSES", "HAS_BEHAVIOR", "MEMBER_OF",
-    "CONTROLS", "TRANSFERS_TO", "INSTANCE_OF", "PRECEDES",
-]
-
-ALLOWED_RELATIONS: dict[str, dict[str, Any]] = {
-    "USES": {
-        "heads": ["PERSON", "ORGANIZATION", "COUNTRY", "APT_GROUP", "CAMPAIGN"],
-        "tails": ["MALWARE", "TOOL", "TECHNIQUE", "INFRASTRUCTURE"],
-        "pairs": [
-            ("PERSON", "MALWARE"), ("PERSON", "TOOL"), ("PERSON", "TECHNIQUE"), ("PERSON", "INFRASTRUCTURE"),
-            ("ORGANIZATION", "MALWARE"), ("ORGANIZATION", "TOOL"), ("ORGANIZATION", "TECHNIQUE"), ("ORGANIZATION", "INFRASTRUCTURE"),
-            ("COUNTRY", "MALWARE"), ("COUNTRY", "TOOL"), ("COUNTRY", "TECHNIQUE"), ("COUNTRY", "INFRASTRUCTURE"),
-            ("APT_GROUP", "MALWARE"), ("APT_GROUP", "TOOL"), ("APT_GROUP", "TECHNIQUE"), ("APT_GROUP", "INFRASTRUCTURE"),
-            ("CAMPAIGN", "MALWARE"), ("CAMPAIGN", "TOOL"), ("CAMPAIGN", "TECHNIQUE"), ("CAMPAIGN", "INFRASTRUCTURE"),
-        ],
-    },
-    "TARGETS": {
-        "heads": ["APT_GROUP", "CAMPAIGN", "MALWARE"],
-        "tails": ["COUNTRY", "REGION", "INDUSTRY", "ORGANIZATION", "PERSON", "LOCATION"],
-        "pairs": [
-            ("APT_GROUP", "COUNTRY"), ("APT_GROUP", "REGION"), ("APT_GROUP", "INDUSTRY"), ("APT_GROUP", "ORGANIZATION"), ("APT_GROUP", "PERSON"), ("APT_GROUP", "LOCATION"),
-            ("CAMPAIGN", "COUNTRY"), ("CAMPAIGN", "REGION"), ("CAMPAIGN", "INDUSTRY"), ("CAMPAIGN", "ORGANIZATION"), ("CAMPAIGN", "PERSON"), ("CAMPAIGN", "LOCATION"),
-            ("MALWARE", "COUNTRY"), ("MALWARE", "REGION"), ("MALWARE", "INDUSTRY"), ("MALWARE", "ORGANIZATION"), ("MALWARE", "PERSON"), ("MALWARE", "LOCATION"),
-        ],
-    },
-    "EXPLOITS": {
-        "heads": ["PERSON", "ORGANIZATION", "COUNTRY", "APT_GROUP", "CAMPAIGN", "MALWARE", "TOOL"],
-        "tails": ["CVE"],
-        "pairs": [
-            ("PERSON", "CVE"), ("ORGANIZATION", "CVE"), ("COUNTRY", "CVE"), ("APT_GROUP", "CVE"),
-            ("CAMPAIGN", "CVE"), ("MALWARE", "CVE"), ("TOOL", "CVE"),
-        ],
-    },
-    "ATTRIBUTED_TO": {
-        "heads": ["APT_GROUP", "CAMPAIGN", "MALWARE"],
-        "tails": ["COUNTRY", "ORGANIZATION"],
-        "pairs": [
-            ("APT_GROUP", "COUNTRY"), ("APT_GROUP", "ORGANIZATION"),
-            ("CAMPAIGN", "COUNTRY"), ("CAMPAIGN", "ORGANIZATION"),
-            ("MALWARE", "COUNTRY"), ("MALWARE", "ORGANIZATION"),
-        ],
-    },
-    "AFFILIATED_WITH": {
-        "heads": ["APT_GROUP", "ORGANIZATION"],
-        "tails": ["APT_GROUP", "ORGANIZATION", "COUNTRY"],
-        "pairs": [
-            ("APT_GROUP", "APT_GROUP"), ("APT_GROUP", "ORGANIZATION"), ("APT_GROUP", "COUNTRY"),
-            ("ORGANIZATION", "APT_GROUP"), ("ORGANIZATION", "ORGANIZATION"), ("ORGANIZATION", "COUNTRY"),
-        ],
-    },
-    "LOCATED_IN": {
-        "heads": ["ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE", "EVENT"],
-        "tails": ["COUNTRY", "REGION", "LOCATION"],
-        "pairs": [
-            ("ORGANIZATION", "COUNTRY"), ("ORGANIZATION", "REGION"), ("ORGANIZATION", "LOCATION"),
-            ("PERSON", "COUNTRY"), ("PERSON", "REGION"), ("PERSON", "LOCATION"),
-            ("LOCATION", "COUNTRY"), ("LOCATION", "REGION"), ("LOCATION", "LOCATION"),
-            ("INFRASTRUCTURE", "COUNTRY"), ("INFRASTRUCTURE", "REGION"), ("INFRASTRUCTURE", "LOCATION"),
-            ("EVENT", "COUNTRY"), ("EVENT", "REGION"), ("EVENT", "LOCATION"),
-        ],
-    },
-    "HAPPENED_AT": {
-        "heads": ["EVENT", "CAMPAIGN"],
-        "tails": ["TIME"],
-        "pairs": [("EVENT", "TIME"), ("CAMPAIGN", "TIME")],
-    },
-    "PART_OF": {
-        "heads": ["ORGANIZATION", "EVENT", "CAMPAIGN"],
-        "tails": ["ORGANIZATION", "CAMPAIGN", "APT_GROUP"],
-        "pairs": [
-            ("ORGANIZATION", "ORGANIZATION"), ("ORGANIZATION", "CAMPAIGN"), ("ORGANIZATION", "APT_GROUP"),
-            ("EVENT", "ORGANIZATION"), ("EVENT", "CAMPAIGN"), ("EVENT", "APT_GROUP"),
-            ("CAMPAIGN", "ORGANIZATION"), ("CAMPAIGN", "CAMPAIGN"), ("CAMPAIGN", "APT_GROUP"),
-        ],
-    },
-    "LEADS_TO": {
-        "heads": ["TECHNIQUE", "BEHAVIOR_PATTERN", "EVENT"],
-        "tails": ["TECHNIQUE", "BEHAVIOR_PATTERN", "EVENT"],
-        "pairs": [
-            ("TECHNIQUE", "TECHNIQUE"), ("TECHNIQUE", "BEHAVIOR_PATTERN"), ("TECHNIQUE", "EVENT"),
-            ("BEHAVIOR_PATTERN", "TECHNIQUE"), ("BEHAVIOR_PATTERN", "BEHAVIOR_PATTERN"), ("BEHAVIOR_PATTERN", "EVENT"),
-            ("EVENT", "TECHNIQUE"), ("EVENT", "BEHAVIOR_PATTERN"), ("EVENT", "EVENT"),
-        ],
-    },
-    "DISCOVERED_BY": {
-        "heads": ["CVE", "MALWARE", "TOOL", "CAMPAIGN"],
-        "tails": ["ORGANIZATION", "PERSON"],
-        "pairs": [
-            ("CVE", "ORGANIZATION"), ("CVE", "PERSON"),
-            ("MALWARE", "ORGANIZATION"), ("MALWARE", "PERSON"),
-            ("TOOL", "ORGANIZATION"), ("TOOL", "PERSON"),
-            ("CAMPAIGN", "ORGANIZATION"), ("CAMPAIGN", "PERSON"),
-        ],
-    },
-    "CAUSES": {
-        "heads": ["CVE", "TECHNIQUE", "MALWARE"],
-        "tails": ["EVENT", "BEHAVIOR_PATTERN"],
-        "pairs": [
-            ("CVE", "EVENT"), ("CVE", "BEHAVIOR_PATTERN"),
-            ("TECHNIQUE", "EVENT"), ("TECHNIQUE", "BEHAVIOR_PATTERN"),
-            ("MALWARE", "EVENT"), ("MALWARE", "BEHAVIOR_PATTERN"),
-        ],
-    },
-    "HAS_BEHAVIOR": {
-        "heads": ["APT_GROUP", "CAMPAIGN"],
-        "tails": ["BEHAVIOR_PATTERN", "TECHNIQUE"],
-        "pairs": [
-            ("APT_GROUP", "BEHAVIOR_PATTERN"), ("APT_GROUP", "TECHNIQUE"),
-            ("CAMPAIGN", "BEHAVIOR_PATTERN"), ("CAMPAIGN", "TECHNIQUE"),
-        ],
-    },
-    "MEMBER_OF": {
-        "heads": ["PERSON"],
-        "tails": ["APT_GROUP", "ORGANIZATION"],
-        "pairs": [("PERSON", "APT_GROUP"), ("PERSON", "ORGANIZATION")],
-    },
-    "CONTROLS": {
-        "heads": ["PERSON", "APT_GROUP", "ORGANIZATION"],
-        "tails": ["FINANCIAL_ACCOUNT", "INFRASTRUCTURE", "ORGANIZATION"],
-        "pairs": [
-            ("PERSON", "FINANCIAL_ACCOUNT"), ("PERSON", "INFRASTRUCTURE"), ("PERSON", "ORGANIZATION"),
-            ("APT_GROUP", "FINANCIAL_ACCOUNT"), ("APT_GROUP", "INFRASTRUCTURE"), ("APT_GROUP", "ORGANIZATION"),
-            ("ORGANIZATION", "FINANCIAL_ACCOUNT"), ("ORGANIZATION", "INFRASTRUCTURE"), ("ORGANIZATION", "ORGANIZATION"),
-        ],
-    },
-    "TRANSFERS_TO": {
-        "heads": ["FINANCIAL_ACCOUNT"],
-        "tails": ["FINANCIAL_ACCOUNT"],
-        "pairs": [("FINANCIAL_ACCOUNT", "FINANCIAL_ACCOUNT")],
-    },
-    "INSTANCE_OF": {
-        "heads": ["ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"],
-        "tails": ["ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"],
-        "pairs": [
-            ("ORGANIZATION", "ORGANIZATION"), ("ORGANIZATION", "PERSON"), ("ORGANIZATION", "LOCATION"), ("ORGANIZATION", "INFRASTRUCTURE"),
-            ("PERSON", "PERSON"), ("LOCATION", "LOCATION"), ("INFRASTRUCTURE", "INFRASTRUCTURE"),
-        ],
-    },
-    "PRECEDES": {
-        "heads": ["EVENT", "CAMPAIGN", "TECHNIQUE", "BEHAVIOR_PATTERN"],
-        "tails": ["EVENT", "CAMPAIGN", "TECHNIQUE", "BEHAVIOR_PATTERN"],
-        "pairs": [
-            ("EVENT", "EVENT"), ("EVENT", "CAMPAIGN"), ("EVENT", "TECHNIQUE"), ("EVENT", "BEHAVIOR_PATTERN"),
-            ("CAMPAIGN", "EVENT"), ("CAMPAIGN", "CAMPAIGN"), ("CAMPAIGN", "TECHNIQUE"), ("CAMPAIGN", "BEHAVIOR_PATTERN"),
-            ("TECHNIQUE", "EVENT"), ("TECHNIQUE", "CAMPAIGN"), ("TECHNIQUE", "TECHNIQUE"), ("TECHNIQUE", "BEHAVIOR_PATTERN"),
-            ("BEHAVIOR_PATTERN", "EVENT"), ("BEHAVIOR_PATTERN", "CAMPAIGN"), ("BEHAVIOR_PATTERN", "TECHNIQUE"), ("BEHAVIOR_PATTERN", "BEHAVIOR_PATTERN"),
-        ],
-    },
-    "RELATED_TO": {
-        "heads": [],
-        "tails": [],
-        "pairs": [],
-    },
-}
-
-
-SYSTEM_PROMPT = """你是一个威胁情报分析助手，负责从安全报告中提取威胁实体和关系。
-
-## 任务
-
-从给定的文本片段中识别所有威胁情报相关实体及其关系，输出严格 JSON 格式。
-
-## 实体类型
-
-从以下 17 种类型中选择最合适的：
-- APT_GROUP: APT 组织 (如 APT28, Lazarus, Kimsuky)
-- ORGANIZATION: 组织/机构 (如 CERT-UA, GRU, Mandiant, 政府机构)
-- PERSON: 人员
-- MALWARE: 恶意软件 (如 BEARDSHELL, X-Agent, WannaCry)
-- TOOL: 工具/软件 (如 Signal, PowerShell, Cobalt Strike, Metasploit)
-- CVE: 漏洞编号 (如 CVE-2020-35730)
-- TECHNIQUE: 攻击技术 (如 鱼叉式钓鱼, XSS, SQL注入)
-- INFRASTRUCTURE: 基础设施 (域名, IP, C2服务器)
-- LOCATION: 地理位置
-- FINANCIAL_ACCOUNT: 金融账户/钱包
-- COUNTRY: 国家 (如 Russia, Ukraine, North Korea)
-- REGION: 地区
-- INDUSTRY: 行业 (如 政府, 金融, 能源)
-- TIME: 时间点
-- EVENT: 事件
-- CAMPAIGN: 攻击活动/行动
-- BEHAVIOR_PATTERN: 行为模式
-
-## 关系类型
-
-| 关系 | 含义 | 主体类型 | 客体类型 |
-| USES | 使用 | APT_GROUP/CAMPAIGN/ORGANIZATION/COUNTRY | MALWARE/TOOL/TECHNIQUE/INFRASTRUCTURE |
-| TARGETS | 攻击目标 | APT_GROUP/CAMPAIGN/MALWARE | COUNTRY/INDUSTRY/ORGANIZATION/LOCATION |
-| EXPLOITS | 利用漏洞 | APT_GROUP/CAMPAIGN/MALWARE/TOOL | CVE |
-| ATTRIBUTED_TO | 归因于 | APT_GROUP/CAMPAIGN/MALWARE | COUNTRY/ORGANIZATION |
-| AFFILIATED_WITH | 关联/合作 | APT_GROUP/ORGANIZATION | APT_GROUP/ORGANIZATION/COUNTRY |
-| LOCATED_IN | 位于 | ORGANIZATION/PERSON/LOCATION | COUNTRY/REGION/LOCATION |
-| DISCOVERED_BY | 被发现/披露 | MALWARE/CVE/TOOL/CAMPAIGN | ORGANIZATION/PERSON |
-| HAPPENED_AT | 发生于 | EVENT/CAMPAIGN | TIME |
-| RELATED_TO | 通用关联 | 任意 | 任意 |
-
-## 规则
-
-1. evidence_text 必须从原文逐字复制，不要改写
-2. char_start/char_end 标注 evidence_text 在原文中的起止位置
-3. 只抽取文中明确提及的实体，不要推测
-4. 置信度 confidence 0-1，文中明确提及的给 0.85-0.95，推断的给 0.6-0.75
-5. 不要编造关系，每个关系必须有原文证据支撑
-
-## 输出格式
-
-严格按以下 JSON 输出，不要输出其他内容：
-
-```json
-{
-  "entities": [
-    {
-      "name": "实体名称",
-      "type": "APT_GROUP",
-      "aliases": ["别名1"],
-      "description": "一句话描述",
-      "mention_text": "文中出现的原文字段",
-      "evidence_text": "包含该实体的原文证据段落",
-      "char_start": 0,
-      "char_end": 150,
-      "confidence": 0.92
-    }
-  ],
-  "relations": [
-    {
-      "head_name": "主体实体名称",
-      "head_type": "APT_GROUP",
-      "relation_type": "USES",
-      "tail_name": "客体实体名称",
-      "tail_type": "MALWARE",
-      "evidence_text": "支持该关系的原文证据段落",
-      "char_start": 0,
-      "char_end": 150,
-      "confidence": 0.88
-    }
-  ]
-}
-```"""
-
-FEW_SHOT_EXAMPLE = """
-## 示例
-
-原文：
-"The Russia-linked APT28 group has been using X-Agent malware to target Ukrainian government entities."
-
-输出：
-```json
-{
-  "entities": [
-    {
-      "name": "APT28",
-      "type": "APT_GROUP",
-      "aliases": [],
-      "description": "俄罗斯关联的 APT 威胁组织",
-      "mention_text": "APT28",
-      "evidence_text": "The Russia-linked APT28 group has been using X-Agent malware to target Ukrainian government entities.",
-      "char_start": 0,
-      "char_end": 106,
-      "confidence": 0.95
-    },
-    {
-      "name": "Russia",
-      "type": "COUNTRY",
-      "aliases": [],
-      "description": "APT28 的归因国家",
-      "mention_text": "Russia-linked",
-      "evidence_text": "The Russia-linked APT28 group has been using X-Agent malware to target Ukrainian government entities.",
-      "char_start": 0,
-      "char_end": 106,
-      "confidence": 0.94
-    },
-    {
-      "name": "X-Agent",
-      "type": "MALWARE",
-      "aliases": [],
-      "description": "APT28 使用的恶意软件",
-      "mention_text": "X-Agent malware",
-      "evidence_text": "The Russia-linked APT28 group has been using X-Agent malware to target Ukrainian government entities.",
-      "char_start": 0,
-      "char_end": 106,
-      "confidence": 0.92
-    },
-    {
-      "name": "Ukrainian government entities",
-      "type": "ORGANIZATION",
-      "aliases": [],
-      "description": "APT28 的攻击目标",
-      "mention_text": "Ukrainian government entities",
-      "evidence_text": "The Russia-linked APT28 group has been using X-Agent malware to target Ukrainian government entities.",
-      "char_start": 0,
-      "char_end": 106,
-      "confidence": 0.91
-    }
-  ],
-  "relations": [
-    {
-      "head_name": "APT28",
-      "head_type": "APT_GROUP",
-      "relation_type": "ATTRIBUTED_TO",
-      "tail_name": "Russia",
-      "tail_type": "COUNTRY",
-      "evidence_text": "The Russia-linked APT28 group has been using X-Agent malware to target Ukrainian government entities.",
-      "char_start": 0,
-      "char_end": 106,
-      "confidence": 0.93
-    },
-    {
-      "head_name": "APT28",
-      "head_type": "APT_GROUP",
-      "relation_type": "USES",
-      "tail_name": "X-Agent",
-      "tail_type": "MALWARE",
-      "evidence_text": "The Russia-linked APT28 group has been using X-Agent malware to target Ukrainian government entities.",
-      "char_start": 0,
-      "char_end": 106,
-      "confidence": 0.92
-    },
-    {
-      "head_name": "APT28",
-      "head_type": "APT_GROUP",
-      "relation_type": "TARGETS",
-      "tail_name": "Ukrainian government entities",
-      "tail_type": "ORGANIZATION",
-      "evidence_text": "The Russia-linked APT28 group has been using X-Agent malware to target Ukrainian government entities.",
-      "char_start": 0,
-      "char_end": 106,
-      "confidence": 0.92
-    }
-  ]
-}
-```"""
+REPO_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_EXTRACTION_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
+DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-v1.md"
+DEFAULT_BASE_URL = "https://api.deepseek.com"
+DEFAULT_MODEL = "deepseek-v4-flash"
 
 
 def load_schema(schema_path: Path | None = None) -> dict[str, Any]:
-    path = schema_path or DEFAULT_EXTRACTION_SCHEMA_PATH
-    return json.loads(Path(path).read_text(encoding="utf-8"))
+    return load_json(schema_path or DEFAULT_EXTRACTION_SCHEMA_PATH)
+
+
+def _load_prompt_block(heading: str, prompt_path: Path | None = None) -> str:
+    path = prompt_path or DEFAULT_PROMPT_PATH
+    prompt_document = path.read_text(encoding="utf-8")
+    pattern = re.compile(
+        rf"^## {re.escape(heading)}\s*```text\s*(.*?)\s*```",
+        re.MULTILINE | re.DOTALL,
+    )
+    match = pattern.search(prompt_document)
+    if not match:
+        raise ValueError(f"无法从 Prompt 文档读取 {heading}: {path}")
+    return match.group(1).strip()
+
+
+def load_system_prompt(prompt_path: Path | None = None) -> str:
+    base_prompt = _load_prompt_block("系统提示词", prompt_path)
+    runtime_managed_prefixes = (
+        "2. JSON 必须符合",
+        "7. char_start",
+        "8. candidate_status",
+        "9. validation_status",
+    )
+    base_prompt = "\n".join(
+        line
+        for line in base_prompt.splitlines()
+        if not line.strip().startswith(runtime_managed_prefixes)
+    )
+    entity_types = "\n".join(f"- {entity_type}" for entity_type in ENTITY_TYPES)
+    relation_types = "\n".join(f"- {relation_type}" for relation_type in RELATION_TYPES)
+    allowed_pairs = []
+    for relation_type, rule in ALLOWED_RELATIONS.items():
+        if relation_type == "RELATED_TO":
+            allowed_pairs.append("- RELATED_TO: 任意实体类型 -> 任意实体类型（仅人工兜底）")
+            continue
+        heads = set(rule.get("heads") or set())
+        tails = set(rule.get("tails") or set())
+        pairs = set(rule.get("pairs") or set())
+        cartesian_pairs = {(head, tail) for head in heads for tail in tails}
+        if pairs == cartesian_pairs:
+            allowed_pairs.append(
+                f"- {relation_type}: {'/'.join(sorted(heads))} -> {'/'.join(sorted(tails))}"
+            )
+        else:
+            pair_text = ", ".join(f"{head}->{tail}" for head, tail in sorted(pairs))
+            allowed_pairs.append(f"- {relation_type}: {pair_text}")
+    return (
+        f"{base_prompt}\n\n"
+        f"实体类型白名单：\n{entity_types}\n\n"
+        f"关系类型白名单：\n{relation_types}\n\n"
+        f"关系类型配对矩阵：\n{'\n'.join(allowed_pairs)}\n\n"
+        "重要：关系矩阵只是合法类型白名单，不是待生成清单。"
+        "不得枚举实体组合；只有原文明示且能逐字给出非空 evidence_text 的关系才可输出。\n"
+        "当前 API 调用只生成紧凑语义草稿；字符位置、候选状态、校验字段和顶层元数据由运行器补全。"
+    )
+
+
+def _schema_enum(name: str) -> tuple[str, ...]:
+    values = load_schema()["$defs"][name]["enum"]
+    return tuple(str(value) for value in values)
+
+
+ENTITY_TYPES = _schema_enum("entity_type")
+RELATION_TYPES = _schema_enum("relation_type")
 
 
 def now_iso() -> str:
@@ -373,24 +101,120 @@ def now_iso() -> str:
 
 
 def generate_run_id(doc_id: str, prompt_version: str) -> str:
-    ts = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
-    return f"extract_{doc_id}_{prompt_version}_{ts}"
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%f")
+    return f"extract_{doc_id}_{prompt_version}_{timestamp}"
 
 
 def sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+    return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _extract_json_object(response_text: str) -> dict[str, Any]:
+    text = response_text.strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text, count=1, flags=re.IGNORECASE)
+        text = re.sub(r"\s*```$", "", text, count=1)
+
+    start = text.find("{")
+    if start < 0:
+        raise ValueError("LLM 返回内容中未找到 JSON 对象")
+
+    try:
+        payload, end = json.JSONDecoder().raw_decode(text[start:])
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"LLM 返回的 JSON 无法解析: {exc.msg}") from exc
+
+    trailing = text[start + end :].strip()
+    if trailing:
+        raise ValueError("LLM 在 JSON 对象后返回了多余内容")
+    if not isinstance(payload, dict):
+        raise ValueError("LLM 返回的 JSON 顶层必须是对象")
+    return payload
+
+
+def _find_text_span(clean_text: str, evidence: str) -> tuple[int | None, int | None]:
+    if not evidence:
+        return None, None
+    start = clean_text.find(evidence)
+    if start < 0:
+        return None, None
+    return start, start + len(evidence)
+
+
+def _normalize_candidate_name(value: str) -> str:
+    normalized = unicodedata.normalize("NFKC", value).casefold().strip()
+    return re.sub(r"\s+", " ", normalized)
+
+
+def _candidate_names(candidate: dict[str, Any]) -> set[str]:
+    values = [candidate.get("name", ""), *candidate.get("aliases", [])]
+    return {
+        _normalize_candidate_name(value)
+        for value in values
+        if isinstance(value, str) and value.strip()
+    }
+
+
+def _deduplicate_entities(candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    deduplicated: list[dict[str, Any]] = []
+    for candidate in candidates:
+        existing = next(
+            (
+                item
+                for item in deduplicated
+                if item["type"] == candidate["type"]
+                and _candidate_names(item) & _candidate_names(candidate)
+            ),
+            None,
+        )
+        if existing is None:
+            deduplicated.append(candidate)
+            continue
+
+        merged_aliases = [
+            *existing["aliases"],
+            candidate["name"],
+            *candidate["aliases"],
+        ]
+        primary_name = _normalize_candidate_name(existing["name"])
+        seen = {primary_name}
+        existing["aliases"] = []
+        for alias in merged_aliases:
+            normalized_alias = _normalize_candidate_name(alias)
+            if not normalized_alias or normalized_alias in seen:
+                continue
+            seen.add(normalized_alias)
+            existing["aliases"].append(alias)
+        existing["confidence"] = max(existing["confidence"], candidate["confidence"])
+    return deduplicated
+
+
 def validate_entity(entity: dict[str, Any]) -> list[str]:
     errors: list[str] = []
-    if not entity.get("name", "").strip():
+    if not isinstance(entity.get("name"), str) or not entity["name"].strip():
         errors.append("name 不能为空")
     if entity.get("type") not in ENTITY_TYPES:
         errors.append(f"未知实体类型: {entity.get('type')}")
-    if not entity.get("evidence_text", "").strip():
+    aliases = entity.get("aliases")
+    if not isinstance(aliases, list) or not all(isinstance(alias, str) for alias in aliases):
+        errors.append("aliases 必须是字符串数组")
+    if not isinstance(entity.get("description"), str):
+        errors.append("description 必须是字符串")
+    if not isinstance(entity.get("mention_text"), str):
+        errors.append("mention_text 必须是字符串")
+    if not isinstance(entity.get("evidence_text"), str) or not entity["evidence_text"].strip():
         errors.append("evidence_text 不能为空")
     confidence = entity.get("confidence")
-    if not isinstance(confidence, (int, float)) or not (0 <= confidence <= 1):
+    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
+        errors.append(f"confidence 必须是数字: {confidence}")
+    elif not 0 <= confidence <= 1:
         errors.append(f"confidence 不在 [0,1] 范围内: {confidence}")
     return errors
 
@@ -400,202 +224,509 @@ def validate_relation(
     known_entities: set[tuple[str, str]],
 ) -> list[str]:
     errors: list[str] = []
-    relation_type = relation.get("relation_type", "")
+    relation_type = relation.get("relation_type")
     rule = ALLOWED_RELATIONS.get(relation_type)
     if rule is None:
         return [f"未知关系类型: {relation_type}"]
-    if relation_type != "RELATED_TO":
-        head_type = relation.get("head_type", "")
-        tail_type = relation.get("tail_type", "")
-        if rule.get("heads") and head_type not in rule["heads"]:
-            errors.append(f"{relation_type} 不允许 head_type={head_type}")
-        if rule.get("tails") and tail_type not in rule["tails"]:
-            errors.append(f"{relation_type} 不允许 tail_type={tail_type}")
-        if rule.get("pairs") and (head_type, tail_type) not in rule["pairs"]:
-            errors.append(f"不允许组合 ({head_type},{relation_type},{tail_type})")
-    head_key = (relation.get("head_name", ""), relation.get("head_type", ""))
-    tail_key = (relation.get("tail_name", ""), relation.get("tail_type", ""))
+
+    head_type = relation.get("head_type")
+    tail_type = relation.get("tail_type")
+    for field_name in (
+        "head_name",
+        "head_type",
+        "relation_type",
+        "tail_name",
+        "tail_type",
+    ):
+        if not isinstance(relation.get(field_name), str) or not relation[field_name].strip():
+            errors.append(f"{field_name} 必须是非空字符串")
+    if relation_type != "RELATED_TO" and (head_type, tail_type) not in rule["pairs"]:
+        errors.append(f"不允许组合 ({head_type},{relation_type},{tail_type})")
+
+    head_key = (relation.get("head_name", ""), head_type or "")
+    tail_key = (relation.get("tail_name", ""), tail_type or "")
     if head_key not in known_entities:
         errors.append(f"head ({head_key[0]}, {head_key[1]}) 不在候选实体中")
     if tail_key not in known_entities:
         errors.append(f"tail ({tail_key[0]}, {tail_key[1]}) 不在候选实体中")
-    if not relation.get("evidence_text", "").strip():
+    if not isinstance(relation.get("evidence_text"), str) or not relation["evidence_text"].strip():
         errors.append("evidence_text 不能为空")
     confidence = relation.get("confidence")
-    if not isinstance(confidence, (int, float)) or not (0 <= confidence <= 1):
+    if isinstance(confidence, bool) or not isinstance(confidence, (int, float)):
+        errors.append(f"confidence 必须是数字: {confidence}")
+    elif not 0 <= confidence <= 1:
         errors.append(f"confidence 不在 [0,1] 范围内: {confidence}")
     return errors
 
 
+def _candidate_chunk(payload: dict[str, Any], chunk_id: str) -> dict[str, Any]:
+    if "chunks" not in payload:
+        return payload
+    chunks = payload.get("chunks")
+    if not isinstance(chunks, list) or len(chunks) != 1:
+        raise ValueError("当前单文档模式要求 LLM 返回且仅返回一个 chunk")
+    chunk = chunks[0]
+    if not isinstance(chunk, dict):
+        raise ValueError("LLM 返回的 chunk 必须是对象")
+    returned_chunk_id = chunk.get("chunk_id")
+    if returned_chunk_id not in {None, "", chunk_id}:
+        raise ValueError(f"LLM 返回的 chunk_id 不一致: {returned_chunk_id!r}")
+    return chunk
+
+
 def parse_llm_response(response_text: str, chunk_id: str, clean_text: str) -> dict[str, Any]:
-    """从 LLM 返回的文本中解析出实体和关系列表。"""
-    # 提取 JSON 块
-    json_match = re.search(r"\{[\s\S]*\}", response_text)
-    if not json_match:
-        raise ValueError("LLM 返回内容中未找到合法 JSON")
+    """Parse a model response and add candidate validation metadata."""
+    payload = _extract_json_object(response_text)
+    chunk = _candidate_chunk(payload, chunk_id)
+    entities = chunk.get("entities", [])
+    relations = chunk.get("relations", [])
+    if not isinstance(entities, list) or not isinstance(relations, list):
+        raise ValueError("entities 和 relations 必须是数组")
 
-    data = json.loads(json_match.group(0))
-    entities = data.get("entities", [])
-    relations = data.get("relations", [])
-
-    known_entities: set[tuple[str, str]] = set()
     processed_entities: list[dict[str, Any]] = []
-    for ent in entities:
-        e = {
-            "name": ent.get("name", ""),
-            "type": ent.get("type", ""),
-            "aliases": ent.get("aliases", []),
-            "description": ent.get("description", ""),
-            "mention_text": ent.get("mention_text", ""),
-            "evidence_text": ent.get("evidence_text", ""),
-            "char_start": _find_char_start(clean_text, ent.get("evidence_text", "")),
-            "char_end": _find_char_end(clean_text, ent.get("evidence_text", "")),
-            "confidence": ent.get("confidence", 0.5),
+    for index, entity in enumerate(entities):
+        if not isinstance(entity, dict):
+            raise ValueError(f"entities[{index}] 必须是对象")
+        evidence = entity.get("evidence_text", "")
+        char_start, char_end = _find_text_span(clean_text, evidence)
+        aliases = entity.get("aliases", [])
+        if isinstance(aliases, list) and all(isinstance(alias, str) for alias in aliases):
+            aliases = list(dict.fromkeys(alias for alias in aliases if alias))
+        candidate = {
+            "name": entity.get("name", ""),
+            "type": entity.get("type", ""),
+            "aliases": aliases,
+            "description": entity.get("description", ""),
+            "mention_text": entity.get("mention_text", ""),
+            "evidence_text": evidence,
+            "char_start": char_start,
+            "char_end": char_end,
+            "confidence": entity.get("confidence", 0.5),
             "candidate_status": "candidate",
             "validation_status": "unchecked",
             "validation_errors": [],
         }
-        errors = validate_entity(e)
-        e["validation_status"] = "valid" if not errors else "invalid"
-        e["validation_errors"] = errors
-        processed_entities.append(e)
-        known_entities.add((e["name"], e["type"]))
-        for alias in e["aliases"]:
-            known_entities.add((alias, e["type"]))
+        errors = validate_entity(candidate)
+        if evidence and char_start is None:
+            errors.append("evidence_text 未出现在 document.clean_text 中")
+        candidate["validation_status"] = "valid" if not errors else "invalid"
+        candidate["validation_errors"] = errors
+        processed_entities.append(candidate)
+
+    accepted_entities = _deduplicate_entities(
+        [
+            candidate
+            for candidate in processed_entities
+            if candidate["validation_status"] == "valid"
+        ]
+    )
+    known_entities: set[tuple[str, str]] = set()
+    endpoint_names: dict[tuple[str, str], str] = {}
+    for candidate in accepted_entities:
+        known_entities.add((candidate["name"], candidate["type"]))
+        endpoint_names[
+            (candidate["type"], _normalize_candidate_name(candidate["name"]))
+        ] = candidate["name"]
+        known_entities.update(
+            (alias, candidate["type"])
+            for alias in candidate["aliases"]
+            if isinstance(alias, str) and alias
+        )
+        for alias in candidate["aliases"]:
+            endpoint_names[(candidate["type"], _normalize_candidate_name(alias))] = candidate[
+                "name"
+            ]
 
     processed_relations: list[dict[str, Any]] = []
-    for rel in relations:
-        r = {
-            "head_name": rel.get("head_name", ""),
-            "head_type": rel.get("head_type", ""),
-            "relation_type": rel.get("relation_type", ""),
-            "tail_name": rel.get("tail_name", ""),
-            "tail_type": rel.get("tail_type", ""),
-            "evidence_text": rel.get("evidence_text", ""),
-            "char_start": _find_char_start(clean_text, rel.get("evidence_text", "")),
-            "char_end": _find_char_end(clean_text, rel.get("evidence_text", "")),
-            "confidence": rel.get("confidence", 0.5),
+    seen_relations: set[tuple[str, str, str, str, str]] = set()
+    for index, relation in enumerate(relations):
+        if not isinstance(relation, dict):
+            raise ValueError(f"relations[{index}] 必须是对象")
+        evidence = relation.get("evidence_text", "")
+        char_start, char_end = _find_text_span(clean_text, evidence)
+        head_name = relation.get("head_name", "")
+        tail_name = relation.get("tail_name", "")
+        head_type = relation.get("head_type", "")
+        tail_type = relation.get("tail_type", "")
+        if isinstance(head_name, str) and isinstance(head_type, str):
+            head_name = endpoint_names.get(
+                (head_type, _normalize_candidate_name(head_name)),
+                head_name,
+            )
+        if isinstance(tail_name, str) and isinstance(tail_type, str):
+            tail_name = endpoint_names.get(
+                (tail_type, _normalize_candidate_name(tail_name)),
+                tail_name,
+            )
+        candidate = {
+            "head_name": head_name,
+            "head_type": relation.get("head_type", ""),
+            "relation_type": relation.get("relation_type", ""),
+            "tail_name": tail_name,
+            "tail_type": relation.get("tail_type", ""),
+            "evidence_text": evidence,
+            "char_start": char_start,
+            "char_end": char_end,
+            "confidence": relation.get("confidence", 0.5),
             "candidate_status": "candidate",
             "validation_status": "unchecked",
             "validation_errors": [],
         }
-        errors = validate_relation(r, known_entities)
-        r["validation_status"] = "valid" if not errors else "invalid"
-        r["validation_errors"] = errors
-        processed_relations.append(r)
+        errors = validate_relation(candidate, known_entities)
+        if evidence and char_start is None:
+            errors.append("evidence_text 未出现在 document.clean_text 中")
+        candidate["validation_status"] = "valid" if not errors else "invalid"
+        candidate["validation_errors"] = errors
+        if candidate["validation_status"] != "valid":
+            continue
+        if (
+            candidate["head_type"] == candidate["tail_type"]
+            and _normalize_candidate_name(candidate["head_name"])
+            == _normalize_candidate_name(candidate["tail_name"])
+        ):
+            continue
+        signature = (
+            _normalize_candidate_name(candidate["head_name"]),
+            candidate["head_type"],
+            candidate["relation_type"],
+            _normalize_candidate_name(candidate["tail_name"]),
+            candidate["tail_type"],
+        )
+        if signature in seen_relations:
+            continue
+        seen_relations.add(signature)
+        processed_relations.append(candidate)
 
-    return {"entities": processed_entities, "relations": processed_relations}
+    return {"entities": accepted_entities, "relations": processed_relations}
 
 
-def _find_char_start(clean_text: str, evidence: str) -> int | None:
-    if not evidence:
-        return None
-    idx = clean_text.find(evidence)
-    return idx if idx >= 0 else None
+def build_user_prompt(
+    *,
+    run_id: str,
+    doc_id: str,
+    chunk_id: str,
+    clean_text: str,
+    model_name: str,
+    prompt_version: str,
+) -> str:
+    return f"""请从下面唯一一个 chunk 抽取候选实体和关系。
 
+运行信息：run_id={run_id}, doc_id={doc_id}, chunk_id={chunk_id},
+model_name={model_name}, prompt_version={prompt_version}。
 
-def _find_char_end(clean_text: str, evidence: str) -> int | None:
-    if not evidence:
-        return None
-    idx = clean_text.find(evidence)
-    return idx + len(evidence) if idx >= 0 else None
+为了减少模型生成错误，本次只输出紧凑草稿；运行器会补全顶层元数据、char_start、char_end、
+candidate_status、validation_status 和 validation_errors，再校验最终 extraction_result schema。
+
+只输出以下 JSON 结构，不要输出 Markdown，不要输出上述由运行器补全的字段：
+{{
+  "entities": [
+    {{
+      "name": "标准名称",
+      "type": "实体类型白名单值",
+      "aliases": [],
+      "description": "简短描述",
+      "mention_text": "原文提及",
+      "evidence_text": "最短连续原文证据",
+      "confidence": 0.9
+    }}
+  ],
+  "relations": [
+    {{
+      "head_name": "必须等于 entities.name 或 aliases",
+      "head_type": "主体类型",
+      "relation_type": "关系类型白名单值",
+      "tail_name": "必须等于 entities.name 或 aliases",
+      "tail_type": "客体类型",
+      "evidence_text": "最短连续原文证据",
+      "confidence": 0.9
+    }}
+  ]
+}}
+
+同一实体和同一关系只输出一次。禁止枚举关系矩阵；原文没有明示的关系不要输出。
+单轮最多输出 80 个实体和 80 个关系。关系复核会另行补漏，不要为了追求数量降低证据标准。
+
+<chunk_text>
+{clean_text}
+</chunk_text>"""
 
 
 class LLMExtractionService:
-    """调用 OpenAI-compatible API 进行威胁情报实体关系抽取。"""
+    """Call an OpenAI-compatible chat-completions API for candidate extraction."""
 
     def __init__(
         self,
         base_url: str | None = None,
         api_key: str | None = None,
         model: str | None = None,
-        timeout: float = 120.0,
-        max_retries: int = 3,
+        timeout: float | None = None,
+        max_retries: int | None = None,
+        max_output_tokens: int | None = None,
+        relation_review_passes: int | None = None,
+        *,
+        trust_env: bool | None = None,
+        transport: httpx.BaseTransport | None = None,
+        prompt_path: Path | None = None,
     ) -> None:
-        self.base_url = (base_url or os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")).rstrip("/")
-        self.api_key = api_key or os.getenv("LLM_API_KEY", "")
-        self.model = model or os.getenv("LLM_MODEL", "gpt-4o-mini")
-        self.timeout = timeout
-        self.max_retries = max_retries
+        self.base_url = (base_url or os.getenv("LLM_BASE_URL", DEFAULT_BASE_URL)).rstrip("/")
+        self.api_key = api_key if api_key is not None else os.getenv("LLM_API_KEY", "")
+        self.model = model or os.getenv("LLM_MODEL", DEFAULT_MODEL)
+        self.timeout = timeout or float(os.getenv("LLM_TIMEOUT_SECONDS", "120"))
+        self.max_retries = max_retries or int(os.getenv("LLM_MAX_RETRIES", "3"))
+        self.max_output_tokens = max_output_tokens or int(
+            os.getenv("LLM_MAX_OUTPUT_TOKENS", "32768")
+        )
+        self.relation_review_passes = (
+            relation_review_passes
+            if relation_review_passes is not None
+            else int(os.getenv("LLM_RELATION_REVIEW_PASSES", "0"))
+        )
+        self.trust_env = _env_bool("LLM_TRUST_ENV", False) if trust_env is None else trust_env
+        self.transport = transport
+        self.system_prompt = load_system_prompt(prompt_path)
+        self.last_warnings: list[str] = []
+
+    def _require_api_key(self) -> None:
+        if not self.api_key.strip():
+            raise ValueError("未配置 LLM_API_KEY；密钥必须通过环境变量提供")
+
+    def _safe_error_text(self, value: object, limit: int = 1000) -> str:
+        text = str(value).replace("\n", " ")
+        if self.api_key:
+            text = text.replace(self.api_key, "[REDACTED]")
+        return text[:limit]
+
+    def preflight(self) -> dict[str, Any]:
+        """Make a minimal real request without storing the credential or response."""
+        self._require_api_key()
+        content, metadata = self._call_api(
+            [
+                {"role": "system", "content": "Return JSON only."},
+                {"role": "user", "content": 'Return exactly {"ok":true}.'},
+            ],
+            max_tokens=32,
+        )
+        payload = _extract_json_object(content)
+        if payload.get("ok") is not True:
+            raise ValueError("LLM 预检返回内容不符合预期")
+        return {
+            "ok": True,
+            "base_url": self.base_url,
+            "requested_model": self.model,
+            "response_model": metadata.get("model", ""),
+            "usage": metadata.get("usage", {}),
+        }
 
     def extract(self, document: dict[str, Any], prompt_version: str = "extract-v1") -> dict[str, Any]:
-        """从单篇文档中抽取实体和关系，返回 extraction_result。"""
+        """Extract candidate entities and relations from one document."""
+        self._require_api_key()
+        self.last_warnings = []
         doc_id = document["doc_id"]
-        clean_text = document.get("clean_text", "") or document.get("raw_text", "")
+        clean_text = document.get("clean_text", "")
+        if not isinstance(clean_text, str) or not clean_text.strip():
+            raise ValueError("document.clean_text 不能为空")
+
         run_id = generate_run_id(doc_id, prompt_version)
-
-        # 单 chunk 模式：整篇文档作为一个 chunk
         chunk_id = f"{doc_id}_c001"
-
-        user_prompt = f"## 文档原文\n\n{clean_text}"
-
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT + "\n\n" + FEW_SHOT_EXAMPLE},
-            {"role": "user", "content": user_prompt},
+            {"role": "system", "content": self.system_prompt},
+            {
+                "role": "user",
+                "content": build_user_prompt(
+                    run_id=run_id,
+                    doc_id=doc_id,
+                    chunk_id=chunk_id,
+                    clean_text=clean_text,
+                    model_name=self.model,
+                    prompt_version=prompt_version,
+                ),
+            },
         ]
 
         last_error: Exception | None = None
         for attempt in range(self.max_retries):
+            attempt_max_tokens = min(self.max_output_tokens * (2**attempt), 65536)
             try:
-                response_text = self._call_api(messages)
+                response_text, metadata = self._call_api(
+                    messages,
+                    max_tokens=attempt_max_tokens,
+                )
+                if metadata.get("finish_reason") == "length":
+                    raise ValueError(
+                        f"LLM 输出达到 max_tokens={attempt_max_tokens}，JSON 被截断"
+                    )
                 chunk_result = parse_llm_response(response_text, chunk_id, clean_text)
-                break
-            except Exception as exc:
+                result = {
+                    "schema_version": "1.0",
+                    "run_id": run_id,
+                    "doc_id": doc_id,
+                    "model_name": self.model,
+                    "prompt_version": prompt_version,
+                    "chunks": [{"chunk_id": chunk_id, **chunk_result}],
+                }
+                result = self._run_relation_review_passes(
+                    result,
+                    clean_text=clean_text,
+                    chunk_id=chunk_id,
+                )
+                report = validate_payload(result, document=document)
+                if not report.ok:
+                    raise ValueError("; ".join(report.errors))
+                return result
+            except (httpx.HTTPError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
                 last_error = exc
                 if attempt < self.max_retries - 1:
-                    continue
-                raise RuntimeError(
-                    f"LLM 抽取失败 (已重试 {self.max_retries} 次): {last_error}"
-                ) from last_error
+                    error_detail = self._safe_error_text(exc)
+                    messages.append(
+                        {
+                            "role": "user",
+                            "content": (
+                                "上一次输出未通过校验。请重新生成完整且可解析的 JSON；"
+                                "不要输出 Markdown，不要省略必填字段，不要在 JSON 后追加文字。"
+                                f"校验错误：{error_detail}"
+                            ),
+                        }
+                    )
+                    time.sleep(min(2**attempt, 4))
 
-        result = {
-            "schema_version": "1.0",
-            "run_id": run_id,
-            "doc_id": doc_id,
-            "model_name": self.model,
-            "prompt_version": prompt_version,
-            "chunks": [
+        raise RuntimeError(
+            f"LLM 抽取失败 (已尝试 {self.max_retries} 次): {last_error}"
+        ) from last_error
+
+    def _run_relation_review_passes(
+        self,
+        result: dict[str, Any],
+        *,
+        clean_text: str,
+        chunk_id: str,
+    ) -> dict[str, Any]:
+        for review_index in range(self.relation_review_passes):
+            current_chunk = result["chunks"][0]
+            entity_reference = [
                 {
-                    "chunk_id": chunk_id,
-                    "entities": chunk_result["entities"],
-                    "relations": chunk_result["relations"],
+                    "name": entity["name"],
+                    "type": entity["type"],
+                    "aliases": entity["aliases"],
                 }
-            ],
-        }
+                for entity in current_chunk["entities"]
+            ]
+            review_prompt = f"""执行关系抽取复核第 {review_index + 1} 轮。
 
-        self._validate_schema(result)
+只能使用下面已通过证据校验的实体，不得新增实体，不得把 aliases 当成独立实体：
+{json.dumps(entity_reference, ensure_ascii=False, indent=2)}
+
+重新通读全文，补充首轮可能遗漏的明确关系。关系主体和客体名称必须使用上面实体的 name。
+每条关系必须有最短且非空的连续原文 evidence_text；禁止枚举实体组合或推断关系。
+只输出 JSON：{{"entities": [], "relations": [...]}}。
+
+<chunk_text>
+{clean_text}
+</chunk_text>"""
+            try:
+                response_text, metadata = self._call_api(
+                    [
+                        {
+                            "role": "system",
+                            "content": self.system_prompt
+                            + "\n\n当前任务只复核关系，不新增实体。",
+                        },
+                        {"role": "user", "content": review_prompt},
+                    ],
+                    max_tokens=min(self.max_output_tokens, 32768),
+                )
+                if metadata.get("finish_reason") == "length":
+                    raise ValueError("关系复核输出被截断")
+                review_payload = _extract_json_object(response_text)
+                review_chunk = _candidate_chunk(review_payload, chunk_id)
+                review_relations = review_chunk.get("relations", [])
+                if not isinstance(review_relations, list):
+                    raise ValueError("关系复核的 relations 必须是数组")
+
+                merged_chunk = parse_llm_response(
+                    json.dumps(
+                        {
+                            "entities": current_chunk["entities"],
+                            "relations": [
+                                *current_chunk["relations"],
+                                *review_relations,
+                            ],
+                        },
+                        ensure_ascii=False,
+                    ),
+                    chunk_id,
+                    clean_text,
+                )
+                result["chunks"] = [{"chunk_id": chunk_id, **merged_chunk}]
+            except (httpx.HTTPError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+                self.last_warnings.append(
+                    f"关系复核第 {review_index + 1} 轮失败，已保留首轮结果: "
+                    f"{self._safe_error_text(exc, limit=500)}"
+                )
         return result
 
-    def _call_api(self, messages: list[dict[str, str]]) -> str:
-        url = f"{self.base_url}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        body = {
+    def _call_api(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        max_tokens: int,
+    ) -> tuple[str, dict[str, Any]]:
+        self._require_api_key()
+        body: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
-            "temperature": 0.1,
-            "max_tokens": 4096,
+            "temperature": 0.0,
+            "max_tokens": max_tokens,
             "response_format": {"type": "json_object"},
         }
-        with httpx.Client(timeout=self.timeout) as client:
-            response = client.post(url, headers=headers, json=body)
-            response.raise_for_status()
-            data = response.json()
-        content = data["choices"][0]["message"]["content"]
-        return content
+        if self.base_url.startswith("https://api.deepseek.com"):
+            body["thinking"] = {"type": "disabled"}
 
-    def _validate_schema(self, result: dict[str, Any]) -> None:
-        schema = load_schema()
+        with httpx.Client(
+            timeout=self.timeout,
+            trust_env=self.trust_env,
+            transport=self.transport,
+        ) as client:
+            response = client.post(
+                f"{self.base_url}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+                json=body,
+            )
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                detail = self._safe_error_text(response.text.strip(), limit=500)
+                raise httpx.HTTPStatusError(
+                    f"LLM API 返回 HTTP {response.status_code}: {detail}",
+                    request=exc.request,
+                    response=exc.response,
+                ) from exc
+            payload = response.json()
+
         try:
-            jsonschema.validate(result, schema)
-        except SchemaValidationError as exc:
-            raise ValueError(f"抽取结果不符合 schema: {exc.message}") from exc
+            content = payload["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise ValueError("LLM API 响应缺少 choices[0].message.content") from exc
+        if not isinstance(content, str) or not content.strip():
+            raise ValueError("LLM API 返回了空 content")
+        return content, {
+            "model": payload.get("model", ""),
+            "usage": payload.get("usage", {}),
+            "finish_reason": payload.get("choices", [{}])[0].get("finish_reason", ""),
+        }
 
-    def save_result(self, result: dict[str, Any], output_dir: str | Path = "data/extracted") -> Path:
-        out = Path(output_dir)
-        out.mkdir(parents=True, exist_ok=True)
-        filepath = out / f"{result['run_id']}.json"
-        filepath.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-        return filepath
+    def save_result(
+        self,
+        result: dict[str, Any],
+        output_dir: str | Path = "data/extracted",
+    ) -> Path:
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        result_path = output_path / f"{result['run_id']}.json"
+        result_path.write_text(
+            json.dumps(result, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        return result_path

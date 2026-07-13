@@ -40,6 +40,7 @@ scripts/calculate_char_positions.py
 !data/reports/.gitkeep
 !data/evaluation/.gitkeep
 !data/evaluation/golden*.json
+!data/evaluation/evaluation_result.*.json
 
 # Local verification artifacts
 output/

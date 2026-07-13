@@ -116,7 +116,8 @@ Windows PowerShell：
 Copy-Item .env.example .env
 ```
 
-演示数据不依赖 LLM API Key。接入 OpenAI-compatible API 时，再填写 `.env` 中的 `LLM_API_KEY`、`LLM_BASE_URL` 和 `LLM_MODEL`。
+演示数据不依赖 LLM API Key。真实抽取默认使用 DeepSeek V4 Flash；只在本地 `.env`
+填写 `LLM_API_KEY`，不要把密钥放进命令行、代码或提交记录。
 
 ### 2. 启动服务
 
@@ -264,6 +265,28 @@ docker compose run --rm frontend npm run format:check
 docker compose run --rm backend python scripts/validate_extraction_result.py
 ```
 
+### DeepSeek V4 真实抽取与评测
+
+先在本地 `.env` 配置 `LLM_API_KEY`，然后执行最小连通性检查：
+
+```bash
+docker compose run --rm backend python scripts/run_llm_extraction.py \
+  --preflight-only --json
+```
+
+对人工 golden 文档执行真实抽取并计算实体、关系 Precision、Recall、F1：
+
+```bash
+docker compose run --rm backend python scripts/run_llm_extraction.py \
+  --document data/documents/apt28/apt28_080.json \
+  --golden data/evaluation/golden.en.apt28_080.json \
+  --json
+```
+
+抽取结果仍只进入候选层；需要生成正式图谱时显式追加 `--import --export-graph`。
+完整操作和评测口径见
+[`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md)。
+
 ## 项目文档
 
 | 文档 | 用途 |
@@ -277,6 +300,7 @@ docker compose run --rm backend python scripts/validate_extraction_result.py
 | [`docs/docker-runtime.md`](docs/docker-runtime.md) | Docker Compose 运行契约 |
 | [`docs/team-workflow.md`](docs/team-workflow.md) | 小组职责与协作流程 |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | 开发规范与 Git 流程 |
+| [`docs/reports/llm-extraction-baseline.md`](docs/reports/llm-extraction-baseline.md) | DeepSeek V4 真实调用、APT28 指标和 golden 门禁结论 |
 
 新成员建议按以下顺序阅读：
 
@@ -292,7 +316,7 @@ docker compose run --rm backend python scripts/validate_extraction_result.py
 | --- | --- |
 | 架构与数据规范组 `arch` | [`docs/architecture.md`](docs/architecture.md)、[`docs/api-contract.md`](docs/api-contract.md)、[`docs/data-contract.md`](docs/data-contract.md) |
 | 数据与样本组 `data` | [`docs/data-contract.md`](docs/data-contract.md)、[`docs/schemas/README.md`](docs/schemas/README.md)、[`docs/team-workflow.md`](docs/team-workflow.md) |
-| LLM 抽取与分析组 `llm` | [`docs/data-contract.md`](docs/data-contract.md)、[`docs/schemas/README.md`](docs/schemas/README.md)、[`docs/architecture.md`](docs/architecture.md) |
+| LLM 抽取与分析组 `llm` | [`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md)、[`docs/data-contract.md`](docs/data-contract.md)、[`docs/schemas/README.md`](docs/schemas/README.md) |
 | 图谱与前端组 `fe` | [`docs/api-contract.md`](docs/api-contract.md)、[`docs/team-workflow.md`](docs/team-workflow.md) |
 | 报告答辩与测试组 `qa` | [`docs/team-workflow.md`](docs/team-workflow.md)、[`docs/reference-comparison.md`](docs/reference-comparison.md)、[`docs/references/course-requirements.md`](docs/references/course-requirements.md) |
 
