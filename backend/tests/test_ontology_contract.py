@@ -26,7 +26,7 @@ def test_all_json_schemas_share_the_current_entity_and_relation_enums():
 
 def test_crime_network_acceptance_fixture_uses_only_current_types_and_relations():
     fixture = json.loads(
-        (ROOT / "data/evaluation/golden.en.crime-network.acceptance.json").read_text(
+        (ROOT / "data/examples/crime-network.acceptance.json").read_text(
             encoding="utf-8"
         )
     )
