@@ -262,7 +262,9 @@ docker compose run --rm frontend npm run format:check
 ### 离线抽取结果校验
 
 ```bash
-docker compose run --rm backend python scripts/validate_extraction_result.py
+docker compose run --rm backend python scripts/validate_extraction_result.py \
+  data/extracted/extraction_result.apt28.thn.beardshell.v1.json \
+  --document data/documents/apt28/apt28_049.json
 ```
 
 ### DeepSeek V4 真实抽取与评测
