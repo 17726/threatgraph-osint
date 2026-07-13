@@ -49,12 +49,15 @@ API_PORT=8000
 # sqlite
 SQLITE_DB_PATH=/app/data/threatgraph_osint.db
 
-# llm openai-compatible
+# llm openai-compatible (DeepSeek V4 default)
 LLM_API_KEY=
-LLM_BASE_URL=https://api.openai.com/v1
-LLM_MODEL=gpt-4o-mini
-LLM_TIMEOUT_SECONDS=60
+LLM_BASE_URL=https://api.deepseek.com
+LLM_MODEL=deepseek-v4-flash
+LLM_TIMEOUT_SECONDS=120
 LLM_MAX_RETRIES=3
+LLM_MAX_OUTPUT_TOKENS=32768
+LLM_RELATION_REVIEW_PASSES=0
+LLM_TRUST_ENV=false
 
 # neo4j
 NEO4J_URI=bolt://neo4j:7687

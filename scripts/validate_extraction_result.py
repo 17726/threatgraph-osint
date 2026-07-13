@@ -259,6 +259,15 @@ def validate_relation_matrix(payload: dict[str, Any], report: ValidationReport) 
                 report.add_error(f"{prefix}: 客体实体未在同一 chunk 的候选实体中声明")
 
 
+def validate_unique_chunk_ids(payload: dict[str, Any], report: ValidationReport) -> None:
+    seen: set[str] = set()
+    for chunk_index, chunk in enumerate(payload.get("chunks", [])):
+        chunk_id = chunk.get("chunk_id", "")
+        if chunk_id in seen:
+            report.add_error(f"chunks[{chunk_index}]: 重复 chunk_id {chunk_id!r}")
+        seen.add(chunk_id)
+
+
 def validate_text_span(
     *,
     item: dict[str, Any],
@@ -338,6 +347,7 @@ def validate_payload(
     if report.errors:
         return report
 
+    validate_unique_chunk_ids(payload, report)
     validate_relation_matrix(payload, report)
     if document is not None:
         validate_document_alignment(payload, document, report)
