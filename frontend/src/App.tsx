@@ -37,6 +37,7 @@ export function App() {
   const chartInstanceRef = useRef<any>(null);
   const [currentYear, setCurrentYear] = useState(2026);
   const [highlightNodeIds, setHighlightNodeIds] = useState<string[]>([]);
+  const [searchNodeId, setSearchNodeId] = useState<string | null>(null);
   const [page, setPage] = useState<"graph" | "analysis" | "evaluation">(
     "graph",
   );
@@ -51,6 +52,7 @@ export function App() {
     setError(null);
     setSelectedNode(null);
     setSelectedEdge(null);
+    setSearchNodeId(null);
 
     fetchGraph(target)
       .then((graphPayload) => {
@@ -84,15 +86,12 @@ export function App() {
     const activeIds = new Set(
       graph.nodes
         .filter((n) => {
-          if (!n.first_seen) return true;
-          const fy = parseInt(n.first_seen.split("-")[0], 10);
-          const ly = n.last_seen
-            ? parseInt(n.last_seen.split("-")[0], 10)
-            : 2026;
-          if (Number.isNaN(fy) || Number.isNaN(ly)) return true;
-          return fy <= currentYear && ly >= currentYear;
-        })
-        .map((n) => n.id),
+        if (!n.first_seen) return true;
+        const fy = parseInt(n.first_seen.split("-")[0], 10);
+        if (Number.isNaN(fy)) return true;
+        return fy <= currentYear;
+      })
+      .map((n) => n.id),
     );
     return {
       ...graph,
@@ -105,9 +104,9 @@ export function App() {
   const graphOption = useMemo(
     () =>
       filteredGraph
-        ? buildGraphOption(filteredGraph, { highlightNodeIds })
+        ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId })
         : null,
-    [filteredGraph, highlightNodeIds],
+    [filteredGraph, highlightNodeIds, searchNodeId],
   );
 
   const handleChartReady = useCallback((instance: any) => {
@@ -116,6 +115,7 @@ export function App() {
       if (params.dataType === "node") {
         const raw = params.data._raw as GraphNode | undefined;
         if (raw) setSelectedNode(raw);
+        setSearchNodeId(null);
         setSelectedEdge(null);
       } else if (params.dataType === "edge") {
         const raw = params.data._raw as GraphEdge | undefined;
@@ -133,7 +133,16 @@ export function App() {
       if (!instance || !filteredGraph) return;
       const idx = filteredGraph.nodes.findIndex((n) => n.id === nodeId);
       if (idx >= 0) {
-        setSelectedNode(filteredGraph.nodes[idx]);
+        setSearchNodeId(nodeId);
+        // 重置视图并居中到目标节点
+        instance.dispatchAction({ type: "restore" });
+        try {
+          const opt = instance.getOption();
+          const node = opt.series?.[0]?.data?.[idx];
+          if (node && typeof node.x === "number" && typeof node.y === "number") {
+            instance.setOption({ series: [{ center: [node.x, node.y], zoom: 1.8 }] });
+          }
+        } catch (_) { /* 忽略坐标读取失败 */ }
         instance.dispatchAction({
           type: "focusNodeAdjacency",
           seriesIndex: 0,
