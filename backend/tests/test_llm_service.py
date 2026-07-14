@@ -4,6 +4,7 @@ from pathlib import Path
 import httpx
 import pytest
 
+from backend.app.core.document_contract import document_content_hash
 from backend.app.services.llm_service import (
     ENTITY_TYPES,
     RELATION_TYPES,
@@ -16,6 +17,18 @@ from backend.app.services.llm_service import (
 
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def build_document(doc_id: str, clean_text: str) -> dict:
+    document = json.loads(
+        (ROOT / "data/examples/document.apt28.thn.beardshell.example.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    document["doc_id"] = doc_id
+    document["clean_text"] = clean_text
+    document["content_hash"] = document_content_hash(clean_text)
+    return document
 
 
 def api_response(content: dict, model: str = "test-model") -> httpx.Response:
@@ -284,7 +297,7 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
         transport=httpx.MockTransport(handler),
     )
 
-    result = service.extract({"doc_id": "doc", "clean_text": clean_text})
+    result = service.extract(build_document("doc", clean_text))
 
     assert result["doc_id"] == "doc"
     assert result["model_name"] == "test-model"
@@ -400,7 +413,7 @@ def test_relation_review_adds_only_grounded_relations():
         transport=httpx.MockTransport(handler),
     )
 
-    result = service.extract({"doc_id": "doc", "clean_text": clean_text})
+    result = service.extract(build_document("doc", clean_text))
 
     assert calls == 2
     assert len(result["chunks"][0]["relations"]) == 1

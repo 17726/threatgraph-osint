@@ -1,8 +1,10 @@
+import hashlib
 import json
 import sqlite3
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
+import pytest
 
 from backend.app.services.demo_store import DemoStore
 from backend.app.services.offline_extraction_pipeline import (
@@ -21,6 +23,53 @@ EXTRACTION_PATH = (
     / "data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json"
 )
 GRAPH_SCHEMA_PATH = ROOT / "docs/schemas/graph.schema.json"
+
+
+def sha256_prefixed(value: str) -> str:
+    return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def create_legacy_documents_table(
+    connection: sqlite3.Connection,
+    *,
+    body: str = "Legacy cleaned body",
+    content_hash: str | None = None,
+) -> None:
+    connection.executescript(
+        """
+        CREATE TABLE documents (
+          doc_id TEXT PRIMARY KEY,
+          schema_version TEXT NOT NULL DEFAULT '1.0',
+          collection_item_id TEXT,
+          target_group TEXT NOT NULL,
+          target_groups_json TEXT NOT NULL DEFAULT '[]',
+          source_url TEXT NOT NULL,
+          source_type TEXT NOT NULL,
+          source_name TEXT NOT NULL DEFAULT '',
+          title TEXT NOT NULL,
+          language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
+          raw_text TEXT NOT NULL,
+          content_hash TEXT NOT NULL,
+          published_at TEXT,
+          retrieved_at TEXT,
+          source_reliability TEXT NOT NULL DEFAULT 'unknown',
+          tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
+          tags_json TEXT NOT NULL DEFAULT '[]',
+          metadata_json TEXT NOT NULL DEFAULT '{}',
+          created_at TEXT NOT NULL
+        );
+        """
+    )
+    connection.execute(
+        """
+        INSERT INTO documents (
+          doc_id, target_group, source_url, source_type, title, language,
+          raw_text, content_hash, created_at
+        ) VALUES (?, 'APT28', 'https://example.test/legacy', 'news',
+                  'Legacy document', 'en', ?, ?, '2026-07-13T00:00:00Z')
+        """,
+        ("legacy_doc", body, content_hash or sha256_prefixed(body)),
+    )
 
 
 def connect(db_path: Path) -> sqlite3.Connection:
@@ -195,62 +244,85 @@ def test_offline_pipeline_keeps_invalid_relation_as_candidate(tmp_path):
     )[0]
 
 
-def test_offline_pipeline_migrates_legacy_documents_raw_text_column(tmp_path):
+def test_offline_pipeline_rejects_ambiguous_legacy_raw_text_column(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     with connect(db_path) as connection:
-        connection.executescript(
-            """
-            CREATE TABLE documents (
-              doc_id TEXT PRIMARY KEY,
-              schema_version TEXT NOT NULL DEFAULT '1.0',
-              collection_item_id TEXT,
-              target_group TEXT NOT NULL,
-              target_groups_json TEXT NOT NULL DEFAULT '[]',
-              source_url TEXT NOT NULL,
-              source_type TEXT NOT NULL,
-              source_name TEXT NOT NULL DEFAULT '',
-              title TEXT NOT NULL,
-              language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
-              raw_text TEXT NOT NULL,
-              content_hash TEXT NOT NULL,
-              published_at TEXT,
-              retrieved_at TEXT,
-              source_reliability TEXT NOT NULL DEFAULT 'unknown',
-              tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
-              tags_json TEXT NOT NULL DEFAULT '[]',
-              metadata_json TEXT NOT NULL DEFAULT '{}',
-              created_at TEXT NOT NULL
-            );
-            INSERT INTO documents (
-              doc_id, target_group, source_url, source_type, title, language,
-              raw_text, content_hash, created_at
-            ) VALUES (
-              'legacy_doc', 'APT28', 'https://example.test/legacy', 'news',
-              'Legacy document', 'en', 'Legacy cleaned body',
-              'sha256:legacy', '2026-07-13T00:00:00Z'
-            );
-            """
-        )
+        create_legacy_documents_table(connection)
 
-    OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
+    with pytest.raises(RuntimeError, match="无法证明.*清洗正文"):
+        OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
 
     with connect(db_path) as connection:
         document_columns = {
             row["name"] for row in connection.execute("PRAGMA table_info(documents)")
         }
-        legacy_document = connection.execute(
-            "SELECT clean_text FROM documents WHERE doc_id = ?",
-            ("legacy_doc",),
+        document_count = connection.execute("SELECT COUNT(*) FROM documents").fetchone()[0]
+
+    assert "raw_text" in document_columns
+    assert "clean_text" not in document_columns
+    assert document_count == 1
+
+
+def test_offline_pipeline_rejects_document_hash_mismatch_before_writing(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    document_path = tmp_path / "document.json"
+    document = json.loads(DOCUMENT_PATH.read_text(encoding="utf-8"))
+    document["content_hash"] = "sha256:" + "0" * 64
+    document_path.write_text(json.dumps(document, ensure_ascii=False), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="content_hash"):
+        OfflineExtractionPipeline(db_path).run(document_path, EXTRACTION_PATH)
+
+    with connect(db_path) as connection:
+        documents_table = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'documents'"
         ).fetchone()
-        imported_document = connection.execute(
-            "SELECT clean_text FROM documents WHERE doc_id = ?",
-            ("apt28_049",),
+        if documents_table:
+            assert connection.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 0
+
+
+def test_documents_schema_rejects_invalid_hash_without_partial_schema(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    with connect(db_path) as connection:
+        create_legacy_documents_table(connection, content_hash="sha256:legacy")
+        connection.execute("ALTER TABLE documents RENAME COLUMN raw_text TO clean_text")
+
+    with pytest.raises(ValueError, match="content_hash"):
+        with OfflineExtractionPipeline(db_path).connect() as connection:
+            OfflineExtractionPipeline(db_path).initialize_schema(connection)
+
+    with connect(db_path) as connection:
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(documents)")}
+        temporary_table = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'documents_new'"
         ).fetchone()
 
-    assert "clean_text" in document_columns
-    assert "raw_text" not in document_columns
-    assert legacy_document["clean_text"] == "Legacy cleaned body"
-    assert "BEARDSHELL" in imported_document["clean_text"]
+    assert "clean_text" in columns
+    assert "raw_text" not in columns
+    assert temporary_table is None
+
+
+def test_documents_migration_recovers_stale_temporary_table(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    with connect(db_path) as connection:
+        create_legacy_documents_table(connection)
+        connection.execute("ALTER TABLE documents RENAME COLUMN raw_text TO clean_text")
+        connection.execute("CREATE TABLE documents_new (placeholder TEXT)")
+
+    pipeline = OfflineExtractionPipeline(db_path)
+    with pipeline.connect() as connection:
+        pipeline.initialize_schema(connection)
+        pipeline.initialize_schema(connection)
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(documents)")}
+        temporary_table = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'documents_new'"
+        ).fetchone()
+        foreign_key_errors = connection.execute("PRAGMA foreign_key_check").fetchall()
+
+    assert "clean_text" in columns
+    assert "raw_text" not in columns
+    assert temporary_table is None
+    assert foreign_key_errors == []
 
 
 def test_offline_pipeline_rerun_removes_stale_canonical_relation(tmp_path):

@@ -9,6 +9,12 @@ from jsonschema import Draft202012Validator
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from backend.app.core.document_contract import document_contract_errors
+
+
 DEFAULT_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
 
 ALLOWED_RELATIONS = {
@@ -344,6 +350,10 @@ def validate_payload(
     report = ValidationReport()
     validate_schema(payload, schema_path, report)
 
+    if document is not None:
+        for error in document_contract_errors(document):
+            report.add_error(error)
+
     if report.errors:
         return report
 
@@ -351,6 +361,25 @@ def validate_payload(
     validate_relation_matrix(payload, report)
     if document is not None:
         validate_document_alignment(payload, document, report)
+    return report
+
+
+def validate_import_payload(
+    payload: dict[str, Any],
+    document: dict[str, Any],
+    *,
+    schema_path: Path = DEFAULT_SCHEMA_PATH,
+) -> ValidationReport:
+    """校验导入边界，但保留关系矩阵失败项进入候选审计层。"""
+    report = ValidationReport()
+    validate_schema(payload, schema_path, report)
+    for error in document_contract_errors(document):
+        report.add_error(error)
+    if report.errors:
+        return report
+
+    validate_unique_chunk_ids(payload, report)
+    validate_document_alignment(payload, document, report)
     return report
 
 

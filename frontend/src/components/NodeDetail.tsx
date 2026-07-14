@@ -24,6 +24,7 @@ export default function NodeDetail({ node, onClose }: NodeDetailProps) {
   const rows: [string, string][] = [
     ["名称", node.name],
     ["别名", node.aliases?.join(", ") || "-"],
+    ["描述", node.description || "-"],
     ["置信度", String(node.confidence ?? "-")],
     ["来源数", String(node.source_count ?? "-")],
     ["首次发现", node.first_seen ?? "-"],

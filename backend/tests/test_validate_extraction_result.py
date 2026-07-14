@@ -1,4 +1,5 @@
 import copy
+import hashlib
 
 from pathlib import Path
 
@@ -16,6 +17,12 @@ EXTRACTION_PATH = (
 
 def _load_valid_payload():
     return load_json(EXTRACTION_PATH), load_json(DOCUMENT_PATH)
+
+
+def _refresh_document_hash(document):
+    document["content_hash"] = "sha256:" + hashlib.sha256(
+        document["clean_text"].encode("utf-8")
+    ).hexdigest()
 
 
 def test_extraction_result_v1_matches_schema_matrix_and_document_text():
@@ -71,21 +78,31 @@ def test_validator_rejects_evidence_text_not_in_document():
     assert any("未出现在 document.clean_text" in error for error in report.errors)
 
 
-def test_validator_does_not_fallback_to_document_raw_text():
+def test_validator_rejects_document_without_clean_text():
     payload, document = _load_valid_payload()
-    invalid_document = copy.deepcopy(document)
-    invalid_document["raw_text"] = invalid_document.pop("clean_text")
+    document["raw_text"] = document.pop("clean_text")
 
-    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=invalid_document)
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
 
     assert not report.ok
-    assert any("document.clean_text 不能为空" in error for error in report.errors)
+    assert any("clean_text" in error for error in report.errors)
+
+
+def test_validator_rejects_document_hash_mismatch():
+    payload, document = _load_valid_payload()
+    document["content_hash"] = "sha256:" + "0" * 64
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert not report.ok
+    assert any("content_hash" in error for error in report.errors)
 
 
 def test_validator_accepts_crime_network_relationships():
     payload, document = _load_valid_payload()
     evidence = "APT28 member Operator One controls wallet Alpha and transfers funds to wallet Beta."
     document["clean_text"] += "\n" + evidence
+    _refresh_document_hash(document)
     chunk = payload["chunks"][0]
     chunk["entities"].extend(
         [

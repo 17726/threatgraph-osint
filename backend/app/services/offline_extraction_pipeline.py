@@ -7,12 +7,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from backend.app.core.document_contract import document_content_hash, require_valid_document
+from backend.app.db.schema import migrate_documents_clean_text_schema
 from scripts.validate_extraction_result import (
     ALLOWED_RELATIONS,
     DEFAULT_SCHEMA_PATH,
-    ValidationReport,
     load_json,
-    validate_schema,
+    validate_import_payload,
 )
 
 
@@ -59,10 +60,7 @@ ENTITY_PREFIXES = {
 
 
 def document_text(document: dict[str, Any]) -> str:
-    clean_text = document.get("clean_text")
-    if not isinstance(clean_text, str) or not clean_text.strip():
-        raise ValueError("document.clean_text 不能为空")
-    return clean_text
+    return require_valid_document(document)
 
 
 @dataclass
@@ -96,14 +94,15 @@ class OfflineExtractionPipeline:
     ) -> OfflinePipelineSummary:
         document = load_json(Path(document_path))
         extraction_result = load_json(Path(extraction_result_path))
-        schema_report = ValidationReport()
-        validate_schema(extraction_result, DEFAULT_SCHEMA_PATH, schema_report)
+        schema_report = validate_import_payload(
+            extraction_result,
+            document,
+            schema_path=DEFAULT_SCHEMA_PATH,
+        )
         if not schema_report.ok:
-            raise ValueError("extraction_result schema 校验失败: " + "; ".join(schema_report.errors))
-        if extraction_result["doc_id"] != document["doc_id"]:
             raise ValueError(
-                f"doc_id 不一致: result={extraction_result['doc_id']!r}, "
-                f"document={document['doc_id']!r}"
+                "Document/extraction_result 契约校验失败: "
+                + "; ".join(schema_report.errors)
             )
 
         with self.connect() as connection:
@@ -342,89 +341,8 @@ class OfflineExtractionPipeline:
             );
             """
         )
-        self._migrate_documents_clean_text_schema(connection)
+        migrate_documents_clean_text_schema(connection)
         self._ensure_columns(connection)
-
-    def _migrate_documents_clean_text_schema(self, connection: sqlite3.Connection) -> None:
-        rows = connection.execute("PRAGMA table_info(documents)").fetchall()
-        columns = {row["name"] for row in rows}
-        if "clean_text" in columns and "raw_text" not in columns:
-            return
-        if "clean_text" not in columns and "raw_text" not in columns:
-            raise RuntimeError("SQLite documents 表缺少 clean_text 列")
-
-        previous_foreign_keys = connection.execute("PRAGMA foreign_keys").fetchone()[0]
-        connection.commit()
-        connection.execute("PRAGMA foreign_keys = OFF")
-        try:
-            connection.executescript(
-                """
-                CREATE TABLE documents_new (
-                  doc_id TEXT PRIMARY KEY,
-                  schema_version TEXT NOT NULL DEFAULT '1.0',
-                  collection_item_id TEXT,
-                  target_group TEXT NOT NULL,
-                  target_groups_json TEXT NOT NULL DEFAULT '[]',
-                  source_url TEXT NOT NULL,
-                  source_type TEXT NOT NULL,
-                  source_name TEXT NOT NULL DEFAULT '',
-                  title TEXT NOT NULL,
-                  language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
-                  clean_text TEXT NOT NULL,
-                  content_hash TEXT NOT NULL,
-                  published_at TEXT,
-                  retrieved_at TEXT,
-                  source_reliability TEXT NOT NULL DEFAULT 'unknown',
-                  tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
-                  tags_json TEXT NOT NULL DEFAULT '[]',
-                  metadata_json TEXT NOT NULL DEFAULT '{}',
-                  created_at TEXT NOT NULL
-                );
-                """
-            )
-            clean_text_column = "clean_text" if "clean_text" in columns else "raw_text"
-            select_expressions = {
-                "doc_id": "doc_id",
-                "schema_version": (
-                    "schema_version" if "schema_version" in columns else "'1.0'"
-                ),
-                "collection_item_id": (
-                    "collection_item_id" if "collection_item_id" in columns else "NULL"
-                ),
-                "target_group": "target_group",
-                "target_groups_json": (
-                    "target_groups_json" if "target_groups_json" in columns else "'[]'"
-                ),
-                "source_url": "source_url",
-                "source_type": "source_type",
-                "source_name": "source_name" if "source_name" in columns else "''",
-                "title": "title",
-                "language": "language",
-                "clean_text": clean_text_column,
-                "content_hash": "content_hash",
-                "published_at": "published_at" if "published_at" in columns else "NULL",
-                "retrieved_at": "retrieved_at" if "retrieved_at" in columns else "NULL",
-                "source_reliability": (
-                    "source_reliability" if "source_reliability" in columns else "'unknown'"
-                ),
-                "tlp": "tlp" if "tlp" in columns else "'TLP:CLEAR'",
-                "tags_json": "tags_json" if "tags_json" in columns else "'[]'",
-                "metadata_json": "metadata_json" if "metadata_json" in columns else "'{}'",
-                "created_at": "created_at" if "created_at" in columns else "CURRENT_TIMESTAMP",
-            }
-            target_columns = list(select_expressions)
-            connection.execute(
-                f"""
-                INSERT INTO documents_new ({", ".join(target_columns)})
-                SELECT {", ".join(select_expressions[column] for column in target_columns)}
-                FROM documents
-                """
-            )
-            connection.execute("DROP TABLE documents")
-            connection.execute("ALTER TABLE documents_new RENAME TO documents")
-            connection.commit()
-        finally:
-            connection.execute(f"PRAGMA foreign_keys = {int(previous_foreign_keys)}")
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:
         migrations = {
@@ -566,6 +484,7 @@ class OfflineExtractionPipeline:
     ) -> None:
         now = now_iso()
         clean_text = document_text(document)
+        content_hash = document_content_hash(clean_text)
         connection.execute(
             """
             INSERT OR REPLACE INTO documents (
@@ -587,7 +506,7 @@ class OfflineExtractionPipeline:
                 document["title"],
                 document["language"],
                 clean_text,
-                document["content_hash"],
+                content_hash,
                 document.get("published_at"),
                 document.get("retrieved_at"),
                 document.get("source_reliability", "unknown"),
