@@ -7,12 +7,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from backend.app.core.document_contract import document_content_hash, require_valid_document
+from backend.app.db.schema import migrate_documents_clean_text_schema
 from scripts.validate_extraction_result import (
     ALLOWED_RELATIONS,
     DEFAULT_SCHEMA_PATH,
-    ValidationReport,
     load_json,
-    validate_schema,
+    validate_import_payload,
 )
 
 
@@ -59,7 +60,7 @@ ENTITY_PREFIXES = {
 
 
 def document_text(document: dict[str, Any]) -> str:
-    return document.get("clean_text") or document.get("raw_text", "")
+    return require_valid_document(document)
 
 
 @dataclass
@@ -93,14 +94,15 @@ class OfflineExtractionPipeline:
     ) -> OfflinePipelineSummary:
         document = load_json(Path(document_path))
         extraction_result = load_json(Path(extraction_result_path))
-        schema_report = ValidationReport()
-        validate_schema(extraction_result, DEFAULT_SCHEMA_PATH, schema_report)
+        schema_report = validate_import_payload(
+            extraction_result,
+            document,
+            schema_path=DEFAULT_SCHEMA_PATH,
+        )
         if not schema_report.ok:
-            raise ValueError("extraction_result schema 校验失败: " + "; ".join(schema_report.errors))
-        if extraction_result["doc_id"] != document["doc_id"]:
             raise ValueError(
-                f"doc_id 不一致: result={extraction_result['doc_id']!r}, "
-                f"document={document['doc_id']!r}"
+                "Document/extraction_result 契约校验失败: "
+                + "; ".join(schema_report.errors)
             )
 
         with self.connect() as connection:
@@ -145,7 +147,7 @@ class OfflineExtractionPipeline:
               source_name TEXT NOT NULL DEFAULT '',
               title TEXT NOT NULL,
               language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
-              raw_text TEXT NOT NULL,
+              clean_text TEXT NOT NULL,
               content_hash TEXT NOT NULL,
               published_at TEXT,
               retrieved_at TEXT,
@@ -339,6 +341,7 @@ class OfflineExtractionPipeline:
             );
             """
         )
+        migrate_documents_clean_text_schema(connection)
         self._ensure_columns(connection)
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:
@@ -481,11 +484,12 @@ class OfflineExtractionPipeline:
     ) -> None:
         now = now_iso()
         clean_text = document_text(document)
+        content_hash = document_content_hash(clean_text)
         connection.execute(
             """
             INSERT OR REPLACE INTO documents (
               doc_id, schema_version, collection_item_id, target_group, target_groups_json,
-              source_url, source_type, source_name, title, language, raw_text, content_hash,
+              source_url, source_type, source_name, title, language, clean_text, content_hash,
               published_at, retrieved_at, source_reliability, tlp, tags_json, metadata_json,
               created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -502,7 +506,7 @@ class OfflineExtractionPipeline:
                 document["title"],
                 document["language"],
                 clean_text,
-                document["content_hash"],
+                content_hash,
                 document.get("published_at"),
                 document.get("retrieved_at"),
                 document.get("source_reliability", "unknown"),
