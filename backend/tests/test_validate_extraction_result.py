@@ -71,6 +71,17 @@ def test_validator_rejects_evidence_text_not_in_document():
     assert any("未出现在 document.clean_text" in error for error in report.errors)
 
 
+def test_validator_does_not_fallback_to_document_raw_text():
+    payload, document = _load_valid_payload()
+    invalid_document = copy.deepcopy(document)
+    invalid_document["raw_text"] = invalid_document.pop("clean_text")
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=invalid_document)
+
+    assert not report.ok
+    assert any("document.clean_text 不能为空" in error for error in report.errors)
+
+
 def test_validator_accepts_crime_network_relationships():
     payload, document = _load_valid_payload()
     evidence = "APT28 member Operator One controls wallet Alpha and transfers funds to wallet Beta."

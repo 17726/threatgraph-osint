@@ -306,7 +306,7 @@ def validate_document_alignment(
 ) -> None:
     doc_id = payload.get("doc_id")
     document_doc_id = document.get("doc_id")
-    clean_text = document.get("clean_text") or document.get("raw_text", "")
+    clean_text = document.get("clean_text", "")
 
     if doc_id != document_doc_id:
         report.add_error(f"doc_id 不一致: result={doc_id!r}, document={document_doc_id!r}")
