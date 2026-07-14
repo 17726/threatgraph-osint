@@ -22,6 +22,8 @@ from backend.app.services.artifact_naming import (
     extraction_run_id,
     iso_timestamp,
     now_utc,
+    validate_candidate_audit_artifact_filename,
+    validate_extraction_artifact_filename,
 )
 from scripts.validate_extraction_result import (
     ALLOWED_RELATIONS,
@@ -823,6 +825,7 @@ class LLMExtractionService:
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         result_path = output_path / extraction_filename(result["run_id"])
+        validate_extraction_artifact_filename(result_path, result)
         result_path.write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
@@ -839,6 +842,10 @@ class LLMExtractionService:
         output_path.mkdir(parents=True, exist_ok=True)
         audit_path = output_path / candidate_audit_filename(
             self.last_candidate_audit["run_id"]
+        )
+        validate_candidate_audit_artifact_filename(
+            audit_path,
+            self.last_candidate_audit,
         )
         audit_path.write_text(
             json.dumps(self.last_candidate_audit, ensure_ascii=False, indent=2) + "\n",
