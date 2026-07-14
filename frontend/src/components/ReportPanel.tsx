@@ -18,7 +18,13 @@ const SECTION_ICONS: Record<string, string> = {
   threat_assessment: "🛡️",
 };
 
-export default function ReportPanel({ graph, report, target, onGenerate, generating }: ReportPanelProps) {
+export default function ReportPanel({
+  graph,
+  report,
+  target,
+  onGenerate,
+  generating,
+}: ReportPanelProps) {
   const [activeSection, setActiveSection] = useState<string>("profile");
   const [reportMode, setReportMode] = useState<"sections" | "full">("sections");
 
@@ -61,9 +67,7 @@ export default function ReportPanel({ graph, report, target, onGenerate, generat
             )}
             <button
               type="button"
-              onClick={() =>
-                setReportMode(reportMode === "sections" ? "full" : "sections")
-              }
+              onClick={() => setReportMode(reportMode === "sections" ? "full" : "sections")}
               style={{
                 padding: "4px 10px",
                 borderRadius: 6,
@@ -114,10 +118,7 @@ export default function ReportPanel({ graph, report, target, onGenerate, generat
                     cursor: "pointer",
                     fontSize: 12,
                     fontWeight: activeSection === section.section_type ? 600 : 400,
-                    color:
-                      activeSection === section.section_type
-                        ? "#0f766e"
-                        : "#64748b",
+                    color: activeSection === section.section_type ? "#0f766e" : "#64748b",
                     whiteSpace: "nowrap",
                     display: "flex",
                     alignItems: "center",
@@ -196,15 +197,10 @@ export default function ReportPanel({ graph, report, target, onGenerate, generat
   // 降级：使用图谱数据生成基础报告
   if (!graph) return null;
 
-  const targetNode = graph.nodes.find(
-    (n) => n.name === target && n.type === "APT_GROUP",
-  );
+  const targetNode = graph.nodes.find((n) => n.name === target && n.type === "APT_GROUP");
   if (!targetNode) return null;
 
-  const edgesByType: Record<
-    string,
-    { label: string; confidence: number; infer: boolean }[]
-  > = {};
+  const edgesByType: Record<string, { label: string; confidence: number; infer: boolean }[]> = {};
   graph.edges.forEach((e) => {
     const src = graph.nodes.find((n) => n.id === e.source)?.name ?? e.source;
     const dst = graph.nodes.find((n) => n.id === e.target)?.name ?? e.target;
@@ -224,14 +220,8 @@ export default function ReportPanel({ graph, report, target, onGenerate, generat
     ["名称", targetNode.name],
     ["别名", targetNode.aliases?.join(", ") || "-"],
     ["描述", targetNode.description || "-"],
-    [
-      "置信度",
-      targetNode.confidence != null ? String(targetNode.confidence) : "-",
-    ],
-    [
-      "来源数",
-      targetNode.source_count != null ? String(targetNode.source_count) : "-",
-    ],
+    ["置信度", targetNode.confidence != null ? String(targetNode.confidence) : "-"],
+    ["来源数", targetNode.source_count != null ? String(targetNode.source_count) : "-"],
     ["首次发现", targetNode.first_seen ?? "-"],
     ["最近活跃", targetNode.last_seen ?? "-"],
   ];
@@ -248,9 +238,7 @@ export default function ReportPanel({ graph, report, target, onGenerate, generat
       <div className="panel-heading">
         <h2>{target} - 威胁分析报告</h2>
       </div>
-      <div
-        style={{ padding: 16, maxHeight: 400, overflowY: "auto", fontSize: 13 }}
-      >
+      <div style={{ padding: 16, maxHeight: 400, overflowY: "auto", fontSize: 13 }}>
         <h3
           style={{
             fontSize: 14,
@@ -335,9 +323,7 @@ export default function ReportPanel({ graph, report, target, onGenerate, generat
                 <span style={{ color: "#172026" }}>{item.label}</span>
                 <span style={{ color: "#64748b", marginLeft: "auto" }}>
                   {item.infer ? (
-                    <span style={{ color: "#94a3b8", fontStyle: "italic" }}>
-                      推断
-                    </span>
+                    <span style={{ color: "#94a3b8", fontStyle: "italic" }}>推断</span>
                   ) : (
                     String(item.confidence)
                   )}
@@ -397,30 +383,27 @@ export default function ReportPanel({ graph, report, target, onGenerate, generat
 function renderMarkdown(md: string): string {
   let html = md
     // 表格
-    .replace(
-      /\|(.+)\|\n\|[-| ]+\|\n((?:\|.+\|\n)*)/g,
-      (_match, header: string, body: string) => {
-        const headers = header
-          .split("|")
-          .map((h: string) => `<th>${h.trim()}</th>`)
-          .join("");
-        const rows = body
-          .trim()
-          .split("\n")
-          .map((row: string) => {
-            const cells = row
-              .split("|")
-              .map((c: string) => `<td>${c.trim()}</td>`)
-              .join("");
-            return `<tr>${cells}</tr>`;
-          })
-          .join("");
-        return `<table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:12px">
+    .replace(/\|(.+)\|\n\|[-| ]+\|\n((?:\|.+\|\n)*)/g, (_match, header: string, body: string) => {
+      const headers = header
+        .split("|")
+        .map((h: string) => `<th>${h.trim()}</th>`)
+        .join("");
+      const rows = body
+        .trim()
+        .split("\n")
+        .map((row: string) => {
+          const cells = row
+            .split("|")
+            .map((c: string) => `<td>${c.trim()}</td>`)
+            .join("");
+          return `<tr>${cells}</tr>`;
+        })
+        .join("");
+      return `<table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:12px">
           <thead><tr>${headers}</tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
-      },
-    )
+    })
     // 标题 (####)
     .replace(/^#### (.+)$/gm, '<h4 style="margin:12px 0 6px;color:#0f766e;">$1</h4>')
     // 标题 (###)

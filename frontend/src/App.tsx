@@ -1,23 +1,10 @@
 import ReactECharts from "echarts-for-react";
-import {
-  Activity,
-  Database,
-  FileText,
-  Network,
-  RefreshCw,
-  ShieldCheck,
-} from "lucide-react";
+import { Activity, Database, FileText, Network, RefreshCw, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchGraph, fetchReport, generateReport } from "./api/client";
 import { buildGraphOption } from "./graphOptions";
-import type {
-  Evidence,
-  GraphEdge,
-  GraphNode,
-  GraphPayload,
-  ReportPayload,
-} from "./types";
+import type { Evidence, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "./types";
 import NodeDetail from "./components/NodeDetail";
 import SearchBar from "./components/SearchBar";
 import TimelineBar from "./components/TimelineBar";
@@ -32,9 +19,7 @@ export function App() {
   const [target, setTarget] = useState(TARGETS[0]);
   const [graph, setGraph] = useState<GraphPayload | null>(null);
   const [report, setReport] = useState<ReportPayload | null>(null);
-  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(
-    null,
-  );
+  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -46,9 +31,7 @@ export function App() {
   const [currentYear, setCurrentYear] = useState(2026);
   const [highlightNodeIds, setHighlightNodeIds] = useState<string[]>([]);
   const [searchNodeId, setSearchNodeId] = useState<string | null>(null);
-  const [page, setPage] = useState<"graph" | "analysis" | "evaluation">(
-    "graph",
-  );
+  const [page, setPage] = useState<"graph" | "analysis" | "evaluation">("graph");
   const firstSentence = (text: string): string => {
     const match = text.match(/^.*?[。！？.!?]/);
     return match ? match[0] : text;
@@ -104,26 +87,22 @@ export function App() {
     const activeIds = new Set(
       graph.nodes
         .filter((n) => {
-        if (!n.first_seen) return true;
-        const fy = parseInt(n.first_seen.split("-")[0], 10);
-        if (Number.isNaN(fy)) return true;
-        return fy <= currentYear;
-      })
-      .map((n) => n.id),
+          if (!n.first_seen) return true;
+          const fy = parseInt(n.first_seen.split("-")[0], 10);
+          if (Number.isNaN(fy)) return true;
+          return fy <= currentYear;
+        })
+        .map((n) => n.id),
     );
     return {
       ...graph,
       nodes: graph.nodes.filter((n) => activeIds.has(n.id)),
-      edges: graph.edges.filter(
-        (e) => activeIds.has(e.source) && activeIds.has(e.target),
-      ),
+      edges: graph.edges.filter((e) => activeIds.has(e.source) && activeIds.has(e.target)),
     };
   }, [graph, currentYear, highlightNodeIds]);
   const graphOption = useMemo(
     () =>
-      filteredGraph
-        ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId })
-        : null,
+      filteredGraph ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId }) : null,
     [filteredGraph, highlightNodeIds, searchNodeId],
   );
 
@@ -160,7 +139,9 @@ export function App() {
           if (node && typeof node.x === "number" && typeof node.y === "number") {
             instance.setOption({ series: [{ center: [node.x, node.y], zoom: 1.8 }] });
           }
-        } catch (_) { /* 忽略坐标读取失败 */ }
+        } catch (_) {
+          /* 忽略坐标读取失败 */
+        }
         instance.dispatchAction({
           type: "focusNodeAdjacency",
           seriesIndex: 0,
@@ -220,10 +201,7 @@ export function App() {
             </button>
           ))}
         </div>
-        <SearchBar
-          nodes={filteredGraph?.nodes ?? []}
-          onSelect={handleSearchSelect}
-        />
+        <SearchBar nodes={filteredGraph?.nodes ?? []} onSelect={handleSearchSelect} />
         <div className="status-strip">
           <span>
             <Database size={16} />
@@ -257,11 +235,7 @@ export function App() {
               fontWeight: page === p ? 600 : 400,
             }}
           >
-            {p === "graph"
-              ? "知识图谱"
-              : p === "analysis"
-                ? "行为分析"
-                : "评测结果"}
+            {p === "graph" ? "知识图谱" : p === "analysis" ? "行为分析" : "评测结果"}
           </button>
         ))}
       </div>
@@ -308,10 +282,7 @@ export function App() {
                       zIndex: 25,
                     }}
                   />
-                  <NodeDetail
-                    node={selectedNode}
-                    onClose={() => setSelectedNode(null)}
-                  />
+                  <NodeDetail node={selectedNode} onClose={() => setSelectedNode(null)} />
                 </>
               )}
             </div>
@@ -391,13 +362,10 @@ export function App() {
                     </div>
                     <p>
                       置信度:{" "}
-                      <strong style={{ color: "#172026" }}>
-                        {selectedEdge.confidence}
-                      </strong>
+                      <strong style={{ color: "#172026" }}>{selectedEdge.confidence}</strong>
                     </p>
                     <p>
-                      来源数: {selectedEdge.source_count} · 证据:{" "}
-                      {selectedEdge.evidence_count} 条
+                      来源数: {selectedEdge.source_count} · 证据: {selectedEdge.evidence_count} 条
                     </p>
                     <hr
                       style={{
@@ -407,17 +375,15 @@ export function App() {
                       }}
                     />
                     <p style={{ color: "#64748b" }}>
-                      {graph?.nodes.find((n) => n.id === selectedEdge.source)
-                        ?.name ?? selectedEdge.source}{" "}
+                      {graph?.nodes.find((n) => n.id === selectedEdge.source)?.name ??
+                        selectedEdge.source}{" "}
                       →{" "}
-                      {graph?.nodes.find((n) => n.id === selectedEdge.target)
-                        ?.name ?? selectedEdge.target}
+                      {graph?.nodes.find((n) => n.id === selectedEdge.target)?.name ??
+                        selectedEdge.target}
                     </p>
                     <div style={{ marginTop: 12 }}>
                       {graph?.evidence
-                        .filter((e) =>
-                          selectedEdge.evidence_ids?.includes(e.id),
-                        )
+                        .filter((e) => selectedEdge.evidence_ids?.includes(e.id))
                         .map((e) => (
                           <div
                             key={e.id}
@@ -429,9 +395,7 @@ export function App() {
                               background: "#f8faf9",
                             }}
                           >
-                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>
-                              {e.text}
-                            </p>
+                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>{e.text}</p>
                             <a
                               href={e.source_url}
                               target="_blank"
@@ -458,17 +422,19 @@ export function App() {
                   <div className="evidence-list">
                     {graph?.evidence.map((item) => (
                       <div
-                      className={
-                        selectedEvidence?.id === item.id
-                          ? "evidence-item active"
-                          : "evidence-item"
-                      }
-                      key={item.id}
-                      onClick={() => setSelectedEvidence(item)}
-                    >
-                      <a href={item.source_url} target="_blank" rel="noreferrer">{item.id}</a>
-                      <span>{firstSentence(item.text)}</span>
-                    </div>
+                        className={
+                          selectedEvidence?.id === item.id
+                            ? "evidence-item active"
+                            : "evidence-item"
+                        }
+                        key={item.id}
+                        onClick={() => setSelectedEvidence(item)}
+                      >
+                        <a href={item.source_url} target="_blank" rel="noreferrer">
+                          {item.id}
+                        </a>
+                        <span>{firstSentence(item.text)}</span>
+                      </div>
                     ))}
                   </div>
                   {selectedEvidence ? (
@@ -493,8 +459,13 @@ export function App() {
             onChange={setCurrentYear}
           />
 
-          <ReportPanel graph={graph} report={report} target={target}
-            onGenerate={handleGenerateReport} generating={generating} />
+          <ReportPanel
+            graph={graph}
+            report={report}
+            target={target}
+            onGenerate={handleGenerateReport}
+            generating={generating}
+          />
         </>
       )}
     </main>

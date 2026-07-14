@@ -69,12 +69,7 @@ export type ReportPayload = {
 
 export type ReportSection = {
   section_id: string;
-  section_type:
-    | "profile"
-    | "behavior_patterns"
-    | "network"
-    | "timeline"
-    | "threat_assessment";
+  section_type: "profile" | "behavior_patterns" | "network" | "timeline" | "threat_assessment";
   title: string;
   markdown: string;
   evidence_ids: string[];
