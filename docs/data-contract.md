@@ -147,10 +147,10 @@ graph.json
 9. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
 10. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
 
-当前正式 Golden 以单篇 Document 为身份原子，但这不等于必须人工标注整篇文档。若只标注
-指定 chunk，评测输入也必须限制在同一已标注范围；当前 v1 Schema 尚未声明
-`annotation_scope/covered_spans`，因此不能把未标注 chunk 的预测直接解释为 FP。Golden v2 的
-全文坐标、覆盖范围和切块策略解耦属于后续独立迁移，不在命名校验中静默改变现有 6 篇数据。
+当前正式 Golden 以单篇 Document 为身份原子；这项约束只解决文件身份和命名，不决定人工
+标注应覆盖全文还是局部范围。标注目标、覆盖声明和评分边界必须在独立评审中从课程与产品目标、
+现有数据和评测用途推出。当前 v1 Schema 尚未声明 `annotation_scope/covered_spans`，本次命名
+校验不新增或冻结这类范围语义，也不静默改变现有 6 篇数据。
 
 ### 1.4 P0 文档清洗边界
 
