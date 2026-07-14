@@ -56,11 +56,11 @@ ALLOWED_RELATIONS = {
     },
     "ATTRIBUTED_TO": {
         "heads": {"APT_GROUP", "CAMPAIGN", "MALWARE"},
-        "tails": {"COUNTRY", "ORGANIZATION"},
+        "tails": {"COUNTRY", "ORGANIZATION", "APT_GROUP"},
         "pairs": {
             (head, tail)
             for head in {"APT_GROUP", "CAMPAIGN", "MALWARE"}
-            for tail in {"COUNTRY", "ORGANIZATION"}
+            for tail in {"COUNTRY", "ORGANIZATION", "APT_GROUP"}
         },
     },
     "AFFILIATED_WITH": {
@@ -87,13 +87,15 @@ ALLOWED_RELATIONS = {
         "pairs": {(head, "TIME") for head in {"EVENT", "CAMPAIGN"}},
     },
     "PART_OF": {
-        "heads": {"ORGANIZATION", "EVENT", "CAMPAIGN"},
+        "heads": {"ORGANIZATION", "EVENT", "CAMPAIGN", "APT_GROUP"},
         "tails": {"ORGANIZATION", "CAMPAIGN", "APT_GROUP"},
         "pairs": {
             ("ORGANIZATION", "ORGANIZATION"),
             ("ORGANIZATION", "APT_GROUP"),
             ("EVENT", "CAMPAIGN"),
             ("CAMPAIGN", "APT_GROUP"),
+            ("APT_GROUP", "APT_GROUP"),
+            ("APT_GROUP", "ORGANIZATION"),
         },
     },
     "LEADS_TO": {

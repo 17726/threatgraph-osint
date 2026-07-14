@@ -150,7 +150,7 @@ def build_parser() -> argparse.ArgumentParser:
     source.add_argument("--directory", type=Path, help="批量抽取目录下所有 .json 文件")
     parser.add_argument("--preflight-only", action="store_true", help="只做最小真实 API 连通性检查")
     parser.add_argument("--output", type=Path, default=Path("data/extracted"))
-    parser.add_argument("--prompt-version", default="extract-v1")
+    parser.add_argument("--prompt-version", default="extract-v3")
     parser.add_argument("--model", help="覆盖 LLM_MODEL 环境变量")
     parser.add_argument("--base-url", help="覆盖 LLM_BASE_URL 环境变量")
     parser.add_argument("--timeout", type=float, help="覆盖 LLM_TIMEOUT_SECONDS")

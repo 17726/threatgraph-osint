@@ -9,7 +9,7 @@
       "chunk_id": "lazarus_091_c001",
       "doc_id": "lazarus_091",
       "char_start": 0,
-      "char_end": null,
+      "char_end": 15880,
       "entities": [
         {
           "name": "Lazarus Group",
@@ -586,7 +586,7 @@
         {
           "head_name": "Blockbuster Sequel",
           "head_type": "CAMPAIGN",
-          "relation_type": "ATTRIBUTED_TO",
+          "relation_type": "PART_OF",
           "tail_name": "Lazarus Group",
           "tail_type": "APT_GROUP",
           "evidence_text": "The Lazarus group is tied to the 2014 attack on Sony Pictures Entertainment and the 2013 DarkSeoul attacks",
