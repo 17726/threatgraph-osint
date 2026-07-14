@@ -77,6 +77,15 @@ data/examples/graph.apt28.thn.beardshell.example.json
 data/examples/golden.apt28.thn.beardshell.example.json
 ```
 
+正式 LLM 工件：
+
+```text
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
+data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
+data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
+```
+
 正式 P0 文档：
 
 ```text
@@ -89,9 +98,9 @@ data/documents/<target_group>/*.json
 
 1. data 组提交真实样本时，复制 `document.apt28.thn.beardshell.example.json` 的字段结构，在 `data/documents/<target_group>/` 下新增文档，替换 `clean_text`、来源，并按 `clean_text` 重新生成 `content_hash`。
 2. arch / qa / be 做标准名和别名对齐时，参考 `reference.apt28.mitre.example.json`。
-3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系。
+3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系；正式运行结果落到 `data/extracted/extract-...json`，并用同一 `run_id` 保存 `...-candidate-audit.json`。
 4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.thn.beardshell.example.json`。
-5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展，并保持兼容 `docs/schemas/golden.schema.json`。
+5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展，并保持兼容 `docs/schemas/golden.schema.json`；正式 golden 放到 `data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json`。
 6. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
 
 APT28 首个样例的字段标准：
@@ -108,11 +117,11 @@ APT28 首个样例的字段标准：
 document.json
   data 组交付到 data/documents/ 的清洗后文档，是后端切块后的 LLM 输入来源
 
-extraction_result.json
-  llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入
+extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
+  llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入；同一运行必须有稳定 run_id，可选保存同 run_id 的 candidate audit
 
-golden.json
-  qa 组维护的人工标准答案，用于评测候选抽取质量；结构和 extraction_result 一样按 chunks 归属实体和关系，但不包含候选状态、置信度或后端最终实体/关系 ID
+golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
+  qa 组维护的人工标准答案，用于评测候选抽取质量；结构和 extraction result 一样按 chunks 归属实体和关系，但不包含候选状态、置信度或后端最终实体/关系 ID
 
 graph.json
   be 从 SQLite 正式图谱导出的快照，是演示兜底和 Neo4j 同步输入；如用于前端 mock，需要先适配为 API 的轻量图谱视图
@@ -121,14 +130,15 @@ graph.json
 边界：
 
 1. `document.json` 只承载来源元信息和清洗正文 `clean_text`，不承载最终实体 ID，也不要求 data 组手写 chunks。
-2. `extraction_result.json` 只承载 LLM 候选结果，不承载最终 `entity_id` / `relation_id`。
-3. `golden.json` 只承载人工标准答案，实体和关系都必须归属到后端生成的 `chunk_id`；临时 mock 阶段可以使用 `${doc_id}_c001`，但不能由 data / QA / LLM 自行引入新的切块规则。
-4. `golden.json` 的实体使用 `name`、`type`、`aliases` 和证据字段描述，不包含人工生成的 `canonical_id` 或最终 `entity_id`；正式 `entity_id` 由后端归一化服务生成。
-5. `golden.json` 的关系字段和 `extraction_result.json` 保持一致，统一使用 `head_name`、`head_type`、`relation_type`、`tail_name`、`tail_type`。
-6. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
-7. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
-8. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
-9. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
+2. LLM extraction result 只承载 LLM 候选结果，不承载最终 `entity_id` / `relation_id`；`prompt_version` 和 `schema_version` 必须使用 `^\\d+\\.\\d+$`，正式文件名和 JSON 顶层字段必须可互相追溯。
+3. `candidate-audit` 只记录同一运行被过滤的候选实体和候选关系，必须与对应 extraction result 使用同一个 `run_id`。
+4. Golden 只承载人工标准答案，实体和关系都必须归属到后端生成的 `chunk_id`；临时 mock 阶段可以使用 `${doc_id}_c001`，但不能由 data / QA / LLM 自行引入新的切块规则。
+5. Golden 的实体使用 `name`、`type`、`aliases` 和证据字段描述，不包含人工生成的 `canonical_id` 或最终 `entity_id`；正式 `entity_id` 由后端归一化服务生成。
+6. Golden 的关系字段和 extraction result 保持一致，统一使用 `head_name`、`head_type`、`relation_type`、`tail_name`、`tail_type`；`golden_version` 必填并使用 `^\\d+\\.\\d+$`。
+7. `graph.json` 只承载后端归一化后的正式图谱快照，不能由 LLM 直接生成。
+8. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
+9. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
+10. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
 
 ### 1.4 P0 文档清洗边界
 

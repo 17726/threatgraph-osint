@@ -81,8 +81,8 @@ data/documents/lazarus/lazarus_091.json
 data/golden/golden-en-lazarus_091-1.0-1.0.json
 ```
 
-截至 2026-07-13，最新 `main` 的 Kimsuky golden 已通过门禁；Lazarus golden 仍缺少 chunk
-`char_end`，runner 会在 API 调用前拒绝该输入，待 QA 补齐后再执行。
+当前三份英文 golden 均已通过 schema、关系矩阵和证据位置门禁；如果 runner 在 API 调用前拒绝
+输入，先用独立评测命令定位具体 golden 或 document 契约问题。
 
 命令会写出两类运行工件：
 
