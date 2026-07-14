@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -14,6 +13,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from backend.app.services.artifact_naming import (
+    DEFAULT_PROMPT_VERSION,
+    evaluation_filename,
+)
 from backend.app.services.demo_store import DEFAULT_DB_PATH
 from backend.app.services.extraction_evaluator import (
     evaluate_extraction,
@@ -30,10 +33,6 @@ def progress(message: str) -> None:
     print(message, file=sys.stderr)
 
 
-def _safe_filename(value: str) -> str:
-    return re.sub(r"[^a-zA-Z0-9._-]+", "-", value).strip("-")
-
-
 def run_single(
     document_path: Path,
     service: LLMExtractionService,
@@ -42,7 +41,7 @@ def run_single(
     import_to_db: bool = False,
     db_path: Path = DEFAULT_DB_PATH,
     export_graph: bool = False,
-    prompt_version: str = "extract-v1",
+    prompt_version: str = DEFAULT_PROMPT_VERSION,
     golden_path: Path | None = None,
     evaluation_output: Path | None = None,
 ) -> dict[str, Any]:
@@ -97,9 +96,13 @@ def run_single(
             candidate_audit=service.last_candidate_audit,
         )
         if evaluation_output is None:
-            filename = (
-                f"evaluation_result.{doc_id}.{_safe_filename(service.model)}."
-                f"{_safe_filename(prompt_version)}.json"
+            filename = evaluation_filename(
+                doc_id=doc_id,
+                model_name=result["model_name"],
+                prompt_version=result["prompt_version"],
+                schema_version=result["schema_version"],
+                golden_version=golden["golden_version"],
+                evaluated_at=evaluation["evaluated_at"],
             )
             evaluation_output = Path("data/evaluation") / filename
         evaluation_output.parent.mkdir(parents=True, exist_ok=True)
@@ -150,7 +153,7 @@ def build_parser() -> argparse.ArgumentParser:
     source.add_argument("--directory", type=Path, help="批量抽取目录下所有 .json 文件")
     parser.add_argument("--preflight-only", action="store_true", help="只做最小真实 API 连通性检查")
     parser.add_argument("--output", type=Path, default=Path("data/extracted"))
-    parser.add_argument("--prompt-version", default="extract-v1")
+    parser.add_argument("--prompt-version", default=DEFAULT_PROMPT_VERSION)
     parser.add_argument("--model", help="覆盖 LLM_MODEL 环境变量")
     parser.add_argument("--base-url", help="覆盖 LLM_BASE_URL 环境变量")
     parser.add_argument("--timeout", type=float, help="覆盖 LLM_TIMEOUT_SECONDS")

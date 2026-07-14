@@ -8,12 +8,21 @@ import os
 import re
 import time
 import unicodedata
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import httpx
 
+from backend.app.services.artifact_naming import (
+    DEFAULT_PROMPT_VERSION,
+    SCHEMA_VERSION,
+    candidate_audit_filename,
+    ensure_version,
+    extraction_filename,
+    extraction_run_id,
+    iso_timestamp,
+    now_utc,
+)
 from scripts.validate_extraction_result import (
     ALLOWED_RELATIONS,
     load_json,
@@ -23,7 +32,7 @@ from scripts.validate_extraction_result import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_EXTRACTION_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
-DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-v1.md"
+DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-1.0.md"
 DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-v4-flash"
 
@@ -97,12 +106,24 @@ RELATION_TYPES = _schema_enum("relation_type")
 
 
 def now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return iso_timestamp(now_utc())
 
 
-def generate_run_id(doc_id: str, prompt_version: str) -> str:
-    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%f")
-    return f"extract_{doc_id}_{prompt_version}_{timestamp}"
+def generate_run_id(
+    doc_id: str,
+    model_name: str,
+    prompt_version: str,
+    *,
+    schema_version: str = SCHEMA_VERSION,
+    generated_at: str | None = None,
+) -> str:
+    return extraction_run_id(
+        doc_id=doc_id,
+        model_name=model_name,
+        prompt_version=prompt_version,
+        schema_version=schema_version,
+        generated_at=generated_at or now_iso(),
+    )
 
 
 def sha256_text(value: str) -> str:
@@ -558,9 +579,14 @@ class LLMExtractionService:
             "usage": metadata.get("usage", {}),
         }
 
-    def extract(self, document: dict[str, Any], prompt_version: str = "extract-v1") -> dict[str, Any]:
+    def extract(
+        self,
+        document: dict[str, Any],
+        prompt_version: str = DEFAULT_PROMPT_VERSION,
+    ) -> dict[str, Any]:
         """Extract candidate entities and relations from one document."""
         self._require_api_key()
+        ensure_version(prompt_version, field_name="prompt_version")
         self.last_warnings = []
         self.last_candidate_audit = None
         doc_id = document["doc_id"]
@@ -568,7 +594,13 @@ class LLMExtractionService:
         if not isinstance(clean_text, str) or not clean_text.strip():
             raise ValueError("document.clean_text 不能为空")
 
-        run_id = generate_run_id(doc_id, prompt_version)
+        generated_at = now_iso()
+        run_id = generate_run_id(
+            doc_id,
+            self.model,
+            prompt_version,
+            generated_at=generated_at,
+        )
         chunk_id = f"{doc_id}_c001"
         messages = [
             {"role": "system", "content": self.system_prompt},
@@ -603,19 +635,21 @@ class LLMExtractionService:
                     clean_text,
                 )
                 result = {
-                    "schema_version": "1.0",
+                    "schema_version": SCHEMA_VERSION,
                     "run_id": run_id,
                     "doc_id": doc_id,
                     "model_name": self.model,
                     "prompt_version": prompt_version,
+                    "generated_at": generated_at,
                     "chunks": [{"chunk_id": chunk_id, **chunk_result}],
                 }
                 candidate_audit = {
-                    "schema_version": "1.0",
+                    "schema_version": SCHEMA_VERSION,
                     "run_id": run_id,
                     "doc_id": doc_id,
                     "model_name": self.model,
                     "prompt_version": prompt_version,
+                    "generated_at": generated_at,
                     "chunks": [{"chunk_id": chunk_id, **chunk_audit}],
                 }
                 result = self._run_relation_review_passes(
@@ -788,7 +822,7 @@ class LLMExtractionService:
     ) -> Path:
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        result_path = output_path / f"{result['run_id']}.json"
+        result_path = output_path / extraction_filename(result["run_id"])
         result_path.write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
@@ -803,7 +837,9 @@ class LLMExtractionService:
             raise ValueError("当前没有可保存的候选审计结果")
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        audit_path = output_path / f"{self.last_candidate_audit['run_id']}.candidate-audit.json"
+        audit_path = output_path / candidate_audit_filename(
+            self.last_candidate_audit["run_id"]
+        )
         audit_path.write_text(
             json.dumps(self.last_candidate_audit, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",

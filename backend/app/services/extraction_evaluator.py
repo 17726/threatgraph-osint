@@ -6,12 +6,13 @@ import json
 import re
 import unicodedata
 from collections import defaultdict
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from backend.app.core.json_schema import STRICT_FORMAT_CHECKER
+from backend.app.services.artifact_naming import SCHEMA_VERSION, iso_timestamp, now_utc
 from scripts.validate_extraction_result import ALLOWED_RELATIONS
 
 
@@ -24,7 +25,8 @@ def validate_golden_schema(
     schema_path: Path | None = None,
 ) -> list[str]:
     validator = Draft202012Validator(
-        json.loads((schema_path or DEFAULT_GOLDEN_SCHEMA_PATH).read_text(encoding="utf-8"))
+        json.loads((schema_path or DEFAULT_GOLDEN_SCHEMA_PATH).read_text(encoding="utf-8")),
+        format_checker=STRICT_FORMAT_CHECKER,
     )
     return [
         f"{'.'.join(str(part) for part in error.path) or '$'}: {error.message}"
@@ -364,8 +366,11 @@ def evaluate_extraction(
     doc_id = extraction_result.get("doc_id", "")
     if doc_id not in golden.get("doc_ids", []):
         raise ValueError(f"extraction_result.doc_id {doc_id!r} 不在 golden.doc_ids 中")
-    if candidate_audit and candidate_audit.get("doc_id") != doc_id:
-        raise ValueError("candidate_audit.doc_id 与 extraction_result.doc_id 不一致")
+    if candidate_audit is not None:
+        if candidate_audit.get("doc_id") != doc_id:
+            raise ValueError("candidate_audit.doc_id 与 extraction_result.doc_id 不一致")
+        if candidate_audit.get("run_id") != extraction_result.get("run_id"):
+            raise ValueError("candidate_audit.run_id 与 extraction_result.run_id 不一致")
 
     predicted_chunks = _index_unique_chunks(
         extraction_result.get("chunks", []),
@@ -509,15 +514,20 @@ def evaluate_extraction(
     )
 
     return {
-        "schema_version": "1.0",
-        "evaluated_at": datetime.now(UTC).isoformat(),
+        "schema_version": SCHEMA_VERSION,
+        "evaluated_at": iso_timestamp(now_utc()),
         "extraction": {
             "run_id": extraction_result.get("run_id", ""),
             "doc_id": doc_id,
             "model_name": extraction_result.get("model_name", ""),
             "prompt_version": extraction_result.get("prompt_version", ""),
+            "schema_version": extraction_result.get("schema_version", ""),
         },
         "golden": {
+            "language": golden.get("language", ""),
+            "doc_id": doc_id,
+            "schema_version": golden.get("schema_version", ""),
+            "golden_version": golden.get("golden_version", ""),
             "target_group": golden.get("target_group", ""),
             "doc_ids": golden.get("doc_ids", []),
         },

@@ -39,6 +39,15 @@ data/examples/golden.apt28.thn.beardshell.example.json
 data/documents/<target_group>/*.json
 ```
 
+正式 LLM 归档工件放在：
+
+```text
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>-candidate-audit.json
+data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
+data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
+```
+
 `data/examples/` 是契约样例，不承载批量数据交付；`data/documents/` 才是后端导入真实清洗文档的默认目录。
 
 当前 APT28 样例分成两类来源：
@@ -56,21 +65,23 @@ The Hacker News 字段口径如下：
 ## 当前硬性规则
 
 1. `document.json` 必须包含来源、时间、语言、清洗正文 `clean_text`、目标组织和 `content_hash`；真实文档默认放在 `data/documents/<target_group>/`。
-2. `extraction_result.json` 只表示 LLM 候选结果，不能包含最终 `entity_id` 或 `relation_id`。
-3. `golden.json` 表示人工标准答案，按 `chunks[].entities` 和 `chunks[].relations` 组织，关系字段和 extraction_result 统一使用 `head_name`、`head_type`、`tail_name`、`tail_type`。
-4. `graph.json` 只能由 SQLite canonical graph 导出，不能直接由 LLM 生成。
-5. 所有实体和关系都必须能追溯到 `evidence_ids`。
-6. 关系类型必须先通过 `relationship-matrix.md` 的最小合法性检查。
-7. `RELATED_TO` 只能作为兜底关系，不能作为常规抽取结果滥用。
+2. LLM extraction result 只表示 LLM 候选结果，不能包含最终 `entity_id` 或 `relation_id`；正式文件必须按 `extract-...json` 命名，顶层 `run_id`、`doc_id`、`model_name`、`prompt_version`、`schema_version` 和 `generated_at` 必须能回溯到文件名。
+3. `candidate-audit` 表示同一 run 被过滤的原始候选，必须与对应 extraction result 使用同一个 `run_id`。
+4. Golden 表示人工标准答案，正式文件必须放在 `data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json`；内容按 `chunks[].entities` 和 `chunks[].relations` 组织，关系字段和 extraction result 统一使用 `head_name`、`head_type`、`tail_name`、`tail_type`。
+5. `prompt_version`、`schema_version` 和 `golden_version` 统一使用两段式数字版本，例如 `1.0`，不使用 `extract-v1`、`v1` 或 `1.0.0`。
+6. `graph.json` 只能由 SQLite canonical graph 导出，不能直接由 LLM 生成。
+7. 所有实体和关系都必须能通过 `evidence_text` 和字符位置追溯回文档正文。
+8. 关系类型必须先通过 `relationship-matrix.md` 的最小合法性检查。
+9. `RELATED_TO` 只能作为兜底关系，不能作为常规抽取结果滥用。
 
 ## 今日交付口径
 
 data 组先按 `document.apt28.thn.beardshell.example.json` 改出第一份 APT28 真实文档。
 
-llm 组先按 `extraction_result.apt28.thn.beardshell.example.json` 手写或生成候选结果。第一版必须保证 JSON 合法、字段完整、证据文本能回到 `clean_text`。
+llm 组先按 `extraction_result.apt28.thn.beardshell.example.json` 手写或生成候选结果。被选入实验档案的运行结果按 `extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json` 归档，同时保存同一 `run_id` 的 `...-candidate-audit.json`。第一版必须保证 JSON 合法、字段完整、证据文本能回到 `clean_text`。
 
 be 组按 `graph.apt28.thn.beardshell.example.json` 的格式导出 `data/graph/graph.json`，并按 `docs/api-contract.md` 返回 `/api/v1/graph` 的轻量图谱视图，同时补齐 `/api/v1/graph/path` 的 SQLite BFS 兜底。
 
 如果后续需要对 `/api/v1/graph` 做机器校验，应新增独立的 `graph-view.schema.json`，不要复用完整 GraphSnapshot 的 `graph.schema.json`。
 
-qa 组按 `golden.apt28.thn.beardshell.example.json` 和 `golden.schema.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。正式 golden 不手写新的切块逻辑；后端切块不可用时，可以临时沿用样例中的 `${doc_id}_c001` 单 chunk 约定。
+qa 组按 `golden.apt28.thn.beardshell.example.json` 和 `golden.schema.json` 维护第一版人工标准答案，用来记录 LLM 错误样例。正式 golden 放在 `data/golden/`，文件名和 `golden_version` 必须同步；不手写新的切块逻辑，后端切块不可用时可以临时沿用样例中的 `${doc_id}_c001` 单 chunk 约定。

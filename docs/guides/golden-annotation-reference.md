@@ -15,17 +15,17 @@
 建议文件位置：
 
 ```text
-data/evaluation/golden.<target_group>.<dataset>.json
+data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 ```
 
 示例：
 
 ```text
-data/evaluation/golden.apt28.core.json
-data/evaluation/golden.kimsuky.core.json
+data/golden/golden-en-apt28_080-1.0-1.0.json
+data/golden/golden-zh-kimsuky_001-1.0-1.0.json
 ```
 
-历史迁移材料或旧格式文件不要直接放入 `data/evaluation/` 作为正式 golden；需要复查时放在 `data/raw/<collector>/`。
+`data/evaluation/` 只存评测结果；历史迁移材料或旧格式文件不要作为正式 golden 使用，需要复查时放在 `data/raw/<collector>/`。
 
 ---
 

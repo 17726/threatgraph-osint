@@ -1,10 +1,15 @@
 # LLM 抽取与评测架构收口 Implementation Plan
 
+> **状态说明（2026-07-15）：** 本文件是总体方向和任务池，不是不可修改的最终方案。
+> PR35 第一阶段只落实版本命名、UTC、运行身份和跨文件绑定；Git 归档范围、SQLite/Neo4j
+> 边界及后续阶段以 `docs/plans/2026-07-15-pr35-phase-1-artifact-contract-hardening.md`
+> 和后续 ADR 为准。
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** 把 Document 导入、确定性切块、LLM 原始响应、候选审计、正式抽取、Golden 标注和评测结果收口为一条可复现、可审计、以 SQLite 为唯一事实源的链路，并形成能够证明项目价值的持续迭代记录。
+**Goal:** 把 Document 导入、确定性切块、LLM 原始响应、候选审计、正式抽取、Golden 标注和评测结果收口为一条可复现、可审计的链路，并形成能够证明项目价值的持续迭代记录。
 
-**Architecture:** Git 中的 `data/documents/`、Golden 与基线包是可复现输入；SQLite 保存运行期事实、模型原始响应、候选、正式抽取和评测运行；JSON 仅作为导入包、导出物或演示兜底。Golden 绑定文档内容哈希和全文位置，不绑定切块结果；评测按文档级规范化后比较，同时分别报告原始发射层与有效候选层指标。
+**Architecture:** Git 中的 `data/documents/`、Golden、Promoted Experiment 与 Baseline 是可复现输入和实验档案；SQLite 保存运行期事实、模型原始响应、候选、正式抽取和评测运行；Neo4j 保存可由 SQLite 重建的图查询投影。Golden 绑定文档内容哈希和全文位置，不绑定切块结果；评测按文档级规范化后比较，同时分别报告原始发射层与有效候选层指标。
 
 **Tech Stack:** Python 3、FastAPI、SQLite、Pydantic/JSON Schema、pytest、React/TypeScript、Vitest、Docker Compose。
 
@@ -17,7 +22,7 @@
 1. 实施前先确认 PR #33（`codex/llm-import-clean-text`）状态。它与 `offline_extraction_pipeline.py` 重叠，应作为前置依赖合入或明确重放，不在本计划中重复实现 `raw_text -> clean_text` 迁移。
 2. 禁止在 `main` 上修改。建议实施分支：`fix/arch/llm-evaluation-closure`；每个任务按下面建议提交，便于逐项评审与回退。
 3. 先更新契约和失败测试，再写实现；跨组字段变化必须由架构与数据规范组评审。
-4. SQLite 是唯一运行期事实源。任何 `extraction_result`、`candidate_audit`、`evaluation_result` 文件都必须能由 SQLite 和版本化输入重新导出，不得形成平行事实源。
+4. SQLite 是运行期 canonical 事实源；Promoted Experiment 和已审核 Baseline 可以作为不可变 JSON 运行包进入 Git。普通本地运行不得形成未声明的平行事实源。
 5. 不提交 API Key、鉴权头、未脱敏提示词中的隐私数据或真实课程原始 PDF。
 6. 本计划不把 Neo4j 纳入抽取或评测链路；只有校验通过的正式抽取结果可进入后续图谱同步。
 
@@ -33,7 +38,7 @@
 - 至少形成一个可复现基线包和一份切块消融实验报告，报告可追溯到数据、配置、模型与代码提交。
 - 后端测试、前端测试/构建/格式检查全部通过；无法执行的命令在 PR 中说明原因。
 
-## 1. `/grill` 质询后的冻结决策
+## 1. `/grill` 质询后的阶段性决策
 
 ### 1.1 数据对象与职责
 
@@ -41,13 +46,13 @@
 | --- | --- | --- | --- | --- |
 | Document import package | 可复现输入文档及元数据 | Git 文件 | 是，脱敏后 | Golden 与运行都引用其内容哈希 |
 | `documents` / `document_chunks` | 已导入、已规范化的运行期文档与切块 | SQLite | 否 | 评测运行通过 Document 身份关联 |
-| provider raw response | DeepSeek 等供应商返回的原始响应正文与元数据 | SQLite | 默认否 | 可重放解析，解释漏抽、格式错与成本 |
+| provider raw response | DeepSeek 等供应商返回的原始响应正文与元数据 | SQLite | 仅随 Promoted Experiment 脱敏归档 | 可重放解析，解释漏抽、格式错与成本 |
 | raw emission | 从响应中能识别出的每一条原始候选，包括重复、非法和最终被拒绝项 | SQLite | 否 | 衡量模型输出纪律和端到端失败 |
 | validated candidate | 通过基础 Schema/类型/证据范围校验并完成去重归并的候选 | SQLite | 否 | 衡量语义抽取质量 |
-| extraction result | 被接受的实体、关系和证据，是后续图谱输入 | SQLite | JSON 仅导出 | 作为默认业务预测集参与评测 |
-| candidate audit | 每条候选的校验、拒绝、归并原因 | SQLite | JSON 仅导出 | 形成错误分类与可解释性 |
+| extraction result | 被接受的实体、关系和证据，是后续图谱输入 | SQLite | 被提升实验以 JSON 归档 | 作为默认业务预测集参与评测 |
+| candidate audit | 每条候选的校验、拒绝、归并原因 | SQLite | 被提升实验与结果成对归档 | 形成错误分类与可解释性 |
 | Golden set | 人工确认的标准答案和标注政策 | Git 文件 + SQLite 注册信息 | 是 | 唯一标准答案，不由待评模型生成 |
-| evaluation result | 某一预测快照对某一 Golden 的度量与明细 | SQLite | JSON 仅导出/基线固化 | 记录 TP/FP/FN、P/R/F1 和错误明细 |
+| evaluation result | 某一预测快照对某一 Golden 的度量与明细 | SQLite | Promoted Experiment / Baseline 归档 | 记录 TP/FP/FN、P/R/F1 和错误明细 |
 
 ### 1.2 对当前疑问的明确结论
 
@@ -120,10 +125,10 @@ data/
 │       ├── extraction-result.json
 │       ├── candidate-audit.json
 │       └── responses/                # 仅在明确脱敏后选择性导出
+├── golden/v2/
+│   ├── manifest.json
+│   └── <group>.golden.json
 ├── evaluation/
-│   ├── golden/v2/
-│   │   ├── manifest.json
-│   │   └── <group>.golden.json
 │   ├── runs/<evaluation_run_id>/
 │   │   └── evaluation-result.json    # 从 SQLite 导出
 │   └── baselines/<baseline_id>/

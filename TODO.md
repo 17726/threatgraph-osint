@@ -129,13 +129,13 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 1. [ ] **S2.1 端到端流水线入口**（be / qa）
    - [ ] 提供一个统一入口运行 `clean -> extract -> normalize -> build_graph -> report`。
    - [ ] 支持对指定 `target_group` 或 `doc_id` 运行流程。
-   - [ ] 所有中间结果写入 SQLite，而不是只存在内存或临时文件。
+   - [ ] 运行时中间结果写入 SQLite；被选入报告或回归的实验另导出为 Git JSON 运行包。
    - [ ] 同一份样本文档在其他成员机器上能复现。
 
-2. [ ] **S2.2 稳定 SQLite 唯一事实源**（be / arch）
-   - [ ] 明确 SQLite 是唯一事实源。
+2. [ ] **S2.2 稳定运行时 canonical graph**（be / arch）
+   - [ ] 明确 Git JSON 负责人工输入和经评审实验档案，SQLite 负责运行时 canonical graph、证据、导入状态和同步水位。
    - [ ] 明确 `graph.json` 是导出快照、离线样例和演示兜底，前端默认消费 `/api/v1/graph` 的轻量 GraphView。
-   - [ ] 明确 Neo4j 只作为 P1 图查询增强，不保存唯一事实。
+   - [ ] 明确 Neo4j 是由 SQLite 重建的图查询投影，不接受业务链路双写，也不保存不可恢复的唯一数据。
    - [ ] 禁止 `LLM 原始输出 -> Neo4j -> 前端` 这类绕过正式图谱的链路。
 
 3. [ ] **S2.3 完成核心 API**（be / fe）
@@ -199,10 +199,11 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 目标：在 P0 已稳定的基础上提升系统表现力和答辩加分点。
 
 1. [ ] **S4.1 Neo4j 同步和路径查询**（be / fe）
-   - [ ] 从 SQLite canonical graph 或 `graph.json` 同步到 Neo4j。
+   - [ ] 从 SQLite canonical graph 全量构建 Neo4j 查询投影，并支持基于同步水位的幂等增量更新。
    - [ ] 实现 Neo4j 状态检查接口。
-   - [ ] 实现多跳路径查询接口。
+   - [ ] 实现按组织、时间、地区和攻击类型的多维查询及多跳关键路径接口。
    - [ ] Neo4j 不可用时降级到 SQLite 查询。
+   - [ ] 支持清空 Neo4j 后从 SQLite 重建，证明 Neo4j 不持有唯一事实。
    - [ ] 前端展示路径查询结果。
 
 2. [ ] **S4.2 结构化报告章节**（be / fe / qa）

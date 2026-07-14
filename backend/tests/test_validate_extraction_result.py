@@ -3,13 +3,18 @@ import hashlib
 
 from pathlib import Path
 
+import pytest
+
 from scripts.validate_extraction_result import load_json, validate_payload
 
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "docs/schemas/extraction-result.schema.json"
 DOCUMENT_PATH = ROOT / "data/examples/document.apt28.thn.beardshell.example.json"
-EXTRACTION_PATH = ROOT / "data/extracted/extraction_result.apt28.thn.beardshell.v1.json"
+EXTRACTION_PATH = (
+    ROOT
+    / "data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json"
+)
 
 
 def _load_valid_payload():
@@ -93,6 +98,20 @@ def test_validator_rejects_document_hash_mismatch():
 
     assert not report.ok
     assert any("content_hash" in error for error in report.errors)
+
+
+@pytest.mark.parametrize(
+    "generated_at",
+    ["not-a-date", "2026-07-15T12:00:00"],
+)
+def test_validator_rejects_generated_at_without_valid_timezone(generated_at):
+    payload, document = _load_valid_payload()
+    payload["generated_at"] = generated_at
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert not report.ok
+    assert any("generated_at" in error for error in report.errors)
 
 
 def test_validator_accepts_crime_network_relationships():

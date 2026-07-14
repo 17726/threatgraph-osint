@@ -1,7 +1,7 @@
 # LLM 真实抽取与评测指南
 
 本指南适用于 LLM 抽取与分析组和 QA 组。字段与关系约束仍以
-`docs/prompts/extract-v1.md`、`docs/schemas/extraction-result.schema.json` 和
+`docs/prompts/extract-1.0.md`、`docs/schemas/extraction-result.schema.json` 和
 `docs/schemas/relationship-matrix.md` 为准。
 
 ## 1. 数据链路
@@ -67,7 +67,7 @@ APT28：
 ```bash
 docker compose run --rm backend python scripts/run_llm_extraction.py \
   --document data/documents/apt28/apt28_080.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --json
 ```
 
@@ -75,22 +75,30 @@ Kimsuky 和 Lazarus 分别替换为：
 
 ```text
 data/documents/kimsuky/kimsuky_060.json
-data/evaluation/golden.en.kimsuky_060.json
+data/golden/golden-en-kimsuky_060-1.0-1.0.json
 
 data/documents/lazarus/lazarus_091.json
-data/evaluation/golden.en.lazarus_091.json
+data/golden/golden-en-lazarus_091-1.0-1.0.json
 ```
 
-截至 2026-07-13，最新 `main` 的 Kimsuky golden 已通过门禁；Lazarus golden 仍缺少 chunk
-`char_end`，runner 会在 API 调用前拒绝该输入，待 QA 补齐后再执行。
+当前三份英文 golden 均已通过 schema、关系矩阵和证据位置门禁；如果 runner 在 API 调用前拒绝
+输入，先用独立评测命令定位具体 golden 或 document 契约问题。
 
 命令会写出两类运行工件：
 
 ```text
-data/extracted/extract_<doc_id>_<prompt>_<timestamp>.json
-data/extracted/extract_<doc_id>_<prompt>_<timestamp>.candidate-audit.json
-data/evaluation/evaluation_result.<doc_id>.<model>.<prompt>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>-candidate-audit.json
+data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
 ```
+
+JSON 字段中的 `run_id` 是权威运行身份；文件名只提供可读标签。UTC 时间戳用于排序和展示，
+`run_suffix` 用于避免同一微秒内重复运行发生身份碰撞。Extraction Result 与 Candidate Audit
+必须同时匹配 `doc_id` 和 `run_id`，否则禁止组合评测。
+
+这些文件不会因为 runner 成功就自动成为 Git 实验档案。只有被用于报告对照、有效负向结论或
+后续回归的 Completed Run，才作为 Promoted Experiment 提交 Git 并经过 PR 评审；普通本地
+调试、失败重试和无结论 Attempt 不提交。
 
 ## 5. 独立评测
 
@@ -99,10 +107,9 @@ data/evaluation/evaluation_result.<doc_id>.<model>.<prompt>.json
 ```bash
 python scripts/evaluate_extraction_against_golden.py \
   --extraction-result data/extracted/<result>.json \
-  --candidate-audit data/extracted/<run>.candidate-audit.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --candidate-audit data/extracted/<run>-candidate-audit.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --document data/documents/apt28/apt28_080.json \
-  --output data/evaluation/evaluation_result.apt28_080.json
 ```
 
 实体按“同一 chunk、类型相同、标准化名称或别名相交”做最大基数、再最大匹配分数的一对一
@@ -126,7 +133,7 @@ python scripts/evaluate_extraction_against_golden.py \
 ```bash
 docker compose run --rm backend python scripts/run_llm_extraction.py \
   --document data/documents/apt28/apt28_080.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --import --export-graph --json
 ```
 
