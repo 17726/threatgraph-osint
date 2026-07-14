@@ -1,8 +1,11 @@
 import json
 import os
 import sqlite3
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+from backend.app.services.report_generator import generate_intelligent_report
 
 
 DEFAULT_DB_PATH = Path("data/threatgraph_osint.db")
@@ -286,7 +289,21 @@ class DemoStore:
                   target_group TEXT NOT NULL,
                   title TEXT NOT NULL,
                   markdown TEXT NOT NULL,
+                  generated_at TEXT,
                   graph_version TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS report_sections (
+                  section_id TEXT PRIMARY KEY,
+                  report_id TEXT NOT NULL,
+                  section_type TEXT NOT NULL,
+                  title TEXT NOT NULL,
+                  markdown TEXT NOT NULL,
+                  evidence_ids_json TEXT NOT NULL DEFAULT '[]',
+                  analysis_refs_json TEXT NOT NULL DEFAULT '[]',
+                  graph_refs_json TEXT NOT NULL DEFAULT '{}',
+                  sort_order INTEGER NOT NULL DEFAULT 0,
+                  FOREIGN KEY (report_id) REFERENCES reports(report_id)
                 );
                 """
             )
@@ -494,18 +511,137 @@ class DemoStore:
         with self.connect() as connection:
             row = connection.execute(
                 """
-                SELECT target_group, title, markdown
+                SELECT target_group, title, markdown, generated_at
                 FROM reports
                 WHERE lower(target_group) = lower(?)
+                ORDER BY generated_at DESC NULLS LAST
                 """,
                 (target_group,),
             ).fetchone()
         if row is None:
             return None
-        return {
+        result = {
             "target_group": row["target_group"],
             "title": row["title"],
             "markdown": row["markdown"],
+        }
+        generated_at = row["generated_at"]
+        # 附带结构化章节
+        sections = self.get_report_sections(target_group)
+        if sections:
+            result["sections"] = sections
+        if generated_at:
+            result["generated_at"] = generated_at
+        return result
+
+    def get_report_sections(self, target_group: str) -> list[dict[str, Any]]:
+        """获取指定目标组织的报告结构化章节。"""
+        with self.connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT section_id, section_type, title, markdown,
+                       evidence_ids_json, analysis_refs_json, graph_refs_json,
+                       sort_order
+                FROM report_sections
+                WHERE report_id IN (
+                    SELECT report_id FROM reports
+                    WHERE lower(target_group) = lower(?)
+                )
+                ORDER BY sort_order
+                """,
+                (target_group,),
+            ).fetchall()
+        return [
+            {
+                "section_id": row["section_id"],
+                "section_type": row["section_type"],
+                "title": row["title"],
+                "markdown": row["markdown"],
+                "evidence_ids": json.loads(row["evidence_ids_json"]),
+                "analysis_refs": json.loads(row["analysis_refs_json"]),
+                "graph_refs": json.loads(row["graph_refs_json"]),
+                "sort_order": row["sort_order"],
+            }
+            for row in rows
+        ]
+
+    def generate_report(self, target_group: str) -> dict[str, Any] | None:
+        """生成智能分析报告并写入数据库。"""
+        target_entity_id = f"apt_group:{target_group.lower()}"
+        with self.connect() as connection:
+            # 确认目标组织存在
+            entity = connection.execute(
+                "SELECT entity_id FROM entities WHERE entity_id = ?",
+                (target_entity_id,),
+            ).fetchone()
+            if entity is None:
+                return None
+
+            now_iso = datetime.now(UTC).isoformat()
+            result = generate_intelligent_report(
+                connection, target_group, target_entity_id
+            )
+
+            report_id = f"report_{target_group.lower()}_intelligent"
+            title = f"{target_group} 威胁情报分析报告"
+
+            # 如果 LLM 失败（降级）且数据库中已有智能报告，不覆盖
+            if not result.get("_llm_generated", True):
+                existing = connection.execute(
+                    "SELECT report_id FROM reports WHERE target_group = ? AND generated_at IS NOT NULL",
+                    (target_group,),
+                ).fetchone()
+                if existing:
+                    # 返回已有的报告
+                    return self.get_report(target_group)
+
+            # 写入报告
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO reports (
+                  report_id, target_group, title, markdown, generated_at, graph_version
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (report_id, target_group, title, result["markdown"], now_iso, "intelligent-v1"),
+            )
+
+            # 删除旧章节
+            connection.execute(
+                "DELETE FROM report_sections WHERE report_id = ?",
+                (report_id,),
+            )
+
+            # 写入各章节
+            for section in result["sections"]:
+                section_id = f"{report_id}_{section['section_type']}"
+                connection.execute(
+                    """
+                    INSERT INTO report_sections (
+                      section_id, report_id, section_type, title, markdown,
+                      evidence_ids_json, analysis_refs_json, graph_refs_json, sort_order
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        section_id,
+                        report_id,
+                        section["section_type"],
+                        section["title"],
+                        section["markdown"],
+                        json.dumps(section["evidence_ids"], ensure_ascii=False),
+                        json.dumps(section["analysis_refs"], ensure_ascii=False),
+                        json.dumps(section["graph_refs"], ensure_ascii=False),
+                        section["sort_order"],
+                    ),
+                )
+
+            connection.commit()
+
+        return {
+            "target_group": target_group,
+            "title": title,
+            "markdown": result["markdown"],
+            "sections": result["sections"],
+            "generated_at": now_iso,
         }
 
     def get_analysis(self) -> dict[str, Any]:

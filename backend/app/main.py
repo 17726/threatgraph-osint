@@ -49,3 +49,12 @@ def report(target_group: str):
     if result is None:
         raise HTTPException(status_code=404, detail="报告不存在")
     return success_response(result)
+
+
+@app.post("/api/v1/reports/{target_group}/generate")
+def generate_report(target_group: str):
+    """基于知识图谱数据生成智能分析报告。"""
+    result = store.generate_report(target_group)
+    if result is None:
+        raise HTTPException(status_code=404, detail="目标组织不存在，无法生成报告")
+    return success_response(result)

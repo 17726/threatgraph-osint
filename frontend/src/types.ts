@@ -63,4 +63,25 @@ export type ReportPayload = {
   target_group: string;
   title: string;
   markdown: string;
+  generated_at?: string;
+  sections?: ReportSection[];
+};
+
+export type ReportSection = {
+  section_id: string;
+  section_type:
+    | "profile"
+    | "behavior_patterns"
+    | "network"
+    | "timeline"
+    | "threat_assessment";
+  title: string;
+  markdown: string;
+  evidence_ids: string[];
+  analysis_refs: string[];
+  graph_refs: {
+    node_ids: string[];
+    edge_ids: string[];
+  };
+  sort_order: number;
 };

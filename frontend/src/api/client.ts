@@ -46,6 +46,25 @@ export function fetchReport(target: string): Promise<ReportPayload> {
   return getJson<ReportPayload>(url);
 }
 
+export function generateReport(target: string): Promise<ReportPayload> {
+  const url = `/reports/${encodeURIComponent(target)}/generate`;
+
+  if (import.meta.env.DEV) {
+    return postJson<ReportPayload>(url).catch(() => getMockReport(target));
+  }
+
+  return postJson<ReportPayload>(url);
+}
+
+async function postJson<T>(path: string): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, { method: "POST" });
+  if (!response.ok) {
+    throw new Error(`请求失败：${response.status}`);
+  }
+  const payload = (await response.json()) as ApiResponse<T>;
+  return payload.data;
+}
+
 export async function fetchPath(
   source: string,
   target: string,
