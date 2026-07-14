@@ -14,15 +14,20 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
     query.length < 1
       ? []
       : nodes
-          .filter((n) => {
+          .map((n) => {
             const q = query.toLowerCase();
-            const matchName = n.name?.toLowerCase().includes(q) ?? false;
-            const matchAlias =
-              n.aliases?.some((a) => a?.toLowerCase().includes(q)) ?? false;
-            const matchType = n.type?.toLowerCase().includes(q) ?? false;
-            return matchName || matchAlias || matchType;
+            const name = n.name.toLowerCase();
+            let score = 0;
+            if (name.startsWith(q)) score += 100;
+            else if (name.includes(q)) score += 50;
+            if (n.aliases?.some((a) => a.toLowerCase().includes(q))) score += 30;
+            if (n.type?.toLowerCase().includes(q)) score += 10;
+            return { node: n, score };
           })
-          .slice(0, 8);
+          .filter((item) => item.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 8)
+          .map((item) => item.node);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
