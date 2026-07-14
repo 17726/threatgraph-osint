@@ -40,6 +40,10 @@ export function App() {
   const [page, setPage] = useState<"graph" | "analysis" | "evaluation">(
     "graph",
   );
+  const firstSentence = (text: string): string => {
+    const match = text.match(/^.*?[。！？.!?]/);
+    return match ? match[0] : text;
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -415,31 +419,23 @@ export function App() {
                   </div>
                   <div className="evidence-list">
                     {graph?.evidence.map((item) => (
-                      <button
-                        className={
-                          selectedEvidence?.id === item.id
-                            ? "evidence-item active"
-                            : "evidence-item"
-                        }
-                        key={item.id}
-                        type="button"
-                        onClick={() => setSelectedEvidence(item)}
-                      >
-                        <strong>{item.id}</strong>
-                        <span>{item.text}</span>
-                      </button>
+                      <div
+                      className={
+                        selectedEvidence?.id === item.id
+                          ? "evidence-item active"
+                          : "evidence-item"
+                      }
+                      key={item.id}
+                      onClick={() => setSelectedEvidence(item)}
+                    >
+                      <a href={item.source_url} target="_blank" rel="noreferrer">{item.id}</a>
+                      <span>{firstSentence(item.text)}</span>
+                    </div>
                     ))}
                   </div>
                   {selectedEvidence ? (
                     <div className="evidence-detail">
                       <p>{selectedEvidence.text}</p>
-                      <a
-                        href={selectedEvidence.source_url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        来源链接
-                      </a>
                     </div>
                   ) : null}
                 </>
