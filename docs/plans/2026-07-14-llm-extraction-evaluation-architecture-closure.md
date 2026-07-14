@@ -5,11 +5,11 @@
 > 边界及后续阶段以 `docs/plans/2026-07-15-pr35-phase-1-artifact-contract-hardening.md`
 > 和后续 ADR 为准。
 >
-> 同日已确认的 Golden 全文标注、Experiment 归档、版本职责和切块评测边界见
+> 同日提出的 Golden 标注、Experiment 归档、版本职责和切块评测候选方案见
 > `docs/decisions/2026-07-15-llm-golden-experiment-decisions.md`。评测指标计算逻辑见
 > `docs/reviews/2026-07-15-llm-evaluation-metrics-review.md`，当前仍是二审稿，尚未实现。
-> 本计划中关于强可复现门槛、Golden v2、Experiment 目录和指标改造的内容继续作为任务候选，
-> 不能据此判断 `main` 已具备相应能力。
+> 两份文件都必须先完成目标和证据评审；本计划中关于强可复现门槛、Golden v2、Experiment
+> 目录和指标改造的内容继续作为任务候选，不能据此判断方案已经批准或 `main` 已具备相应能力。
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 

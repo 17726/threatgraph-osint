@@ -1,10 +1,10 @@
-# LLM 标注、实验与评测决策文档 Implementation Plan
+# LLM 标注、实验与评测目标证据文档 Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** 把 2026-07-15 已确认的 Golden 全文标注原则、当前 Experiment 现状、版本职责和待二审评测指标整理成可单独评审的文档 PR。
+**Goal:** 把 2026-07-15 一审提出的 Golden、Experiment、切块和评测方案按“目标—证据—替代方案”整理成可单独评审的文档 PR。
 
-**Architecture:** 本 PR 只更新文档，不修改 JSON Schema、评测器、运行目录或数据文件。文档必须区分“仓库当前实现”“负责人已确认的下一步规则”“仍待评审的提案”，避免把尚未落地的 Experiment Manifest、Golden v2 和多作用域指标描述成现有能力。
+**Architecture:** 本 PR 只更新评审文档，不修改规范性标注手册、JSON Schema、评测器、运行目录或数据文件。文档必须区分已验证事实、现行约束、目标假设和候选方案，避免把一审意见或尚未落地的能力描述成最终架构。
 
 **Tech Stack:** Markdown、Git、GitHub Pull Request、PowerShell 文档检查。
 
@@ -18,8 +18,8 @@
 
 1. 解释 Dataset、Run、Evaluation Run、Experiment、Baseline、Iteration 的关系，停止使用未定义的 `Track`、`Treaty` 或“演变组”。
 2. 记录当前 6 篇 Golden 的真实结构：每篇一份 Golden、一个覆盖全文的 v1 单 chunk 外壳。
-3. 冻结“人工按整篇 Document 标全，算法切块不得反向改变 Golden”的原则。
-4. 区分“全文已审阅但按标注政策排除”和“存在未审阅范围”；后者不能作为正式 Baseline。
+3. 比较“完整 Document 标注”和“显式范围标注”两个方案，说明它们依赖的目标、证据和成本。
+4. 区分“全文已审阅但按标注政策排除”和“存在未审阅范围”，但不在目标确认前修改正式标注规则。
 5. 说明当前仓库没有独立 Experiment 环境，也没有清理旧 `data/extracted/`、`data/evaluation/`。
 6. 单独编写评测指标二审稿，给出 TP/FP/FN、Raw、Validated、Rejected、Duplicate、Parse Failure、Empty 和切块消融的计算例子。
 7. 说明版本号人工递增、Run ID 自动生成；Git Commit 不触发版本自增。
@@ -64,7 +64,7 @@ Expected：当前 runner 仍将结果平铺到 `data/extracted/` 与 `data/evalu
 
 Expected：PR #27 最初由张楚贤引入 `LLMExtractionService`、runner 和测试；合入前其分支又包含 PR #28 的评测闭环改动。
 
-## Task 2：编写阶段决策文档
+## Task 2：编写目标证据评审文档
 
 **Files:**
 
@@ -74,15 +74,15 @@ Expected：PR #27 最初由张楚贤引入 `LLMExtractionService`、runner 和�
 
 明确 Dataset 是文档/Golden 选择清单，Experiment 是围绕一个问题组织的若干 Run 与 Evaluation Run；Baseline 是经审核的 Experiment 引用。列出当前实际目录和仅供后续讨论的目标目录。
 
-**Step 2：写 Golden 与切块决策**
+**Step 2：写 Golden 与切块候选方案**
 
-明确人工读完整篇 Document，并在当前本体与标注政策范围内标全；Golden 不由人工按算法切块。v1 `chunks[0]` 只是全文容器，未来算法切块必须映射回全文坐标后评测。
+分别说明全文标注和显式范围标注的适用目标、证据与代价；记录当前六份 Golden 的结构事实，但不据此证明人工语义标注已经完整。
 
 **Step 3：写版本、运行和归档规则**
 
 明确 Prompt/Schema/Golden 版本人工递增，Run ID 每次自动生成，Commit 不自动改变版本；普通运行留本地，只有有实验价值的记录经 PR 进入 Git。
 
-**Step 4：写已确认、当前实现、待定和影响范围**
+**Step 4：写事实、现行约束、目标假设和候选方案**
 
 将四种状态分栏，避免未来同学把计划当现状。
 
@@ -108,21 +108,20 @@ Expected：PR #27 最初由张楚贤引入 `LLMExtractionService`、runner 和�
 
 把需要 QA、LLM、架构组确认的问题集中放在文末；当前不设置 F1 门槛和可复现强约束。
 
-## Task 4：同步现有入口文档
+## Task 4：同步评审文档入口
 
 **Files:**
 
-- Modify: `docs/guides/golden-annotation-reference.md`
 - Modify: `docs/README.md`
 - Modify: `docs/plans/2026-07-14-llm-extraction-evaluation-architecture-closure.md`
 
-**Step 1：修正 Golden 手册中的人工切块表述**
+**Step 1：保持规范性 Golden 手册不变**
 
-将“按后端 chunks 逐块人工标注”改为“整篇审阅，v1 用全文单 chunk 兼容 Schema”；删除“关系两端不在同一算法 chunk 就不标”的要求。
+全文或范围标注尚未达成目标共识，因此本 PR 不修改 `docs/guides/golden-annotation-reference.md`。候选改动只在评审稿中展示。
 
 **Step 2：增加文档索引**
 
-在 `docs/README.md` 增加阶段决策和指标二审稿入口。
+在 `docs/README.md` 增加目标证据评审稿和指标二审稿入口。
 
 **Step 3：标记旧总体计划的状态**
 
@@ -152,8 +151,8 @@ Expected：所有静态路径有效，无真实凭据或聊天原文。
 **Step 3：提交并推送**
 
 ```powershell
-git add docs/plans/2026-07-15-llm-evaluation-decisions-doc-pr.md docs/decisions/2026-07-15-llm-golden-experiment-decisions.md docs/reviews/2026-07-15-llm-evaluation-metrics-review.md docs/guides/golden-annotation-reference.md docs/README.md docs/plans/2026-07-14-llm-extraction-evaluation-architecture-closure.md
-git commit -m "docs: 明确 LLM 全文标注与评测决策"
+git add docs/plans/2026-07-15-llm-evaluation-decisions-doc-pr.md docs/decisions/2026-07-15-llm-golden-experiment-decisions.md docs/reviews/2026-07-15-llm-evaluation-metrics-review.md docs/README.md docs/plans/2026-07-14-llm-extraction-evaluation-architecture-closure.md
+git commit -m "docs: 按目标证据整理 LLM 评测候选方案"
 git push -u origin docs/llm/evaluation-decisions
 ```
 
