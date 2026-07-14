@@ -192,6 +192,7 @@ def test_rejected_candidate_audit_items_count_as_false_positives():
     extraction = load_json(EXTRACTION_PATH)
     chunk_id = extraction["chunks"][0]["chunk_id"]
     candidate_audit = {
+        "run_id": extraction["run_id"],
         "doc_id": extraction["doc_id"],
         "chunks": [
             {
@@ -235,12 +236,24 @@ def test_rejected_candidate_audit_items_count_as_false_positives():
     assert result["errors"]["extra_entities"][0]["source"] == "candidate_audit"
 
 
+def test_evaluator_rejects_candidate_audit_from_another_run():
+    extraction = load_json(EXTRACTION_PATH)
+    audit = {
+        "run_id": "extract-other-model-1.0-1.0-20260713083926515108",
+        "doc_id": extraction["doc_id"],
+        "chunks": [],
+    }
+
+    with pytest.raises(ValueError, match="run_id"):
+        evaluate_extraction(extraction, load_json(GOLDEN_PATH), candidate_audit=audit)
+
+
 def test_normalize_name_is_case_and_whitespace_insensitive():
     assert normalize_name("  Fancy   BEAR ") == normalize_name("fancy bear")
 
 
-def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path):
-    output_path = tmp_path / "evaluation.json"
+def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
 
     exit_code = main(
         [
@@ -250,8 +263,6 @@ def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path):
             str(GOLDEN_PATH),
             "--document",
             str(DOCUMENT_PATH),
-            "--output",
-            str(output_path),
             "--min-entity-f1",
             "1",
             "--min-relation-f1",
@@ -260,6 +271,7 @@ def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path):
     )
 
     assert exit_code == 0
+    output_path = next((tmp_path / "data/evaluation").glob("evaluation_result-*.json"))
     report = load_json(output_path)
     assert report["entity_metrics"]["f1"] == 1.0
     assert report["relation_metrics"]["f1"] == 1.0
@@ -267,12 +279,14 @@ def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path):
     assert report["golden"]["golden_version"] == "1.0"
 
 
-def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
+def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
     extraction = load_json(EXTRACTION_PATH)
-    audit_path = tmp_path / "candidate-audit.json"
+    audit_path = tmp_path / f"{extraction['run_id']}-candidate-audit.json"
     audit_path.write_text(
         json.dumps(
             {
+                "run_id": extraction["run_id"],
                 "doc_id": extraction["doc_id"],
                 "chunks": [
                     {
@@ -292,7 +306,42 @@ def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
         ),
         encoding="utf-8",
     )
-    output_path = tmp_path / "evaluation-with-audit.json"
+    exit_code = main(
+        [
+            "--extraction-result",
+            str(EXTRACTION_PATH),
+            "--candidate-audit",
+            str(audit_path),
+            "--golden",
+            str(GOLDEN_PATH),
+            "--document",
+            str(DOCUMENT_PATH),
+            "--min-entity-f1",
+            "1",
+        ]
+    )
+
+    assert exit_code == 2
+    output_path = next((tmp_path / "data/evaluation").glob("evaluation_result-*.json"))
+    report = load_json(output_path)
+    assert report["entity_metrics"]["false_positive"] == 1
+    assert report["entity_metrics"]["f1"] < 1.0
+
+
+def test_evaluation_cli_rejects_mismatched_candidate_audit_run(tmp_path, capsys):
+    extraction = load_json(EXTRACTION_PATH)
+    other_run_id = "extract-other-model-1.0-1.0-20260713083926515108"
+    audit_path = tmp_path / f"{other_run_id}-candidate-audit.json"
+    audit_path.write_text(
+        json.dumps(
+            {
+                "run_id": other_run_id,
+                "doc_id": extraction["doc_id"],
+                "chunks": [],
+            }
+        ),
+        encoding="utf-8",
+    )
 
     exit_code = main(
         [
@@ -304,17 +353,29 @@ def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
             str(GOLDEN_PATH),
             "--document",
             str(DOCUMENT_PATH),
-            "--output",
-            str(output_path),
-            "--min-entity-f1",
-            "1",
         ]
     )
 
-    assert exit_code == 2
-    report = load_json(output_path)
-    assert report["entity_metrics"]["false_positive"] == 1
-    assert report["entity_metrics"]["f1"] < 1.0
+    assert exit_code == 1
+    assert "extraction result" in capsys.readouterr().err
+
+
+def test_evaluation_cli_rejects_non_versioned_output_path(tmp_path, capsys):
+    exit_code = main(
+        [
+            "--extraction-result",
+            str(EXTRACTION_PATH),
+            "--golden",
+            str(GOLDEN_PATH),
+            "--document",
+            str(DOCUMENT_PATH),
+            "--output",
+            str(tmp_path / "evaluation-with-audit.json"),
+        ]
+    )
+
+    assert exit_code == 1
+    assert "正式" in capsys.readouterr().err
 
 
 def test_evaluation_cli_defaults_to_versioned_filename(tmp_path, monkeypatch):

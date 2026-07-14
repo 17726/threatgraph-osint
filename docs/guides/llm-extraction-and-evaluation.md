@@ -1,7 +1,7 @@
 # LLM 真实抽取与评测指南
 
 本指南适用于 LLM 抽取与分析组和 QA 组。字段与关系约束仍以
-`docs/prompts/extract-v1.md`、`docs/schemas/extraction-result.schema.json` 和
+`docs/prompts/extract-1.0.md`、`docs/schemas/extraction-result.schema.json` 和
 `docs/schemas/relationship-matrix.md` 为准。
 
 ## 1. 数据链路

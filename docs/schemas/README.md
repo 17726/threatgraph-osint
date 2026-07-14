@@ -13,6 +13,9 @@ docs/schemas/document.schema.json
 docs/schemas/extraction-result.schema.json
   llm 组提交候选抽取结果时使用
 
+docs/schemas/candidate-audit.schema.json
+  llm 组提交被过滤候选审计结果时使用
+
 docs/schemas/golden.schema.json
   qa 组提交人工标准答案时使用
 
@@ -45,10 +48,28 @@ data/documents/<target_group>/*.json
 data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
 data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
 data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
-data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
+data/golden/golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json
 ```
 
 `data/examples/` 是契约样例，不承载批量数据交付；`data/documents/` 才是后端导入真实清洗文档的默认目录。
+
+正式 LLM 工件放在以下目录，并使用文件名中的版本元数据：
+
+```text
+data/golden/golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
+data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
+```
+
+Golden 必须包含 `language` 和 `golden_version`。正式抽取、候选审计和 Golden 文件在读取或导入
+时必须校验文件名与 JSON 元数据一致；旧格式路径仅用于 Legacy 历史材料。
+迁移后的历史抽取样例在 `data/runs/index.json` 中标记为 `legacy-migrated`，其时间字段保留原始
+运行时间，仅用于复盘和追踪。
+
+历史工件可以继续保留在正式归档目录中，但必须使用已识别的 Legacy 文件名，并在 manifest 中
+保留历史状态；未知或临时文件名不会进入归档索引。candidate-audit 无论文件名是否为 Legacy，
+都必须通过 `candidate-audit.schema.json`，并与对应 extraction 的 `run_id`、`doc_id` 一致。
 
 当前 APT28 样例分成两类来源：
 
@@ -67,7 +88,7 @@ The Hacker News 字段口径如下：
 1. `document.json` 必须包含来源、时间、语言、清洗正文 `clean_text`、目标组织和 `content_hash`；真实文档默认放在 `data/documents/<target_group>/`。
 2. LLM extraction result 只表示 LLM 候选结果，不能包含最终 `entity_id` 或 `relation_id`；正式文件必须按 `extract-...json` 命名，顶层 `run_id`、`doc_id`、`model_name`、`prompt_version`、`schema_version` 和 `generated_at` 必须能回溯到文件名。
 3. `candidate-audit` 表示同一 run 被过滤的原始候选，必须与对应 extraction result 使用同一个 `run_id`。
-4. Golden 表示人工标准答案，正式文件必须放在 `data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json`；内容按 `chunks[].entities` 和 `chunks[].relations` 组织，关系字段和 extraction result 统一使用 `head_name`、`head_type`、`tail_name`、`tail_type`。
+4. Golden 表示人工标准答案，正式文件必须放在 `data/golden/golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json`；内容按 `chunks[].entities` 和 `chunks[].relations` 组织，关系字段和 extraction result 统一使用 `head_name`、`head_type`、`tail_name`、`tail_type`。文件名中的文档 ID 来自 `doc_ids`，按字典序排序、逐项安全化后使用 `+` 连接。
 5. `prompt_version`、`schema_version` 和 `golden_version` 统一使用两段式数字版本，例如 `1.0`，不使用 `extract-v1`、`v1` 或 `1.0.0`。
 6. `graph.json` 只能由 SQLite canonical graph 导出，不能直接由 LLM 生成。
 7. 所有实体和关系都必须能通过 `evidence_text` 和字符位置追溯回文档正文。

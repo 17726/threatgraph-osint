@@ -76,7 +76,7 @@ docs/docker-runtime.md
 ```text
 data/documents/<target_group>/*.json
 data/raw/*.json
-data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
+data/golden/golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json
 docs/schemas/golden.schema.json
 数据导入和清洗相关实现
 ```

@@ -32,7 +32,7 @@ from scripts.validate_extraction_result import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_EXTRACTION_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
-DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-v1.md"
+DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-1.0.md"
 DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-v4-flash"
 

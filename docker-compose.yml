@@ -28,6 +28,8 @@ services:
       - ./scripts:/app/scripts
       - ./docs:/app/docs:ro
       - ./data:/app/data
+      - ./.dockerignore:/app/.dockerignore:ro
+      - ./.github:/app/.github:ro
     command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:

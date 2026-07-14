@@ -17,7 +17,8 @@ COPY docs/prompts /app/docs/prompts
 COPY data/examples /app/data/examples
 COPY data/documents /app/data/documents
 COPY data/golden /app/data/golden
-COPY data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json /app/data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json
+COPY data/extracted /app/data/extracted
+COPY data/runs /app/data/runs
 
 EXPOSE 8000
 

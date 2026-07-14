@@ -1,4 +1,4 @@
-# LLM 抽取 Prompt：extract-v1
+# LLM 抽取 Prompt：1.0
 
 适用对象：LLM 抽取与分析组 `llm`
 适用输入：符合 `docs/schemas/document.schema.json` 的 `document.json`，或后端切块后的 `chunk_id + text`

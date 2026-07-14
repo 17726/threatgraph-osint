@@ -1,0 +1,59 @@
+name: Sync Data Artifacts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - data/golden/**
+      - data/extracted/**
+      - data/evaluation/**
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-artifact-index-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install backend dependencies
+        run: python -m pip install -r backend/requirements.txt
+
+      - name: Run backend tests
+        run: python -m pytest backend/tests -v
+
+      - name: Generate manifest and README
+        run: python scripts/generate_data_artifacts.py
+
+      - name: Commit generated files when changed
+        shell: bash
+        run: |
+          git add data/runs/index.json data/README.md
+          if git diff --cached --quiet; then
+            git reset -- data/runs/index.json data/README.md
+            echo "No generated file changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --cached --name-only | grep -Ev '^(data/runs/index\.json|data/README\.md)$'; then
+            echo "Unexpected generated files staged" >&2
+            exit 1
+          fi
+          git commit -m "chore: 更新数据工件索引"
+          git push

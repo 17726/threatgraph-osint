@@ -48,6 +48,17 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
     assert summary.behavior_patterns == 2
 
     with connect(db_path) as connection:
+        document_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(documents)").fetchall()
+        }
+        assert "clean_text" in document_columns
+        assert "raw_text" not in document_columns
+        stored_document = connection.execute(
+            "SELECT clean_text FROM documents WHERE doc_id = 'apt28_049'"
+        ).fetchone()
+        assert stored_document["clean_text"]
+
         run = connection.execute("SELECT * FROM extraction_runs").fetchone()
         assert run["validation_status"] == "valid"
 

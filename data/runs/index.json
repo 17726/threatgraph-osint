@@ -1,0 +1,107 @@
+{
+  "manifest_version": "1.0",
+  "generated_file": true,
+  "generated_file_notice": "自动生成文件，无需人工填写或编辑。",
+  "extractions": [
+    {
+      "path": "data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json",
+      "run_id": "extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760",
+      "doc_id": "apt28_049",
+      "model_name": "manual-reviewed",
+      "prompt_version": "1.0",
+      "schema_version": "1.0",
+      "generated_at": "2026-07-09T12:10:32.840760+00:00",
+      "content_sha256": "b61dc139fab920d90a8512652fbd1502f3b943a9e74c4ca16b03074be53c0ce8",
+      "artifact_status": "legacy-migrated",
+      "migration_note": "历史样例从旧文件名迁移；generated_at 保留原始运行时间，用于复盘，不代表本次修复运行时间。"
+    }
+  ],
+  "goldens": [
+    {
+      "path": "data/golden/golden-zh-apt28_001-1.0-1.0.json",
+      "language": "zh",
+      "doc_ids": [
+        "apt28_001"
+      ],
+      "doc_id": "apt28_001",
+      "schema_version": "1.0",
+      "golden_version": "1.0",
+      "content_sha256": "5ffde9c4d98f7fd642990cfd5bf734b35c839be039160bfde525f11486acbfce",
+      "artifact_status": "current"
+    },
+    {
+      "path": "data/golden/golden-en-apt28_080-1.0-1.0.json",
+      "language": "en",
+      "doc_ids": [
+        "apt28_080"
+      ],
+      "doc_id": "apt28_080",
+      "schema_version": "1.0",
+      "golden_version": "1.0",
+      "content_sha256": "f322f1cec5a10ccf94e1e5bad984bc6b277f1e25658294c624fd9a78a6fa18ef",
+      "artifact_status": "current"
+    },
+    {
+      "path": "data/golden/golden-zh-kimsuky_001-1.0-1.0.json",
+      "language": "zh",
+      "doc_ids": [
+        "kimsuky_001"
+      ],
+      "doc_id": "kimsuky_001",
+      "schema_version": "1.0",
+      "golden_version": "1.0",
+      "content_sha256": "32612bd1ff4566e4a618425153b2cef7fd3fe262e34432aa3d1f0ec978121fc2",
+      "artifact_status": "current"
+    },
+    {
+      "path": "data/golden/golden-en-kimsuky_060-1.0-1.0.json",
+      "language": "en",
+      "doc_ids": [
+        "kimsuky_060"
+      ],
+      "doc_id": "kimsuky_060",
+      "schema_version": "1.0",
+      "golden_version": "1.0",
+      "content_sha256": "109d27b639f31aa868d51c3ad56c9e6da0d4fe66cc07875cb66b791fd3156043",
+      "artifact_status": "current"
+    },
+    {
+      "path": "data/golden/golden-zh-lazarus_001-1.0-1.0.json",
+      "language": "zh",
+      "doc_ids": [
+        "lazarus_001"
+      ],
+      "doc_id": "lazarus_001",
+      "schema_version": "1.0",
+      "golden_version": "1.0",
+      "content_sha256": "c0e7876a957c1a44834bee3b37404b53e23b48331e7e5a30919020d46d82aa4b",
+      "artifact_status": "current"
+    },
+    {
+      "path": "data/golden/golden-en-lazarus_091-1.0-1.0.json",
+      "language": "en",
+      "doc_ids": [
+        "lazarus_091"
+      ],
+      "doc_id": "lazarus_091",
+      "schema_version": "1.0",
+      "golden_version": "1.0",
+      "content_sha256": "bc27642e725a0a95c244a8521fd28924ee73d4e04ebd800bf265378f2280a7bf",
+      "artifact_status": "current"
+    }
+  ],
+  "evaluations": [
+    {
+      "path": "data/evaluation/evaluation_result.apt28_080.deepseek-v4-flash.extract-v1.json",
+      "doc_id": "apt28_080",
+      "model_name": "deepseek-v4-flash",
+      "prompt_version": "extract-v1",
+      "schema_version": "1.0",
+      "golden_version": "",
+      "evaluated_at": "2026-07-13T08:40:32.536611+00:00",
+      "content_sha256": "4efb2a9d934a4b8d4e1af5bbffc48b7763f19d66b02b4dc21052848023f15e5c",
+      "artifact_status": "legacy",
+      "migration_note": "历史评测结果，保留原文件名和原始版本字段；不作为当前默认运行输出。"
+    }
+  ]
+}

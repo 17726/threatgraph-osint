@@ -35,12 +35,15 @@ scripts/calculate_char_positions.py
 !data/raw/suqi625/*.legacy.json
 !data/cleaned/.gitkeep
 !data/extracted/.gitkeep
-!data/extracted/extraction_result.*.v*.json
+!data/extracted/extract-*.json
 !data/graph/.gitkeep
 !data/reports/.gitkeep
 !data/evaluation/.gitkeep
-!data/evaluation/golden*.json
-!data/evaluation/evaluation_result.*.json
+!data/evaluation/evaluation_result-*.json
+!data/golden/
+!data/golden/*.json
+!data/runs/
+!data/runs/index.json
 
 # Local verification artifacts
 output/

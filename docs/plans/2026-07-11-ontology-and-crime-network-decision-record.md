@@ -565,7 +565,7 @@ CAMPAIGN（攻击活动）
 2. `docs/architecture.md` 架构文档。
 3. `docs/schemas/*.json` JSON Schema。
 4. `docs/schemas/relationship-matrix.md` 关系合法性矩阵。
-5. `docs/prompts/extract-v1.md` 抽取提示词。
+5. `docs/prompts/extract-1.0.md` 抽取提示词。
 6. `docs/guides/golden-annotation-reference.md` 黄金集制作指南。
 7. 后端实体和关系校验、归一化、SQLite 表及 API。
 8. 已有 golden、extraction example、graph example 和测试数据。

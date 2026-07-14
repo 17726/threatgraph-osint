@@ -62,10 +62,26 @@ Schema 文件：
 ```text
 docs/schemas/document.schema.json
 docs/schemas/extraction-result.schema.json
+docs/schemas/candidate-audit.schema.json
 docs/schemas/golden.schema.json
 docs/schemas/graph.schema.json
 docs/schemas/relationship-matrix.md
 ```
+
+正式 LLM 工件目录：
+
+```text
+data/golden/golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
+data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
+```
+
+文件名中的元数据必须与 JSON 内部字段一致；抽取结果文件名中的 timestamp 必须与
+`generated_at` 的 UTC 格式化结果一致。旧格式文件可以继续保留，但只作为 Legacy 历史材料
+登记和复盘，不作为当前默认输出。
+迁移后的历史样例在 `data/runs/index.json` 中标记为 `legacy-migrated`，保留原始运行时间，
+不得将该时间解释为当前修复运行时间。
 
 可复制样例：
 
@@ -83,7 +99,7 @@ data/examples/golden.apt28.thn.beardshell.example.json
 data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
 data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
 data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
-data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
+data/golden/golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json
 ```
 
 正式 P0 文档：
@@ -100,8 +116,13 @@ data/documents/<target_group>/*.json
 2. arch / qa / be 做标准名和别名对齐时，参考 `reference.apt28.mitre.example.json`。
 3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系；正式运行结果落到 `data/extracted/extract-...json`，并用同一 `run_id` 保存 `...-candidate-audit.json`。
 4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.thn.beardshell.example.json`。
-5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展，并保持兼容 `docs/schemas/golden.schema.json`；正式 golden 放到 `data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json`。
+5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展，并保持兼容 `docs/schemas/golden.schema.json`；正式 golden 放到 `data/golden/golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json`。
 6. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
+7. Golden 必须包含 `language` 和 `golden_version`，正式文件名必须通过命名校验。
+8. candidate-audit 必须兼容 `docs/schemas/candidate-audit.schema.json`，并与 extraction 的
+   `run_id`、`doc_id` 一致。
+
+Golden 文件名中的文档 ID 来自顶层 `doc_ids`：必须非空且不重复，按字典序排序后逐项进行安全文件名转换，再使用 `+` 连接。单文档 Golden 仍使用原有格式。
 
 APT28 首个样例的字段标准：
 
@@ -120,7 +141,7 @@ document.json
 extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
   llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入；同一运行必须有稳定 run_id，可选保存同 run_id 的 candidate audit
 
-golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
+golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json
   qa 组维护的人工标准答案，用于评测候选抽取质量；结构和 extraction result 一样按 chunks 归属实体和关系，但不包含候选状态、置信度或后端最终实体/关系 ID
 
 graph.json
@@ -320,6 +341,7 @@ CREATE TABLE extraction_runs (
   doc_id TEXT NOT NULL,
   model_name TEXT NOT NULL,
   prompt_version TEXT NOT NULL,
+  generated_at TEXT,
   parameters_json TEXT NOT NULL DEFAULT '{}',
   status TEXT NOT NULL CHECK (status IN ('pending', 'running', 'succeeded', 'failed')),
   validation_status TEXT NOT NULL DEFAULT 'unchecked' CHECK (validation_status IN ('unchecked', 'valid', 'invalid')),

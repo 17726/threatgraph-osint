@@ -373,7 +373,7 @@ AFFILIATED_WITH
 
 1. 将实体和关系调整同步到 JSON Schema。
 2. 将最终关系矩阵同步到 `docs/schemas/relationship-matrix.md`。
-3. 同步 `docs/data-contract.md` 和 `docs/prompts/extract-v1.md`。
+3. 同步 `docs/data-contract.md` 和 `docs/prompts/extract-1.0.md`。
 4. 迁移删除 `TARGET` 后受影响的 golden、示例和测试数据。
 5. 增加 `INFRASTRUCTURE`、`LOCATION`、`FINANCIAL_ACCOUNT` 的示例。
 6. 增加 `MEMBER_OF`、`CONTROLS`、`TRANSFERS_TO` 的真实证据样例。

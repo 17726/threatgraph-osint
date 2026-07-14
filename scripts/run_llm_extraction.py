@@ -16,6 +16,7 @@ if str(REPO_ROOT) not in sys.path:
 from backend.app.services.artifact_naming import (
     DEFAULT_PROMPT_VERSION,
     evaluation_filename,
+    validate_evaluation_artifact_filename,
 )
 from backend.app.services.demo_store import DEFAULT_DB_PATH
 from backend.app.services.extraction_evaluator import (
@@ -105,6 +106,7 @@ def run_single(
                 evaluated_at=evaluation["evaluated_at"],
             )
             evaluation_output = Path("data/evaluation") / filename
+        validate_evaluation_artifact_filename(evaluation_output, evaluation)
         evaluation_output.parent.mkdir(parents=True, exist_ok=True)
         evaluation_output.write_text(
             json.dumps(evaluation, ensure_ascii=False, indent=2) + "\n",

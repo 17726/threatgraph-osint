@@ -17,7 +17,13 @@ from backend.app.services.extraction_evaluator import (
     validate_golden_payload,
     validate_golden_schema,
 )
-from backend.app.services.artifact_naming import evaluation_filename
+from backend.app.services.artifact_naming import (
+    evaluation_filename,
+    validate_candidate_audit_filename,
+    validate_evaluation_artifact_filename,
+    validate_extraction_artifact_filename,
+    validate_golden_artifact_filename,
+)
 from scripts.validate_extraction_result import load_json, validate_payload
 
 
@@ -47,6 +53,22 @@ def main(argv: list[str] | None = None) -> int:
     golden = load_json(args.golden)
     document = load_json(args.document) if args.document else None
     candidate_audit = load_json(args.candidate_audit) if args.candidate_audit else None
+
+    try:
+        validate_extraction_artifact_filename(
+            args.extraction_result, extraction_result, allow_legacy=True
+        )
+        validate_golden_artifact_filename(args.golden, golden, allow_legacy=True)
+        if args.candidate_audit:
+            validate_candidate_audit_filename(
+                args.candidate_audit,
+                candidate_audit or {},
+                extraction_run_id=extraction_result.get("run_id"),
+                allow_legacy=True,
+            )
+    except ValueError as exc:
+        print(f"工件命名错误: {exc}", file=sys.stderr)
+        return 1
 
     extraction_report = validate_payload(extraction_result, document=document)
     golden_errors = [
@@ -80,6 +102,12 @@ def main(argv: list[str] | None = None) -> int:
             golden_version=result["golden"]["golden_version"],
             evaluated_at=result["evaluated_at"],
         )
+
+    try:
+        validate_evaluation_artifact_filename(args.output, result)
+    except ValueError as exc:
+        print(f"工件命名错误: {exc}", file=sys.stderr)
+        return 1
 
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

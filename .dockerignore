@@ -9,9 +9,6 @@ data/*.db
 data/*.sqlite
 data/cleaned/*
 data/evaluation/*
-!data/evaluation/golden*.json
-data/extracted/*
-!data/extracted/extraction_result.apt28.thn.beardshell.v1.json
 data/graph/*
 data/raw/*
 data/reports/*

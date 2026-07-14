@@ -15,7 +15,7 @@
 建议文件位置：
 
 ```text
-data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
+data/golden/golden-<language>-<doc_id_1>+<doc_id_2>+...-<schema_version>-<golden_version>.json
 ```
 
 示例：
@@ -24,6 +24,10 @@ data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 data/golden/golden-en-apt28_080-1.0-1.0.json
 data/golden/golden-zh-kimsuky_001-1.0-1.0.json
 ```
+
+多文档 Golden 按顶层 `doc_ids` 的字典序生成文件名。例如 `doc_ids` 为
+`["apt28_081", "apt28_080"]` 时，文件名为
+`golden-en-apt28_080+apt28_081-1.0-1.0.json`。每个 ID 单独安全化后再使用 `+` 连接。
 
 `data/evaluation/` 只存评测结果；历史迁移材料或旧格式文件不要作为正式 golden 使用，需要复查时放在 `data/raw/<collector>/`。
 
@@ -53,7 +57,7 @@ data/golden/golden-zh-kimsuky_001-1.0-1.0.json
 
 | 字段             | 填写规则                                                                                       |
 | ---------------- | ---------------------------------------------------------------------------------------------- |
-| `schema_version` | 固定 `"1.0"`。                                                                                 |
+| `schema_version` | 使用两段式数字版本，例如 `1.0`。                                                               |
 | `target_group`   | 本 golden 主评测目标组织，例如 `APT28`、`Kimsuky`、`Lazarus`。                                 |
 | `doc_ids`        | 本 golden 覆盖的文档 ID 列表，必须能对应到 `data/documents/<target_group>/*.json` 或样例文档。 |
 | `chunks`         | 后端切块结果。实体和关系都写在对应 chunk 内。                                                  |

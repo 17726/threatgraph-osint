@@ -366,6 +366,8 @@ def evaluate_extraction(
         raise ValueError(f"extraction_result.doc_id {doc_id!r} 不在 golden.doc_ids 中")
     if candidate_audit and candidate_audit.get("doc_id") != doc_id:
         raise ValueError("candidate_audit.doc_id 与 extraction_result.doc_id 不一致")
+    if candidate_audit and candidate_audit.get("run_id") != extraction_result.get("run_id"):
+        raise ValueError("candidate_audit.run_id 必须与 extraction_result.run_id 一致")
 
     predicted_chunks = _index_unique_chunks(
         extraction_result.get("chunks", []),

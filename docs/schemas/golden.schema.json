@@ -4,10 +4,11 @@
   "title": "ThreatGraph Golden Evaluation Set",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "golden_version", "target_group", "doc_ids", "chunks", "notes"],
+  "required": ["schema_version", "golden_version", "language", "target_group", "doc_ids", "chunks", "notes"],
   "properties": {
     "schema_version": {
-      "const": "1.0"
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$"
     },
     "golden_version": {
       "type": "string",

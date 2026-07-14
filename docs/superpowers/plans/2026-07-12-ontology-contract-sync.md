@@ -23,7 +23,7 @@
 **Files:**
 - Modify: `docs/data-contract.md`
 - Modify: `docs/schemas/relationship-matrix.md`
-- Modify: `docs/prompts/extract-v1.md`
+- Modify: `docs/prompts/extract-1.0.md`
 - Modify: `docs/guides/golden-annotation-reference.md`
 - Modify: `docs/schemas/extraction-result.schema.json`
 - Modify: `docs/schemas/golden.schema.json`
