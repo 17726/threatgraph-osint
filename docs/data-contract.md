@@ -88,6 +88,11 @@ data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_vers
 data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 ```
 
+`run_id` 字段是 Extraction Run 的权威身份；正式文件名是可读标签，必须与 payload 中的
+`doc_id`、模型、Prompt、Schema、UTC 时间和随机后缀一致。UTC 时间戳只负责排序和展示，不能
+单独作为唯一身份。正式工件默认执行严格命名校验；历史样例只能由调用方显式声明 Legacy，且
+仍需通过 Schema、Document 证据及 `run_id/doc_id` 关联校验。
+
 正式 P0 文档：
 
 ```text
@@ -141,6 +146,11 @@ graph.json
 8. `/api/v1/graph` 的响应结构以 `docs/api-contract.md` 为准，不直接绑定完整 GraphSnapshot。
 9. `docs/schemas/graph.schema.json` 只约束导出的 `data/graph/graph.json` 快照。
 10. `reference.*.json` 是标准知识库参考，不进入“真实文章清洗 -> LLM 抽取”的主链路。
+
+当前正式 Golden 以单篇 Document 为身份原子；这项约束只解决文件身份和命名，不决定人工
+标注应覆盖全文还是局部范围。标注目标、覆盖声明和评分边界必须在独立评审中从课程与产品目标、
+现有数据和评测用途推出。当前 v1 Schema 尚未声明 `annotation_scope/covered_spans`，本次命名
+校验不新增或冻结这类范围语义，也不静默改变现有 6 篇数据。
 
 ### 1.4 P0 文档清洗边界
 

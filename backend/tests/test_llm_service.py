@@ -338,6 +338,52 @@ def test_generate_run_id_uses_versioned_artifact_contract():
     assert first != second
 
 
+def test_save_result_rejects_run_id_metadata_mismatch(tmp_path):
+    service = LLMExtractionService(
+        api_key="test-secret",
+        max_retries=1,
+        relation_review_passes=0,
+    )
+    result = json.loads(
+        (ROOT / "data/examples/extraction_result.apt28.thn.beardshell.example.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    result["model_name"] = "another-model"
+
+    with pytest.raises(ValueError, match="run_id"):
+        service.save_result(result, tmp_path)
+
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_save_candidate_audit_rejects_run_id_metadata_mismatch(tmp_path):
+    service = LLMExtractionService(
+        api_key="test-secret",
+        max_retries=1,
+        relation_review_passes=0,
+    )
+    extraction = json.loads(
+        (ROOT / "data/examples/extraction_result.apt28.thn.beardshell.example.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    service.last_candidate_audit = {
+        "schema_version": extraction["schema_version"],
+        "run_id": extraction["run_id"],
+        "doc_id": extraction["doc_id"],
+        "model_name": "another-model",
+        "prompt_version": extraction["prompt_version"],
+        "generated_at": extraction["generated_at"],
+        "chunks": [],
+    }
+
+    with pytest.raises(ValueError, match="run_id"):
+        service.save_candidate_audit(tmp_path)
+
+    assert list(tmp_path.iterdir()) == []
+
+
 def test_service_requires_environment_key(monkeypatch):
     monkeypatch.delenv("LLM_API_KEY", raising=False)
     service = LLMExtractionService(api_key="", max_retries=1, relation_review_passes=0)

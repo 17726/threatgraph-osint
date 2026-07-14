@@ -94,7 +94,8 @@ data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_vers
 
 JSON 字段中的 `run_id` 是权威运行身份；文件名只提供可读标签。UTC 时间戳用于排序和展示，
 `run_suffix` 用于避免同一微秒内重复运行发生身份碰撞。Extraction Result 与 Candidate Audit
-必须同时匹配 `doc_id` 和 `run_id`，否则禁止组合评测。
+必须同时匹配 `doc_id` 和 `run_id`，否则禁止组合评测。保存入口会在写文件前检查 Run ID
+可读前缀和 payload 元数据，校验阶段不会重新生成 Run ID。
 
 这些文件不会因为 runner 成功就自动成为 Git 实验档案。只有被用于报告对照、有效负向结论或
 后续回归的 Completed Run，才作为 Promoted Experiment 提交 Git 并经过 PR 评审；普通本地
@@ -112,14 +113,23 @@ python scripts/evaluate_extraction_against_golden.py \
   --document data/documents/apt28/apt28_080.json \
 ```
 
+正式工件默认严格校验文件名。仓库 `data/examples/` 中的历史/教学样例使用说明性文件名，只有在
+明确需要评测这些样例时才追加 `--allow-legacy-artifacts`；该参数只跳过文件名比较，不跳过
+Schema、证据、`doc_id` 或 `run_id` 关联校验。Evaluation 输出仍必须使用正式版本化文件名。
+
 实体按“同一 chunk、类型相同、标准化名称或别名相交”做最大基数、再最大匹配分数的一对一
 匹配。关系按“同一 chunk、两端实体已匹配、关系类型完全相同”一对一匹配。证据必须能回到
 `document.clean_text` 且落在 golden 所属 chunk 的字符范围内，但证据文本是否与 golden 使用
 完全相同的句子不参与 F1，以免把正确事实因截取范围不同判错。
 
-评测器显式拒绝重复 `chunk_id`，并在多文档 golden 中只选择当前
-`extraction_result.doc_id` 的 chunks。独立评测不提供 `--candidate-audit` 时，输出只代表已通过
-校验的候选质量，不得表述为原始模型端到端指标。
+评测器显式拒绝重复 `chunk_id`。当前正式 Golden 文件以单篇 Document 为原子；评测器保留对
+历史多文档 payload 的读取能力，但新归档不得继续用多文档文件名。独立评测不提供
+`--candidate-audit` 时，输出只代表已通过校验的候选质量，不得表述为原始模型端到端指标。
+
+当前提供 `--candidate-audit` 时，rejected 项会直接增加预测数量并计作 FP。这一实现最初用于
+避免“先过滤再评测”掩盖模型幻觉，但它无法区分正确候选被误拒、真正幻觉和重复项，所以只是
+历史 raw-like 口径。后续应分别报告 raw emission、validated candidate、accepted graph，并把
+duplicate、rejection reason 和错误拒绝单列；本次命名校验不改变历史指标。
 
 评测前会同时检查 golden 的 schema、关系方向/类型配对、端点实体和原文证据。golden
 不满足当前关系矩阵时直接拒绝评测，不输出看似精确但标准答案本身无效的指标。
