@@ -17,6 +17,7 @@ const TYPE_COLORS: Record<string, string> = {
 
 export interface BuildOptions {
   highlightNodeIds?: string[];
+  searchNodeId?: string | null;
 }
 
 export function buildGraphOption(
@@ -24,6 +25,7 @@ export function buildGraphOption(
   opts?: BuildOptions,
 ): EChartsOption {
   const highlightSet = new Set(opts?.highlightNodeIds ?? []);
+  const searchNodeId: string | null | undefined = opts?.searchNodeId;
 
   const categories = Array.from(
     new Set(payload.nodes.map((node) => node.type)),
@@ -78,7 +80,7 @@ export function buildGraphOption(
           fontSize: 12,
         },
         edgeLabel: {
-          show: true,
+          show: false,
           formatter: "{b}",
           fontSize: 11,
           color: "#475569",
@@ -93,44 +95,48 @@ export function buildGraphOption(
           lineStyle: {
             width: 2.4,
           },
-        },
-        data: payload.nodes.map((node) => ({
-          id: node.id,
-          name: node.name,
-          type: node.type,
-          value: Number(node.confidence.toFixed(2)),
-          category: node.type,
-          symbolSize:
-            node.type === "APT_GROUP" ? 56 : node.type === "COUNTRY" ? 48 : 36,
-          itemStyle: {
-            color: TYPE_COLORS[node.type] ?? "#64748b",
-            borderColor: highlightSet.has(node.id) ? "#f59e0b" : "transparent",
-            borderWidth: highlightSet.has(node.id) ? 3 : 0,
-            opacity:
-              highlightSet.size > 0 && !highlightSet.has(node.id) ? 0.25 : 1,
-          },
-          label: {
+          edgeLabel: {
             show: true,
-            fontSize:
-              highlightSet.size > 0 && !highlightSet.has(node.id) ? 10 : 12,
-            color: "#172026",
+            formatter: "{b}",
+            fontSize: 11,
           },
-          _raw: node,
-        })),
+        },
+        data: payload.nodes.map((node) => {
+          const isHL = highlightSet.has(node.id);
+          const isSN = searchNodeId === node.id;
+          const sz = node.type === "APT_GROUP" ? 56 : node.type === "COUNTRY" ? 48 : 36;
+          const dim = (highlightSet.size > 0 || searchNodeId) && !isHL && !isSN;
+          return {
+            id: node.id, name: node.name, type: node.type,
+            value: Number(node.confidence.toFixed(2)),
+            category: node.type,
+            symbolSize: isSN ? Math.round(sz * 1.5) : sz,
+            itemStyle: {
+              color: TYPE_COLORS[node.type] ?? "#64748b",
+              borderColor: isSN ? "#f59e0b" : isHL ? "#f59e0b" : "transparent",
+              borderWidth: isSN ? 4 : isHL ? 3 : 0,
+              shadowBlur: isSN ? 20 : 0,
+              shadowColor: isSN ? "rgba(245,158,11,0.7)" : "transparent",
+              opacity: dim ? 0.12 : 1,
+            },
+            label: { show: true, fontSize: isSN ? 16 : dim ? 10 : 12, color: isSN ? "#f59e0b" : "#172026", fontWeight: isSN ? 700 : 400 },
+            _raw: node,
+          };
+        }),
         links: payload.edges.map((edge) => {
-          const pathEdge =
-            highlightSet.has(edge.source) && highlightSet.has(edge.target);
+          const isSearched = !!searchNodeId;
+          const pathEdge = (highlightSet.has(edge.source) && highlightSet.has(edge.target))
+            || (isSearched && (edge.source === searchNodeId || edge.target === searchNodeId));
           const isInfer = edge.validation_status === "invalid";
           return {
             source: edge.source,
             target: edge.target,
             name: edge.label,
-            lineStyle:
-              highlightSet.size > 0
-                ? { opacity: pathEdge ? 1 : 0.08 }
-                : isInfer
-                  ? { opacity: 0.4, type: "dashed" as const, color: "#9ca3af" }
-                  : undefined,
+            lineStyle: (highlightSet.size > 0 || isSearched)
+              ? { opacity: pathEdge ? 1 : 0.08 }
+              : isInfer
+                ? { opacity: 0.4, type: "dashed" as const, color: "#9ca3af" }
+                : undefined,
             _raw: edge,
           };
         }),
