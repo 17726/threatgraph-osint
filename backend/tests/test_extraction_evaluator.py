@@ -149,6 +149,15 @@ def test_golden_schema_validation_rejects_missing_required_field():
     assert any("schema_version" in error for error in errors)
 
 
+def test_golden_schema_validation_requires_language():
+    golden = copy.deepcopy(load_json(GOLDEN_PATH))
+    del golden["language"]
+
+    errors = validate_golden_schema(golden)
+
+    assert any("language" in error for error in errors)
+
+
 def test_entity_alias_matching_also_matches_relation_endpoints():
     extraction = load_json(EXTRACTION_PATH)
     golden = load_json(GOLDEN_PATH)
@@ -192,6 +201,7 @@ def test_rejected_candidate_audit_items_count_as_false_positives():
     extraction = load_json(EXTRACTION_PATH)
     chunk_id = extraction["chunks"][0]["chunk_id"]
     candidate_audit = {
+        "run_id": extraction["run_id"],
         "doc_id": extraction["doc_id"],
         "chunks": [
             {
@@ -235,6 +245,22 @@ def test_rejected_candidate_audit_items_count_as_false_positives():
     assert result["errors"]["extra_entities"][0]["source"] == "candidate_audit"
 
 
+def test_evaluator_rejects_candidate_audit_from_another_run():
+    extraction = load_json(EXTRACTION_PATH)
+    candidate_audit = {
+        "run_id": "extract-another-run",
+        "doc_id": extraction["doc_id"],
+        "chunks": [],
+    }
+
+    with pytest.raises(ValueError, match="run_id"):
+        evaluate_extraction(
+            extraction,
+            load_json(GOLDEN_PATH),
+            candidate_audit=candidate_audit,
+        )
+
+
 def test_normalize_name_is_case_and_whitespace_insensitive():
     assert normalize_name("  Fancy   BEAR ") == normalize_name("fancy bear")
 
@@ -273,6 +299,7 @@ def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
     audit_path.write_text(
         json.dumps(
             {
+                "run_id": extraction["run_id"],
                 "doc_id": extraction["doc_id"],
                 "chunks": [
                     {

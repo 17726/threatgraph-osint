@@ -42,8 +42,8 @@ data/documents/<target_group>/*.json
 正式 LLM 归档工件放在：
 
 ```text
-data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
-data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>-candidate-audit.json
 data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
 data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 ```
@@ -78,7 +78,7 @@ The Hacker News 字段口径如下：
 
 data 组先按 `document.apt28.thn.beardshell.example.json` 改出第一份 APT28 真实文档。
 
-llm 组先按 `extraction_result.apt28.thn.beardshell.example.json` 手写或生成候选结果。正式运行结果按 `extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json` 归档，同时保存同一 `run_id` 的 `...-candidate-audit.json`。第一版必须保证 JSON 合法、字段完整、证据文本能回到 `clean_text`。
+llm 组先按 `extraction_result.apt28.thn.beardshell.example.json` 手写或生成候选结果。被选入实验档案的运行结果按 `extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json` 归档，同时保存同一 `run_id` 的 `...-candidate-audit.json`。第一版必须保证 JSON 合法、字段完整、证据文本能回到 `clean_text`。
 
 be 组按 `graph.apt28.thn.beardshell.example.json` 的格式导出 `data/graph/graph.json`，并按 `docs/api-contract.md` 返回 `/api/v1/graph` 的轻量图谱视图，同时补齐 `/api/v1/graph/path` 的 SQLite BFS 兜底。
 

@@ -6,6 +6,7 @@ import pytest
 
 from backend.app.core.document_contract import document_content_hash
 from backend.app.services.llm_service import (
+    DEFAULT_PROMPT_PATH,
     ENTITY_TYPES,
     RELATION_TYPES,
     LLMExtractionService,
@@ -51,6 +52,7 @@ def test_llm_service_uses_schema_enums_and_repository_prompt():
 
     assert ENTITY_TYPES == tuple(schema["$defs"]["entity_type"]["enum"])
     assert RELATION_TYPES == tuple(schema["$defs"]["relation_type"]["enum"])
+    assert DEFAULT_PROMPT_PATH.name == "extract-1.0.md"
     system_prompt = load_system_prompt()
     assert "不要生成 entity_id" in system_prompt
     assert "USES:" in system_prompt
@@ -317,14 +319,23 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
 
 
 def test_generate_run_id_uses_versioned_artifact_contract():
-    run_id = generate_run_id(
+    first = generate_run_id(
+        "apt28_080",
+        "deepseek-v4-flash",
+        "1.0",
+        generated_at="2026-07-13T08:39:26.515108+00:00",
+    )
+    second = generate_run_id(
         "apt28_080",
         "deepseek-v4-flash",
         "1.0",
         generated_at="2026-07-13T08:39:26.515108+00:00",
     )
 
-    assert run_id == "extract-apt28_080-deepseek-v4-flash-1.0-1.0-20260713083926515108"
+    assert first.startswith(
+        "extract-apt28_080-deepseek-v4-flash-1.0-1.0-20260713083926515108-"
+    )
+    assert first != second
 
 
 def test_service_requires_environment_key(monkeypatch):

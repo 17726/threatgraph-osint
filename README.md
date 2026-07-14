@@ -35,17 +35,18 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 | 行为分析 | 已实现基础页面 | 展示攻击阶段、技术映射和分析结果 |
 | 评测结果 | 已实现 Mock 页面 | 展示实体、关系抽取指标原型和错误样例，当前指标为前端 Mock 数据 |
 | FastAPI API | 已实现 P0 接口 | 提供健康检查、图谱和报告接口 |
-| SQLite 事实源 | 已确定 | 保存系统权威数据，避免图数据库成为唯一事实源 |
+| SQLite 运行时主库 | 已确定 | 保存 canonical graph、证据、导入状态和同步水位 |
 | 文档与候选抽取契约 | 已冻结 | 提供 JSON Schema、样例和关系合法性矩阵 |
 | 自动采集 | 规划中 | 后续接入 HTTP 页面、RSS/Atom 等来源 |
-| Neo4j 多跳查询 | P1 增强 | 仅作为 SQLite canonical graph 的查询增强层 |
+| Neo4j 图查询投影 | P1 增强 | 承担多维查询、关键路径、图算法和增量同步演示 |
 
 ### 核心原则
 
-- **SQLite 是唯一事实源**：文档、切块、抽取结果、实体、关系、证据和分析结果以 SQLite 为准。
+- **事实按职责分层**：Git JSON 保存人工输入及经评审实验档案；SQLite 是运行时 canonical graph、证据和导入状态的权威来源。
 - **候选层与正式图谱层分离**：LLM 输出先进入候选表，经过校验和归一化后才能进入正式实体与关系。
 - **证据链贯穿分析流程**：实体、关系、行为分析和报告结论都应能追溯到 `evidence_ids`。
 - **graph.json 是导出快照**：用于离线样例、演示兜底和 Neo4j 同步输入，不替代 SQLite。
+- **Neo4j 是可重建查询投影**：只接收 SQLite canonical graph 的已验证实体和关系；同步失败不能反向污染 SQLite。
 - **前端只调用 FastAPI**：React 不直接读取 SQLite、`graph.json` 或 Neo4j。
 
 ## 界面预览
@@ -73,7 +74,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
  校验、归一化与证据绑定
           │
           ▼
-       SQLite 事实源
+ SQLite 运行时 canonical graph
           │
      ┌────┴────┐
      ▼         ▼

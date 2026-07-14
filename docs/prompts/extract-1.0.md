@@ -1,4 +1,4 @@
-# LLM 抽取 Prompt：extract-v1
+# LLM 抽取 Prompt：1.0
 
 适用对象：LLM 抽取与分析组 `llm`
 适用输入：符合 `docs/schemas/document.schema.json` 的 `document.json`，或后端切块后的 `chunk_id + text`
@@ -139,7 +139,7 @@ chunk 列表：
 
 ```bash
 python scripts/validate_extraction_result.py \
-  data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json \
+  data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json \
   --document data/examples/document.apt28.thn.beardshell.example.json
 ```
 

@@ -13,6 +13,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from backend.app.core.document_contract import document_contract_errors
+from backend.app.core.json_schema import STRICT_FORMAT_CHECKER
 
 
 DEFAULT_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
@@ -209,7 +210,7 @@ def format_json_path(error_path: Any) -> str:
 
 def validate_schema(payload: dict[str, Any], schema_path: Path, report: ValidationReport) -> None:
     schema = load_json(schema_path)
-    validator = Draft202012Validator(schema)
+    validator = Draft202012Validator(schema, format_checker=STRICT_FORMAT_CHECKER)
     for error in sorted(validator.iter_errors(payload), key=lambda item: list(item.path)):
         report.add_error(f"schema {format_json_path(error.path)}: {error.message}")
 

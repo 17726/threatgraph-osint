@@ -1,9 +1,10 @@
-"""Versioned artifact naming helpers for LLM extraction workflows."""
+"""LLM 抽取流程的版本化工件命名工具。"""
 
 from __future__ import annotations
 
 import re
 from datetime import UTC, datetime
+from uuid import uuid4
 
 
 SCHEMA_VERSION = "1.0"
@@ -22,16 +23,22 @@ def now_utc() -> datetime:
     return datetime.now(UTC)
 
 
+def _require_aware_datetime(moment: datetime) -> datetime:
+    if moment.tzinfo is None or moment.utcoffset() is None:
+        raise ValueError("时间必须包含明确时区")
+    return moment
+
+
 def iso_timestamp(moment: datetime) -> str:
-    return moment.astimezone(UTC).isoformat()
+    return _require_aware_datetime(moment).astimezone(UTC).isoformat()
 
 
 def filename_timestamp(moment: datetime) -> str:
-    return moment.astimezone(UTC).strftime("%Y%m%d%H%M%S%f")
+    return _require_aware_datetime(moment).astimezone(UTC).strftime("%Y%m%d%H%M%S%f")
 
 
 def timestamp_from_iso(value: str) -> str:
-    return filename_timestamp(datetime.fromisoformat(value).astimezone(UTC))
+    return filename_timestamp(datetime.fromisoformat(value))
 
 
 def safe_filename(value: str) -> str:
@@ -50,7 +57,8 @@ def extraction_run_id(
     ensure_version(schema_version, field_name="schema_version")
     return (
         f"extract-{safe_filename(doc_id)}-{safe_filename(model_name)}-"
-        f"{prompt_version}-{schema_version}-{timestamp_from_iso(generated_at)}"
+        f"{prompt_version}-{schema_version}-{timestamp_from_iso(generated_at)}-"
+        f"{uuid4().hex[:8]}"
     )
 
 

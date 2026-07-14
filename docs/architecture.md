@@ -4,34 +4,36 @@
 > 课程方向：实验三「开源情报资源中潜在行为和关系的大模型深度分析系统」  
 > 技术路线：React + TypeScript + Vite + ECharts-for-React + FastAPI + SQLite + graph.json 导出 + Neo4j(增强阶段 / 优先级 P1)
 > 版本：当前版
-> 日期：2026-07-06
+> 日期：2026-07-15
 
 ---
 
 ## 1. 架构结论
 
-本项目采用 SQLite 作为唯一事实源：
+本项目按运行时事实、实验档案和图查询投影分层：
 
 ```text
-SQLite：唯一事实源，保存文档、切块、抽取结果、实体、关系、证据、报告、评测结果
+Git JSON：保存人工输入以及经评审的 Promoted Experiment / Baseline
+SQLite：运行时 canonical 事实源，保存文档、切块、候选、实体、关系、证据、报告、评测和同步状态
 graph.json：由 SQLite 导出的完整图谱快照，用于演示兜底、离线样例和 Neo4j 同步输入
-Neo4j：增强阶段 / 优先级 P1 的图查询增强层，用于多跳路径查询和 Cypher 展示，但不作为事实源
+Neo4j：由 SQLite canonical graph 重建的查询投影，用于多维查询、关键路径、图算法和 Cypher 展示
 ```
 
 当前架构：
 
 ```text
-SQLite 事实源 + graph.json 导出 + Neo4j 增强同步 + FastAPI API + React/TypeScript/ECharts 前端
+Git 实验档案 + SQLite 运行时 canonical graph + Neo4j 查询投影 + FastAPI + React/TypeScript/ECharts
 ```
 
 核心原则：
 
 1. LLM 原始输出不是事实源。
-2. SQLite 是唯一事实源。
+2. SQLite 是运行时 canonical graph、证据、导入状态和同步水位的权威来源。
 3. graph.json 是导出快照，不是事实源；前端默认只消费 FastAPI 的轻量图谱视图。
-4. Neo4j 是增强能力，但不是事实源。
+4. Neo4j 是可重建的图查询投影，不能接收未经校验的 LLM 输出，也不能持有不可恢复的唯一数据。
 5. 前端只依赖 FastAPI 接口，不感知底层是 SQLite、graph.json 还是 Neo4j。
 6. 现场演示必须可缓存、可复现，不能强依赖实时爬虫或实时 LLM。
+7. Git 只提交人工输入、Promoted Experiment 和经审核 Baseline，不提交全部本地 Attempt。
 
 ### 1.1 参考项目后的架构调整
 
@@ -42,7 +44,7 @@ SQLite 事实源 + graph.json 导出 + Neo4j 增强同步 + FastAPI API + React/
 3. **采集层隔离**：`sources -> collection_runs -> collected_items -> documents` 分层。采集失败、重复、解析失败只影响采集层，不能直接污染正式图谱。
 4. **候选层隔离**：LLM 输出只能进入 `extracted_entities`、`extracted_relations`，并带 `candidate_status`、`validation_status`、`validation_errors_json`。后端归一化后才写入 `entities`、`relations`、`evidence`。
 5. **schema-first**：`document.json`、`extraction_result.json`、`graph.json` 都必须带 `schema_version`。实体类型、关系类型和合法关系矩阵由架构维护，不能由 LLM 临时发明。
-6. **图数据库增强而非真源**：Neo4j 继续作为 P1 增强层，只从 SQLite canonical graph 或 `graph.json` 同步。
+6. **图数据库作为查询投影**：Neo4j 继续作为 P1 增强层，只从 SQLite canonical graph 或其 `graph.json` 快照同步，并必须支持幂等增量更新和全量重建。
 
 这几项属于开工前需要确定的架构边界。暂不吸收的内容包括完整 STIX 2.1、OpenCTI/MISP 式平台权限模型、TypeDB 主库、GraphRAG 完整社区发现和大规模自动采集调度。
 
@@ -112,7 +114,7 @@ Kimsuky
 └───────────────┬──────────────────┬───────────┘
                 │                  │
 ┌───────────────▼──────────────┐   │
-│          SQLite 事实源         │   │
+│   SQLite 运行时 canonical graph │   │
 │ documents / chunks / entities │   │
 │ relations / evidence / analysis│  │
 │ reports / evaluation           │  │
@@ -125,7 +127,7 @@ Kimsuky
                 │ 增强同步           │
 ┌───────────────▼──────────────┐   │
 │             Neo4j             │◀──┘
-│ 多跳路径查询 / 图谱增强 / Cypher │
+│ 多维查询 / 关键路径 / 图算法 / Cypher │
 └──────────────────────────────┘
 ```
 
@@ -151,8 +153,8 @@ data/documents/*.json(clean_text)
 增强数据流：
 
 ```text
-SQLite canonical graph 或 data/graph/graph.json
-  -> Neo4j sync
+SQLite canonical graph
+  -> 同步水位 / 幂等 upsert
   -> Neo4j
   -> FastAPI path/query API
   -> React + TypeScript + ECharts
@@ -170,6 +172,7 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
 2. 未归一化数据直接入图会污染图数据库。
 3. 后续评测、证据追溯、报告复现会困难。
 4. Neo4j 应从已校验的 canonical graph 同步，不能承担清洗和纠错职责。
+5. 动态更新必须先提交 SQLite 事务，再推进 Neo4j 同步水位；禁止 SQLite 与 Neo4j 无协调双写。
 
 ### 4.1 输入与采集边界
 
@@ -208,7 +211,7 @@ LLM 原始输出 -> 直接写 Neo4j -> 前端展示
 
 ## 5. 数据分层
 
-SQLite 是唯一事实源。下面的 JSON 文件是导入、导出、缓存或演示材料，不作为长期权威存储。
+SQLite 是运行时 canonical 事实源。下面的 JSON 文件分别承担可复现输入、经评审实验档案、导出、缓存或演示职责；只有明确标记的 Promoted Experiment 和 Baseline 才是长期实验档案。
 
 ### 5.1 raw collected data
 
@@ -415,7 +418,7 @@ data/graph/graph.json
 
 ### 5.5 SQLite 表设计
 
-SQLite 是唯一事实源。建议表设计如下：
+SQLite 是运行时 canonical 事实源。建议表设计如下：
 
 ```text
 documents
@@ -1092,13 +1095,15 @@ Neo4j 只负责：
 3. 图谱增强展示。
 4. 多维度查询演示，如按组织、时间、地区、攻击类型组合查询。
 5. 答辩时展示专业图数据库能力。
+6. 基于 SQLite 同步水位执行幂等增量更新。
 
 Neo4j 不负责：
 
-1. 保存唯一事实源。
+1. 保存运行时 canonical graph 或实验档案的唯一副本。
 2. 接收未经归一化的 LLM 输出。
 3. 承担报告复现的唯一依据。
 4. 阻塞主流程运行。
+5. 接收 LLM 原始输出或绕过 Candidate Audit 的关系。
 
 ---
 
@@ -1120,7 +1125,7 @@ Demo 用来证明核心概念能跑，可以有手动步骤和 mock 数据。最
 MVP 用来证明团队可以交付和继续开发，必须满足：
 
 1. 至少 1 个目标组织端到端跑通。
-2. SQLite 作为唯一事实源。
+2. SQLite 作为运行时 canonical graph、证据和导入状态的权威来源。
 3. 能从 SQLite 导出 `data/graph/graph.json`。
 4. 能本地导入文档，不依赖爬虫平台。
 5. 能展示实体和关系图谱。
@@ -1166,9 +1171,9 @@ MVP 用来证明团队可以交付和继续开发，必须满足：
 
 1. 前端使用 React + TypeScript + Vite + ECharts-for-React。
 2. 后端使用 FastAPI。
-3. SQLite 作为唯一事实源。
+3. Git JSON 保存人工输入和经评审实验档案；SQLite 保存运行时 canonical graph、证据、导入状态和同步水位。
 4. `graph.json` 作为导出快照、离线样例和 Neo4j 同步输入。
-5. Neo4j 作为增强阶段 / 优先级 P1 的图查询增强，不作为事实源。
+5. Neo4j 作为增强阶段 / 优先级 P1 的可重建图查询投影，不保存不可恢复的唯一数据。
 6. Docker Compose 作为标准开发和演示环境。
 7. 服务通过 `docker compose` 命令直接管理。
 8. 第一阶段先使用本地文本文件或 `document.json` 跑通离线链路。

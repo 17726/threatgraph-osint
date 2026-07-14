@@ -1,7 +1,7 @@
 # LLM 真实抽取与评测指南
 
 本指南适用于 LLM 抽取与分析组和 QA 组。字段与关系约束仍以
-`docs/prompts/extract-v1.md`、`docs/schemas/extraction-result.schema.json` 和
+`docs/prompts/extract-1.0.md`、`docs/schemas/extraction-result.schema.json` 和
 `docs/schemas/relationship-matrix.md` 为准。
 
 ## 1. 数据链路
@@ -87,10 +87,18 @@ data/golden/golden-en-lazarus_091-1.0-1.0.json
 命令会写出两类运行工件：
 
 ```text
-data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
-data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>-candidate-audit.json
 data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
 ```
+
+JSON 字段中的 `run_id` 是权威运行身份；文件名只提供可读标签。UTC 时间戳用于排序和展示，
+`run_suffix` 用于避免同一微秒内重复运行发生身份碰撞。Extraction Result 与 Candidate Audit
+必须同时匹配 `doc_id` 和 `run_id`，否则禁止组合评测。
+
+这些文件不会因为 runner 成功就自动成为 Git 实验档案。只有被用于报告对照、有效负向结论或
+后续回归的 Completed Run，才作为 Promoted Experiment 提交 Git 并经过 PR 评审；普通本地
+调试、失败重试和无结论 Attempt 不提交。
 
 ## 5. 独立评测
 

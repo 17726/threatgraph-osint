@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DOCUMENT_PATH = ROOT / "data/examples/document.apt28.thn.beardshell.example.json"
 EXTRACTION_PATH = (
     ROOT
-    / "data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json"
+    / "data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json"
 )
 GRAPH_SCHEMA_PATH = ROOT / "docs/schemas/graph.schema.json"
 
@@ -86,7 +86,7 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
     assert summary.doc_id == "apt28_049"
     assert (
         summary.run_id
-        == "extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760"
+        == "extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000"
     )
     assert summary.chunks == 1
     assert summary.extracted_entities == 15

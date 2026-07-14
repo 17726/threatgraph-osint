@@ -288,7 +288,7 @@ docs/references/course-requirements.md
 ```bash
 python scripts/import_extraction_result.py \
   --document data/examples/document.apt28.thn.beardshell.example.json \
-  --extraction-result data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760.json \
+  --extraction-result data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json \
   --export-graph
 ```
 

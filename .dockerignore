@@ -12,6 +12,7 @@ data/evaluation/*
 !data/evaluation/golden*.json
 data/extracted/*
 !data/extracted/extraction_result.apt28.thn.beardshell.v1.json
+!data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json
 data/graph/*
 data/raw/*
 data/reports/*

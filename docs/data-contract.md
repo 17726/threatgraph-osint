@@ -1,7 +1,8 @@
 # 数据契约
 
 > 适用范围：ThreatGraph-OSINT 项目  
-> 唯一事实源：SQLite  
+> 运行时 canonical 事实源：SQLite
+> 实验档案：Git 中的人工输入、Promoted Experiment 与已审核 Baseline
 > 导出格式：`data/graph/graph.json`  
 > 图查询增强：Neo4j，增强阶段 / 优先级 P1
 
@@ -10,9 +11,10 @@
 ## 1. 数据栈结论
 
 ```text
-SQLite：唯一事实源
+Git JSON：人工输入和经评审实验档案
+SQLite：运行时 canonical graph、证据、导入状态和同步水位的权威来源
 graph.json：导出格式、离线样例、演示兜底、Neo4j 同步输入
-Neo4j：增强阶段 / 优先级 P1 图查询增强，不保存唯一事实
+Neo4j：增强阶段 / 优先级 P1 的可重建图查询投影
 ```
 
 禁止链路：
@@ -34,7 +36,7 @@ LLM 输出 -> SQLite extracted_* 候选表
 
 ### 1.1 开源项目借鉴后的字段调整
 
-这次架构不推翻 SQLite 事实源，也不把 Neo4j 改成主库。需要吸收的是几个数据建模原则：
+这次架构不推翻 SQLite 的运行时 canonical 地位，也不把 Neo4j 改成主库。需要吸收的是几个数据建模原则：
 
 | 参考项目   | 吸收原则                   | 落到本项目的字段 / 约束                                                             |
 | ---------- | -------------------------- | ----------------------------------------------------------------------------------- |
@@ -80,8 +82,8 @@ data/examples/golden.apt28.thn.beardshell.example.json
 正式 LLM 工件：
 
 ```text
-data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
-data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-candidate-audit.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>-candidate-audit.json
 data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
 data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 ```
@@ -98,7 +100,7 @@ data/documents/<target_group>/*.json
 
 1. data 组提交真实样本时，复制 `document.apt28.thn.beardshell.example.json` 的字段结构，在 `data/documents/<target_group>/` 下新增文档，替换 `clean_text`、来源，并按 `clean_text` 重新生成 `content_hash`。
 2. arch / qa / be 做标准名和别名对齐时，参考 `reference.apt28.mitre.example.json`。
-3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系；正式运行结果落到 `data/extracted/extract-...json`，并用同一 `run_id` 保存 `...-candidate-audit.json`。
+3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系；只有被选入报告、有效负向结论或后续回归的运行才归档到 `data/extracted/extract-...json`，并用同一 `run_id` 保存 `...-candidate-audit.json`。
 4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.thn.beardshell.example.json`。
 5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展，并保持兼容 `docs/schemas/golden.schema.json`；正式 golden 放到 `data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json`。
 6. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
@@ -117,7 +119,7 @@ APT28 首个样例的字段标准：
 document.json
   data 组交付到 data/documents/ 的清洗后文档，是后端切块后的 LLM 输入来源
 
-extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>.json
+extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
   llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入；同一运行必须有稳定 run_id，可选保存同 run_id 的 candidate audit
 
 golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
@@ -890,12 +892,13 @@ PRECEDES
 
 ## 9. Neo4j 同步原则
 
-Neo4j 同步输入只能来自：
+Neo4j 同步输入只能来自已验证的 SQLite canonical graph。`graph.json` 只允许作为同一
+canonical graph 的全量快照或离线恢复输入，不能形成第二条业务写入链路：
 
 ```text
 SQLite canonical graph tables
 或
-data/graph/graph.json
+由同一 SQLite 快照导出的 data/graph/graph.json
 ```
 
 Neo4j 节点属性至少包含：
@@ -908,6 +911,8 @@ aliases
 description
 confidence
 source_count
+canonical_updated_at
+sync_version
 ```
 
 Neo4j 关系属性至少包含：
@@ -918,6 +923,17 @@ type
 label
 confidence
 evidence_ids
+canonical_updated_at
+sync_version
+```
+
+动态更新顺序：
+
+```text
+SQLite 事务提交 canonical 变更
+  -> 记录待同步版本或 outbox 事件
+  -> Neo4j 按 canonical ID 幂等 upsert
+  -> 成功后推进 SQLite 同步水位
 ```
 
 同步失败处理：
@@ -927,3 +943,4 @@ evidence_ids
 3. 记录同步错误。
 4. API 返回清晰错误。
 5. 前端降级使用 SQLite 图谱接口。
+6. Neo4j 中的数据必须能够清空后从 SQLite 全量重建。
