@@ -32,7 +32,7 @@ def _validate_document_hashes(connection: sqlite3.Connection, text_column: str) 
 
 
 def migrate_documents_clean_text_schema(connection: sqlite3.Connection) -> None:
-    """将旧 documents.raw_text 安全迁移为 clean_text。"""
+    """校验 documents 契约，并拒绝无法证明语义的旧 raw_text 自动升格。"""
     if not _table_exists(connection, "documents"):
         return
 
@@ -46,13 +46,15 @@ def migrate_documents_clean_text_schema(connection: sqlite3.Connection) -> None:
         has_raw_text = "raw_text" in columns
         if has_clean_text and has_raw_text:
             raise RuntimeError("SQLite documents 表同时包含 clean_text 和 raw_text，禁止自动迁移")
-        if not has_clean_text and not has_raw_text:
+        if has_raw_text:
+            raise RuntimeError(
+                "SQLite documents.raw_text 缺少清洗 provenance，"
+                "无法证明其为清洗正文，禁止自动迁移到 clean_text"
+            )
+        if not has_clean_text:
             raise RuntimeError("SQLite documents 表缺少 clean_text 列")
 
-        source_column = "clean_text" if has_clean_text else "raw_text"
-        _validate_document_hashes(connection, source_column)
-        if has_raw_text:
-            connection.execute("ALTER TABLE documents RENAME COLUMN raw_text TO clean_text")
+        _validate_document_hashes(connection, "clean_text")
 
         foreign_key_errors = connection.execute("PRAGMA foreign_key_check").fetchall()
         if foreign_key_errors:

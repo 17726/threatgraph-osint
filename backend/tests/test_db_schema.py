@@ -1,10 +1,12 @@
 import sqlite3
 
+import pytest
+
 from backend.app.core.document_contract import document_content_hash
 from backend.app.db.schema import migrate_documents_clean_text_schema
 
 
-def test_documents_migration_supports_standard_connection_and_preserves_foreign_keys():
+def test_documents_migration_rejects_ambiguous_raw_text_and_preserves_foreign_keys():
     connection = sqlite3.connect(":memory:")
     connection.execute("PRAGMA foreign_keys = ON")
     body = "Legacy cleaned body"
@@ -31,12 +33,13 @@ def test_documents_migration_supports_standard_connection_and_preserves_foreign_
         ("legacy_doc_c001", "legacy_doc"),
     )
 
-    migrate_documents_clean_text_schema(connection)
+    with pytest.raises(RuntimeError, match="无法证明.*清洗正文"):
+        migrate_documents_clean_text_schema(connection)
 
     columns = {row[1] for row in connection.execute("PRAGMA table_info(documents)")}
     chunk = connection.execute("SELECT doc_id FROM chunks").fetchone()
     foreign_key_errors = connection.execute("PRAGMA foreign_key_check").fetchall()
 
-    assert columns == {"doc_id", "clean_text", "content_hash"}
+    assert columns == {"doc_id", "raw_text", "content_hash"}
     assert chunk == ("legacy_doc",)
     assert foreign_key_errors == []

@@ -238,30 +238,23 @@ def test_offline_pipeline_keeps_invalid_relation_as_candidate(tmp_path):
     )[0]
 
 
-def test_offline_pipeline_migrates_legacy_documents_raw_text_column(tmp_path):
+def test_offline_pipeline_rejects_ambiguous_legacy_raw_text_column(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     with connect(db_path) as connection:
         create_legacy_documents_table(connection)
 
-    OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
+    with pytest.raises(RuntimeError, match="无法证明.*清洗正文"):
+        OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
 
     with connect(db_path) as connection:
         document_columns = {
             row["name"] for row in connection.execute("PRAGMA table_info(documents)")
         }
-        legacy_document = connection.execute(
-            "SELECT clean_text FROM documents WHERE doc_id = ?",
-            ("legacy_doc",),
-        ).fetchone()
-        imported_document = connection.execute(
-            "SELECT clean_text FROM documents WHERE doc_id = ?",
-            ("apt28_049",),
-        ).fetchone()
+        document_count = connection.execute("SELECT COUNT(*) FROM documents").fetchone()[0]
 
-    assert "clean_text" in document_columns
-    assert "raw_text" not in document_columns
-    assert legacy_document["clean_text"] == "Legacy cleaned body"
-    assert "BEARDSHELL" in imported_document["clean_text"]
+    assert "raw_text" in document_columns
+    assert "clean_text" not in document_columns
+    assert document_count == 1
 
 
 def test_offline_pipeline_rejects_document_hash_mismatch_before_writing(tmp_path):
@@ -282,10 +275,11 @@ def test_offline_pipeline_rejects_document_hash_mismatch_before_writing(tmp_path
             assert connection.execute("SELECT COUNT(*) FROM documents").fetchone()[0] == 0
 
 
-def test_documents_migration_rejects_invalid_hash_without_partial_schema(tmp_path):
+def test_documents_schema_rejects_invalid_hash_without_partial_schema(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     with connect(db_path) as connection:
         create_legacy_documents_table(connection, content_hash="sha256:legacy")
+        connection.execute("ALTER TABLE documents RENAME COLUMN raw_text TO clean_text")
 
     with pytest.raises(ValueError, match="content_hash"):
         with OfflineExtractionPipeline(db_path).connect() as connection:
@@ -297,8 +291,8 @@ def test_documents_migration_rejects_invalid_hash_without_partial_schema(tmp_pat
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'documents_new'"
         ).fetchone()
 
-    assert "raw_text" in columns
-    assert "clean_text" not in columns
+    assert "clean_text" in columns
+    assert "raw_text" not in columns
     assert temporary_table is None
 
 
@@ -306,6 +300,7 @@ def test_documents_migration_recovers_stale_temporary_table(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     with connect(db_path) as connection:
         create_legacy_documents_table(connection)
+        connection.execute("ALTER TABLE documents RENAME COLUMN raw_text TO clean_text")
         connection.execute("CREATE TABLE documents_new (placeholder TEXT)")
 
     pipeline = OfflineExtractionPipeline(db_path)
