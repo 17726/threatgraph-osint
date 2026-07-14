@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query
+from fastapi import Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -48,4 +49,65 @@ def report(target_group: str):
     result = store.get_report(target_group)
     if result is None:
         raise HTTPException(status_code=404, detail="报告不存在")
+    return success_response(result)
+
+
+@app.get("/api/v1/graph/path")
+def graph_path(source: str = Query(...), target: str = Query(...)):
+    return success_response(store.get_path(source, target))
+
+
+@app.get("/api/v1/analysis/{target_group}/behavior")
+def analysis_behavior(target_group: str):
+    result = store.get_analysis()
+    patterns = [p for p in result["behavior_patterns"] if p["target_group"].lower() == target_group.lower()]
+    return success_response({"target_group": target_group, "patterns": patterns})
+
+
+@app.get("/api/v1/analysis/{target_group}/mitre")
+def analysis_mitre(target_group: str):
+    result = store.get_analysis()
+    mappings = [m for m in result["mitre_mappings"] if m["target_group"].lower() == target_group.lower()]
+    return success_response({"target_group": target_group, "mappings": mappings})
+
+
+@app.get("/api/v1/analysis/{target_group}/inferences")
+def analysis_inferences(target_group: str):
+    result = store.get_analysis()
+    return success_response({"target_group": target_group, "inferences": result["inferred_relations"]})
+
+
+@app.get("/api/v1/analysis/{target_group}/threat-assessment")
+def analysis_threat_assessment(target_group: str):
+    return success_response({
+        "target_group": target_group,
+        "risk_level": "HIGH",
+        "risk_score": 82,
+        "rationale": f"{target_group} 活跃时间长，攻击目标集中于政府和军事领域。",
+        "recommendations": ["加强鱼叉式钓鱼邮件检测", "对相关 ATT&CK 技术建立告警规则"],
+        "evidence_ids": [],
+    })
+
+
+@app.post("/api/v1/analysis/{target_group}/run")
+def analysis_run(target_group: str):
+    return success_response({"target_group": target_group, "status": "analysis_baseline_ready"})
+
+
+@app.post("/api/v1/documents/import")
+def import_document(payload: dict = Body(...)):
+    result = store.import_document(payload)
+    return success_response(result)
+
+
+@app.get("/api/v1/entities/search")
+def search_entities(q: str = Query(...)):
+    return success_response(store.search_entities(q))
+
+
+@app.get("/api/v1/entities/{entity_id}")
+def get_entity(entity_id: str):
+    result = store.get_entity(entity_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="实体不存在")
     return success_response(result)

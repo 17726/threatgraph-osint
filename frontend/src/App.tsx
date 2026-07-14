@@ -192,7 +192,6 @@ export function App() {
           ))}
         </div>
         <SearchBar
-          nodes={filteredGraph?.nodes ?? []}
           onSelect={handleSearchSelect}
         />
         <div className="status-strip">
@@ -240,7 +239,7 @@ export function App() {
       {error ? <div className="alert">{error}</div> : null}
 
       {page === "analysis" ? (
-        <AnalysisPage graph={graph} target={target} />
+        <AnalysisPage target={target} />
       ) : page === "evaluation" ? (
         <EvaluationPage />
       ) : (
@@ -280,7 +279,7 @@ export function App() {
                     }}
                   />
                   <NodeDetail
-                    node={selectedNode}
+                    entityId={selectedNode?.id ?? null}
                     onClose={() => setSelectedNode(null)}
                   />
                 </>
@@ -378,18 +377,13 @@ export function App() {
                       }}
                     />
                     <p style={{ color: "#64748b" }}>
-                      {graph?.nodes.find((n) => n.id === selectedEdge.source)
-                        ?.name ?? selectedEdge.source}{" "}
-                      →{" "}
-                      {graph?.nodes.find((n) => n.id === selectedEdge.target)
-                        ?.name ?? selectedEdge.target}
+                      {selectedEdge.source} → {selectedEdge.target}
                     </p>
                     <div style={{ marginTop: 12 }}>
-                      {graph?.evidence
-                        .filter((e) =>
-                          selectedEdge.evidence_ids?.includes(e.id),
-                        )
-                        .map((e) => (
+                      {(selectedEdge.evidence_ids ?? []).map((evId, evIdx) => {
+                        const e = graph?.evidence.find((ev) => ev.id === evId);
+                        if (!e) return null;
+                        return (
                           <div
                             key={e.id}
                             style={{
@@ -416,7 +410,7 @@ export function App() {
                               {e.source_name}
                             </a>
                           </div>
-                        ))}
+                        );})}
                     </div>
                   </div>
                 </>
@@ -464,7 +458,7 @@ export function App() {
             onChange={setCurrentYear}
           />
 
-          <ReportPanel graph={graph} target={target} />
+          <ReportPanel target={target} />
         </>
       )}
     </main>
