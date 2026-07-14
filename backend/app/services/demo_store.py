@@ -1099,7 +1099,9 @@ class DemoStore:
         target_nodes = [
             node
             for node in nodes
-            if node["name"].lower() == normalized_target or node["id"].lower().endswith(f":{normalized_target}")
+            if node["name"].lower() == normalized_target
+            or node["id"].lower().endswith(f":{normalized_target}")
+            or any(a.lower() == normalized_target for a in node["aliases"])
         ]
         if not target_nodes:
             return nodes, edges

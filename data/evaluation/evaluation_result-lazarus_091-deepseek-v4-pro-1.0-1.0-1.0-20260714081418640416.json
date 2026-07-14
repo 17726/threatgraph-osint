@@ -1,0 +1,1626 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-14T08:14:18.640416+00:00",
+  "extraction": {
+    "run_id": "extract-lazarus_091-deepseek-v4-pro-1.0-1.0-20260714081235977090",
+    "doc_id": "lazarus_091",
+    "model_name": "deepseek-v4-pro",
+    "prompt_version": "1.0",
+    "schema_version": "1.0"
+  },
+  "golden": {
+    "language": "en",
+    "doc_id": "lazarus_091",
+    "schema_version": "1.0",
+    "golden_version": "1.0",
+    "target_group": "Lazarus",
+    "doc_ids": [
+      "lazarus_091"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": true,
+    "rejected_entities": 0,
+    "rejected_relations": 22
+  },
+  "entity_metrics": {
+    "predicted": 56,
+    "golden": 33,
+    "true_positive": 7,
+    "false_positive": 49,
+    "false_negative": 26,
+    "precision": 0.125,
+    "recall": 0.212121,
+    "f1": 0.157303
+  },
+  "relation_metrics": {
+    "predicted": 63,
+    "golden": 33,
+    "true_positive": 4,
+    "false_positive": 59,
+    "false_negative": 29,
+    "precision": 0.063492,
+    "recall": 0.121212,
+    "f1": 0.083333
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 2,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667
+    },
+    "BEHAVIOR_PATTERN": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "CAMPAIGN": {
+      "predicted": 2,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667
+    },
+    "COUNTRY": {
+      "predicted": 2,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667
+    },
+    "EVENT": {
+      "predicted": 3,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 23,
+      "golden": 22,
+      "true_positive": 0,
+      "false_positive": 23,
+      "false_negative": 22,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "MALWARE": {
+      "predicted": 5,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 5,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "ORGANIZATION": {
+      "predicted": 3,
+      "golden": 2,
+      "true_positive": 1,
+      "false_positive": 2,
+      "false_negative": 1,
+      "precision": 0.333333,
+      "recall": 0.5,
+      "f1": 0.4
+    },
+    "PERSON": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TECHNIQUE": {
+      "predicted": 6,
+      "golden": 4,
+      "true_positive": 2,
+      "false_positive": 4,
+      "false_negative": 2,
+      "precision": 0.333333,
+      "recall": 0.5,
+      "f1": 0.4
+    },
+    "TIME": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TOOL": {
+      "predicted": 4,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 3,
+      "false_negative": 0,
+      "precision": 0.25,
+      "recall": 1.0,
+      "f1": 0.4
+    }
+  },
+  "relation_metrics_by_type": {
+    "ATTRIBUTED_TO": {
+      "predicted": 4,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 4,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "DISCOVERED_BY": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "DROPS": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "HAPPENED_AT": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "HAS_BEHAVIOR": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INSTANCE_OF": {
+      "predicted": 22,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 22,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "LOCATED_IN": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "PART_OF": {
+      "predicted": 2,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667
+    },
+    "RELATED_TO": {
+      "predicted": 1,
+      "golden": 2,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TARGETS": {
+      "predicted": 1,
+      "golden": 2,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "USES": {
+      "predicted": 26,
+      "golden": 27,
+      "true_positive": 3,
+      "false_positive": 23,
+      "false_negative": 24,
+      "precision": 0.115385,
+      "recall": 0.111111,
+      "f1": 0.113208
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Sony Pictures Entertainment",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "DarkSeoul attacks",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "fake TLS",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Registry persistence",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "daedong.or[.]kr",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "kcnp.or[.]kr",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "kosic.or[.]kr",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "wstore[.]lt",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "xkclub[.]hk",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "103.224.82[.]154",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "180.67.205[.]101",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "182.70.113[.]138",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "193.189.144[.]145",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "199.26.11[.]17",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "209.105.242[.]64",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "211.233.13[.]11",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "211.233.13[.]62",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "211.236.42[.]52",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "211.49.171[.]243",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "218.103.37[.]22",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "221.138.17[.]152",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "221.161.82[.]208",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "23.115.75[.]188",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "61.100.180[.]9",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "61.78.63[.]95",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "80.153.49[.]82",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Operation Blockbuster",
+        "type": "CAMPAIGN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Sony Pictures Entertainment attack 2014",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "DarkSeoul attacks 2013",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Novetta",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "한싹시스템.doc",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "520778a12e34808bd5cf7b3bdf7ce491781654b240d315a3a4d7eff50341fb18",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "fake TLS protocol",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "string interpolation function",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "system library obfuscation",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "decoy document",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "C2 servers",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "103.224.82.154",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "180.67.205.101",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "182.70.113.138",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "193.189.144.145",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "199.26.11.17",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "209.105.242.64",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "211.233.13.11",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "211.233.13.62",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "211.236.42.52",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "211.49.171.243",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "218.103.37.22",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "221.138.17.152",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "221.161.82.208",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "23.115.75.188",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "61.100.180.9",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "61.78.63.95",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "80.153.49.82",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "daedong.or.kr",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "kcnp.or.kr",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "kosic.or.kr",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "wstore.lt",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "xkclub.hk",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "77a32726af6205d27999b9a564dd7b020dc0a8f697a81a8f597b971140e28976",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Blue Coat",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "DarkSeoul group",
+        "type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Sony breach 2014",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "AutoFocus",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "VirusTotal",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "WildFire",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "6 March 2017",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "March 2nd, 2017",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Korean speakers",
+        "type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "English speakers",
+        "type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "United States",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "L21024",
+        "type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "testteststeawetwetwqetqwetqwetqw",
+        "type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Sony Pictures Entertainment",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Korea",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "fake TLS",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Registry persistence",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "daedong.or[.]kr",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "kcnp.or[.]kr",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "kosic.or[.]kr",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "wstore[.]lt",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "xkclub[.]hk",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "103.224.82[.]154",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "180.67.205[.]101",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "182.70.113[.]138",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "193.189.144[.]145",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "199.26.11[.]17",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "209.105.242[.]64",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "211.233.13[.]11",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "211.233.13[.]62",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "211.236.42[.]52",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "211.49.171[.]243",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "218.103.37[.]22",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "221.138.17[.]152",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "221.161.82[.]208",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "23.115.75[.]188",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "61.100.180[.]9",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "61.78.63[.]95",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "80.153.49[.]82",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Blockbuster Sequel",
+        "head_type": "CAMPAIGN",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "Unit 42",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "RELATED_TO",
+        "tail_name": "DarkSeoul attacks",
+        "tail_type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Korea",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Sony Pictures Entertainment attack 2014",
+        "tail_type": "EVENT",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,ATTRIBUTED_TO,EVENT)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "DarkSeoul attacks 2013",
+        "tail_type": "EVENT",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,ATTRIBUTED_TO,EVENT)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "PART_OF",
+        "tail_name": "Operation Blockbuster",
+        "tail_type": "CAMPAIGN",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,PART_OF,CAMPAIGN)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Operation Blockbuster",
+        "head_type": "CAMPAIGN",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (CAMPAIGN,ATTRIBUTED_TO,APT_GROUP)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "fake TLS protocol",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TECHNIQUE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "string interpolation function",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TECHNIQUE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "string interpolation function",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TECHNIQUE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "system library obfuscation",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TECHNIQUE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "520778a12e34808bd5cf7b3bdf7ce491781654b240d315a3a4d7eff50341fb18",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "string interpolation function",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TECHNIQUE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "520778a12e34808bd5cf7b3bdf7ce491781654b240d315a3a4d7eff50341fb18",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "system library obfuscation",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TECHNIQUE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "DarkSeoul group",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Sony breach 2014",
+        "tail_type": "EVENT",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,ATTRIBUTED_TO,EVENT)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "한싹시스템.doc",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "VBA macros",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TECHNIQUE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "한싹시스템.doc",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "decoy document",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TECHNIQUE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "한싹시스템.doc",
+        "head_type": "MALWARE",
+        "relation_type": "DROPS",
+        "tail_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "未知关系类型: DROPS"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "C2 servers",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "UPX",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "한싹시스템.doc",
+        "head_type": "MALWARE",
+        "relation_type": "HAPPENED_AT",
+        "tail_name": "6 March 2017",
+        "tail_type": "TIME",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,HAPPENED_AT,TIME)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+        "head_type": "MALWARE",
+        "relation_type": "HAPPENED_AT",
+        "tail_name": "March 2nd, 2017",
+        "tail_type": "TIME",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,HAPPENED_AT,TIME)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "LOCATED_IN",
+        "tail_name": "Korea",
+        "tail_type": "COUNTRY",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,LOCATED_IN,COUNTRY)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "LOCATED_IN",
+        "tail_name": "United States",
+        "tail_type": "COUNTRY",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,LOCATED_IN,COUNTRY)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "77a32726af6205d27999b9a564dd7b020dc0a8f697a81a8f597b971140e28976",
+        "head_type": "MALWARE",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "L21024",
+        "tail_type": "BEHAVIOR_PATTERN",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,HAS_BEHAVIOR,BEHAVIOR_PATTERN)"
+        ]
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "fake TLS protocol",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "string interpolation function",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "system library obfuscation",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "decoy document",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "C2 servers",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "한싹시스템.doc",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "520778a12e34808bd5cf7b3bdf7ce491781654b240d315a3a4d7eff50341fb18",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "77a32726af6205d27999b9a564dd7b020dc0a8f697a81a8f597b971140e28976",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Korean speakers",
+        "tail_type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "77a32726af6205d27999b9a564dd7b020dc0a8f697a81a8f597b971140e28976",
+        "head_type": "MALWARE",
+        "relation_type": "RELATED_TO",
+        "tail_name": "DarkSeoul group",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "103.224.82.154",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "180.67.205.101",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "182.70.113.138",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "193.189.144.145",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "199.26.11.17",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "209.105.242.64",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "211.233.13.11",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "211.233.13.62",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "211.236.42.52",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "211.49.171.243",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "218.103.37.22",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "221.138.17.152",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "221.161.82.208",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "23.115.75.188",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "61.100.180.9",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "61.78.63.95",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "80.153.49.82",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "daedong.or.kr",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "kcnp.or.kr",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "kosic.or.kr",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "wstore.lt",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "C2 servers",
+        "head_type": "INFRASTRUCTURE",
+        "relation_type": "INSTANCE_OF",
+        "tail_name": "xkclub.hk",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "AutoFocus",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "VirusTotal",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "WildFire",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "testteststeawetwetwqetqwetqwetqw",
+        "tail_type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}

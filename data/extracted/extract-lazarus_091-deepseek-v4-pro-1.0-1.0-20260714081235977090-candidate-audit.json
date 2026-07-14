@@ -1,0 +1,390 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract-lazarus_091-deepseek-v4-pro-1.0-1.0-20260714081235977090",
+  "doc_id": "lazarus_091",
+  "model_name": "deepseek-v4-pro",
+  "prompt_version": "1.0",
+  "generated_at": "2026-07-14T08:12:35.977090+00:00",
+  "chunks": [
+    {
+      "chunk_id": "lazarus_091_c001",
+      "rejected_entities": [],
+      "rejected_relations": [
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "Sony Pictures Entertainment attack 2014",
+          "tail_type": "EVENT",
+          "evidence_text": "The Lazarus group is tied to the 2014 attack on Sony Pictures Entertainment",
+          "char_start": 625,
+          "char_end": 700,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,ATTRIBUTED_TO,EVENT)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "DarkSeoul attacks 2013",
+          "tail_type": "EVENT",
+          "evidence_text": "The Lazarus group is tied to the 2014 attack on Sony Pictures Entertainment and the 2013 DarkSeoul attacks.",
+          "char_start": 625,
+          "char_end": 732,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,ATTRIBUTED_TO,EVENT)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "tail_type": "MALWARE",
+          "evidence_text": "The payload (032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0) can be statically examined.",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "PART_OF",
+          "tail_name": "Operation Blockbuster",
+          "tail_type": "CAMPAIGN",
+          "evidence_text": "This report details the activities from a group they named Lazarus, their tools, and the techniques they use to infiltrate computer networks.",
+          "char_start": 483,
+          "char_end": 624,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,PART_OF,CAMPAIGN)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Operation Blockbuster",
+          "head_type": "CAMPAIGN",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "Lazarus Group",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "This report details the activities from a group they named Lazarus, their tools, and the techniques they use to infiltrate computer networks.",
+          "char_start": 483,
+          "char_end": 624,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (CAMPAIGN,ATTRIBUTED_TO,APT_GROUP)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "fake TLS protocol",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "The communications between the implant and the server highly resemble the \"fake TLS\" protocol",
+          "char_start": 3766,
+          "char_end": 3859,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "string interpolation function",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Figure 7 shows the assembly from the unpacked implant (032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0) delivered by our malicious document and shows the string interpolation function being used.",
+          "char_start": 8746,
+          "char_end": 8958,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "string interpolation function",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Figure 8 shows the same string interpolation logic but within a different sample (79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18.)",
+          "char_start": 9102,
+          "char_end": 9250,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "system library obfuscation",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18 Yes Yes Yes Sample identified to be related to initial payload and Operation Blockbuster sample",
+          "char_start": 10983,
+          "char_end": 11143,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "520778a12e34808bd5cf7b3bdf7ce491781654b240d315a3a4d7eff50341fb18",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "string interpolation function",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "520778a12e34808bd5cf7b3bdf7ce491781654b240d315a3a4d7eff50341fb18 Yes Yes Yes Known Operation Blockbuster sample",
+          "char_start": 11144,
+          "char_end": 11255,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "520778a12e34808bd5cf7b3bdf7ce491781654b240d315a3a4d7eff50341fb18",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "system library obfuscation",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "The sample known to belong to the Lazarus group uses this indirect library calling in addition to a function that further obfuscates the function's names using a lookup table within a character substitution function.",
+          "char_start": 10125,
+          "char_end": 10341,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "DarkSeoul group",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "Sony breach 2014",
+          "tail_type": "EVENT",
+          "evidence_text": "This sample is described in a 2016 research report by Blue Coat discussing connections between the DarkSeoul group and the Sony breach of 2014.",
+          "char_start": 7036,
+          "char_end": 7179,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,ATTRIBUTED_TO,EVENT)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "한싹시스템.doc",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "VBA macros",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "When these malicious files are opened by a victim, malicious Visual Basic for Applications (VBA) macros within them write an executable to disk and run it.",
+          "char_start": 2078,
+          "char_end": 2233,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "한싹시스템.doc",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "decoy document",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Once opened, both files display the same Korean language decoy document",
+          "char_start": 1390,
+          "char_end": 1461,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "한싹시스템.doc",
+          "head_type": "MALWARE",
+          "relation_type": "DROPS",
+          "tail_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "tail_type": "MALWARE",
+          "evidence_text": "The executable which is dropped by both malicious documents is packed with UPX. Once unpacked, the payload (032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0) can be statically examined.",
+          "char_start": 2846,
+          "char_end": 3047,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "未知关系类型: DROPS"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "C2 servers",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "The implant beacons to its command and control (C2) servers directly via the servers' IPv4 addresses",
+          "char_start": 3582,
+          "char_end": 3682,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "UPX",
+          "tail_type": "TOOL",
+          "evidence_text": "The executable which is dropped by both malicious documents is packed with UPX.",
+          "char_start": 2846,
+          "char_end": 2925,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "한싹시스템.doc",
+          "head_type": "MALWARE",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "6 March 2017",
+          "tail_type": "TIME",
+          "evidence_text": "One of the malicious files was submitted to VirusTotal on 6 March 2017 with the file name \"한싹시스템.doc\".",
+          "char_start": 1287,
+          "char_end": 1389,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "March 2nd, 2017",
+          "tail_type": "TIME",
+          "evidence_text": "The compile timestamp of the sample is March 2nd, 2017",
+          "char_start": 3048,
+          "char_end": 3102,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "LOCATED_IN",
+          "tail_name": "Korea",
+          "tail_type": "COUNTRY",
+          "evidence_text": "Tags:\nBlockbuster\nKorea\nLazarus Group\nSpear Phishing",
+          "char_start": 180,
+          "char_end": 232,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,LOCATED_IN,COUNTRY)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "LOCATED_IN",
+          "tail_name": "United States",
+          "tail_type": "COUNTRY",
+          "evidence_text": "all of the test documents identified were submitted to VirusTotal with English file names from submitters located in the United States",
+          "char_start": 5872,
+          "char_end": 6006,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,LOCATED_IN,COUNTRY)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "77a32726af6205d27999b9a564dd7b020dc0a8f697a81a8f597b971140e28976",
+          "head_type": "MALWARE",
+          "relation_type": "HAS_BEHAVIOR",
+          "tail_name": "L21024",
+          "tail_type": "BEHAVIOR_PATTERN",
+          "evidence_text": "It also includes an uncommon label inside it of \"L21024\".",
+          "char_start": 7277,
+          "char_end": 7334,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,HAS_BEHAVIOR,BEHAVIOR_PATTERN)"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,239 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract-lazarus_091-deepseek-v4-flash-1.0-1.0-20260714080127127792",
+  "doc_id": "lazarus_091",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "1.0",
+  "generated_at": "2026-07-14T08:01:27.127792+00:00",
+  "chunks": [
+    {
+      "chunk_id": "lazarus_091_c001",
+      "rejected_entities": [
+        {
+          "name": "Anthony Kasza",
+          "type": "PERSON",
+          "aliases": [],
+          "description": "Author of the blog post",
+          "mention_text": "Anthony Kasza",
+          "evidence_text": "By: Anthony Kasza",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.8,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "Micah Yates",
+          "type": "PERSON",
+          "aliases": [],
+          "description": "Author of the blog post",
+          "mention_text": "Micah Yates",
+          "evidence_text": "By: Micah Yates",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.8,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "77a32726af6205d27999b9a564dd7b020dc0a8f697a81a8f597b971140e28976",
+          "tail_type": "TOOL",
+          "evidence_text": "shared batch script used by implants",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.85,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "2014 attack on Sony Pictures Entertainment",
+          "head_type": "EVENT",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "2014 attack on Sony Pictures Entertainment",
+          "tail_type": "TIME",
+          "evidence_text": "the 2014 attack on Sony Pictures Entertainment",
+          "char_start": 654,
+          "char_end": 700,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (2014 attack on Sony Pictures Entertainment, TIME) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "2013 DarkSeoul attacks",
+          "head_type": "EVENT",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "2013 DarkSeoul attacks",
+          "tail_type": "TIME",
+          "evidence_text": "the 2013 DarkSeoul attacks",
+          "char_start": 705,
+          "char_end": 731,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (2013 DarkSeoul attacks, TIME) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Unit 42",
+          "head_type": "ORGANIZATION",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "tail_type": "MALWARE",
+          "evidence_text": "Unit 42 has identified malware with recent compilation and distribution timestamps",
+          "char_start": 240,
+          "char_end": 322,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,DISCOVERED_BY,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Unit 42",
+          "head_type": "ORGANIZATION",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "Blockbuster Sequel",
+          "tail_type": "CAMPAIGN",
+          "evidence_text": "the recent activity Unit 42 has identified",
+          "char_start": 11439,
+          "char_end": 11481,
+          "confidence": 0.85,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,DISCOVERED_BY,CAMPAIGN)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "Fake TLS",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "the implant beacons to its command and control (C2) servers directly via the servers' IPv4 addresses... The communications between the implant and the server highly resemble the \"fake TLS\" protocol",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "UPX",
+          "tail_type": "TOOL",
+          "evidence_text": "packed with UPX",
+          "char_start": 2909,
+          "char_end": 2924,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "79fe6576d0a26bd41f1f3a3a7bfeff6b5b7c867d624b004b21fadfdd49e6cb18",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "Fake TLS",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Fake TLS Communications",
+          "char_start": 10848,
+          "char_end": 10871,
+          "confidence": 0.85,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "520778a12e34808bd5cf7b3bdf7ce491781654b240d315a3a4d7eff50341fb18",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "Fake TLS",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Fake TLS Communications",
+          "char_start": 10848,
+          "char_end": 10871,
+          "confidence": 0.85,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "C2 Domains",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "The implant beacons to its command and control (C2) servers directly via the servers' IPv4 addresses",
+          "char_start": 3582,
+          "char_end": 3682,
+          "confidence": 0.85,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "032ccd6ae0a6e49ac93b7bd10c7d249f853fff3f5771a1fe3797f733f09db5a0",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "C2 IPv4 Addresses",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "The implant beacons to its command and control (C2) servers directly via the servers' IPv4 addresses",
+          "char_start": 3582,
+          "char_end": 3682,
+          "confidence": 0.85,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

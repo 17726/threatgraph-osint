@@ -1,0 +1,309 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract-kimsuky_001-deepseek-v4-flash-1.0-1.0-20260714080134257073",
+  "doc_id": "kimsuky_001",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "1.0",
+  "generated_at": "2026-07-14T08:01:34.257073+00:00",
+  "chunks": [
+    {
+      "chunk_id": "kimsuky_001_c001",
+      "rejected_entities": [
+        {
+          "name": "KONNI",
+          "type": "APT_GROUP",
+          "aliases": [],
+          "description": "APT组织，与Kimsuky存在关联",
+          "mention_text": "KONNI",
+          "evidence_text": "ESTsecurity披露了KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "2019年8月",
+          "type": "TIME",
+          "aliases": [],
+          "description": "ESTsecurity披露时间",
+          "mention_text": "2019年8月",
+          "evidence_text": "2019年8月，韩国安全厂商ESTsecurity披露了KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "http://2.56.151.8/manager",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "C2地址",
+          "mention_text": "http://2.56.151.8/manager",
+          "evidence_text": "C2地址 http://2.56.151.8/manager",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "CVE",
+          "type": "CVE",
+          "aliases": [],
+          "description": "无具体CVE",
+          "mention_text": "",
+          "evidence_text": "",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.0,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 不能为空"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "AFFILIATED_WITH",
+          "tail_name": "Kimsuky",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "与APT组织Kimsuky存在关联",
+          "char_start": 67,
+          "char_end": 84,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "head (KONNI, APT_GROUP) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "KONNI Android木马",
+          "tail_type": "MALWARE",
+          "evidence_text": "KONNIAPT组织使用Android端木马",
+          "char_start": 35,
+          "char_end": 57,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "head (KONNI, APT_GROUP) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "韩国",
+          "tail_type": "COUNTRY",
+          "evidence_text": "针对韩国地区Android用户的恶意代码攻击活动",
+          "char_start": 126,
+          "char_end": 150,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "head (KONNI, APT_GROUP) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI Android木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "C2",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "它们使用了同一个C2",
+          "char_start": 915,
+          "char_end": 925,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI Android木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "短信",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "本次攻击所使用的恶意APK主要是通过短信和即时通信工具投递",
+          "char_start": 364,
+          "char_end": 393,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI Android木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "即时通信工具",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "本次攻击所使用的恶意APK主要是通过短信和即时通信工具投递",
+          "char_start": 364,
+          "char_end": 393,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI Android木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "钓鱼页面",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "投递指向钓鱼页面的短链接，诱导用户下载钓鱼页面的APK木马",
+          "char_start": 584,
+          "char_end": 613,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk",
+          "head_type": "MALWARE",
+          "relation_type": "INSTANCE_OF",
+          "tail_name": "KONNI Android木马",
+          "tail_type": "MALWARE",
+          "evidence_text": "本次攻击使用的代码和之前披露的KONNI Android木马基本一致",
+          "char_start": 2787,
+          "char_end": 2821,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,INSTANCE_OF,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "C2",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "它们使用了同一个C2",
+          "char_start": 915,
+          "char_end": 925,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "http://2.56.151.8/manager",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "C2地址 http://2.56.151.8/manager",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)",
+            "tail (http://2.56.151.8/manager, INFRASTRUCTURE) 不在候选实体中",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "奇安信威胁情报中心红雨滴团队",
+          "head_type": "ORGANIZATION",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "KaokaoTalk",
+          "tail_type": "MALWARE",
+          "evidence_text": "红雨滴团队针对该样本及样本传播的渠道进行了详细分析和关联",
+          "char_start": 250,
+          "char_end": 278,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,DISCOVERED_BY,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "ESTsecurity",
+          "head_type": "ORGANIZATION",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "KONNI Android木马",
+          "tail_type": "MALWARE",
+          "evidence_text": "ESTsecurity披露了KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,DISCOVERED_BY,MALWARE)",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "韩国",
+          "tail_type": "COUNTRY",
+          "evidence_text": "KONNIAPT组织使用Android端木马的新攻击活动，并称其与APT组织Kimsuky存在关联",
+          "char_start": 35,
+          "char_end": 84,
+          "confidence": 0.5,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "head (KONNI, APT_GROUP) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

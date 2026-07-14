@@ -1,0 +1,376 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract-kimsuky_001-deepseek-v4-pro-1.0-1.0-20260714081239712554",
+  "doc_id": "kimsuky_001",
+  "model_name": "deepseek-v4-pro",
+  "prompt_version": "1.0",
+  "generated_at": "2026-07-14T08:12:39.712554+00:00",
+  "chunks": [
+    {
+      "chunk_id": "kimsuky_001_c001",
+      "rejected_entities": [
+        {
+          "name": "9e9745415793488ecf0774c7477bf2ae",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "关联到的其它Android样本MD5",
+          "mention_text": "9e9745415793488ecf0774c7477bf2ae",
+          "evidence_text": "关联到的其它Android样本MD5\n\n9e9745415793488ecf0774c7477bf2ae",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "e039be15ddf7334311ee01711ba69481",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "关联到的其它Android样本MD5",
+          "mention_text": "e039be15ddf7334311ee01711ba69481",
+          "evidence_text": "关联到的其它Android样本MD5\n\ne039be15ddf7334311ee01711ba69481",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "http://bit.ly/37gAUoo",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "Android木马恶意分发地址",
+          "mention_text": "http://bit.ly/37gAUoo",
+          "evidence_text": "Android木马恶意分发地址\n\nhttp://bit.ly/37gAUoo",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "KONNI",
+          "head_type": "MALWARE",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "Kimsuky",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "2019年8月，韩国安全厂商ESTsecurity[1]披露了KONNIAPT组织使用Android端木马的新攻击活动，并称其与APT组织Kimsuky存在关联。",
+          "char_start": 4,
+          "char_end": 85,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,ATTRIBUTED_TO,APT_GROUP)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "ESTsecurity",
+          "head_type": "ORGANIZATION",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "KONNI",
+          "tail_type": "MALWARE",
+          "evidence_text": "2019年8月，韩国安全厂商ESTsecurity[1]披露了KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": 4,
+          "char_end": 63,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,DISCOVERED_BY,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "奇安信威胁情报中心红雨滴团队",
+          "head_type": "ORGANIZATION",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "KaokaoTalk木马",
+          "tail_type": "MALWARE",
+          "evidence_text": "奇安信威胁情报中心红雨滴团队在日常的高级威胁监测过程中，发现多起疑似针对韩国地区Android用户的恶意代码攻击活动。",
+          "char_start": 92,
+          "char_end": 151,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,DISCOVERED_BY,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "2.56.151.8",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "该APK木马是通过http的协议建立的C&C通道，主要是通过/manager/files/To_[IMEI].txt这个url完成对木马控制的",
+          "char_start": 2481,
+          "char_end": 2552,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "http://2.56.151.8/manager",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "C2地址\n\nhttp://2.56.151.8/manager",
+          "char_start": 4025,
+          "char_end": 4056,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "http://bit.ly/2CZnAqD",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://bit[.]ly/2CZnAqD->hxxp://oaass-torrent[.]com/KakaoTalk.APK",
+          "char_start": 471,
+          "char_end": 536,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "http://oaass-torrent.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://oaass-torrent[.]com/KakaoTalk.APK",
+          "char_start": 496,
+          "char_end": 536,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "http://download-apks.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://download-apks[.]com/KaokaoTalk/",
+          "char_start": 624,
+          "char_end": 662,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "短信",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "本次攻击所使用的恶意APK主要是通过短信和即时通信工具投递",
+          "char_start": 364,
+          "char_end": 393,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "即时通信工具",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "本次攻击所使用的恶意APK主要是通过短信和即时通信工具投递",
+          "char_start": 364,
+          "char_end": 393,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "短链接",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "攻击者会通过短链接的形式发送一个链接",
+          "char_start": 394,
+          "char_end": 412,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "钓鱼页面",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "投递指向钓鱼页面的短链接，诱导用户下载钓鱼页面的APK木马",
+          "char_start": 584,
+          "char_end": 613,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TECHNIQUE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "2.56.151.8",
+          "head_type": "INFRASTRUCTURE",
+          "relation_type": "CONTROLS",
+          "tail_name": "远程桌面服务",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "其42014端口上开放着远程桌面服务",
+          "char_start": 2886,
+          "char_end": 2904,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (INFRASTRUCTURE,CONTROLS,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "日本",
+          "head_type": "COUNTRY",
+          "relation_type": "LOCATED_IN",
+          "tail_name": "SSH服务",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "该机器是一台Linux机器，其2223端口上开放着SSH服务",
+          "char_start": 2962,
+          "char_end": 2992,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (COUNTRY,LOCATED_IN,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "2019年9月17日",
+          "tail_type": "TIME",
+          "evidence_text": "签名时间都为2019年9月17日",
+          "char_start": 928,
+          "char_end": 944,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "http://oaass-torrent.com/KakaoTalk.APK",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://oaass-torrent[.]com/KakaoTalk.APK",
+          "char_start": 496,
+          "char_end": 536,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "http://download-apks.com/KakaoTalk/KakaoTalk.APK",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "http://download-apks[.]com/KakaoTalk/KakaoTalk.APK",
+          "char_start": 4215,
+          "char_end": 4265,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KaokaoTalk木马",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "http://bit.ly/37gAUoo",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "Android木马恶意分发地址\n\nhttp://bit.ly/37gAUoo",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)",
+            "tail (http://bit.ly/37gAUoo, INFRASTRUCTURE) 不在候选实体中",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,498 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-14T08:01:47.660141+00:00",
+  "extraction": {
+    "run_id": "extract-apt28_001-deepseek-v4-flash-1.0-1.0-20260714080128004098",
+    "doc_id": "apt28_001",
+    "model_name": "deepseek-v4-flash",
+    "prompt_version": "1.0",
+    "schema_version": "1.0"
+  },
+  "golden": {
+    "language": "zh",
+    "doc_id": "apt28_001",
+    "schema_version": "1.0",
+    "golden_version": "1.0",
+    "target_group": "APT28",
+    "doc_ids": [
+      "apt28_001"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": true,
+    "rejected_entities": 1,
+    "rejected_relations": 2
+  },
+  "entity_metrics": {
+    "predicted": 21,
+    "golden": 21,
+    "true_positive": 12,
+    "false_positive": 9,
+    "false_negative": 9,
+    "precision": 0.571429,
+    "recall": 0.571429,
+    "f1": 0.571429
+  },
+  "relation_metrics": {
+    "predicted": 19,
+    "golden": 18,
+    "true_positive": 9,
+    "false_positive": 10,
+    "false_negative": 9,
+    "precision": 0.473684,
+    "recall": 0.5,
+    "f1": 0.486486
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "CAMPAIGN": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "COUNTRY": {
+      "predicted": 3,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 3,
+      "golden": 3,
+      "true_positive": 2,
+      "false_positive": 1,
+      "false_negative": 1,
+      "precision": 0.666667,
+      "recall": 0.666667,
+      "f1": 0.666667
+    },
+    "MALWARE": {
+      "predicted": 5,
+      "golden": 3,
+      "true_positive": 3,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.6,
+      "recall": 1.0,
+      "f1": 0.75
+    },
+    "ORGANIZATION": {
+      "predicted": 4,
+      "golden": 5,
+      "true_positive": 4,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.888889
+    },
+    "TECHNIQUE": {
+      "predicted": 3,
+      "golden": 5,
+      "true_positive": 2,
+      "false_positive": 1,
+      "false_negative": 3,
+      "precision": 0.666667,
+      "recall": 0.4,
+      "f1": 0.5
+    },
+    "TOOL": {
+      "predicted": 2,
+      "golden": 3,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    }
+  },
+  "relation_metrics_by_type": {
+    "AFFILIATED_WITH": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "ATTRIBUTED_TO": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "DISCOVERED_BY": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "PART_OF": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TARGETS": {
+      "predicted": 5,
+      "golden": 2,
+      "true_positive": 2,
+      "false_positive": 3,
+      "false_negative": 0,
+      "precision": 0.4,
+      "recall": 1.0,
+      "f1": 0.571429
+    },
+    "USES": {
+      "predicted": 12,
+      "golden": 13,
+      "true_positive": 7,
+      "false_positive": 5,
+      "false_negative": 6,
+      "precision": 0.583333,
+      "recall": 0.538462,
+      "f1": 0.56
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "APT28攻击活动",
+        "type": "CAMPAIGN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "俄罗斯军方情报机构",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "IHS Markit邮箱",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "白利用技术",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "certutil",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "后门技术",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "注册表启动项持久化",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "腾讯御界高级威胁检测系统",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "rundll32.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "N9A6C5T3.txt",
+        "type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "certutil.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "cdnver.bat",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "UserInitMprLogonScript",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "events@ihsmarkit.com",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "俄罗斯",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "英国",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "罗马尼亚",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "Upcoming Events February 2018.xls",
+        "type": "TOOL",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "AFFILIATED_WITH",
+        "tail_name": "俄罗斯军方情报机构",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "白利用技术",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "后门技术",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "certutil",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "注册表启动项持久化",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "rundll32.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "IHS Markit邮箱",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28攻击活动",
+        "head_type": "CAMPAIGN",
+        "relation_type": "PART_OF",
+        "tail_name": "APT28",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28攻击活动",
+        "head_type": "CAMPAIGN",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "腾讯御见威胁情报中心",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "N9A6C5T3.txt",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "tail (N9A6C5T3.txt, MALWARE) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "腾讯御见威胁情报中心",
+        "head_type": "ORGANIZATION",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "Fancy Bear",
+        "tail_type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (ORGANIZATION,DISCOVERED_BY,APT_GROUP)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "俄罗斯",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "certutil.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "UserInitMprLogonScript",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "cdnver.bat",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "events@ihsmarkit.com",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "罗马尼亚",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "英国",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "IHS Markit",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}
