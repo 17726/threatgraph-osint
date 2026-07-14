@@ -2,6 +2,8 @@
 
 > 适用对象：QA 组人工制作 `golden.json`。正式契约以 `docs/schemas/golden.schema.json`、`docs/data-contract.md` 和 `data/examples/golden.apt28.thn.beardshell.example.json` 为准。
 
+> 阶段决策见 `docs/decisions/2026-07-15-llm-golden-experiment-decisions.md`；指标口径待二审内容见 `docs/reviews/2026-07-15-llm-evaluation-metrics-review.md`。
+
 ---
 
 ## 1. 基本定位
@@ -10,7 +12,7 @@
 
 正式 golden 应当是在当前标注范围和规则下可直接用于评测的完整正确答案。`entities` 和 `relations` 只放人工确认的正例；待确认项、被排除项和 LLM 错误样例不混入标准答案。
 
-`chunk_id` 由后端切块生成；后端切块不可用时，临时使用 `${doc_id}_c001` 单 chunk 约定。
+人工标注必须审阅完整 `clean_text`，不按后端或实验中的算法切块拆分 Golden。Golden v1 Schema 仍要求 `chunks` 数组，因此当前每篇 Document 使用一个覆盖全文的 `${doc_id}_c001` 容器；这个容器不是切块算法输出。
 
 建议文件位置：
 
@@ -42,7 +44,7 @@ data/golden/golden-zh-kimsuky_001-1.0-1.0.json
       "doc_id": "apt28_049",
       "char_start": 0,
       "char_end": 4849,
-      "note": "临时单 chunk 样例；正式流程使用后端生成的 chunk。",
+      "note": "Golden v1 全文容器；人工按完整 Document 标注。",
       "entities": [],
       "relations": []
     }
@@ -56,12 +58,12 @@ data/golden/golden-zh-kimsuky_001-1.0-1.0.json
 | `schema_version` | 固定 `"1.0"`。                                                                                 |
 | `target_group`   | 本 golden 主评测目标组织，例如 `APT28`、`Kimsuky`、`Lazarus`。                                 |
 | `doc_ids`        | 本 golden 覆盖的文档 ID 列表，必须能对应到 `data/documents/<target_group>/*.json` 或样例文档。 |
-| `chunks`         | 后端切块结果。实体和关系都写在对应 chunk 内。                                                  |
+| `chunks`         | Golden v1 兼容容器。当前每篇 Document 只使用一个覆盖完整 `clean_text` 的容器。                 |
 | `notes`          | 写明数据来源、统一排除口径、标注范围和已知限制。                                                 |
 
 ---
 
-## 3. chunk 填写规则
+## 3. Golden v1 全文容器填写规则
 
 ```json
 {
@@ -69,22 +71,22 @@ data/golden/golden-zh-kimsuky_001-1.0-1.0.json
   "doc_id": "apt28_049",
   "char_start": 0,
   "char_end": 4849,
-  "note": "当前文档作为单 chunk 标注。",
+  "note": "Golden v1 全文容器；人工按完整 Document 标注。",
   "entities": [],
   "relations": []
 }
 ```
 
-| 字段                      | 填写规则                                                                     |
-| ------------------------- | ---------------------------------------------------------------------------- |
-| `chunk_id`                | 使用后端生成值。mock 阶段可用 `${doc_id}_c001`。                             |
-| `doc_id`                  | 该 chunk 所属文档 ID。                                                       |
-| `char_start` / `char_end` | chunk 在文档 `clean_text` 中的位置；不确定时先用后端输出，不手写新切块规则。 |
-| `note`                    | 可选，说明临时单 chunk、截断、人工复查等情况。                               |
-| `entities`                | 当前 chunk 的人工标准实体。                                                  |
-| `relations`               | 当前 chunk 的人工标准关系。                                                  |
+| 字段                      | 填写规则                                                                                      |
+| ------------------------- | --------------------------------------------------------------------------------------------- |
+| `chunk_id`                | 当前固定为 `${doc_id}_c001`，只表示 Golden v1 全文容器。                                      |
+| `doc_id`                  | 该容器所属文档 ID。                                                                           |
+| `char_start` / `char_end` | 固定覆盖完整 `clean_text`，即 `char_start = 0`、`char_end = len(clean_text)`。                |
+| `note`                    | 可选，说明全文已复核、统一排除项和当前 Schema 无法表达的边界。                                |
+| `entities`                | 整篇 Document 的人工标准实体。                                                                |
+| `relations`               | 整篇 Document 的人工标准关系，包括有充分原文证据的跨自然段关系。                              |
 
-QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后端或架构组，而不是在 golden 中自行发明新的 chunk 规则。
+QA 不负责设计算法切块。全文、无重叠切块和重叠切块等策略属于 Extraction Run 配置，不能反向改变 Golden，也不能成为漏标跨段关系的理由。
 
 顶层 `notes` 适合记录整份 golden 共用的口径，例如：
 
@@ -92,13 +94,13 @@ QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后�
 本黄金集只标注与威胁事件、攻击活动、工具、漏洞、目标、归因、发现或披露等情报事实相关的实体；文章作者、编辑和页面维护者等来源元信息主体不列入 entities。
 ```
 
-单个 chunk 的局部排除或争议写在该 chunk 的 `note` 中，例如：`排除 John Doe：仅为文章署名作者，与威胁事件事实无关。`
+文档内的局部排除或争议可以写在全文容器的 `note` 中，例如：`排除 John Doe：仅为文章署名作者，与威胁事件事实无关。`
 
 ---
 
 ## 4. entities 填写规则
 
-实体写在所属 chunk 的 `entities` 数组里，不再带 `chunk_id` 字段。
+实体写在全文容器的 `entities` 数组里，不再带 `chunk_id` 字段。
 
 ```json
 {
@@ -116,8 +118,8 @@ QA 不负责重新切块。若发现 chunk 范围影响标注，应反馈给后�
 | `name`                    | 实体标准名。优先使用文档中的主称呼；同一实体跨文档尽量保持一致。                                         |
 | `type`                    | 只能从实体类型枚举中选择。拿不准时先记录为待确认，不要为了过 schema 随便填。                             |
 | `aliases`                 | 同一实体的其他名称；没有别名填 `[]`，不要把别名拆成多个实体。                                             |
-| `evidence_text`           | 从当前 chunk 文本中连续截取的证据片段。                                                                  |
-| `char_start` / `char_end` | `evidence_text` 在当前 chunk 文本中的 0-based 起止位置；单 chunk mock 时等同于在 `clean_text` 中的位置。 |
+| `evidence_text`           | 从完整 `clean_text` 中连续截取的证据片段。                                                              |
+| `char_start` / `char_end` | `evidence_text` 在完整 `clean_text` 中的 0-based 起止位置。                                             |
 
 实体类型枚举：
 
@@ -168,7 +170,7 @@ BEHAVIOR_PATTERN
 1. `TOOL` 表示可被使用的工具、软件、协议、API 或服务；`TECHNIQUE` 表示做事的方法；`INFRASTRUCTURE` 表示承载通信、投递或控制的网络资产。
 2. 操作系统、平台、POS 系统、文件工件、进程、邮箱账号、哈希和 IOC 若没有契约中明确的类型，不得为了通过 Schema 随意标成 `ORGANIZATION` 或 `TOOL`。
 3. 仿冒品牌、诱饵主题和被提及组织可以作为实体保留，但不因出现于攻击文档就自动建立 `TARGETS` 关系。
-4. 当前枚举没有合适类型时，记录为待复核或在 chunk `note` 中说明，不擅自使用语义明显不匹配的类型。
+4. 当前枚举没有合适类型时，记录为待复核或在全文容器的 `note` 中说明，不擅自使用语义明显不匹配的类型。
 
 ---
 
@@ -182,12 +184,12 @@ golden 实体不填写 `canonical_id` 或最终 `entity_id`。QA 负责确认 `n
 2. 同一实体的其他名称写入 `aliases`，不要按别名重复创建实体。
 3. 实体匹配同时考虑 `type`、标准化后的 `name` 和 `aliases`，不能只比较原始字符串。
 4. 同名但类型不同的对象不能直接合并。
-5. 无法确认两个名称是否指向同一实体时，先在 chunk 的 `note` 中记录待复核，不强行合并。
+5. 无法确认两个名称是否指向同一实体时，先在全文容器的 `note` 中记录待复核，不强行合并。
 6. 正式 `entity_id` 及候选实体的 `normalized_entity_id` 均由后端生成，不由 data、QA 或 LLM 手工填写。
 
 ### 5.1 实体是否进入 golden
 
-1. 与威胁事件相关的实体应写入 `entities`，即使当前 chunk 没有足够证据标注它与其他实体的关系。
+1. 与威胁事件相关的实体应写入 `entities`，即使当前 Document 没有足够证据标注它与其他实体的关系。
 2. 文章作者、编辑、页面维护者等只承担来源元信息角色的对象，不写入 `entities`。
 3. 如果作者或研究人员在正文中承担发现、披露、归因等情报事实角色，可以按证据标注对应实体和关系。
 4. 不要先把无关实体写进 `entities`，再依赖 `notes` 将其排除；评测器会把 `entities` 中的内容视为正例。
@@ -196,7 +198,7 @@ golden 实体不填写 `canonical_id` 或最终 `entity_id`。QA 负责确认 `n
 
 ## 6. relations 填写规则
 
-关系写在所属 chunk 的 `relations` 数组里，不再带 `chunk_id` 字段。
+关系写在全文容器的 `relations` 数组里，不再带 `chunk_id` 字段。
 
 ```json
 {
@@ -211,15 +213,15 @@ golden 实体不填写 `canonical_id` 或最终 `entity_id`。QA 负责确认 `n
 }
 ```
 
-| 字段                      | 填写规则                                                       |
-| ------------------------- | -------------------------------------------------------------- |
-| `head_name`               | 关系主体名称，必须能在当前 chunk 的 `entities[].name` 中找到。 |
-| `head_type`               | 关系主体类型，必须和对应实体 `type` 一致。                     |
-| `relation_type`           | 只能从关系类型枚举中选择，并满足关系矩阵。                     |
-| `tail_name`               | 关系客体名称，必须能在当前 chunk 的 `entities[].name` 中找到。 |
-| `tail_type`               | 关系客体类型，必须和对应实体 `type` 一致。                     |
-| `evidence_text`           | 从当前 chunk 文本中连续截取，能证明该关系成立。                |
-| `char_start` / `char_end` | `evidence_text` 在当前 chunk 文本中的 0-based 起止位置。       |
+| 字段                      | 填写规则                                                             |
+| ------------------------- | -------------------------------------------------------------------- |
+| `head_name`               | 关系主体名称，必须能在全文容器的 `entities[].name` 中找到。           |
+| `head_type`               | 关系主体类型，必须和对应实体 `type` 一致。                            |
+| `relation_type`           | 只能从关系类型枚举中选择，并满足关系矩阵。                            |
+| `tail_name`               | 关系客体名称，必须能在全文容器的 `entities[].name` 中找到。           |
+| `tail_type`               | 关系客体类型，必须和对应实体 `type` 一致。                            |
+| `evidence_text`           | 从完整 `clean_text` 中连续截取，能证明该关系成立。                    |
+| `char_start` / `char_end` | `evidence_text` 在完整 `clean_text` 中的 0-based 起止位置。           |
 
 关系类型：
 
@@ -272,7 +274,8 @@ PRECEDES
 1. 原文中的推测、可能、大概或关联分析可以支持实体，但不自动支持确定的组织归因、地理位置或控制关系。
 2. 组织、活动、恶意软件、工具和攻击者之间不能仅凭上下文共现建立 `USES`、`CONTROLS`、`MEMBER_OF` 或 `ATTRIBUTED_TO`。
 3. `DISCOVERED_BY` 表示发现、披露或分析；安全厂商“将某活动归因于某组织”是不同语义，当前矩阵没有专门的厂商归因关系时不得改变方向强行使用 `ATTRIBUTED_TO`。
-4. 关系证据应尽量包含明确的主体和客体；如果只能依赖跨句代词或外部知识，应缩小关系范围、补充 chunk `note`，或不进入正式 `relations`。
+4. 关系证据应尽量包含明确的主体和客体；如果只能依赖跨句代词，应选择能独立证明关系的最小连续上下文，必要时在全文容器的 `note` 中说明。只能依赖外部知识的关系不进入正式 `relations`。
+5. 关系两端可以位于不同自然段。只要完整 Document 提供了充分证据，就应标注，不能因为后续某个算法切块无法同时覆盖两端而删除。
 
 `RELATED_TO` 只能作为兜底关系。除非原文确实只表达弱关联且评测需要保留上下文，否则不要使用。
 
@@ -280,7 +283,7 @@ PRECEDES
 
 golden 关系不填写 `confidence`。`extraction_result.confidence` 是模型对候选结果的自评，不是人工黄金答案的置信度，两者不能直接比较或复制。
 
-证据不足或标注员无法确认的关系不进入正式 `relations`，应先记录在 chunk 的 `note` 中并提交复核。不要用较低的人工分数把待定关系混入正例；如后续确实需要评测标注一致性，应另行设计标注状态和裁决流程，并同步修改 Schema、数据契约和评测算法。
+证据不足或标注员无法确认的关系不进入正式 `relations`，应先记录在全文容器的 `note` 中并提交复核。不要用较低的人工分数把待定关系混入正例；如后续确实需要评测标注一致性，应另行设计标注状态和裁决流程，并同步修改 Schema、数据契约和评测算法。
 
 ---
 
@@ -290,7 +293,7 @@ golden 关系不填写 `confidence`。`extraction_result.confidence` 是模型�
 
 证据必须满足：
 
-1. 来自当前 chunk 文本的连续片段，不能拼接多处句子。
+1. 来自完整 `clean_text` 的连续片段，不能拼接多处句子。
 2. 尽量短，但足够证明实体或关系。
 3. 如果短片段重复出现，应扩大上下文，或准确填写 `char_start` / `char_end`。
 4. 一条证据可以同时支撑实体和关系。
@@ -306,7 +309,7 @@ golden 关系不填写 `confidence`。`extraction_result.confidence` 是模型�
 位置规则：
 
 ```text
-chunk_text[char_start:char_end] == evidence_text
+clean_text[char_start:char_end] == evidence_text
 ```
 
 `char_start` 从 0 开始，包含起始字符；`char_end` 不包含结束字符。
@@ -317,20 +320,21 @@ chunk_text[char_start:char_end] == evidence_text
 
 ## 8. 标注流程
 
-1. 读取对应 `document.json`，确认 `doc_id`、`target_group`、`clean_text` 和来源信息。
-2. 使用后端生成的 chunk 列表；后端暂不可用时，只能临时按 `${doc_id}_c001` 单 chunk 标注。
+1. 读取对应 `document.json`，确认 `doc_id`、`target_group`、`clean_text` 和来源信息，并完整审阅正文。
+2. 建立一个覆盖完整 `clean_text` 的 `${doc_id}_c001` Golden v1 容器，不使用算法切块结果。
 3. 先判断实体是否与威胁情报事实相关，排除只承担署名、编辑或页面维护角色的来源元信息主体。
-4. 逐个 chunk 标注相关实体，先保证实体证据能回到原文；相关但没有关系的实体仍需保留。
+4. 按完整 Document 标注相关实体，先保证实体证据能回到原文；相关但没有关系的实体仍需保留。
 5. 只在关系证据明确时标注关系，不为待定关系填写人工置信度。
 6. `MEMBER_OF`、`CONTROLS`、`TRANSFERS_TO`、`INSTANCE_OF`、`PRECEDES` 不得根据共现、控制链或常识推断。
-7. 检查关系两端实体是否在同一 chunk 的 `entities` 中存在。
+7. 检查关系两端实体是否都在全文容器的 `entities` 中存在；跨自然段关系不能因未来切块策略而漏标。
 8. 检查实体类型、关系类型和关系矩阵。
 9. 用 `docs/schemas/golden.schema.json` 校验 JSON。
 10. 在 `notes` 中写明统一排除口径、样本规模和限制，不夸大评测结论。
 11. 复核推测语气：可以保留“可能位于某地区”对应的实体，但不要直接建立确定的组织位置、归因或控制关系。
 12. 复核目标语义：品牌、诱饵主题、仿冒对象和邮件主题不等于实际受害者；只有原文明确表达攻击或针对时才建立 `TARGETS`。
 13. 复核实体边界：域名、IP、URL、C2 和 VPS 优先归为 `INFRASTRUCTURE`；工具、技术、恶意软件和普通文件工件不能混用。
-14. 如果当前枚举没有合适类型，不要为了通过 Schema 随意标为 `ORGANIZATION` 或 `TOOL`；应记录待复核项或在 chunk `note` 中说明排除。
+14. 如果当前枚举没有合适类型，不要为了通过 Schema 随意标为 `ORGANIZATION` 或 `TOOL`；应记录待复核项或在全文容器的 `note` 中说明排除。
+15. 最后确认整篇 `clean_text` 均已审阅；存在未审阅范围的文件不能作为正式全文 Golden 或 Baseline。
 
 实体和关系应分开评测：相关但没有关系的实体属于实体正例；模型抽取无关实体计为实体假阳性，遗漏相关实体计为实体假阴性，无证据关系计为关系假阳性。
 
@@ -338,20 +342,21 @@ chunk_text[char_start:char_end] == evidence_text
 
 ## 9. 常见问题
 
-| 问题                       | 处理方式                                                                         |
-| -------------------------- | -------------------------------------------------------------------------------- |
-| 一个实体多次出现           | 选择最能证明实体身份的一处证据；必要时使用更长上下文。                           |
-| 一个实体有多个别名         | 只写一个实体，其他名称放入 `aliases`。                                           |
-| 实体相关但没有关系         | 仍写入 `entities`；不要为了形成关系而补写无证据关系。                            |
-| 实体与威胁事件无关         | 不写入 `entities`；统一口径写顶层 `notes`，具体争议可写 chunk 的 `note`。         |
-| 关系证据不足               | 不标注该关系，宁可少不要错。                                                     |
-| 是否给关系填写人工置信度   | 不填写；golden 只保留确认正例，模型 `confidence` 只属于候选抽取结果。             |
-| 实体类型不确定             | 先提交待确认，不要为了过 schema 随意填 `ORGANIZATION`。                          |
-| 关系两端实体不在同一 chunk | 先不标该关系，或反馈切块/跨 chunk 评测需求给架构组。                             |
-| 原文是推测语气             | 可以标实体；关系需谨慎，必要时在 `notes` 说明边界。                              |
-| 仿冒品牌或诱饵主题          | 可以保留相关组织实体，但不自动建立 `TARGETS`；除非原文明确说该组织是实际受害者。 |
-| 域名、IP、C2 或 VPS          | 默认使用 `INFRASTRUCTURE`，不要标为 `TOOL`；关系仍需原文支持。                  |
-| 当前枚举没有合适实体类型     | 不要强行选择近似类型；记录待复核或明确排除，必要时提交 Schema 变更建议。         |
-| 厂商归因与发现/披露           | `DISCOVERED_BY` 只表示发现、披露或分析；厂商归因语义不能改变关系方向硬套 `ATTRIBUTED_TO`。 |
-| 攻击者位置与组织位置         | IP 地理位置、活动时区或匿名攻击者推断不能自动转成 APT 组织的 `LOCATED_IN`。       |
-| 需要记录 LLM 错误          | 错误样例和评测结果放在 evaluation 结果文件或报告中，不塞进 golden 标准答案字段。 |
+| 问题 | 处理方式 |
+| --- | --- |
+| 一个实体多次出现 | 选择最能证明实体身份的一处证据；必要时使用更长上下文。 |
+| 一个实体有多个别名 | 只写一个实体，其他名称放入 `aliases`。 |
+| 实体相关但没有关系 | 仍写入 `entities`；不要为了形成关系而补写无证据关系。 |
+| 实体与威胁事件无关 | 不写入 `entities`；统一口径写顶层 `notes`，具体争议可写全文容器的 `note`。 |
+| 关系证据不足 | 不标注该关系，宁可少不要错。 |
+| 是否给关系填写人工置信度 | 不填写；golden 只保留确认正例，模型 `confidence` 只属于候选抽取结果。 |
+| 实体类型不确定 | 先提交待确认，不要为了过 schema 随意填 `ORGANIZATION`。 |
+| 关系两端位于不同自然段或算法 chunk | 只要完整 Document 有充分证据，就在全文容器中标注；后续用切块实验测量结构损失。 |
+| 关系需要多处不连续证据 | 当前 v1 先选能独立证明关系的最小连续上下文；无法准确表达时写入 `note` 并等待多 span 契约。 |
+| 原文是推测语气 | 可以标实体；关系需谨慎，必要时在 `notes` 说明边界。 |
+| 仿冒品牌或诱饵主题 | 可以保留相关组织实体，但不自动建立 `TARGETS`；除非原文明确说该组织是实际受害者。 |
+| 域名、IP、C2 或 VPS | 默认使用 `INFRASTRUCTURE`，不要标为 `TOOL`；关系仍需原文支持。 |
+| 当前枚举没有合适实体类型 | 不要强行选择近似类型；记录待复核或明确排除，必要时提交 Schema 变更建议。 |
+| 厂商归因与发现/披露 | `DISCOVERED_BY` 只表示发现、披露或分析；厂商归因语义不能改变关系方向硬套 `ATTRIBUTED_TO`。 |
+| 攻击者位置与组织位置 | IP 地理位置、活动时区或匿名攻击者推断不能自动转成 APT 组织的 `LOCATED_IN`。 |
+| 需要记录 LLM 错误 | 错误样例和评测结果放在 evaluation 结果文件或报告中，不塞进 golden 标准答案字段。 |
