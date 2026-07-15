@@ -1,0 +1,390 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract-apt28_001-deepseek-v4-pro-1.0-1.0-20260714081237390418-dc023619",
+  "doc_id": "apt28_001",
+  "model_name": "deepseek-v4-pro",
+  "prompt_version": "1.0",
+  "generated_at": "2026-07-14T08:12:37.390418+00:00",
+  "chunks": [
+    {
+      "chunk_id": "apt28_001_c001",
+      "rejected_entities": [],
+      "rejected_relations": [
+        {
+          "head_name": "Fancy Bear",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "IHS Markit",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "该组织利用英国信息服务提供商IHS Markit公司的邮箱账号向罗马尼亚外交部发送钓鱼邮件",
+          "char_start": 306,
+          "char_end": 351,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,ORGANIZATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "C3E4U3B1.exe",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "cdnver.dll",
+          "tail_type": "MALWARE",
+          "evidence_text": "c3e4u3b1.exe执行后会释放cdnver.dll和cdnver.bat",
+          "char_start": 1038,
+          "char_end": 1077,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "C3E4U3B1.exe",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "cdnver.bat",
+          "tail_type": "TOOL",
+          "evidence_text": "c3e4u3b1.exe执行后会释放cdnver.dll和cdnver.bat",
+          "char_start": 1038,
+          "char_end": 1077,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "rundll32.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "利用rundll32.exe 来执行cdnver.dll",
+          "char_start": 1222,
+          "char_end": 1250,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "firefox.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "将自身注入进firefox.exe或iexplore.exe等浏览器进程",
+          "char_start": 1745,
+          "char_end": 1781,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "iexplore.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "将自身注入进firefox.exe或iexplore.exe等浏览器进程",
+          "char_start": 1745,
+          "char_end": 1781,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "Chrome.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "0x723F0158h Chrome.exe",
+          "char_start": 2213,
+          "char_end": 2235,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "prefs.js",
+          "tail_type": "TOOL",
+          "evidence_text": "读取firefox的配置文件prefs.js中的“network.proxy.http”和\"network.proxy.http_port\"字段",
+          "char_start": 1926,
+          "char_end": 1998,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "HttpSendRequestA",
+          "tail_type": "TOOL",
+          "evidence_text": "该木马会使用HttpSendRequestA等函数进行网络发包",
+          "char_start": 2237,
+          "char_end": 2268,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "InternetReadFile",
+          "tail_type": "TOOL",
+          "evidence_text": "木马使用InternetReadFile函数来接收服务器下发的指令",
+          "char_start": 2496,
+          "char_end": 2529,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "ZwWriteVirtualMemory",
+          "tail_type": "TOOL",
+          "evidence_text": "注入dll时先使用ZwWriteVirtualMemory等函数将pe文件写进目标进程",
+          "char_start": 2028,
+          "char_end": 2071,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "google.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "第一个c2的域名为”google.com”",
+          "char_start": 1662,
+          "char_end": 1683,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "cdnverify.net",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "第二个c2为“cdnverify.net”",
+          "char_start": 1684,
+          "char_end": 1705,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "151.80.74.167",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "151.80.74.167",
+          "char_start": 3128,
+          "char_end": 3141,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Servers",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "木马还会将c2信息加密后存储在注册表下HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Servers的Domain项中",
+          "char_start": 1802,
+          "char_end": 1916,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "HKEY_CURRENT_USER\\Environment\\UserInitMprLogonScript",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "HKEY_CURRENT_USER\\Environment\\UserInitMprLogonScript",
+          "char_start": 3272,
+          "char_end": 3324,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "HAS_BEHAVIOR",
+          "tail_name": "vgekW8b1st6yjzPA9fewB70o7KC",
+          "tail_type": "BEHAVIOR_PATTERN",
+          "evidence_text": "木马运行后会创建名为“vgekW8b1st6yjzPA9fewB70o7KC” 的互斥对象",
+          "char_start": 1483,
+          "char_end": 1528,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,HAS_BEHAVIOR,BEHAVIOR_PATTERN)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnver.dll",
+          "head_type": "MALWARE",
+          "relation_type": "HAS_BEHAVIOR",
+          "tail_name": "SNFIRNW",
+          "tail_type": "BEHAVIOR_PATTERN",
+          "evidence_text": "还会创建名为“SNFIRNW” 的FileMap对象",
+          "char_start": 1529,
+          "char_end": 1555,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,HAS_BEHAVIOR,BEHAVIOR_PATTERN)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "certutil.exe",
+          "head_type": "TOOL",
+          "relation_type": "USES",
+          "tail_name": "N9A6C5T3.txt",
+          "tail_type": "TOOL",
+          "evidence_text": "宏代码会利用微软的签名程序certutil.exe对释放的N9A6C5T3.txt（文件名随机生成）文件进行base64解密",
+          "char_start": 883,
+          "char_end": 945,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (TOOL,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "certutil.exe",
+          "head_type": "TOOL",
+          "relation_type": "USES",
+          "tail_name": "C3E4U3B1.exe",
+          "tail_type": "MALWARE",
+          "evidence_text": "解密时命令行为”certutil -decode C:\\Programdata\\N9A6C5T3.txt C:\\Programdata\\C3E4U3B1.exe”",
+          "char_start": 955,
+          "char_end": 1036,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (TOOL,USES,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Upcoming Events February 2018.xls",
+          "head_type": "TOOL",
+          "relation_type": "USES",
+          "tail_name": "N9A6C5T3.txt",
+          "tail_type": "TOOL",
+          "evidence_text": "表格中存储的base64加密的pe文件，会被宏代码存储为N9A6C5T3.txt文件",
+          "char_start": 838,
+          "char_end": 880,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (TOOL,USES,TOOL)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Fancy Bear",
+          "head_type": "APT_GROUP",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "2018-02",
+          "tail_type": "TIME",
+          "evidence_text": "诱饵邮件主题为《Upcoming Events February 2018》",
+          "char_start": 580,
+          "char_end": 618,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

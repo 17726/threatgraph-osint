@@ -1,0 +1,281 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract-apt28_080-deepseek-v4-flash-1.0-1.0-20260714075123666577-c463deb3",
+  "doc_id": "apt28_080",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "1.0",
+  "generated_at": "2026-07-14T07:51:23.666577+00:00",
+  "chunks": [
+    {
+      "chunk_id": "apt28_080_c001",
+      "rejected_entities": [
+        {
+          "name": "cdnverify.net",
+          "type": "INFRASTRUCTURE",
+          "aliases": [
+            "cdnverify[.]net"
+          ],
+          "description": "C2 domain used by SofacyCarberp in this attack.",
+          "mention_text": "cdnverify[.]net",
+          "evidence_text": "This variant of SofacyCarberp was configured to use the following domain as its C2 server: cdnverify[.]net",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "Bryan Lee",
+          "type": "PERSON",
+          "aliases": [],
+          "description": "Author of the blog post.",
+          "mention_text": "Bryan Lee",
+          "evidence_text": "By: Bryan Lee",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "CVE",
+          "type": "CVE",
+          "aliases": [],
+          "description": "No specific CVE mentioned in the text.",
+          "mention_text": "",
+          "evidence_text": "",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.0,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 不能为空"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "STRONTIUM",
+          "type": "APT_GROUP",
+          "aliases": [],
+          "description": "Another name for Sofacy group.",
+          "mention_text": "STRONTIUM",
+          "evidence_text": "Microsoft in a legal complaint against STRONTIUM (Sofacy)",
+          "char_start": 8725,
+          "char_end": 8782,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_or_alias_merged"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "SofacyCarberp",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "cdnverify.net",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "This variant of SofacyCarberp was configured to use the following domain as its C2 server: cdnverify[.]net",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)",
+            "tail (cdnverify.net, INFRASTRUCTURE) 不在候选实体中",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "Sofacy",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "Microsoft in a legal complaint against STRONTIUM (Sofacy)",
+          "char_start": 8725,
+          "char_end": 8782,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,ATTRIBUTED_TO,APT_GROUP)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "SofacyCarberp",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "Carberp",
+          "tail_type": "MALWARE",
+          "evidence_text": "Previous versions of this Trojan used code taken from the leaked Carberp source code",
+          "char_start": 14652,
+          "char_end": 14736,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "Ministry of Foreign Affairs",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "we discovered a campaign launched at various Ministries of Foreign Affairs around the world.",
+          "char_start": 669,
+          "char_end": 761,
+          "confidence": 0.95,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "Europe",
+          "tail_type": "REGION",
+          "evidence_text": "one organization is geographically located in Europe",
+          "char_start": 1314,
+          "char_end": 1366,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "North America",
+          "tail_type": "REGION",
+          "evidence_text": "the other in North America.",
+          "char_start": 1371,
+          "char_end": 1398,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "SofacyCarberp",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "cdnverify.net",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "This variant of SofacyCarberp was configured to use the following domain as its C2 server: cdnverify[.]net",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,INFRASTRUCTURE)",
+            "tail (cdnverify.net, INFRASTRUCTURE) 不在候选实体中",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "Sofacy",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "Microsoft in a legal complaint against STRONTIUM (Sofacy)",
+          "char_start": 8725,
+          "char_end": 8782,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,ATTRIBUTED_TO,APT_GROUP)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "HAS_BEHAVIOR",
+          "tail_name": "UserInitMprLogonScript",
+          "tail_type": "BEHAVIOR_PATTERN",
+          "evidence_text": "the loader will add the following registry key UserInitMprLogonScript to HKCU \\Environment",
+          "char_start": 13945,
+          "char_end": 14035,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "HAS_BEHAVIOR",
+          "tail_name": "Logon Scripts",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Mitre’s ATT&CK framework shows Sofacy’s use of this registry key as an example of the Logon Scripts persistence technique.",
+          "char_start": 14358,
+          "char_end": 14480,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "SofacyCarberp",
+          "head_type": "MALWARE",
+          "relation_type": "USES",
+          "tail_name": "Carberp",
+          "tail_type": "MALWARE",
+          "evidence_text": "Previous versions of this Trojan used code taken from the leaked Carberp source code",
+          "char_start": 14652,
+          "char_end": 14736,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (MALWARE,USES,MALWARE)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "hotfixmsupload.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "Hotfixmsupload[.]com is particularly interesting as it has been identified as a Sofacy C2 domain repeatedly",
+          "char_start": 8586,
+          "char_end": 8693,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        }
+      ]
+    }
+  ]
+}
