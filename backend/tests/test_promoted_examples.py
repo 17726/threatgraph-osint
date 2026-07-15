@@ -149,7 +149,7 @@ def test_promoted_graph_example_can_be_regenerated(tmp_path):
     output_path = tmp_path / "graph.json"
 
     OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
-    export_graph_json(db_path, output_path, seed_demo=False)
+    export_graph_json(db_path, output_path)
 
     graph = json.loads(output_path.read_text(encoding="utf-8"))
 

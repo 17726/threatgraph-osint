@@ -63,4 +63,78 @@ export type ReportPayload = {
   target_group: string;
   title: string;
   markdown: string;
+  generated_at?: string;
+  sections?: ReportSection[];
+};
+
+export type ReportSection = {
+  section_id: string;
+  section_type: string;
+  title: string;
+  markdown: string;
+  evidence_ids: string[];
+  analysis_refs: string[];
+  graph_refs: Record<string, unknown>;
+  sort_order: number;
+};
+
+export type MitreMapping = {
+  mapping_id: string;
+  target_group: string;
+  technique_id: string;
+  technique_name: string;
+  tactic: string;
+  attack_stage: string;
+  confidence: number;
+  evidence_ids: string[];
+};
+
+export type BehaviorPattern = {
+  pattern_id: string;
+  target_group: string;
+  stage: string;
+  description: string;
+  technique_ids: string[];
+  relation_ids: string[];
+  evidence_ids: string[];
+  confidence: number;
+};
+
+export type InferredRelation = {
+  inferred_relation_id: string;
+  source: string;
+  target: string;
+  type: string;
+  rationale: string;
+  confidence: number;
+  status: string;
+  evidence_ids: string[];
+};
+
+export type EntityDetail = GraphNode & {
+  evidence_count: number;
+  evidence: Evidence[];
+  relations: {
+    relation_id: string;
+    source: string;
+    target: string;
+    type: string;
+    label: string;
+  }[];
+};
+
+export type AnalysisResponse = {
+  target_group: string;
+  patterns?: BehaviorPattern[];
+  mappings?: MitreMapping[];
+  inferences?: InferredRelation[];
+};
+
+export type ThreatAssessment = {
+  target_group: string;
+  risk_level: string;
+  risk_score: number;
+  rationale: string;
+  recommendations: string[];
+  evidence_ids: string[];
 };

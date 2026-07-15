@@ -21,7 +21,7 @@ def import_extraction_result(
     pipeline = OfflineExtractionPipeline(db_path)
     summary = pipeline.run(document_path, extraction_result_path)
     if graph_output_path is not None:
-        export_graph_json(db_path, graph_output_path, seed_demo=False)
+        export_graph_json(db_path, graph_output_path)
     return summary
 
 

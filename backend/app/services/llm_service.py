@@ -8,12 +8,23 @@ import os
 import re
 import time
 import unicodedata
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import httpx
 
+from backend.app.services.artifact_naming import (
+    DEFAULT_PROMPT_VERSION,
+    SCHEMA_VERSION,
+    candidate_audit_filename,
+    ensure_version,
+    extraction_filename,
+    extraction_run_id,
+    iso_timestamp,
+    now_utc,
+    validate_candidate_audit_artifact_filename,
+    validate_extraction_artifact_filename,
+)
 from scripts.validate_extraction_result import (
     ALLOWED_RELATIONS,
     load_json,
@@ -23,7 +34,7 @@ from scripts.validate_extraction_result import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_EXTRACTION_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
-DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-v3.md"
+DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-1.0.md"
 DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-v4-flash"
 
@@ -107,12 +118,24 @@ _HASH_PATTERN = re.compile(r"^[A-Fa-f0-9]{32,64}$")
 
 
 def now_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return iso_timestamp(now_utc())
 
 
-def generate_run_id(doc_id: str, prompt_version: str) -> str:
-    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%f")
-    return f"extract_{doc_id}_{prompt_version}_{timestamp}"
+def generate_run_id(
+    doc_id: str,
+    model_name: str,
+    prompt_version: str,
+    *,
+    schema_version: str = SCHEMA_VERSION,
+    generated_at: str | None = None,
+) -> str:
+    return extraction_run_id(
+        doc_id=doc_id,
+        model_name=model_name,
+        prompt_version=prompt_version,
+        schema_version=schema_version,
+        generated_at=generated_at or now_iso(),
+    )
 
 
 def sha256_text(value: str) -> str:
@@ -152,14 +175,9 @@ def _extract_json_object(response_text: str) -> dict[str, Any]:
 def _find_text_span(clean_text: str, evidence: str) -> tuple[int | None, int | None]:
     if not evidence:
         return None, None
-    # 1. Exact match (fast path, preserves accuracy)
     start = clean_text.find(evidence)
     if start >= 0:
         return start, start + len(evidence)
-    # 2. Fuzzy match: each whitespace char in evidence becomes \s+,
-    #    and \s* is inserted between every adjacent pair, so whitespace
-    #    can appear anywhere (not just where evidence has it).
-    #    Handles "Kimusky, also" vs "Kimusky\n, also" (whitespace shifted).
     pattern = r"\s*".join(
         r"\s+" if ch.isspace() else re.escape(ch) for ch in evidence
     )
@@ -331,8 +349,6 @@ def parse_llm_response_with_audit(
             raise ValueError(f"entities[{index}] 必须是对象")
         evidence = entity.get("evidence_text", "")
         char_start, char_end = _find_text_span(clean_text, evidence)
-        # Auto-correct evidence_text to match the actual clean_text slice
-        # (handles whitespace differences like space↔newline from LLM output)
         if char_start is not None and clean_text[char_start:char_end] != evidence:
             evidence = clean_text[char_start:char_end]
         aliases = entity.get("aliases", [])
@@ -355,7 +371,6 @@ def parse_llm_response_with_audit(
         errors = validate_entity(candidate)
         if evidence and char_start is None:
             errors.append("evidence_text 未出现在 document.clean_text 中")
-
         name = candidate.get("name", "")
         if _HASH_PATTERN.match(name) and candidate["type"] == "MALWARE":
             errors.append("SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体")
@@ -363,9 +378,8 @@ def parse_llm_response_with_audit(
             name_lower = name.lower().rstrip(".")
             for domain in BENIGN_CONNECTIVITY_DOMAINS:
                 if name_lower == domain or name_lower.endswith("." + domain):
-                    errors.append(f"良性连通性检测域名不能作为 INFRASTRUCTURE")
+                    errors.append("良性连通性检测域名不能作为 INFRASTRUCTURE")
                     break
-
         candidate["validation_status"] = "valid" if not errors else "invalid"
         candidate["validation_errors"] = errors
         processed_entities.append(candidate)
@@ -528,13 +542,13 @@ candidate_status、validation_status 和 validation_errors，再校验最终 ext
 单轮最多输出 80 个实体和 80 个关系。关系复核会另行补漏，不要为了追求数量降低证据标准。
 
 重要提醒：
-- evidence_text 必须逐字复制自 <chunk_text>，禁止任何改写、概括、缩写或调整大小写。在 chunk_text 中找到原文句子后直接 copy-paste，不要自己重新打字
-- 安全厂商（如 Unit 42、Microsoft、ESET、ThreatConnect、Palo Alto Networks）发现/监测/报告威胁活动 → 不要生成 DISCOVERED_BY、ATTRIBUTED_TO 或 AFFILIATED_WITH 关系
-- 安全公司拥有或运营自己的产品/工具（如 WildFire、AutoFocus、Traps）→ 不要生成 CONTROLS 关系
-- 工具/技术/基础设施的使用关系必须以 APT_GROUP 或 CAMPAIGN 为主体，恶意软件(MALWARE)不能作为 USES 关系的主体
-- 全文扫描所有可执行文件、命令行工具、攻击技术和网络基础设施，不要只关注文章前半部分
-- 不要忘记抽取日期、月份、年份等 TIME 类型实体
-- 实体名称使用原文措辞，保持单复数一致（如原文是 "Ministries" 不要写成 "Ministry"）
+- evidence_text 必须逐字复制自 <chunk_text>，禁止任何改写、概括、缩写或调整大小写。
+- 安全厂商发现、监测或报告威胁活动时，不要生成 DISCOVERED_BY、ATTRIBUTED_TO 或 AFFILIATED_WITH 关系。
+- 安全公司拥有或运营自己的产品、工具时，不要生成 CONTROLS 关系。
+- 工具、技术、基础设施的使用关系必须以 APT_GROUP 或 CAMPAIGN 为主体，MALWARE 不能作为 USES 关系主体。
+- 全文扫描所有可执行文件、命令行工具、攻击技术和网络基础设施，不要只关注文章前半部分。
+- 不要忘记抽取日期、月份、年份等 TIME 类型实体。
+- 实体名称使用原文措辞，保持单复数一致。
 
 <chunk_text>
 {clean_text}
@@ -608,9 +622,14 @@ class LLMExtractionService:
             "usage": metadata.get("usage", {}),
         }
 
-    def extract(self, document: dict[str, Any], prompt_version: str = "extract-v3") -> dict[str, Any]:
+    def extract(
+        self,
+        document: dict[str, Any],
+        prompt_version: str = DEFAULT_PROMPT_VERSION,
+    ) -> dict[str, Any]:
         """Extract candidate entities and relations from one document."""
         self._require_api_key()
+        ensure_version(prompt_version, field_name="prompt_version")
         self.last_warnings = []
         self.last_candidate_audit = None
         doc_id = document["doc_id"]
@@ -618,7 +637,13 @@ class LLMExtractionService:
         if not isinstance(clean_text, str) or not clean_text.strip():
             raise ValueError("document.clean_text 不能为空")
 
-        run_id = generate_run_id(doc_id, prompt_version)
+        generated_at = now_iso()
+        run_id = generate_run_id(
+            doc_id,
+            self.model,
+            prompt_version,
+            generated_at=generated_at,
+        )
         chunk_id = f"{doc_id}_c001"
         messages = [
             {"role": "system", "content": self.system_prompt},
@@ -653,19 +678,21 @@ class LLMExtractionService:
                     clean_text,
                 )
                 result = {
-                    "schema_version": "1.0",
+                    "schema_version": SCHEMA_VERSION,
                     "run_id": run_id,
                     "doc_id": doc_id,
                     "model_name": self.model,
                     "prompt_version": prompt_version,
+                    "generated_at": generated_at,
                     "chunks": [{"chunk_id": chunk_id, **chunk_result}],
                 }
                 candidate_audit = {
-                    "schema_version": "1.0",
+                    "schema_version": SCHEMA_VERSION,
                     "run_id": run_id,
                     "doc_id": doc_id,
                     "model_name": self.model,
                     "prompt_version": prompt_version,
+                    "generated_at": generated_at,
                     "chunks": [{"chunk_id": chunk_id, **chunk_audit}],
                 }
                 result = self._run_relation_review_passes(
@@ -838,7 +865,8 @@ class LLMExtractionService:
     ) -> Path:
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        result_path = output_path / f"{result['run_id']}.json"
+        result_path = output_path / extraction_filename(result["run_id"])
+        validate_extraction_artifact_filename(result_path, result)
         result_path.write_text(
             json.dumps(result, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
@@ -853,7 +881,13 @@ class LLMExtractionService:
             raise ValueError("当前没有可保存的候选审计结果")
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        audit_path = output_path / f"{self.last_candidate_audit['run_id']}.candidate-audit.json"
+        audit_path = output_path / candidate_audit_filename(
+            self.last_candidate_audit["run_id"]
+        )
+        validate_candidate_audit_artifact_filename(
+            audit_path,
+            self.last_candidate_audit,
+        )
         audit_path.write_text(
             json.dumps(self.last_candidate_audit, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",

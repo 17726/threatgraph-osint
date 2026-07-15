@@ -17,6 +17,13 @@ from backend.app.services.extraction_evaluator import (
     validate_golden_payload,
     validate_golden_schema,
 )
+from backend.app.services.artifact_naming import (
+    evaluation_filename,
+    validate_candidate_audit_artifact_filename,
+    validate_evaluation_artifact_filename,
+    validate_extraction_artifact_filename,
+    validate_golden_artifact_filename,
+)
 from scripts.validate_extraction_result import load_json, validate_payload
 
 
@@ -36,6 +43,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--golden-schema", type=Path)
     parser.add_argument("--min-entity-f1", type=float, default=0.0)
     parser.add_argument("--min-relation-f1", type=float, default=0.0)
+    parser.add_argument(
+        "--allow-legacy-artifacts",
+        action="store_true",
+        help="显式允许历史/示例输入跳过文件名比较；Schema 和关联校验仍执行",
+    )
     parser.add_argument("--json", action="store_true", help="向标准输出打印完整 JSON")
     return parser
 
@@ -46,6 +58,28 @@ def main(argv: list[str] | None = None) -> int:
     golden = load_json(args.golden)
     document = load_json(args.document) if args.document else None
     candidate_audit = load_json(args.candidate_audit) if args.candidate_audit else None
+
+    try:
+        validate_extraction_artifact_filename(
+            args.extraction_result,
+            extraction_result,
+            allow_legacy=args.allow_legacy_artifacts,
+        )
+        validate_golden_artifact_filename(
+            args.golden,
+            golden,
+            allow_legacy=args.allow_legacy_artifacts,
+        )
+        if args.candidate_audit:
+            validate_candidate_audit_artifact_filename(
+                args.candidate_audit,
+                candidate_audit or {},
+                extraction_result=extraction_result,
+                allow_legacy=args.allow_legacy_artifacts,
+            )
+    except ValueError as exc:
+        print(f"工件命名错误: {exc}", file=sys.stderr)
+        return 1
 
     extraction_report = validate_payload(extraction_result, document=document)
     golden_errors = [
@@ -70,6 +104,22 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     serialized = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    if args.output is None:
+        args.output = Path("data/evaluation") / evaluation_filename(
+            doc_id=result["extraction"]["doc_id"],
+            model_name=result["extraction"]["model_name"],
+            prompt_version=result["extraction"]["prompt_version"],
+            schema_version=result["extraction"]["schema_version"],
+            golden_version=result["golden"]["golden_version"],
+            evaluated_at=result["evaluated_at"],
+        )
+
+    try:
+        validate_evaluation_artifact_filename(args.output, result)
+    except ValueError as exc:
+        print(f"工件命名错误: {exc}", file=sys.stderr)
+        return 1
+
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(serialized, encoding="utf-8")
@@ -89,8 +139,7 @@ def main(argv: list[str] | None = None) -> int:
             f"P={relation['precision']:.4f} R={relation['recall']:.4f} F1={relation['f1']:.4f} "
             f"(TP={relation['true_positive']} FP={relation['false_positive']} FN={relation['false_negative']})"
         )
-        if args.output:
-            print(f"完整报告: {args.output}")
+        print(f"完整报告: {args.output}")
 
     entity_failed = result["entity_metrics"]["f1"] < args.min_entity_f1
     relation_failed = result["relation_metrics"]["f1"] < args.min_relation_f1

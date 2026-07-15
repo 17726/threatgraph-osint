@@ -9,6 +9,13 @@ from jsonschema import Draft202012Validator
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from backend.app.core.document_contract import document_contract_errors
+from backend.app.core.json_schema import STRICT_FORMAT_CHECKER
+
+
 DEFAULT_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
 
 ALLOWED_RELATIONS = {
@@ -205,7 +212,7 @@ def format_json_path(error_path: Any) -> str:
 
 def validate_schema(payload: dict[str, Any], schema_path: Path, report: ValidationReport) -> None:
     schema = load_json(schema_path)
-    validator = Draft202012Validator(schema)
+    validator = Draft202012Validator(schema, format_checker=STRICT_FORMAT_CHECKER)
     for error in sorted(validator.iter_errors(payload), key=lambda item: list(item.path)):
         report.add_error(f"schema {format_json_path(error.path)}: {error.message}")
 
@@ -308,7 +315,7 @@ def validate_document_alignment(
 ) -> None:
     doc_id = payload.get("doc_id")
     document_doc_id = document.get("doc_id")
-    clean_text = document.get("clean_text") or document.get("raw_text", "")
+    clean_text = document.get("clean_text", "")
 
     if doc_id != document_doc_id:
         report.add_error(f"doc_id 不一致: result={doc_id!r}, document={document_doc_id!r}")
@@ -346,6 +353,10 @@ def validate_payload(
     report = ValidationReport()
     validate_schema(payload, schema_path, report)
 
+    if document is not None:
+        for error in document_contract_errors(document):
+            report.add_error(error)
+
     if report.errors:
         return report
 
@@ -353,6 +364,25 @@ def validate_payload(
     validate_relation_matrix(payload, report)
     if document is not None:
         validate_document_alignment(payload, document, report)
+    return report
+
+
+def validate_import_payload(
+    payload: dict[str, Any],
+    document: dict[str, Any],
+    *,
+    schema_path: Path = DEFAULT_SCHEMA_PATH,
+) -> ValidationReport:
+    """校验导入边界，但保留关系矩阵失败项进入候选审计层。"""
+    report = ValidationReport()
+    validate_schema(payload, schema_path, report)
+    for error in document_contract_errors(document):
+        report.add_error(error)
+    if report.errors:
+        return report
+
+    validate_unique_chunk_ids(payload, report)
+    validate_document_alignment(payload, document, report)
     return report
 
 

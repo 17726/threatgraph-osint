@@ -1,0 +1,395 @@
+{
+  "schema_version": "1.0",
+  "target_group": "Kimsuky",
+  "doc_ids": [
+    "kimsuky_001"
+  ],
+  "chunks": [
+    {
+      "chunk_id": "kimsuky_001_c001",
+      "doc_id": "kimsuky_001",
+      "char_start": 0,
+      "char_end": 4330,
+      "note": "kimsuky_001 当前文档长度可作为单 chunk 输入。",
+      "entities": [
+        {
+          "name": "ESTsecurity",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "韩国安全厂商ESTsecurity[1]披露了KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": 12,
+          "char_end": 63
+        },
+        {
+          "name": "KONNI",
+          "type": "APT_GROUP",
+          "aliases": [
+            "KONNIAPT"
+          ],
+          "evidence_text": "韩国安全厂商ESTsecurity[1]披露了KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": 12,
+          "char_end": 63
+        },
+        {
+          "name": "Kimsuky",
+          "type": "APT_GROUP",
+          "aliases": [],
+          "evidence_text": "并称其与APT组织Kimsuky存在关联",
+          "char_start": 64,
+          "char_end": 84
+        },
+        {
+          "name": "奇安信威胁情报中心红雨滴团队",
+          "type": "ORGANIZATION",
+          "aliases": [
+            "红雨滴团队"
+          ],
+          "evidence_text": "奇安信威胁情报中心红雨滴团队在日常的高级威胁监测过程中",
+          "char_start": 92,
+          "char_end": 119
+        },
+        {
+          "name": "韩国",
+          "type": "COUNTRY",
+          "aliases": [],
+          "evidence_text": "发现多起疑似针对韩国地区Android用户的恶意代码攻击活动",
+          "char_start": 120,
+          "char_end": 150
+        },
+        {
+          "name": "Android用户",
+          "type": "PERSON",
+          "aliases": [],
+          "evidence_text": "发现多起疑似针对韩国地区Android用户的恶意代码攻击活动",
+          "char_start": 120,
+          "char_end": 150
+        },
+        {
+          "name": "KaokaoTalk",
+          "type": "MALWARE",
+          "aliases": [
+            "KakaoTalk木马"
+          ],
+          "evidence_text": "对其中一个名为KaokaoTalk的木马详细分析后发现",
+          "char_start": 953,
+          "char_end": 980
+        },
+        {
+          "name": "KakaoTalk",
+          "type": "TOOL",
+          "aliases": [
+            "Kakao Talk"
+          ],
+          "evidence_text": "该木马首先会查找并打开官方的KakaoTalk应用以隐藏自身",
+          "char_start": 981,
+          "char_end": 1011
+        },
+        {
+          "name": "钓鱼页面",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "投递指向钓鱼页面的短链接，诱导用户下载钓鱼页面的APK木马",
+          "char_start": 584,
+          "char_end": 613
+        },
+        {
+          "name": "短链接",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "攻击者会通过短链接的形式发送一个链接",
+          "char_start": 394,
+          "char_end": 412
+        },
+        {
+          "name": "短信",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "本次攻击所使用的恶意APK主要是通过短信和即时通信工具投递",
+          "char_start": 364,
+          "char_end": 393
+        },
+        {
+          "name": "C2 2.56.151.8",
+          "type": "INFRASTRUCTURE",
+          "aliases": [
+            "2.56.151.8"
+          ],
+          "evidence_text": "通过对攻击者C2：2.56.151.8地址的关联分析",
+          "char_start": 2831,
+          "char_end": 2857
+        },
+        {
+          "name": "download-apks.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [
+            "download-apks"
+          ],
+          "evidence_text": "hxxp://download-apks[.]com/KaokaoTalk/",
+          "char_start": 624,
+          "char_end": 662
+        },
+        {
+          "name": "oaass-torrent.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "hxxp://oaass-torrent[.]com/KakaoTalk.APK",
+          "char_start": 496,
+          "char_end": 536
+        },
+        {
+          "name": "GooglePlay",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "下图为假冒的GooglePlay中YouTube应用的下载页面",
+          "char_start": 664,
+          "char_end": 695
+        },
+        {
+          "name": "腾讯",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "而「Kakao Talk」是一款来自韩国的由中国腾讯担任第二大股东的免费聊天软件",
+          "char_start": 1101,
+          "char_end": 1141
+        },
+        {
+          "name": "KONNI攻击活动",
+          "type": "CAMPAIGN",
+          "aliases": [],
+          "evidence_text": "KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": 35,
+          "char_end": 63
+        },
+        {
+          "name": "即时通信工具",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "短信和即时通信工具",
+          "char_start": 382,
+          "char_end": 391
+        },
+        {
+          "name": "VPS",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "该IP地址其实是一个VPS，这应该是攻击者的第一层跳板，且该机器是一台Linux机器，其2223端口上开放着SSH",
+          "char_start": 2933,
+          "char_end": 2990
+        },
+        {
+          "name": "UTC+9",
+          "type": "REGION",
+          "aliases": [],
+          "evidence_text": "控制端的控制情况，总结攻击者的活动时间图,可以知道攻击者是UTC+0的0点开始工作，到3点左右休息，5点开始干活到13点，如果按9点上班，12点中午吃饭来推算，攻击者所处的时区大概在：UTC+9",
+          "char_start": 3311,
+          "char_end": 3408
+        },
+        {
+          "name": "日本",
+          "type": "COUNTRY",
+          "aliases": [],
+          "evidence_text": "日本",
+          "char_start": 2919,
+          "char_end": 2921
+        },
+        {
+          "name": "新加坡",
+          "type": "COUNTRY",
+          "aliases": [],
+          "evidence_text": "新加坡",
+          "char_start": 3033,
+          "char_end": 3036
+        },
+        {
+          "name": "ipipipip.net",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "朝鲜语的ipipipip.net",
+          "char_start": 3265,
+          "char_end": 3281
+        },
+        {
+          "name": "bit.ly/2CZnAqD",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "hxxp://bit[.]ly/2CZnAqD",
+          "char_start": 471,
+          "char_end": 494
+        },
+        {
+          "name": "bit.ly/37gAUoo",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "http://bit.ly/37gAUoo",
+          "char_start": 4098,
+          "char_end": 4119
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "AFFILIATED_WITH",
+          "tail_name": "Kimsuky",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "并称其与APT组织Kimsuky存在关联",
+          "char_start": 64,
+          "char_end": 84
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "韩国",
+          "tail_type": "COUNTRY",
+          "evidence_text": "发现多起疑似针对韩国地区Android用户的恶意代码攻击活动",
+          "char_start": 120,
+          "char_end": 150
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "Android用户",
+          "tail_type": "PERSON",
+          "evidence_text": "发现多起疑似针对韩国地区Android用户的恶意代码攻击活动",
+          "char_start": 120,
+          "char_end": 150
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "KaokaoTalk",
+          "tail_type": "MALWARE",
+          "evidence_text": "对其中一个名为KaokaoTalk的木马详细分析后发现",
+          "char_start": 953,
+          "char_end": 980
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "钓鱼页面",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "投递指向钓鱼页面的短链接，诱导用户下载钓鱼页面的APK木马",
+          "char_start": 584,
+          "char_end": 613
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "短链接",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "攻击者会通过短链接的形式发送一个链接",
+          "char_start": 394,
+          "char_end": 412
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "短信",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "本次攻击所使用的恶意APK主要是通过短信和即时通信工具投递",
+          "char_start": 364,
+          "char_end": 393
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "C2 2.56.151.8",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "通过对攻击者C2：2.56.151.8地址的关联分析",
+          "char_start": 2831,
+          "char_end": 2857
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "download-apks.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://download-apks[.]com/KaokaoTalk/",
+          "char_start": 624,
+          "char_end": 662
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "oaass-torrent.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://oaass-torrent[.]com/KakaoTalk.APK",
+          "char_start": 496,
+          "char_end": 536
+        },
+        {
+          "head_name": "KaokaoTalk",
+          "head_type": "MALWARE",
+          "relation_type": "RELATED_TO",
+          "tail_name": "KakaoTalk",
+          "tail_type": "TOOL",
+          "evidence_text": "对其中一个名为KaokaoTalk的木马详细分析后发现，该木马首先会查找并打开官方的KakaoTalk应用以隐藏自身",
+          "char_start": 953,
+          "char_end": 1011
+        },
+        {
+          "head_name": "KONNI攻击活动",
+          "head_type": "CAMPAIGN",
+          "relation_type": "PART_OF",
+          "tail_name": "KONNI",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": 35,
+          "char_end": 63
+        },
+        {
+          "head_name": "KONNI攻击活动",
+          "head_type": "CAMPAIGN",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "ESTsecurity",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "韩国安全厂商ESTsecurity[1]披露了KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": 12,
+          "char_end": 63
+        },
+        {
+          "head_name": "KONNI攻击活动",
+          "head_type": "CAMPAIGN",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "奇安信威胁情报中心红雨滴团队",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "奇安信威胁情报中心红雨滴团队在日常的高级威胁监测过程中，发现多起疑似针对韩国地区Android用户的恶意代码攻击活",
+          "char_start": 92,
+          "char_end": 149
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "即时通信工具",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "本次攻击所使用的恶意APK主要是通过短信和即时通信工具投递",
+          "char_start": 364,
+          "char_end": 393
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "VPS",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "通过分析发现该IP地址其实是一个VPS，这应该是攻击者的第一层跳板，且该机器是一台Linux机器，其2223端口上开放着SSH",
+          "char_start": 2927,
+          "char_end": 2990
+        }
+      ]
+    }
+  ],
+  "notes": "中文黄金集 - kimsuky_001，人工标注，不含 canonical_id。\n1. Android用户将平台限定与用户群体统一为 PERSON，保留韩国目标关系。\n2. UTC+9 仅作为攻击者时区推断保留，不建立 KONNI 的位置关系。\n3. 本 campaign 暂时合并 ESTsecurity 披露的 KONNI Android 活动与红雨滴团队发现的技术一致活动。\n4. 腾讯作为 KakaoTalk 的第二大股东，与本次攻击无直接关系，仅作为 KakaoTalk 的背景实体。\n5. 奇安信威胁情报中心仅作为红雨滴团队名称中的背景机构出现，未作为独立实体纳入；红雨滴团队与该中心不建立 PART_OF 关系。",
+  "golden_version": "1.0",
+  "language": "zh"
+}

@@ -6,6 +6,8 @@
 
 基于大模型的 APT 组织 OSINT 分析、关系发现与证据链研判平台
 
+简体中文 | [English](README.en.md)
+
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -27,23 +29,24 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 
 | 能力 | 当前状态 | 说明 |
 | --- | --- | --- |
-| 目标组织切换 | 已实现 | 支持 APT28、Lazarus、Kimsuky 演示数据 |
+| 目标组织切换 | 已实现 | 支持按 APT28、Lazarus、Kimsuky 查询 SQLite 正式图谱；空库返回空图 |
 | 知识图谱可视化 | 已实现 | 展示实体、关系、时间过滤和路径追踪 |
 | 实体与关系详情 | 已实现 | 支持查看类型、置信度、验证状态和证据 |
 | 行为分析 | 已实现基础页面 | 展示攻击阶段、技术映射和分析结果 |
 | 评测结果 | 已实现 Mock 页面 | 展示实体、关系抽取指标原型和错误样例，当前指标为前端 Mock 数据 |
 | FastAPI API | 已实现 P0 接口 | 提供健康检查、图谱和报告接口 |
-| SQLite 事实源 | 已确定 | 保存系统权威数据，避免图数据库成为唯一事实源 |
+| SQLite 运行时主库 | 已确定 | 保存 canonical graph、证据、导入状态和同步水位 |
 | 文档与候选抽取契约 | 已冻结 | 提供 JSON Schema、样例和关系合法性矩阵 |
 | 自动采集 | 规划中 | 后续接入 HTTP 页面、RSS/Atom 等来源 |
-| Neo4j 多跳查询 | P1 增强 | 仅作为 SQLite canonical graph 的查询增强层 |
+| Neo4j 图查询投影 | P1 增强 | 承担多维查询、关键路径、图算法和增量同步演示 |
 
 ### 核心原则
 
-- **SQLite 是唯一事实源**：文档、切块、抽取结果、实体、关系、证据和分析结果以 SQLite 为准。
+- **事实按职责分层**：Git JSON 保存人工输入及经评审实验档案；SQLite 是运行时 canonical graph、证据和导入状态的权威来源。
 - **候选层与正式图谱层分离**：LLM 输出先进入候选表，经过校验和归一化后才能进入正式实体与关系。
 - **证据链贯穿分析流程**：实体、关系、行为分析和报告结论都应能追溯到 `evidence_ids`。
 - **graph.json 是导出快照**：用于离线样例、演示兜底和 Neo4j 同步输入，不替代 SQLite。
+- **Neo4j 是可重建查询投影**：只接收 SQLite canonical graph 的已验证实体和关系；同步失败不能反向污染 SQLite。
 - **前端只调用 FastAPI**：React 不直接读取 SQLite、`graph.json` 或 Neo4j。
 
 ## 界面预览
@@ -71,7 +74,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
  校验、归一化与证据绑定
           │
           ▼
-       SQLite 事实源
+ SQLite 运行时 canonical graph
           │
      ┌────┴────┐
      ▼         ▼
@@ -116,7 +119,7 @@ Windows PowerShell：
 Copy-Item .env.example .env
 ```
 
-演示数据不依赖 LLM API Key。真实抽取默认使用 DeepSeek V4 Flash；只在本地 `.env`
+启动时只创建 SQLite 表，不自动写入演示数据。真实抽取默认使用 DeepSeek V4 Flash；只在本地 `.env`
 填写 `LLM_API_KEY`，不要把密钥放进命令行、代码或提交记录。
 
 ### 2. 启动服务
@@ -143,16 +146,26 @@ docker compose up
 | 健康检查 | <http://localhost:8000/api/v1/health> |
 | Neo4j Browser | <http://localhost:7474> |
 
-### 3. 初始化或导出演示数据
+### 3. 导入真实抽取结果
 
-在另一个终端执行：
+启动后数据库默认为空。要调用 LLM 抽取、导入 SQLite 并导出图谱快照，执行：
 
 ```bash
-docker compose run --rm backend python scripts/seed_demo_data.py
-docker compose run --rm backend python scripts/export_graph_json.py
+docker compose run --rm backend python scripts/run_llm_extraction.py \
+  --document data/documents/apt28/your-document.json \
+  --import --export-graph --json
 ```
 
-生成文件：
+也可以将已有的 `document.json` 和 `extraction_result.json` 导入：
+
+```bash
+docker compose run --rm backend python scripts/import_extraction_result.py \
+  --document data/documents/apt28/your-document.json \
+  --extraction-result data/extracted/your-extraction-result.json \
+  --export-graph
+```
+
+运行后生成或更新：
 
 ```text
 SQLite 数据库：data/threatgraph_osint.db
@@ -235,7 +248,7 @@ graph.schema.json -> data/graph/graph.json
 │   ├── extracted/        抽取结果
 │   ├── graph/            graph.json 导出快照
 │   └── threatgraph_osint.db
-├── scripts/              数据初始化、导入、转换和导出脚本
+├── scripts/              数据导入、转换和导出脚本
 ├── docs/                 架构、契约、运行和协作文档
 ├── TODO.md               当前任务与进展
 └── docker-compose.yml    本地开发编排配置
@@ -262,7 +275,9 @@ docker compose run --rm frontend npm run format:check
 ### 离线抽取结果校验
 
 ```bash
-docker compose run --rm backend python scripts/validate_extraction_result.py
+docker compose run --rm backend python scripts/validate_extraction_result.py \
+  data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json \
+  --document data/examples/document.apt28.thn.beardshell.example.json
 ```
 
 ### DeepSeek V4 真实抽取与评测
@@ -279,12 +294,14 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
 ```bash
 docker compose run --rm backend python scripts/run_llm_extraction.py \
   --document data/documents/apt28/apt28_080.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --json
 ```
 
-抽取结果仍只进入候选层；被过滤的原始候选会单独写入 `candidate-audit.json` 并在评测中计为
-false positive。需要生成正式图谱时显式追加 `--import --export-graph`。
+抽取结果仍只进入候选层；被过滤的候选会单独写入同一 `run_id` 的 Candidate Audit。当前
+评测器会把其中 rejected 项计入预测数量和 false positive，这是待拆分为 raw/validated 多作用域
+指标的历史口径，不能直接解释为模型本身的最终 F1。需要生成正式图谱时显式追加
+`--import --export-graph`。
 完整操作和评测口径见
 [`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md)。
 

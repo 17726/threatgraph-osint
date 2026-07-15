@@ -1,5 +1,6 @@
 import copy
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -149,6 +150,15 @@ def test_golden_schema_validation_rejects_missing_required_field():
     assert any("schema_version" in error for error in errors)
 
 
+def test_golden_schema_validation_requires_language():
+    golden = copy.deepcopy(load_json(GOLDEN_PATH))
+    del golden["language"]
+
+    errors = validate_golden_schema(golden)
+
+    assert any("language" in error for error in errors)
+
+
 def test_entity_alias_matching_also_matches_relation_endpoints():
     extraction = load_json(EXTRACTION_PATH)
     golden = load_json(GOLDEN_PATH)
@@ -192,6 +202,7 @@ def test_rejected_candidate_audit_items_count_as_false_positives():
     extraction = load_json(EXTRACTION_PATH)
     chunk_id = extraction["chunks"][0]["chunk_id"]
     candidate_audit = {
+        "run_id": extraction["run_id"],
         "doc_id": extraction["doc_id"],
         "chunks": [
             {
@@ -235,12 +246,35 @@ def test_rejected_candidate_audit_items_count_as_false_positives():
     assert result["errors"]["extra_entities"][0]["source"] == "candidate_audit"
 
 
+def test_evaluator_rejects_candidate_audit_from_another_run():
+    extraction = load_json(EXTRACTION_PATH)
+    candidate_audit = {
+        "run_id": "extract-another-run",
+        "doc_id": extraction["doc_id"],
+        "chunks": [],
+    }
+
+    with pytest.raises(ValueError, match="run_id"):
+        evaluate_extraction(
+            extraction,
+            load_json(GOLDEN_PATH),
+            candidate_audit=candidate_audit,
+        )
+
+
 def test_normalize_name_is_case_and_whitespace_insensitive():
     assert normalize_name("  Fancy   BEAR ") == normalize_name("fancy bear")
 
 
-def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path):
-    output_path = tmp_path / "evaluation.json"
+def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        "backend.app.services.extraction_evaluator.now_utc",
+        lambda: datetime(2026, 7, 15, 12, 0, 0, tzinfo=UTC),
+    )
+    output_path = tmp_path / (
+        "evaluation_result-apt28_049-manual-reviewed-1.0-1.0-1.0-"
+        "20260715120000000000.json"
+    )
 
     exit_code = main(
         [
@@ -250,6 +284,7 @@ def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path):
             str(GOLDEN_PATH),
             "--document",
             str(DOCUMENT_PATH),
+            "--allow-legacy-artifacts",
             "--output",
             str(output_path),
             "--min-entity-f1",
@@ -263,15 +298,22 @@ def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path):
     report = load_json(output_path)
     assert report["entity_metrics"]["f1"] == 1.0
     assert report["relation_metrics"]["f1"] == 1.0
+    assert report["extraction"]["schema_version"] == "1.0"
+    assert report["golden"]["golden_version"] == "1.0"
 
 
-def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
+def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path, monkeypatch):
     extraction = load_json(EXTRACTION_PATH)
     audit_path = tmp_path / "candidate-audit.json"
     audit_path.write_text(
         json.dumps(
             {
+                "schema_version": extraction["schema_version"],
+                "run_id": extraction["run_id"],
                 "doc_id": extraction["doc_id"],
+                "model_name": extraction["model_name"],
+                "prompt_version": extraction["prompt_version"],
+                "generated_at": extraction["generated_at"],
                 "chunks": [
                     {
                         "chunk_id": extraction["chunks"][0]["chunk_id"],
@@ -290,7 +332,14 @@ def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
         ),
         encoding="utf-8",
     )
-    output_path = tmp_path / "evaluation-with-audit.json"
+    monkeypatch.setattr(
+        "backend.app.services.extraction_evaluator.now_utc",
+        lambda: datetime(2026, 7, 15, 12, 0, 0, tzinfo=UTC),
+    )
+    output_path = tmp_path / (
+        "evaluation_result-apt28_049-manual-reviewed-1.0-1.0-1.0-"
+        "20260715120000000000.json"
+    )
 
     exit_code = main(
         [
@@ -302,6 +351,7 @@ def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
             str(GOLDEN_PATH),
             "--document",
             str(DOCUMENT_PATH),
+            "--allow-legacy-artifacts",
             "--output",
             str(output_path),
             "--min-entity-f1",
@@ -313,3 +363,67 @@ def test_evaluation_cli_counts_candidate_audit_in_f1_gate(tmp_path):
     report = load_json(output_path)
     assert report["entity_metrics"]["false_positive"] == 1
     assert report["entity_metrics"]["f1"] < 1.0
+
+
+def test_evaluation_cli_defaults_to_versioned_filename(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+
+    exit_code = main(
+        [
+            "--extraction-result",
+            str(EXTRACTION_PATH),
+            "--golden",
+            str(GOLDEN_PATH),
+            "--document",
+            str(DOCUMENT_PATH),
+            "--allow-legacy-artifacts",
+        ]
+    )
+
+    assert exit_code == 0
+    outputs = list((tmp_path / "data/evaluation").glob("evaluation_result-*.json"))
+    assert len(outputs) == 1
+    assert outputs[0].name.startswith(
+        "evaluation_result-apt28_049-manual-reviewed-1.0-1.0-1.0-"
+    )
+
+
+def test_evaluation_cli_rejects_legacy_filenames_without_explicit_opt_in(tmp_path):
+    output_path = tmp_path / "evaluation.json"
+
+    exit_code = main(
+        [
+            "--extraction-result",
+            str(EXTRACTION_PATH),
+            "--golden",
+            str(GOLDEN_PATH),
+            "--document",
+            str(DOCUMENT_PATH),
+            "--output",
+            str(output_path),
+        ]
+    )
+
+    assert exit_code == 1
+    assert not output_path.exists()
+
+
+def test_evaluation_cli_rejects_non_versioned_output_name_with_legacy_inputs(tmp_path):
+    output_path = tmp_path / "evaluation.json"
+
+    exit_code = main(
+        [
+            "--extraction-result",
+            str(EXTRACTION_PATH),
+            "--golden",
+            str(GOLDEN_PATH),
+            "--document",
+            str(DOCUMENT_PATH),
+            "--allow-legacy-artifacts",
+            "--output",
+            str(output_path),
+        ]
+    )
+
+    assert exit_code == 1
+    assert not output_path.exists()

@@ -4,14 +4,14 @@
   "title": "ThreatGraph LLM Extraction Result",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "run_id", "doc_id", "model_name", "prompt_version", "chunks"],
+  "required": ["schema_version", "run_id", "doc_id", "model_name", "prompt_version", "generated_at", "chunks"],
   "properties": {
     "schema_version": {
       "const": "1.0"
     },
     "run_id": {
       "type": "string",
-      "minLength": 1
+      "pattern": "^extract-[A-Za-z0-9._-]+-[A-Za-z0-9._-]+-\\d+\\.\\d+-\\d+\\.\\d+-\\d{20}-[0-9a-f]{8}$"
     },
     "doc_id": {
       "type": "string",
@@ -23,7 +23,11 @@
     },
     "prompt_version": {
       "type": "string",
-      "minLength": 1
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
     },
     "chunks": {
       "type": "array",

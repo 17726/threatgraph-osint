@@ -1,7 +1,7 @@
 # LLM 真实抽取与评测指南
 
 本指南适用于 LLM 抽取与分析组和 QA 组。字段与关系约束仍以
-`docs/prompts/extract-v1.md`、`docs/schemas/extraction-result.schema.json` 和
+`docs/prompts/extract-1.0.md`、`docs/schemas/extraction-result.schema.json` 和
 `docs/schemas/relationship-matrix.md` 为准。
 
 ## 1. 数据链路
@@ -67,7 +67,7 @@ APT28：
 ```bash
 docker compose run --rm backend python scripts/run_llm_extraction.py \
   --document data/documents/apt28/apt28_080.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --json
 ```
 
@@ -75,22 +75,31 @@ Kimsuky 和 Lazarus 分别替换为：
 
 ```text
 data/documents/kimsuky/kimsuky_060.json
-data/evaluation/golden.en.kimsuky_060.json
+data/golden/golden-en-kimsuky_060-1.0-1.0.json
 
 data/documents/lazarus/lazarus_091.json
-data/evaluation/golden.en.lazarus_091.json
+data/golden/golden-en-lazarus_091-1.0-1.0.json
 ```
 
-截至 2026-07-13，最新 `main` 的 Kimsuky golden 已通过门禁；Lazarus golden 仍缺少 chunk
-`char_end`，runner 会在 API 调用前拒绝该输入，待 QA 补齐后再执行。
+当前三份英文 golden 均已通过 schema、关系矩阵和证据位置门禁；如果 runner 在 API 调用前拒绝
+输入，先用独立评测命令定位具体 golden 或 document 契约问题。
 
 命令会写出两类运行工件：
 
 ```text
-data/extracted/extract_<doc_id>_<prompt>_<timestamp>.json
-data/extracted/extract_<doc_id>_<prompt>_<timestamp>.candidate-audit.json
-data/evaluation/evaluation_result.<doc_id>.<model>.<prompt>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
+data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>-candidate-audit.json
+data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_version>-<golden_version>-<timestamp>.json
 ```
+
+JSON 字段中的 `run_id` 是权威运行身份；文件名只提供可读标签。UTC 时间戳用于排序和展示，
+`run_suffix` 用于避免同一微秒内重复运行发生身份碰撞。Extraction Result 与 Candidate Audit
+必须同时匹配 `doc_id` 和 `run_id`，否则禁止组合评测。保存入口会在写文件前检查 Run ID
+可读前缀和 payload 元数据，校验阶段不会重新生成 Run ID。
+
+这些文件不会因为 runner 成功就自动成为 Git 实验档案。只有被用于报告对照、有效负向结论或
+后续回归的 Completed Run，才作为 Promoted Experiment 提交 Git 并经过 PR 评审；普通本地
+调试、失败重试和无结论 Attempt 不提交。
 
 ## 5. 独立评测
 
@@ -99,20 +108,28 @@ data/evaluation/evaluation_result.<doc_id>.<model>.<prompt>.json
 ```bash
 python scripts/evaluate_extraction_against_golden.py \
   --extraction-result data/extracted/<result>.json \
-  --candidate-audit data/extracted/<run>.candidate-audit.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --candidate-audit data/extracted/<run>-candidate-audit.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --document data/documents/apt28/apt28_080.json \
-  --output data/evaluation/evaluation_result.apt28_080.json
 ```
+
+正式工件默认严格校验文件名。仓库 `data/examples/` 中的历史/教学样例使用说明性文件名，只有在
+明确需要评测这些样例时才追加 `--allow-legacy-artifacts`；该参数只跳过文件名比较，不跳过
+Schema、证据、`doc_id` 或 `run_id` 关联校验。Evaluation 输出仍必须使用正式版本化文件名。
 
 实体按“同一 chunk、类型相同、标准化名称或别名相交”做最大基数、再最大匹配分数的一对一
 匹配。关系按“同一 chunk、两端实体已匹配、关系类型完全相同”一对一匹配。证据必须能回到
 `document.clean_text` 且落在 golden 所属 chunk 的字符范围内，但证据文本是否与 golden 使用
 完全相同的句子不参与 F1，以免把正确事实因截取范围不同判错。
 
-评测器显式拒绝重复 `chunk_id`，并在多文档 golden 中只选择当前
-`extraction_result.doc_id` 的 chunks。独立评测不提供 `--candidate-audit` 时，输出只代表已通过
-校验的候选质量，不得表述为原始模型端到端指标。
+评测器显式拒绝重复 `chunk_id`。当前正式 Golden 文件以单篇 Document 为原子；评测器保留对
+历史多文档 payload 的读取能力，但新归档不得继续用多文档文件名。独立评测不提供
+`--candidate-audit` 时，输出只代表已通过校验的候选质量，不得表述为原始模型端到端指标。
+
+当前提供 `--candidate-audit` 时，rejected 项会直接增加预测数量并计作 FP。这一实现最初用于
+避免“先过滤再评测”掩盖模型幻觉，但它无法区分正确候选被误拒、真正幻觉和重复项，所以只是
+历史 raw-like 口径。后续应分别报告 raw emission、validated candidate、accepted graph，并把
+duplicate、rejection reason 和错误拒绝单列；本次命名校验不改变历史指标。
 
 评测前会同时检查 golden 的 schema、关系方向/类型配对、端点实体和原文证据。golden
 不满足当前关系矩阵时直接拒绝评测，不输出看似精确但标准答案本身无效的指标。
@@ -126,7 +143,7 @@ python scripts/evaluate_extraction_against_golden.py \
 ```bash
 docker compose run --rm backend python scripts/run_llm_extraction.py \
   --document data/documents/apt28/apt28_080.json \
-  --golden data/evaluation/golden.en.apt28_080.json \
+  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
   --import --export-graph --json
 ```
 

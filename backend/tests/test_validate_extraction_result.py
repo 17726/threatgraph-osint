@@ -1,6 +1,9 @@
 import copy
+import hashlib
 
 from pathlib import Path
+
+import pytest
 
 from scripts.validate_extraction_result import load_json, validate_payload
 
@@ -8,11 +11,20 @@ from scripts.validate_extraction_result import load_json, validate_payload
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "docs/schemas/extraction-result.schema.json"
 DOCUMENT_PATH = ROOT / "data/examples/document.apt28.thn.beardshell.example.json"
-EXTRACTION_PATH = ROOT / "data/extracted/extraction_result.apt28.thn.beardshell.v1.json"
+EXTRACTION_PATH = (
+    ROOT
+    / "data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json"
+)
 
 
 def _load_valid_payload():
     return load_json(EXTRACTION_PATH), load_json(DOCUMENT_PATH)
+
+
+def _refresh_document_hash(document):
+    document["content_hash"] = "sha256:" + hashlib.sha256(
+        document["clean_text"].encode("utf-8")
+    ).hexdigest()
 
 
 def test_extraction_result_v1_matches_schema_matrix_and_document_text():
@@ -68,10 +80,45 @@ def test_validator_rejects_evidence_text_not_in_document():
     assert any("未出现在 document.clean_text" in error for error in report.errors)
 
 
+def test_validator_rejects_document_without_clean_text():
+    payload, document = _load_valid_payload()
+    document["raw_text"] = document.pop("clean_text")
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert not report.ok
+    assert any("clean_text" in error for error in report.errors)
+
+
+def test_validator_rejects_document_hash_mismatch():
+    payload, document = _load_valid_payload()
+    document["content_hash"] = "sha256:" + "0" * 64
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert not report.ok
+    assert any("content_hash" in error for error in report.errors)
+
+
+@pytest.mark.parametrize(
+    "generated_at",
+    ["not-a-date", "2026-07-15T12:00:00"],
+)
+def test_validator_rejects_generated_at_without_valid_timezone(generated_at):
+    payload, document = _load_valid_payload()
+    payload["generated_at"] = generated_at
+
+    report = validate_payload(payload, schema_path=SCHEMA_PATH, document=document)
+
+    assert not report.ok
+    assert any("generated_at" in error for error in report.errors)
+
+
 def test_validator_accepts_crime_network_relationships():
     payload, document = _load_valid_payload()
     evidence = "APT28 member Operator One controls wallet Alpha and transfers funds to wallet Beta."
     document["clean_text"] += "\n" + evidence
+    _refresh_document_hash(document)
     chunk = payload["chunks"][0]
     chunk["entities"].extend(
         [

@@ -1,9 +1,16 @@
+import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
+import backend.app.main as main_module
+from backend.app.services.demo_store import DemoStore
 
 
-client = TestClient(app)
+client = TestClient(main_module.app)
+
+
+@pytest.fixture(autouse=True)
+def empty_store(tmp_path, monkeypatch):
+    monkeypatch.setattr(main_module, "store", DemoStore(tmp_path / "empty.db"))
 
 
 def test_health_reports_core_components():
@@ -16,26 +23,24 @@ def test_health_reports_core_components():
     assert body["data"]["components"]["sqlite"] == "ok"
 
 
-def test_graph_returns_demo_nodes_edges_and_evidence():
+def test_graph_returns_empty_payload_when_database_has_no_graph_data():
     response = client.get("/api/v1/graph", params={"target": "APT28"})
 
     assert response.status_code == 200
     data = response.json()["data"]
     assert data["schema_version"] == "1.0"
-    assert {node["id"] for node in data["nodes"]} >= {
-        "apt_group:apt28",
-        "technique:t1566",
-    }
-    assert any(edge["source"] == "apt_group:apt28" for edge in data["edges"])
-    assert data["evidence"]
-    assert data["evidence"][0]["source_type"]
+    assert data["nodes"] == []
+    assert data["edges"] == []
+    assert data["evidence"] == []
 
 
-def test_report_returns_markdown_for_target_group():
+def test_report_returns_not_found_when_database_has_no_report():
     response = client.get("/api/v1/reports/APT28")
 
-    assert response.status_code == 200
-    data = response.json()["data"]
-    assert data["target_group"] == "APT28"
-    assert isinstance(data["title"], str)
-    assert isinstance(data["markdown"], str)
+    assert response.status_code == 404
+
+
+def test_generate_report_for_empty_target():
+    response = client.post("/api/v1/reports/APT28/generate")
+
+    assert response.status_code == 404
