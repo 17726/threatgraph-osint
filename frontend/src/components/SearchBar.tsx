@@ -11,7 +11,7 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
   const [results, setResults] = useState<GraphNode[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

@@ -83,3 +83,32 @@ export function fetchEntitySearch(query: string): Promise<GraphNode[]> {
 export function fetchEntity(id: string): Promise<EntityDetail> {
   return getJson<EntityDetail>(`/entities/${encodeURIComponent(id)}`);
 }
+
+export interface PipelineResult {
+  doc_id: string;
+  run_id: string;
+  chunks: number;
+  extracted_entities: number;
+  extracted_relations: number;
+  canonical_entities: number;
+  canonical_relations: number;
+  evidence: number;
+  behavior_patterns: number;
+}
+
+export async function runPipeline(
+  document: File,
+): Promise<PipelineResult> {
+  const formData = new FormData();
+  formData.append("document", document);
+
+  const response = await fetch(`${API_BASE_URL}/pipeline/run`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error(`Pipeline 运行失败: ${response.status}`);
+  }
+  const payload = (await response.json()) as ApiResponse<PipelineResult>;
+  return payload.data;
+}
