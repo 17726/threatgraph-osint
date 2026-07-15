@@ -5,6 +5,7 @@ import backend.app.main as main_module
 from backend.app.core.document_contract import document_content_hash
 from backend.app.services.demo_store import DemoStore
 from backend.app.services.graph_query_service import GraphQueryService
+from backend.app.services.pipeline_service import PipelineService
 
 
 client = TestClient(main_module.app)
@@ -41,6 +42,12 @@ def empty_store(tmp_path, monkeypatch):
         main_module,
         "graph_query_service",
         GraphQueryService(store.db_path),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        main_module,
+        "pipeline_service",
+        PipelineService(store.db_path, runner=lambda **_context: {}),
         raising=False,
     )
 
@@ -209,3 +216,43 @@ def test_graph_path_passes_sqlite_filters(monkeypatch):
         "relation_types": ["USES", "TARGETS"],
         "min_confidence": 0.7,
     }
+
+
+def test_pipeline_run_executes_one_manual_operation(monkeypatch):
+    calls = {}
+
+    def run_sync(**kwargs):
+        calls.update(kwargs)
+        return {
+            "job_id": "job-test",
+            "operation": "extract_and_build",
+            "status": "succeeded",
+        }
+
+    monkeypatch.setattr(main_module.pipeline_service, "run_sync", run_sync)
+
+    response = client.post(
+        "/api/v1/pipeline/run",
+        json={"doc_id": "doc-1", "use_cache": False},
+    )
+
+    assert response.status_code == 200
+    assert calls == {
+        "doc_id": "doc-1",
+        "target_group": None,
+        "use_cache": False,
+    }
+    assert response.json()["data"]["operation"] == "extract_and_build"
+
+
+def test_pipeline_run_rejects_missing_scope_before_execution():
+    response = client.post("/api/v1/pipeline/run", json={})
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "ERR_VALIDATION"
+
+
+def test_pipeline_status_returns_not_found_for_unknown_job():
+    response = client.get("/api/v1/pipeline/status/missing-job")
+
+    assert response.status_code == 404

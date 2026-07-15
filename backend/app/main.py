@@ -6,6 +6,7 @@ from backend.app.core.document_contract import require_valid_document
 from backend.app.core.response import error_response, success_response
 from backend.app.services.demo_store import DemoStore
 from backend.app.services.graph_query_service import GraphQueryService
+from backend.app.services.pipeline_service import PipelineService
 
 
 app = FastAPI(
@@ -24,6 +25,7 @@ app.add_middleware(
 
 store = DemoStore()
 graph_query_service = GraphQueryService(store.db_path)
+pipeline_service = PipelineService(store.db_path)
 
 
 def _split_query_values(values: list[str]) -> list[str]:
@@ -174,6 +176,31 @@ def analysis_threat_assessment(target_group: str):
 @app.post("/api/v1/analysis/{target_group}/run")
 def analysis_run(target_group: str):
     return success_response({"target_group": target_group, "status": "analysis_baseline_ready"})
+
+
+@app.post("/api/v1/pipeline/run")
+def pipeline_run(payload: dict = Body(default={})):
+    try:
+        result = pipeline_service.run_sync(
+            doc_id=payload.get("doc_id"),
+            target_group=payload.get("target_group"),
+            use_cache=payload.get("use_cache", True),
+        )
+    except ValueError as exc:
+        return JSONResponse(
+            status_code=400,
+            content=error_response("ERR_VALIDATION", str(exc)),
+        )
+    return success_response(result)
+
+
+@app.get("/api/v1/pipeline/status/{job_id}")
+def pipeline_status(job_id: str):
+    try:
+        result = pipeline_service.status(job_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return success_response(result)
 
 
 @app.post("/api/v1/documents/import")
