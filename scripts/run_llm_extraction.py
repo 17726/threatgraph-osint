@@ -144,7 +144,7 @@ def run_single(
             "evidence": pipeline_summary.evidence,
         }
         if export_graph:
-            graph_path = export_graph_json(db_path, DEFAULT_OUTPUT_PATH, seed_demo=False)
+            graph_path = export_graph_json(db_path, DEFAULT_OUTPUT_PATH)
             summary["graph_export"] = str(graph_path)
             progress(f"  图谱已导出: {graph_path}")
     else:

@@ -297,10 +297,9 @@ DEMO_REPORTS = [
 
 
 class DemoStore:
-    def __init__(self, db_path: str | Path | None = None, seed_demo: bool = True) -> None:
+    def __init__(self, db_path: str | Path | None = None) -> None:
         configured_path = db_path or os.getenv("SQLITE_DB_PATH") or DEFAULT_DB_PATH
         self.db_path = Path(configured_path)
-        self.seed_demo = seed_demo
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.initialize()
 
@@ -452,8 +451,6 @@ class DemoStore:
                 """
             )
             self._ensure_columns(connection)
-            if self.seed_demo:
-                self.seed_demo_data(connection)
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:
         migrations = {
@@ -1102,7 +1099,7 @@ class DemoStore:
             if node["name"].lower() == normalized_target or node["id"].lower().endswith(f":{normalized_target}")
         ]
         if not target_nodes:
-            return nodes, edges
+            return [], []
 
         target_ids = {node["id"] for node in target_nodes}
         visible_edges = [

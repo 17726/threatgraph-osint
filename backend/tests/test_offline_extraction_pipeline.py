@@ -190,11 +190,11 @@ def test_offline_pipeline_graph_export_uses_real_sample_without_demo_seed(tmp_pa
     assert graph["analysis"]["inferred_relations"] == []
 
 
-def test_offline_pipeline_updates_api_graph_store_when_seed_demo_disabled(tmp_path):
+def test_offline_pipeline_updates_api_graph_store(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
 
-    graph = DemoStore(db_path, seed_demo=False).get_graph(target="APT28")
+    graph = DemoStore(db_path).get_graph(target="APT28")
 
     assert len(graph["nodes"]) == 11
     assert len(graph["edges"]) == 10
@@ -206,7 +206,7 @@ def test_offline_pipeline_generates_report_cache(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
 
-    report = DemoStore(db_path, seed_demo=False).get_report("APT28")
+    report = DemoStore(db_path).get_report("APT28")
 
     assert report is not None
     assert report["title"] == "APT28 离线候选抽取报告"
