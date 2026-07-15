@@ -6,10 +6,45 @@ from pathlib import Path
 
 import pytest
 
+from backend.app.services import pipeline_service as pipeline_service_module
 from backend.app.services.pipeline_service import (
     DEFAULT_OPERATION,
     PipelineService,
 )
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+APT28_DOCUMENT_PATH = REPO_ROOT / "data/documents/apt28/apt28_080.json"
+APT28_EXTRACTION_PATH = REPO_ROOT / (
+    "data/extracted/"
+    "extract-apt28_080-deepseek-v4-flash-1.0-1.0-"
+    "20260714075123666577-c463deb3.json"
+)
+APT28_AUDIT_PATH = REPO_ROOT / (
+    "data/extracted/"
+    "extract-apt28_080-deepseek-v4-flash-1.0-1.0-"
+    "20260714075123666577-c463deb3-candidate-audit.json"
+)
+
+
+def _copy_json(source: Path, target: Path) -> dict:
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return payload
+
+
+def _selector():
+    selector = getattr(
+        pipeline_service_module,
+        "select_reviewed_extraction",
+        None,
+    )
+    assert callable(selector), "缺少显式的 reviewed 工件选择器"
+    return selector
 
 
 def test_pipeline_schema_is_persisted(tmp_path):
@@ -221,6 +256,98 @@ def test_reviewed_mode_uses_existing_result_without_calling_llm(tmp_path):
     assert job["operation"] == "import_extraction_and_build"
     assert calls == [(str(document_path), str(extraction_path))]
     service.close()
+
+
+@pytest.mark.parametrize(
+    "doc_id",
+    ["apt28_080", "kimsuky_001", "lazarus_001"],
+)
+def test_reviewed_pipeline_builds_fixed_course_sample(tmp_path, doc_id):
+    service = PipelineService(tmp_path / f"{doc_id}.db")
+
+    result = service.run_sync(doc_id=doc_id, extraction_mode="reviewed")
+
+    assert result["status"] == "succeeded", result["error"]
+    assert result["operation"] == "import_extraction_and_build"
+    summary = result["result"]["summaries"][0]
+    assert summary["canonical_entities"] > 0
+    assert summary["canonical_relations"] > 0
+    assert summary["evidence"] > 0
+    service.close()
+
+
+def test_reviewed_selector_ignores_candidate_audit(tmp_path):
+    document = json.loads(APT28_DOCUMENT_PATH.read_text(encoding="utf-8"))
+    valid_path = tmp_path / "data/extracted/extract-apt28_080-reviewed.json"
+    audit_path = (
+        tmp_path / "data/extracted/extract-apt28_080-candidate-audit.json"
+    )
+    _copy_json(APT28_EXTRACTION_PATH, valid_path)
+    _copy_json(APT28_AUDIT_PATH, audit_path)
+
+    selected = _selector()(tmp_path, "apt28_080", document)
+
+    assert selected == valid_path
+
+
+def test_reviewed_selector_rejects_multiple_valid_candidates(tmp_path):
+    document = json.loads(APT28_DOCUMENT_PATH.read_text(encoding="utf-8"))
+    first_path = tmp_path / "data/extracted/extract-apt28_080-first.json"
+    second_path = tmp_path / "data/extracted/extract-apt28_080-second.json"
+    _copy_json(APT28_EXTRACTION_PATH, first_path)
+    second = _copy_json(APT28_EXTRACTION_PATH, second_path)
+    second["run_id"] = (
+        "extract-apt28_080-deepseek-v4-flash-1.0-1.0-"
+        "20260714075123666577-deadbeef"
+    )
+    second_path.write_text(
+        json.dumps(second, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="多个合法已审核抽取结果") as exc_info:
+        _selector()(tmp_path, "apt28_080", document)
+
+    assert "c463deb3" in str(exc_info.value)
+    assert "deadbeef" in str(exc_info.value)
+
+
+def test_reviewed_selector_uses_explicit_manifest_choice(tmp_path):
+    document = json.loads(APT28_DOCUMENT_PATH.read_text(encoding="utf-8"))
+    _copy_json(
+        APT28_DOCUMENT_PATH,
+        tmp_path / "data/documents/apt28/apt28_080.json",
+    )
+    first_path = tmp_path / "data/extracted/extract-apt28_080-first.json"
+    selected_path = tmp_path / "data/extracted/extract-apt28_080-selected.json"
+    _copy_json(APT28_EXTRACTION_PATH, first_path)
+    _copy_json(APT28_EXTRACTION_PATH, selected_path)
+    manifest_path = tmp_path / "config/course-demo.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0",
+                "samples": [
+                    {
+                        "target_group": "APT28",
+                        "doc_id": "apt28_080",
+                        "document": "data/documents/apt28/apt28_080.json",
+                        "reviewed_extraction": str(
+                            selected_path.relative_to(tmp_path)
+                        ).replace("\\", "/"),
+                    }
+                ],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    selected = _selector()(tmp_path, "apt28_080", document)
+
+    assert selected == selected_path
 
 
 def test_live_mode_calls_llm_and_uses_temporary_extraction_file(tmp_path):

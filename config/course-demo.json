@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "samples": [
+    {
+      "target_group": "APT28",
+      "doc_id": "apt28_080",
+      "document": "data/documents/apt28/apt28_080.json",
+      "reviewed_extraction": "data/extracted/extract-apt28_080-deepseek-v4-flash-1.0-1.0-20260714075123666577-c463deb3.json"
+    },
+    {
+      "target_group": "Kimsuky",
+      "doc_id": "kimsuky_001",
+      "document": "data/documents/kimsuky/kimsuky_001.json",
+      "reviewed_extraction": "data/extracted/extract-kimsuky_001-deepseek-v4-flash-1.0-1.0-20260714080134257073-c920384d.json"
+    },
+    {
+      "target_group": "Lazarus",
+      "doc_id": "lazarus_001",
+      "document": "data/documents/lazarus/lazarus_001.json",
+      "reviewed_extraction": "data/extracted/extract-lazarus_001-deepseek-v4-flash-1.0-1.0-20260714080135364375-538cfcc0.json"
+    }
+  ]
+}

@@ -66,6 +66,13 @@ flowchart LR
 
 `reviewed` 不会隐式回退到 `live`，`live` 也不会因为存在缓存而跳过模型调用。这样答辩时可以准确说明当前展示的是可复现结果还是现场模型结果。
 
+### `reviewed` 工件选择
+
+1. 课程固定样本使用 `config/course-demo.json` 中明确的 Document/Extraction 对，不按文件名或修改时间猜测“最新”结果。
+2. 清单外文档会排除 `*-candidate-audit.json`，再使用现有 extraction_result 导入契约校验候选文件。
+3. 只有一份合法候选时才自动选择；存在多份合法结果时列出 `run_id` 并失败，由评审者显式加入清单。
+4. 清单中的路径必须位于仓库内，Document 和 Extraction 都必须通过导入契约校验。
+
 ## 5. 数据进入演示白名单的门槛
 
 1. 文档必须通过 `document.schema.json` 和 `content_hash` 校验。
