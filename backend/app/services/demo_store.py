@@ -433,7 +433,7 @@ class DemoStore:
                   target_group TEXT NOT NULL,
                   title TEXT NOT NULL,
                   markdown TEXT NOT NULL,
-                  generated_at TEXT,
+                  generated_at TEXT NOT NULL DEFAULT '',
                   graph_version TEXT NOT NULL
                 );
 
@@ -841,12 +841,10 @@ class DemoStore:
             "title": row["title"],
             "markdown": row["markdown"],
         }
-        generated_at = row["generated_at"]
         sections = self.get_report_sections(target_group)
         if sections:
             result["sections"] = sections
-        if generated_at:
-            result["generated_at"] = generated_at
+        result["generated_at"] = row["generated_at"] or ""
         return result
 
     def get_report_sections(self, target_group: str) -> list[dict[str, Any]]:
@@ -901,7 +899,7 @@ class DemoStore:
 
             if not result.get("_llm_generated", True):
                 existing = connection.execute(
-                    "SELECT report_id FROM reports WHERE target_group = ? AND generated_at IS NOT NULL",
+                    "SELECT report_id FROM reports WHERE target_group = ? AND generated_at != ''",
                     (target_group,),
                 ).fetchone()
                 if existing:
