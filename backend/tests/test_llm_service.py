@@ -310,6 +310,13 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
     assert len(result["chunks"][0]["entities"]) == 2
     assert len(result["chunks"][0]["relations"]) == 1
     assert service.last_candidate_audit is not None
+    assert service.last_api_observation["calls"] == 1
+    assert service.last_api_observation["duration_ms"] >= 0
+    assert service.last_api_observation["usage"] == {
+        "prompt_tokens": 10,
+        "completion_tokens": 5,
+        "total_tokens": 15,
+    }
     audit_path = service.save_candidate_audit(tmp_path)
     saved_audit = json.loads(audit_path.read_text(encoding="utf-8"))
     assert saved_audit["run_id"] == result["run_id"]

@@ -549,6 +549,28 @@ class LLMExtractionService:
         self.system_prompt = load_system_prompt(prompt_path)
         self.last_warnings: list[str] = []
         self.last_candidate_audit: dict[str, Any] | None = None
+        self.last_api_observation: dict[str, Any] = {}
+        self._reset_api_observation()
+
+    def _reset_api_observation(self) -> None:
+        self.last_api_observation = {
+            "calls": 0,
+            "duration_ms": 0.0,
+            "usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            },
+        }
+
+    def _accumulate_usage(self, usage: object) -> None:
+        if not isinstance(usage, dict):
+            return
+        totals = self.last_api_observation["usage"]
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+            value = usage.get(key)
+            if isinstance(value, int):
+                totals[key] += value
 
     def _require_api_key(self) -> None:
         if not self.api_key.strip():
@@ -563,6 +585,7 @@ class LLMExtractionService:
     def preflight(self) -> dict[str, Any]:
         """Make a minimal real request without storing the credential or response."""
         self._require_api_key()
+        self._reset_api_observation()
         content, metadata = self._call_api(
             [
                 {"role": "system", "content": "Return JSON only."},
@@ -589,6 +612,7 @@ class LLMExtractionService:
         """Extract candidate entities and relations from one document."""
         self._require_api_key()
         ensure_version(prompt_version, field_name="prompt_version")
+        self._reset_api_observation()
         self.last_warnings = []
         self.last_candidate_audit = None
         doc_id = document["doc_id"]
@@ -781,29 +805,40 @@ class LLMExtractionService:
         if self.base_url.startswith("https://api.deepseek.com"):
             body["thinking"] = {"type": "disabled"}
 
-        with httpx.Client(
-            timeout=self.timeout,
-            trust_env=self.trust_env,
-            transport=self.transport,
-        ) as client:
-            response = client.post(
-                f"{self.base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=body,
+        request_started = time.perf_counter()
+        try:
+            with httpx.Client(
+                timeout=self.timeout,
+                trust_env=self.trust_env,
+                transport=self.transport,
+            ) as client:
+                response = client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json=body,
+                )
+        finally:
+            elapsed_ms = (time.perf_counter() - request_started) * 1000
+            self.last_api_observation["calls"] += 1
+            self.last_api_observation["duration_ms"] = round(
+                self.last_api_observation["duration_ms"] + elapsed_ms,
+                3,
             )
-            try:
-                response.raise_for_status()
-            except httpx.HTTPStatusError as exc:
-                detail = self._safe_error_text(response.text.strip(), limit=500)
-                raise httpx.HTTPStatusError(
-                    f"LLM API 返回 HTTP {response.status_code}: {detail}",
-                    request=exc.request,
-                    response=exc.response,
-                ) from exc
-            payload = response.json()
+
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            detail = self._safe_error_text(response.text.strip(), limit=500)
+            raise httpx.HTTPStatusError(
+                f"LLM API 返回 HTTP {response.status_code}: {detail}",
+                request=exc.request,
+                response=exc.response,
+            ) from exc
+        payload = response.json()
+        self._accumulate_usage(payload.get("usage"))
 
         try:
             content = payload["choices"][0]["message"]["content"]

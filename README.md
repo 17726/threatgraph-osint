@@ -170,7 +170,13 @@ docker compose run --rm backend python scripts/import_extraction_result.py \
 ```text
 SQLite 数据库：data/threatgraph_osint.db
 图谱快照：data/graph/graph.json
+运行摘要：data/run_logs/run-log-<run_id>.json
 ```
+
+运行摘要记录文档加载、LLM、Golden 评测、SQLite 导入、图谱导出和总耗时，
+并聚合本次 LLM API 调用次数与 Token 使用量。`data/run_logs/` 是本机运行产物，
+默认不提交到 Git；如需临时输出到其他目录，可增加
+`--run-log-dir <目录>`。
 
 ### 4. 停止服务
 
