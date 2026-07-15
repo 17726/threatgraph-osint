@@ -218,31 +218,47 @@ def test_graph_path_passes_sqlite_filters(monkeypatch):
     }
 
 
-def test_pipeline_run_executes_one_manual_operation(monkeypatch):
+def test_pipeline_run_submits_one_background_operation(monkeypatch):
     calls = {}
 
-    def run_sync(**kwargs):
+    def submit_background(**kwargs):
         calls.update(kwargs)
         return {
             "job_id": "job-test",
-            "operation": "extract_and_build",
-            "status": "succeeded",
+            "operation": "import_extraction_and_build",
+            "status": "running",
         }
 
-    monkeypatch.setattr(main_module.pipeline_service, "run_sync", run_sync)
+    monkeypatch.setattr(
+        main_module.pipeline_service,
+        "submit_background",
+        submit_background,
+    )
 
+    response = client.post(
+        "/api/v1/pipeline/run",
+        json={"doc_id": "doc-1", "extraction_mode": "reviewed"},
+    )
+
+    assert response.status_code == 202
+    assert calls == {
+        "doc_id": "doc-1",
+        "target_group": None,
+        "extraction_mode": "reviewed",
+    }
+    assert response.json()["data"]["operation"] == "import_extraction_and_build"
+    assert response.json()["data"]["status"] == "running"
+
+
+def test_pipeline_run_rejects_ambiguous_use_cache_flag():
     response = client.post(
         "/api/v1/pipeline/run",
         json={"doc_id": "doc-1", "use_cache": False},
     )
 
-    assert response.status_code == 200
-    assert calls == {
-        "doc_id": "doc-1",
-        "target_group": None,
-        "use_cache": False,
-    }
-    assert response.json()["data"]["operation"] == "extract_and_build"
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "ERR_VALIDATION"
+    assert "extraction_mode" in response.json()["error"]["message"]
 
 
 def test_pipeline_run_rejects_missing_scope_before_execution():

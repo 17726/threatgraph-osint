@@ -191,19 +191,45 @@ GET  /api/v1/pipeline/status/{job_id}
 ```json
 {
   "doc_id": "apt28_049",
-  "use_cache": true
+  "extraction_mode": "reviewed"
 }
 ```
 
 说明：
 
-1. P0 只暴露一个真实复合操作 `extract_and_build`，内部复用现有离线抽取建图流水线；请求不接受伪步骤数组。
-2. `doc_id` 和 `target_group` 必须且只能提供一个。按目标组织运行时，按 `doc_id` 排序处理 SQLite 中匹配的文档。
-3. 本阶段同步执行并返回最终任务状态；`pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息，状态接口可按 `job_id` 重查。
-4. 同一作用域、操作和 `use_cache` 的 `pending` / `running` 请求复用活动任务；执行前通过条件更新原子认领，避免同一任务被重复执行。
-5. 服务启动时把遗留的 `running` 任务标记为中断失败，不把未知进度伪装成可恢复任务。
-6. 默认执行只消费已有的标准文档和已审核抽取结果，不自动调用真实 LLM；`use_cache=false` 也不构成调用外部模型的授权。
-7. 所有事实和任务状态写入 SQLite；临时标准文档使用系统临时目录，不新增 `data/pipeline_*` 运行时目录。
+1. 前端先调用文档导入接口，再由用户显式调用本接口；文档导入不会自动产生 LLM 费用。
+2. 接口创建后台任务并返回 HTTP 202。调用方使用返回的 `job_id` 轮询状态接口，直到 `succeeded` 或 `failed`。
+3. `extraction_mode=reviewed` 只消费仓库中已有的已审核抽取结果，真实操作名为 `import_extraction_and_build`；缺少已审核结果时明确失败，不隐式调用 LLM。
+4. `extraction_mode=live` 显式调用后端配置的 `LLMExtractionService`，真实操作名为 `extract_and_build`；模型输出先通过 extraction_result 契约校验，再由现有 `OfflineExtractionPipeline` 归一化并写入 SQLite。
+5. `use_cache` 已废弃且会返回 HTTP 400。抽取模式必须使用含义明确的 `reviewed` 或 `live`，不能用布尔值同时表达“缓存偏好”和“外部调用授权”。
+6. `doc_id` 和 `target_group` 必须且只能提供一个。为避免一次误触发大量模型调用，`live` 只允许 `doc_id`；`reviewed` 可按目标组织运行，并按 `doc_id` 排序处理 SQLite 中的匹配文档。
+7. 同一作用域和抽取模式的 `pending` / `running` 请求复用活动任务，且只向后台执行器提交一次；执行前仍通过条件更新原子认领。
+8. `pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息。服务启动时把遗留的 `running` 标记为中断失败；服务正常关闭时等待在途任务结束。
+9. `live` 模式产生的 extraction_result 只写入系统临时目录，导入完成后删除；canonical 事实和任务状态写入 SQLite，不新增 `data/pipeline_*` 运行时目录。
+10. 流水线只有一个真实复合步骤，不为已经包含在离线流水线中的归一化、建图、分析和报告伪造独立成功状态。
+
+提交成功响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "job_id": "job_0123456789abcdef",
+    "doc_id": "apt28_049",
+    "target_group": null,
+    "extraction_mode": "reviewed",
+    "operation": "import_extraction_and_build",
+    "status": "running"
+  }
+}
+```
+
+状态值：
+
+```text
+pending -> running -> succeeded
+                   -> failed
+```
 
 ---
 

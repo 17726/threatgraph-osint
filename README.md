@@ -323,6 +323,7 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
 | [`docs/architecture.md`](docs/architecture.md) | 系统架构、数据流和分层边界 |
 | [`docs/api-contract.md`](docs/api-contract.md) | FastAPI 接口契约 |
 | [`docs/data-contract.md`](docs/data-contract.md) | SQLite 数据层契约 |
+| [`docs/demo-flow.md`](docs/demo-flow.md) | 课程全链路演示路径、当前实现边界与数据门槛 |
 | [`docs/schemas/README.md`](docs/schemas/README.md) | JSON Schema 与样例说明 |
 | [`docs/docker-runtime.md`](docs/docker-runtime.md) | Docker Compose 运行契约 |
 | [`docs/team-workflow.md`](docs/team-workflow.md) | 小组职责与协作流程 |
