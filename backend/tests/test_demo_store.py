@@ -72,3 +72,31 @@ def test_unknown_target_does_not_return_unrelated_graph(tmp_path):
     assert graph["nodes"] == []
     assert graph["edges"] == []
     assert graph["evidence"] == []
+
+
+def test_graph_target_matches_entity_alias(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    DemoStore(db_path)
+    with sqlite3.connect(db_path) as connection:
+        connection.execute(
+            """
+            INSERT INTO entities (
+              entity_id, name, type, aliases_json, description, confidence,
+              source_count, tags_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "apt_group:fancy-bear",
+                "Fancy Bear",
+                "APT_GROUP",
+                '["APT28"]',
+                "",
+                1.0,
+                1,
+                "[]",
+            ),
+        )
+
+    graph = DemoStore(db_path).get_graph(target="APT28")
+
+    assert [node["id"] for node in graph["nodes"]] == ["apt_group:fancy-bear"]

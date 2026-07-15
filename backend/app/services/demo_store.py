@@ -1105,7 +1105,9 @@ class DemoStore:
         target_nodes = [
             node
             for node in nodes
-            if node["name"].lower() == normalized_target or node["id"].lower().endswith(f":{normalized_target}")
+            if node["name"].lower() == normalized_target
+            or node["id"].lower().endswith(f":{normalized_target}")
+            or normalized_target in {alias.lower() for alias in node["aliases"]}
         ]
         if not target_nodes:
             return [], []
