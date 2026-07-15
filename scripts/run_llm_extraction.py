@@ -223,6 +223,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="覆盖 LLM_RELATION_REVIEW_PASSES",
     )
     parser.add_argument(
+        "--heartbeat-seconds",
+        type=float,
+        default=30.0,
+        help="LLM 请求等待期间的心跳输出间隔；设为 0 可关闭",
+    )
+    parser.add_argument(
         "--trust-env",
         action=argparse.BooleanOptionalAction,
         default=None,
@@ -271,6 +277,8 @@ def main(argv: list[str] | None = None) -> int:
         max_output_tokens=args.max_output_tokens,
         relation_review_passes=args.relation_review_passes,
         trust_env=args.trust_env,
+        heartbeat_interval_seconds=args.heartbeat_seconds,
+        progress_callback=progress,
     )
 
     try:

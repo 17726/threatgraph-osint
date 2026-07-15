@@ -1,4 +1,5 @@
 import json
+import time
 from pathlib import Path
 
 import httpx
@@ -323,6 +324,71 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
     assert saved_audit["generated_at"] == result["generated_at"]
     assert audit_path.name == f"{result['run_id']}-candidate-audit.json"
     assert saved_audit["chunks"][0]["rejected_entities"] == []
+
+
+def test_slow_api_request_emits_heartbeat_progress():
+    messages: list[str] = []
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        time.sleep(0.04)
+        return api_response({"ok": True})
+
+    service = LLMExtractionService(
+        base_url="https://example.test/v1",
+        api_key="test-secret",
+        model="test-model",
+        max_retries=1,
+        relation_review_passes=0,
+        heartbeat_interval_seconds=0.01,
+        progress_callback=messages.append,
+        transport=httpx.MockTransport(handler),
+    )
+
+    service.preflight()
+
+    assert any("API 请求已等待" in message for message in messages)
+
+
+def test_extract_reports_retry_attempts(monkeypatch):
+    messages: list[str] = []
+    calls = 0
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return httpx.Response(
+                200,
+                json={
+                    "model": "test-model",
+                    "choices": [
+                        {"message": {"content": "not-json"}, "finish_reason": "stop"}
+                    ],
+                    "usage": {
+                        "prompt_tokens": 10,
+                        "completion_tokens": 5,
+                        "total_tokens": 15,
+                    },
+                },
+            )
+        return api_response({"entities": [], "relations": []})
+
+    monkeypatch.setattr("backend.app.services.llm_service.time.sleep", lambda _seconds: None)
+    service = LLMExtractionService(
+        base_url="https://example.test/v1",
+        api_key="test-secret",
+        model="test-model",
+        max_retries=2,
+        relation_review_passes=0,
+        progress_callback=messages.append,
+        transport=httpx.MockTransport(handler),
+    )
+
+    service.extract(build_document("doc", "APT28 activity."))
+
+    assert any("开始第 1/2 次抽取请求" in message for message in messages)
+    assert any("第 1/2 次抽取请求失败" in message for message in messages)
+    assert any("开始第 2/2 次抽取请求" in message for message in messages)
 
 
 def test_generate_run_id_uses_versioned_artifact_contract():

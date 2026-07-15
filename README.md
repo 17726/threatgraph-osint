@@ -178,6 +178,9 @@ SQLite 数据库：data/threatgraph_osint.db
 默认不提交到 Git；如需临时输出到其他目录，可增加
 `--run-log-dir <目录>`。
 
+LLM 请求等待期间默认每 30 秒输出一次心跳，并在重试时显示尝试序号和失败原因。
+可使用 `--heartbeat-seconds <秒数>` 调整间隔，设为 `0` 可关闭心跳。
+
 ### 4. 停止服务
 
 ```bash
