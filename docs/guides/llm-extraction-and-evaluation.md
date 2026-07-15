@@ -33,7 +33,7 @@ API 请求采用紧凑草稿，模型只生成实体/关系语义字段。`run_i
 LLM_API_KEY=<your-key>
 LLM_BASE_URL=https://api.deepseek.com
 LLM_MODEL=deepseek-v4-flash
-LLM_MAX_OUTPUT_TOKENS=32768
+LLM_MAX_OUTPUT_TOKENS=16384
 LLM_RELATION_REVIEW_PASSES=0
 ```
 
@@ -53,8 +53,10 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
 预检只发出一个最小 JSON 请求，不保存密钥和模型内容。通过时返回实际响应模型和 token
 用量；401、余额不足、模型不存在和网络错误都会以非零退出码失败。
 
-长文档输出达到 `LLM_MAX_OUTPUT_TOKENS` 时会被明确判定为截断；纠错重试会在 65536
-上限内翻倍输出预算，不会把残缺 JSON 写入候选层。提高该值时应同时记录运行成本和文档规模。
+长文档输出达到 `LLM_MAX_OUTPUT_TOKENS` 时会被明确判定为截断；纠错重试保持相同输出预算，
+并要求模型压缩候选和证据后从头生成完整 JSON，不会把残缺 JSON 写入候选层。默认 16384
+足以覆盖当前 Golden 的候选规模，同时避免失控输出把单次请求拖到数分钟。提高该值时应同时
+记录运行成本和文档规模。
 
 关系复核是可选实验能力：设为 `LLM_RELATION_REVIEW_PASSES=1` 后，只能在首轮已通过证据
 校验的实体之间补关系，不能新增实体。当前默认关闭，因为它会增加调用成本，且现有小样本上

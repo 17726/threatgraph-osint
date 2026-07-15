@@ -40,6 +40,10 @@ DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-v4-flash"
 
 
+class LLMResponseTruncatedError(ValueError):
+    """The provider stopped before completing the requested JSON response."""
+
+
 def load_schema(schema_path: Path | None = None) -> dict[str, Any]:
     return load_json(schema_path or DEFAULT_EXTRACTION_SCHEMA_PATH)
 
@@ -508,7 +512,9 @@ candidate_status、validation_status 和 validation_errors，再校验最终 ext
 }}
 
 同一实体和同一关系只输出一次。禁止枚举关系矩阵；原文没有明示的关系不要输出。
-单轮最多输出 80 个实体和 80 个关系。关系复核会另行补漏，不要为了追求数量降低证据标准。
+单轮最多输出 48 个实体和 48 个关系。description 最多 160 个字符，mention_text 最多
+120 个字符，evidence_text 最多 400 个字符且必须是最短连续原文证据。不要复制整段原文，
+不要为了追求数量降低证据标准。
 
 <chunk_text>
 {clean_text}
@@ -540,7 +546,7 @@ class LLMExtractionService:
         self.timeout = timeout or float(os.getenv("LLM_TIMEOUT_SECONDS", "120"))
         self.max_retries = max_retries or int(os.getenv("LLM_MAX_RETRIES", "3"))
         self.max_output_tokens = max_output_tokens or int(
-            os.getenv("LLM_MAX_OUTPUT_TOKENS", "32768")
+            os.getenv("LLM_MAX_OUTPUT_TOKENS", "16384")
         )
         self.relation_review_passes = (
             relation_review_passes
@@ -660,7 +666,7 @@ class LLMExtractionService:
 
         last_error: Exception | None = None
         for attempt in range(self.max_retries):
-            attempt_max_tokens = min(self.max_output_tokens * (2**attempt), 65536)
+            attempt_max_tokens = self.max_output_tokens
             self._emit_progress(
                 f"  开始第 {attempt + 1}/{self.max_retries} 次抽取请求"
                 f"（max_tokens={attempt_max_tokens}）"
@@ -671,7 +677,7 @@ class LLMExtractionService:
                     max_tokens=attempt_max_tokens,
                 )
                 if metadata.get("finish_reason") == "length":
-                    raise ValueError(
+                    raise LLMResponseTruncatedError(
                         f"LLM 输出达到 max_tokens={attempt_max_tokens}，JSON 被截断"
                     )
                 chunk_result, chunk_audit = parse_llm_response_with_audit(
@@ -717,13 +723,24 @@ class LLMExtractionService:
                         f"  第 {attempt + 1}/{self.max_retries} 次抽取请求失败，"
                         f"{retry_delay} 秒后重试：{error_detail}"
                     )
+                    if isinstance(exc, LLMResponseTruncatedError):
+                        retry_instruction = (
+                            "上一次输出因过长而被截断。请在相同 token 预算内从头生成更紧凑的"
+                            "完整 JSON；最多保留 48 个高置信实体和 48 个有直接证据的关系，"
+                            "description、mention_text 和 evidence_text 必须遵守长度限制。"
+                            "不要复制整段原文，不要枚举关系，不要增加输出数量。"
+                        )
+                    else:
+                        retry_instruction = (
+                            "上一次输出未通过校验。请重新生成完整且可解析的 JSON；"
+                            "不要输出 Markdown，不要省略必填字段，不要在 JSON 后追加文字。"
+                        )
                     messages.append(
                         {
                             "role": "user",
                             "content": (
-                                "上一次输出未通过校验。请重新生成完整且可解析的 JSON；"
-                                "不要输出 Markdown，不要省略必填字段，不要在 JSON 后追加文字。"
-                                f"校验错误：{error_detail}"
+                                retry_instruction
+                                + f"校验错误：{error_detail}"
                             ),
                         }
                     )
@@ -773,7 +790,7 @@ class LLMExtractionService:
                         },
                         {"role": "user", "content": review_prompt},
                     ],
-                    max_tokens=min(self.max_output_tokens, 32768),
+                    max_tokens=self.max_output_tokens,
                 )
                 if metadata.get("finish_reason") == "length":
                     raise ValueError("关系复核输出被截断")
