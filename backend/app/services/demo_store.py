@@ -1,6 +1,7 @@
-import json
+﻿import json
 import os
 import sqlite3
+from collections import deque
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -188,6 +189,80 @@ DEMO_EVIDENCE = [
 ]
 
 
+
+DEMO_MITRE_MAPPINGS = [
+    {
+        "mapping_id": "mitre_apt28_t1566",
+        "target_group": "APT28",
+        "technique_id": "T1566",
+        "technique_name": "Phishing",
+        "tactic": "Initial Access",
+        "attack_stage": "\u521d\u59cb\u8bbf\u95ee",
+        "entity_id": "technique:t1566",
+        "relation_id": "rel:apt_group:apt28:USES:technique:t1566",
+        "evidence_ids_json": "[\"ev_apt28_t1566_001\"]",
+        "confidence": 0.9,
+        "source": "manual",
+        "created_at": "2026-07-15T00:00:00+08:00",
+    },
+    {
+        "mapping_id": "mitre_apt28_t1059",
+        "target_group": "APT28",
+        "technique_id": "T1059",
+        "technique_name": "Command and Scripting Interpreter",
+        "tactic": "Execution",
+        "attack_stage": "\u6267\u884c",
+        "entity_id": "technique:t1059",
+        "relation_id": "rel:apt_group:apt28:USES:technique:t1059",
+        "evidence_ids_json": "[]",
+        "confidence": 0.85,
+        "source": "rule",
+        "created_at": "2026-07-15T00:00:00+08:00",
+    },
+]
+
+
+DEMO_BEHAVIOR_PATTERNS = [
+    {
+        "pattern_id": "pattern_apt28_initial_access",
+        "target_group": "APT28",
+        "stage": "\u521d\u59cb\u8bbf\u95ee",
+        "description": "APT28 \u5e38\u901a\u8fc7\u9c7c\u53c9\u5f0f\u9493\u9c7c\u83b7\u5f97\u521d\u59cb\u8bbf\u95ee\u3002",
+        "technique_ids_json": "[\"T1566\"]",
+        "relation_ids_json": "[\"rel:apt_group:apt28:USES:technique:t1566\"]",
+        "evidence_ids_json": "[\"ev_apt28_t1566_001\"]",
+        "confidence": 0.88,
+        "created_at": "2026-07-15T00:00:00+08:00",
+    },
+    {
+        "pattern_id": "pattern_apt28_execution",
+        "target_group": "APT28",
+        "stage": "\u6267\u884c",
+        "description": "APT28 \u4f7f\u7528\u811a\u672c\u89e3\u91ca\u5668\u6267\u884c\u6076\u610f\u4ee3\u7801\u3002",
+        "technique_ids_json": "[\"T1059\"]",
+        "relation_ids_json": "[\"rel:apt_group:apt28:USES:technique:t1059\"]",
+        "evidence_ids_json": "[]",
+        "confidence": 0.82,
+        "created_at": "2026-07-15T00:00:00+08:00",
+    },
+]
+
+
+DEMO_INFERRED_RELATIONS = [
+    {
+        "inferred_relation_id": "infer_apt28_phishing_behavior",
+        "source_entity_id": "apt_group:apt28",
+        "target_entity_id": "technique:t1566",
+        "relation_type": "HAS_BEHAVIOR",
+        "rationale": "APT28 \u4f7f\u7528\u9c7c\u53c9\u5f0f\u9493\u9c7c\u6280\u672f\uff0c\u8be5\u6280\u672f\u5c5e\u4e8e\u521d\u59cb\u8bbf\u95ee\u9636\u6bb5\u3002",
+        "support_evidence_ids_json": "[\"ev_apt28_t1566_001\"]",
+        "confidence": 0.86,
+        "status": "accepted",
+        "created_at": "2026-07-15T00:00:00+08:00",
+    },
+]
+
+
 DEMO_REPORTS = [
     {
         "report_id": "report_apt28_demo",
@@ -282,6 +357,75 @@ class DemoStore:
                   retrieved_at TEXT,
                   source_reliability TEXT NOT NULL DEFAULT 'unknown',
                   language TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS mitre_mappings (
+                  mapping_id TEXT PRIMARY KEY,
+                  target_group TEXT NOT NULL,
+                  technique_id TEXT NOT NULL,
+                  technique_name TEXT NOT NULL,
+                  tactic TEXT NOT NULL,
+                  attack_stage TEXT NOT NULL,
+                  entity_id TEXT,
+                  relation_id TEXT,
+                  evidence_ids_json TEXT NOT NULL DEFAULT '[]',
+                  confidence REAL NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
+                  source TEXT NOT NULL CHECK (source IN ('rule', 'llm', 'manual')),
+                  created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS behavior_patterns (
+                  pattern_id TEXT PRIMARY KEY,
+                  target_group TEXT NOT NULL,
+                  stage TEXT NOT NULL,
+                  description TEXT NOT NULL,
+                  technique_ids_json TEXT NOT NULL DEFAULT '[]',
+                  relation_ids_json TEXT NOT NULL DEFAULT '[]',
+                  evidence_ids_json TEXT NOT NULL DEFAULT '[]',
+                  confidence REAL NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
+                  created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS inferred_relations (
+                  inferred_relation_id TEXT PRIMARY KEY,
+                  source_entity_id TEXT NOT NULL,
+                  target_entity_id TEXT NOT NULL,
+                  relation_type TEXT NOT NULL,
+                  rationale TEXT NOT NULL,
+                  support_evidence_ids_json TEXT NOT NULL DEFAULT '[]',
+                  confidence REAL NOT NULL CHECK (confidence >= 0 AND confidence <= 1),
+                  status TEXT NOT NULL CHECK (status IN ('candidate', 'accepted', 'rejected')),
+                  created_at TEXT NOT NULL,
+                  FOREIGN KEY (source_entity_id) REFERENCES entities(entity_id),
+                  FOREIGN KEY (target_entity_id) REFERENCES entities(entity_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS documents (
+                  doc_id TEXT PRIMARY KEY,
+                  schema_version TEXT NOT NULL DEFAULT '1.0',
+                  target_group TEXT NOT NULL,
+                  source_url TEXT NOT NULL,
+                  source_type TEXT NOT NULL,
+                  source_name TEXT NOT NULL DEFAULT '',
+                  title TEXT NOT NULL,
+                  language TEXT NOT NULL CHECK (language IN ('zh', 'en')),
+                  clean_text TEXT NOT NULL,
+                  content_hash TEXT NOT NULL,
+                  published_at TEXT,
+                  retrieved_at TEXT,
+                  source_reliability TEXT NOT NULL DEFAULT 'unknown',
+                  created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS chunks (
+                  chunk_id TEXT PRIMARY KEY,
+                  doc_id TEXT NOT NULL,
+                  chunk_index INTEGER NOT NULL DEFAULT 0,
+                  text TEXT NOT NULL,
+                  char_start INTEGER NOT NULL,
+                  char_end INTEGER NOT NULL,
+                  text_hash TEXT NOT NULL,
+                  FOREIGN KEY (doc_id) REFERENCES documents(doc_id)
                 );
 
                 CREATE TABLE IF NOT EXISTS reports (
@@ -438,7 +582,72 @@ class DemoStore:
                         report["graph_version"],
                     ),
                 )
-            active_connection.commit()
+            for mapping in DEMO_MITRE_MAPPINGS:
+                active_connection.execute(
+                    """
+                    INSERT OR REPLACE INTO mitre_mappings (
+                      mapping_id, target_group, technique_id, technique_name,
+                      tactic, attack_stage, entity_id, relation_id,
+                      evidence_ids_json, confidence, source, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        mapping["mapping_id"],
+                        mapping["target_group"],
+                        mapping["technique_id"],
+                        mapping["technique_name"],
+                        mapping["tactic"],
+                        mapping["attack_stage"],
+                        mapping["entity_id"],
+                        mapping["relation_id"],
+                        mapping["evidence_ids_json"],
+                        mapping["confidence"],
+                        mapping["source"],
+                        mapping["created_at"],
+                    ),
+                )
+            for pattern in DEMO_BEHAVIOR_PATTERNS:
+                active_connection.execute(
+                    """
+                    INSERT OR REPLACE INTO behavior_patterns (
+                      pattern_id, target_group, stage, description,
+                      technique_ids_json, relation_ids_json,
+                      evidence_ids_json, confidence, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        pattern["pattern_id"],
+                        pattern["target_group"],
+                        pattern["stage"],
+                        pattern["description"],
+                        pattern["technique_ids_json"],
+                        pattern["relation_ids_json"],
+                        pattern["evidence_ids_json"],
+                        pattern["confidence"],
+                        pattern["created_at"],
+                    ),
+                )
+            for inferred in DEMO_INFERRED_RELATIONS:
+                active_connection.execute(
+                    """
+                    INSERT OR REPLACE INTO inferred_relations (
+                      inferred_relation_id, source_entity_id, target_entity_id,
+                      relation_type, rationale, support_evidence_ids_json,
+                      confidence, status, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        inferred["inferred_relation_id"],
+                        inferred["source_entity_id"],
+                        inferred["target_entity_id"],
+                        inferred["relation_type"],
+                        inferred["rationale"],
+                        inferred["support_evidence_ids_json"],
+                        inferred["confidence"],
+                        inferred["status"],
+                        inferred["created_at"],
+                    ),
+                )
         finally:
             if owns_connection:
                 active_connection.close()
@@ -507,6 +716,70 @@ class DemoStore:
 
         return {"schema_version": "1.0", "nodes": nodes, "edges": edges, "evidence": evidence}
 
+    def get_path(self, source: str, target: str, max_depth: int = 4) -> dict:
+        """BFS 最短路径查询。"""
+        with self.connect() as conn:
+            sql = """
+                SELECT source_entity_id, target_entity_id, relation_id
+                FROM relations
+                WHERE source_entity_id = ? OR target_entity_id = ?
+            """
+            queue = deque()
+            queue.append((source, [source], []))
+            visited = {source}
+            while queue:
+                current, node_path, edge_path = queue.popleft()
+                if len(node_path) - 1 > max_depth:
+                    continue
+                rows = conn.execute(sql, (current, current)).fetchall()
+                for row in rows:
+                    if row["relation_id"] in edge_path:
+                        continue
+                    neighbor = row["target_entity_id"] if row["source_entity_id"] == current else row["source_entity_id"]
+                    new_node_path = node_path + [neighbor]
+                    new_edge_path = edge_path + [row["relation_id"]]
+                    if neighbor == target:
+                        all_nodes = []
+                        for nid in new_node_path:
+                            r = conn.execute(
+                                "SELECT * FROM entities WHERE entity_id = ?", (nid,)
+                            ).fetchone()
+                            if r:
+                                all_nodes.append(self._node_from_row(r))
+                        all_edges = []
+                        for rid in new_edge_path:
+                            r = conn.execute(
+                                "SELECT * FROM relations WHERE relation_id = ?", (rid,)
+                            ).fetchone()
+                            if r:
+                                all_edges.append(self._edge_from_row(r))
+                        evidence_ids = []
+                        for n in new_node_path:
+                            evs = conn.execute(
+                                "SELECT evidence_id FROM evidence WHERE entity_id = ?", (n,)
+                            ).fetchall()
+                            evidence_ids.extend(ev["evidence_id"] for ev in evs)
+                        for rid in new_edge_path:
+                            evs = conn.execute(
+                                "SELECT evidence_id FROM evidence WHERE relation_id = ?", (rid,)
+                            ).fetchall()
+                            evidence_ids.extend(ev["evidence_id"] for ev in evs)
+                        return {
+                            "source": source,
+                            "target": target,
+                            "engine": "sqlite",
+                            "paths": [{
+                                "nodes": all_nodes,
+                                "edges": all_edges,
+                                "length": len(new_node_path) - 1,
+                                "evidence_ids": list(dict.fromkeys(evidence_ids)),
+                            }]
+                        }
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        queue.append((neighbor, new_node_path, new_edge_path))
+            return {"source": source, "target": target, "engine": "sqlite", "paths": []}
+
     def get_report(self, target_group: str) -> dict[str, Any] | None:
         with self.connect() as connection:
             row = connection.execute(
@@ -526,7 +799,6 @@ class DemoStore:
             "markdown": row["markdown"],
         }
         generated_at = row["generated_at"]
-        # 附带结构化章节
         sections = self.get_report_sections(target_group)
         if sections:
             result["sections"] = sections
@@ -569,7 +841,6 @@ class DemoStore:
         """生成智能分析报告并写入数据库。"""
         target_entity_id = f"apt_group:{target_group.lower()}"
         with self.connect() as connection:
-            # 确认目标组织存在
             entity = connection.execute(
                 "SELECT entity_id FROM entities WHERE entity_id = ?",
                 (target_entity_id,),
@@ -585,17 +856,14 @@ class DemoStore:
             report_id = f"report_{target_group.lower()}_intelligent"
             title = f"{target_group} 威胁情报分析报告"
 
-            # 如果 LLM 失败（降级）且数据库中已有智能报告，不覆盖
             if not result.get("_llm_generated", True):
                 existing = connection.execute(
                     "SELECT report_id FROM reports WHERE target_group = ? AND generated_at IS NOT NULL",
                     (target_group,),
                 ).fetchone()
                 if existing:
-                    # 返回已有的报告
                     return self.get_report(target_group)
 
-            # 写入报告
             connection.execute(
                 """
                 INSERT OR REPLACE INTO reports (
@@ -605,13 +873,11 @@ class DemoStore:
                 (report_id, target_group, title, result["markdown"], now_iso, "intelligent-v1"),
             )
 
-            # 删除旧章节
             connection.execute(
                 "DELETE FROM report_sections WHERE report_id = ?",
                 (report_id,),
             )
 
-            # 写入各章节
             for section in result["sections"]:
                 section_id = f"{report_id}_{section['section_type']}"
                 connection.execute(
@@ -722,6 +988,65 @@ class DemoStore:
                 for row in inference_rows
             ],
         }
+
+    def import_document(self, document: dict) -> dict:
+        """导入文档，去重后写入 documents 表，自动切 chunks。"""
+        doc_id = document["doc_id"]
+        clean_text = document["clean_text"]
+        content_hash = document.get("content_hash", "")
+        if not content_hash:
+            import hashlib
+            content_hash = hashlib.sha256(clean_text.encode("utf-8")).hexdigest()
+        from datetime import UTC, datetime as dt
+        now = dt.now(UTC).isoformat()
+        with self.connect() as conn:
+            existing = conn.execute(
+                "SELECT doc_id FROM documents WHERE doc_id = ?", (doc_id,)
+            ).fetchone()
+            if existing:
+                return {"doc_id": doc_id, "status": "skipped", "message": "文档已存在"}
+            conn.execute(
+                """INSERT INTO documents (
+                  doc_id, schema_version, target_group, source_url, source_type,
+                  source_name, title, language, clean_text, content_hash,
+                  published_at, retrieved_at, source_reliability, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    doc_id,
+                    document.get("schema_version", "1.0"),
+                    document.get("target_group", ""),
+                    document.get("source_url", ""),
+                    document.get("source_type", ""),
+                    document.get("source_name", ""),
+                    document.get("title", ""),
+                    document.get("language", "zh"),
+                    clean_text,
+                    content_hash,
+                    document.get("published_at"),
+                    document.get("retrieved_at"),
+                    document.get("source_reliability", "unknown"),
+                    now,
+                ),
+            )
+            paragraphs = clean_text.split("\n")
+            chunk_index = 0
+            char_pos = 0
+            for para in paragraphs:
+                if not para.strip():
+                    char_pos += len(para) + 1
+                    continue
+                chunk_id = f"{doc_id}_c{chunk_index:03d}"
+                import hashlib
+                text_hash = hashlib.sha256(para.encode("utf-8")).hexdigest()
+                conn.execute(
+                    """INSERT INTO chunks (
+                      chunk_id, doc_id, chunk_index, text, char_start, char_end, text_hash
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    (chunk_id, doc_id, chunk_index, para, char_pos, char_pos + len(para), text_hash),
+                )
+                chunk_index += 1
+                char_pos += len(para) + 1
+        return {"doc_id": doc_id, "status": "imported", "chunks": chunk_index}
 
     def _filter_graph(
         self,

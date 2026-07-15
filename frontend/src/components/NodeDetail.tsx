@@ -1,4 +1,6 @@
-import type { GraphNode } from "../types";
+import { useState, useEffect } from "react";
+import { fetchEntity } from "../api/client";
+import type { EntityDetail } from "../types";
 
 const TYPE_COLOR: Record<string, string> = {
   APT_GROUP: "#0f766e",
@@ -14,22 +16,29 @@ const TYPE_COLOR: Record<string, string> = {
 };
 
 interface NodeDetailProps {
-  node: GraphNode | null;
+  entityId: string | null;
   onClose: () => void;
 }
 
-export default function NodeDetail({ node, onClose }: NodeDetailProps) {
-  if (!node) return null;
+export default function NodeDetail({ entityId, onClose }: NodeDetailProps) {
+  const [detail, setDetail] = useState<EntityDetail | null>(null);
+
+  useEffect(() => {
+    if (!entityId) { setDetail(null); return; }
+    fetchEntity(entityId).then(setDetail).catch(() => setDetail(null));
+  }, [entityId]);
+
+  if (!detail) return null;
 
   const rows: [string, string][] = [
-    ["名称", node.name],
-    ["别名", node.aliases?.join(", ") || "-"],
-    ["描述", node.description || "-"],
-    ["置信度", String(node.confidence ?? "-")],
-    ["来源数", String(node.source_count ?? "-")],
-    ["首次发现", node.first_seen ?? "-"],
-    ["最近活跃", node.last_seen ?? "-"],
-    ["标签", node.tags?.join(", ") || "-"],
+    ["名称", detail.name],
+    ["别名", detail.aliases?.join(", ") || "-"],
+    ["描述", detail.description || "-"],
+    ["置信度", String(detail.confidence ?? "-")],
+    ["来源数", String(detail.source_count ?? "-")],
+    ["首次发现", detail.first_seen ?? "-"],
+    ["最近活跃", detail.last_seen ?? "-"],
+    ["标签", detail.tags?.join(", ") || "-"],
   ];
 
   return (
@@ -59,7 +68,7 @@ export default function NodeDetail({ node, onClose }: NodeDetailProps) {
       >
         <div style={{ flex: 1, minWidth: 0 }}>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-            {node.name}
+            {detail.name}
           </h3>
           <span
             style={{
@@ -69,10 +78,10 @@ export default function NodeDetail({ node, onClose }: NodeDetailProps) {
               padding: "2px 8px",
               borderRadius: 4,
               color: "#fff",
-              background: TYPE_COLOR[node.type] || "#64748b",
+              background: TYPE_COLOR[detail.type] || "#64748b",
             }}
           >
-            {node.type}
+            {detail.type}
           </span>
         </div>
         <button
