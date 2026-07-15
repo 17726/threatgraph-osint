@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from backend.app.db.schema import ensure_import_compatible_columns
 from backend.app.services.report_generator import generate_intelligent_report
 
 
@@ -402,7 +403,9 @@ class DemoStore:
                 CREATE TABLE IF NOT EXISTS documents (
                   doc_id TEXT PRIMARY KEY,
                   schema_version TEXT NOT NULL DEFAULT '1.0',
+                  collection_item_id TEXT,
                   target_group TEXT NOT NULL,
+                  target_groups_json TEXT NOT NULL DEFAULT '[]',
                   source_url TEXT NOT NULL,
                   source_type TEXT NOT NULL,
                   source_name TEXT NOT NULL DEFAULT '',
@@ -413,6 +416,9 @@ class DemoStore:
                   published_at TEXT,
                   retrieved_at TEXT,
                   source_reliability TEXT NOT NULL DEFAULT 'unknown',
+                  tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
+                  tags_json TEXT NOT NULL DEFAULT '[]',
+                  metadata_json TEXT NOT NULL DEFAULT '{}',
                   created_at TEXT NOT NULL
                 );
 
@@ -420,10 +426,12 @@ class DemoStore:
                   chunk_id TEXT PRIMARY KEY,
                   doc_id TEXT NOT NULL,
                   chunk_index INTEGER NOT NULL DEFAULT 0,
+                  section_title TEXT NOT NULL DEFAULT '',
                   text TEXT NOT NULL,
                   char_start INTEGER NOT NULL,
                   char_end INTEGER NOT NULL,
                   text_hash TEXT NOT NULL,
+                  token_count INTEGER,
                   FOREIGN KEY (doc_id) REFERENCES documents(doc_id)
                 );
 
@@ -450,6 +458,7 @@ class DemoStore:
                 );
                 """
             )
+            ensure_import_compatible_columns(connection)
             self._ensure_columns(connection)
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:

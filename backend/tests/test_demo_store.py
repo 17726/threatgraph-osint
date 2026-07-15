@@ -17,6 +17,29 @@ def test_new_store_creates_empty_graph(tmp_path):
     }
 
 
+def test_new_store_creates_import_compatible_document_schema(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+
+    DemoStore(db_path)
+
+    with sqlite3.connect(db_path) as connection:
+        document_columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(documents)")
+        }
+        chunk_columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(chunks)")
+        }
+
+    assert {
+        "collection_item_id",
+        "target_groups_json",
+        "tlp",
+        "tags_json",
+        "metadata_json",
+    } <= document_columns
+    assert {"section_title", "token_count"} <= chunk_columns
+
+
 def test_export_graph_json_writes_contract_shape(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     output_path = tmp_path / "graph.json"

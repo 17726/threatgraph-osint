@@ -202,6 +202,17 @@ def test_offline_pipeline_updates_api_graph_store(tmp_path):
     assert any(item["relation_id"] == "rel:apt_group:apt28:TARGETS:country:ukraine" for item in graph["evidence"])
 
 
+def test_offline_pipeline_imports_after_api_store_initializes_database(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    DemoStore(db_path)
+
+    summary = OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
+
+    assert summary.doc_id == "apt28_049"
+    assert summary.canonical_entities == 15
+    assert summary.canonical_relations == 10
+
+
 def test_offline_pipeline_generates_report_cache(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
