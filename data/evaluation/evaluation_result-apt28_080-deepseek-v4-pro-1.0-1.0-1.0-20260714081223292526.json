@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "evaluated_at": "2026-07-14T08:12:23.292526+00:00",
   "extraction": {
-    "run_id": "extract-apt28_080-deepseek-v4-pro-1.0-1.0-20260714080404508816",
+    "run_id": "extract-apt28_080-deepseek-v4-pro-1.0-1.0-20260714080404508816-899fb83b",
     "doc_id": "apt28_080",
     "model_name": "deepseek-v4-pro",
     "prompt_version": "1.0",

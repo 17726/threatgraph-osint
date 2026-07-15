@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "evaluated_at": "2026-07-14T08:01:55.465629+00:00",
   "extraction": {
-    "run_id": "extract-kimsuky_001-deepseek-v4-flash-1.0-1.0-20260714080134257073",
+    "run_id": "extract-kimsuky_001-deepseek-v4-flash-1.0-1.0-20260714080134257073-c920384d",
     "doc_id": "kimsuky_001",
     "model_name": "deepseek-v4-flash",
     "prompt_version": "1.0",
