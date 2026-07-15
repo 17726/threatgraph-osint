@@ -51,14 +51,29 @@ class GraphQueryService:
         self._attach_evidence(nodes, edges, evidence)
 
         if source_types or languages:
-            nodes = [node for node in nodes if node["evidence_ids"]]
-            node_ids = {node["id"] for node in nodes}
+            candidate_node_ids = {node["id"] for node in nodes}
             edges = [
-                edge for edge in edges
+                edge
+                for edge in edges
                 if edge["evidence_ids"]
-                and edge["source"] in node_ids
-                and edge["target"] in node_ids
+                and edge["source"] in candidate_node_ids
+                and edge["target"] in candidate_node_ids
             ]
+            supported_node_ids = {
+                node["id"] for node in nodes if node["evidence_ids"]
+            }
+            supported_node_ids.update(
+                endpoint
+                for edge in edges
+                for endpoint in (edge["source"], edge["target"])
+            )
+            nodes = [node for node in nodes if node["id"] in supported_node_ids]
+
+        node_ids = {node["id"] for node in nodes}
+        edges = self._closed_edges(edges, node_ids)
+
+        target_ids: set[str] = set()
+        visible_target_ids: set[str] = set()
 
         if target:
             target_ids = self._target_ids(
@@ -73,24 +88,27 @@ class GraphQueryService:
                 visible_ids = self._nodes_at_depth(
                     visible_target_ids,
                     edges,
-                    depth if depth not in (None, 0) else 20,
+                    depth if depth is not None else 20,
                 )
                 nodes = [node for node in nodes if node["id"] in visible_ids]
-                edges = [edge for edge in edges if edge["source"] in visible_ids and edge["target"] in visible_ids]
+                edges = self._closed_edges(edges, visible_ids)
 
         if entity_ids:
             selected_ids = set(entity_ids)
             if target:
-                selected_ids &= visible_ids
-                selected_ids.update(target_ids & visible_ids)
+                selected_ids &= {node["id"] for node in nodes}
+                selected_ids.update(visible_target_ids)
             nodes = [node for node in nodes if node["id"] in selected_ids]
             node_ids = {node["id"] for node in nodes}
-            edges = [edge for edge in edges if edge["source"] in node_ids and edge["target"] in node_ids]
+            edges = self._closed_edges(edges, node_ids)
 
         if limit is not None:
-            nodes = nodes[:limit]
+            if visible_target_ids:
+                nodes = self._limit_nodes(nodes, edges, visible_target_ids, limit)
+            else:
+                nodes = nodes[:limit]
             node_ids = {node["id"] for node in nodes}
-            edges = [edge for edge in edges if edge["source"] in node_ids and edge["target"] in node_ids][:limit]
+            edges = self._closed_edges(edges, node_ids)
 
         visible_node_ids = {node["id"] for node in nodes}
         visible_edge_ids = {edge["id"] for edge in edges}
@@ -121,6 +139,26 @@ class GraphQueryService:
             },
             "stats": {"node_count": len(nodes), "edge_count": len(edges), "evidence_count": len(evidence)},
         }
+
+    def get_neighbors(
+        self,
+        entity_id: str,
+        relation_types: Iterable[str] | None = None,
+        source_types: Iterable[str] | None = None,
+        languages: Iterable[str] | None = None,
+        min_confidence: float | None = None,
+        limit: int | None = None,
+    ) -> dict[str, Any]:
+        """返回中心实体、直接邻居、连接边及相关证据。"""
+        return self.get_graph(
+            target=entity_id,
+            relation_types=relation_types,
+            source_types=source_types,
+            languages=languages,
+            min_confidence=min_confidence,
+            depth=1,
+            limit=limit,
+        )
 
     def get_path(
         self,
@@ -181,10 +219,10 @@ class GraphQueryService:
             clauses.append("confidence >= ?")
             params.append(min_confidence)
         if first_seen_from:
-            clauses.append("(first_seen IS NULL OR first_seen >= ?)")
+            clauses.append("(last_seen IS NULL OR last_seen >= ?)")
             params.append(first_seen_from)
         if last_seen_to:
-            clauses.append("(last_seen IS NULL OR last_seen <= ?)")
+            clauses.append("(first_seen IS NULL OR first_seen <= ?)")
             params.append(last_seen_to)
         for tag in tags:
             clauses.append("EXISTS (SELECT 1 FROM json_each(tags_json) WHERE value = ?)")
@@ -202,10 +240,10 @@ class GraphQueryService:
             clauses.append("confidence >= ?")
             params.append(min_confidence)
         if first_seen_from:
-            clauses.append("(first_seen IS NULL OR first_seen >= ?)")
+            clauses.append("(last_seen IS NULL OR last_seen >= ?)")
             params.append(first_seen_from)
         if last_seen_to:
-            clauses.append("(last_seen IS NULL OR last_seen <= ?)")
+            clauses.append("(first_seen IS NULL OR first_seen <= ?)")
             params.append(last_seen_to)
         sql = "SELECT * FROM relations" + (" WHERE " + " AND ".join(clauses) if clauses else "") + " ORDER BY relation_id"
         return connection.execute(sql, params).fetchall()
@@ -223,17 +261,46 @@ class GraphQueryService:
         return connection.execute(sql, params).fetchall()
 
     def _target_ids(self, nodes, target):
-        normalized = target.casefold()
+        normalized = target.strip().casefold()
         result = set()
         for node in nodes:
-            node_id = node["id"].casefold()
-            name = node["name"].casefold()
-            aliases = [a.casefold() for a in node["aliases"]]
-            if node_id == normalized or normalized in name or name in normalized:
-                result.add(node["id"])
-            elif any(normalized in alias or alias in normalized for alias in aliases):
+            node_id = node["id"].strip().casefold()
+            name = node["name"].strip().casefold()
+            aliases = [alias.strip().casefold() for alias in node["aliases"]]
+            if normalized in {node_id, name, *aliases}:
                 result.add(node["id"])
         return result
+
+    def _closed_edges(self, edges, node_ids):
+        return [
+            edge
+            for edge in edges
+            if edge["source"] in node_ids and edge["target"] in node_ids
+        ]
+
+    def _limit_nodes(self, nodes, edges, roots, limit):
+        distances = {root: 0 for root in roots}
+        queue = deque(sorted(roots))
+        while queue:
+            current = queue.popleft()
+            for edge in edges:
+                if edge["source"] == current:
+                    neighbor = edge["target"]
+                elif edge["target"] == current:
+                    neighbor = edge["source"]
+                else:
+                    continue
+                if neighbor not in distances:
+                    distances[neighbor] = distances[current] + 1
+                    queue.append(neighbor)
+        positions = {node["id"]: index for index, node in enumerate(nodes)}
+        return sorted(
+            nodes,
+            key=lambda node: (
+                distances.get(node["id"], len(nodes) + 1),
+                positions[node["id"]],
+            ),
+        )[:limit]
 
     def _nodes_at_depth(self, roots, edges, depth):
         visible = set(roots)
