@@ -665,6 +665,42 @@ CREATE TABLE evaluation_runs (
 );
 ```
 
+### 3.19 graph_changes
+
+记录 SQLite canonical graph 的有序变更日志，供 Neo4j 投影按水位增量同步。实体、关系和证据表的
+insert/update/delete 触发器负责写入；同一记录可出现多条变更，消费端按批次结束时的当前状态执行
+幂等 upsert 或 delete。证据触发器还会为其新旧 `entity_id` / `relation_id` owner 记录 upsert，确保
+证据新增、改绑或删除后，投影中的聚合 `evidence_ids` 同步刷新。
+
+```sql
+CREATE TABLE graph_changes (
+  change_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  table_name TEXT NOT NULL
+    CHECK (table_name IN ('entities', 'relations', 'evidence')),
+  record_id TEXT NOT NULL,
+  operation TEXT NOT NULL CHECK (operation IN ('upsert', 'delete')),
+  changed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 3.20 sync_state
+
+保存可重建查询投影的消费水位和可观测状态。`watermark` 只有在 Neo4j 写事务成功后推进；
+`last_full_sync_at` 为空表示必须先全量重建。
+
+```sql
+CREATE TABLE sync_state (
+  state_key TEXT PRIMARY KEY,
+  watermark INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'requires_rebuild',
+  last_attempt_at TEXT,
+  last_success_at TEXT,
+  last_full_sync_at TEXT,
+  error_message TEXT,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
 ---
 
 ## 4. 行为分析与推理约束

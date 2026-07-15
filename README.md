@@ -38,7 +38,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 | SQLite 运行时主库 | 已确定 | 保存 canonical graph、证据、导入状态和同步水位 |
 | 文档与候选抽取契约 | 已冻结 | 提供 JSON Schema、样例和关系合法性矩阵 |
 | 三类来源采集 | 已有数据，待集成验收 | 已有安全来源和新闻采集器、社媒/论坛数据转换器，待固化清洗与覆盖检查 |
-| Neo4j 图查询投影 | P1 增强 | 承担多维查询、关键路径、图算法和增量同步演示 |
+| Neo4j 图查询投影 | 已实现基础能力 | 支持全量重建、基于 SQLite 水位的幂等增量同步、状态检查和多跳路径查询 |
 
 ### 核心原则
 
@@ -186,6 +186,26 @@ SQLite 数据库：data/threatgraph_osint.db
 `config/reviewed-extractions.json` 或课程演示清单的工件，才能作为已审核输入使用。
 服务重启时以 SQLite 任务终态对账已有 live 摘要；本机档案损坏不会阻止服务恢复。
 
+每次默认 Pipeline 成功写入 SQLite 后会尝试推进 Neo4j 增量投影。Neo4j 未启动或尚未完成首次
+全量重建时，SQLite 任务仍保持成功，任务结果中的 `neo4j_sync` 会说明投影状态。首次使用或清空
+Neo4j 数据后，执行：
+
+```bash
+curl -X POST http://localhost:8000/api/v1/neo4j/rebuild
+curl http://localhost:8000/api/v1/neo4j/status
+```
+
+后续也可手动触发幂等增量同步：
+
+```bash
+curl -X POST http://localhost:8000/api/v1/neo4j/sync
+```
+
+`GET /api/v1/graph/path` 在投影就绪且水位追平时优先使用 Neo4j；连接失败、查询失败、投影未初始化
+或存在待同步变更时自动降级到 SQLite，并通过 `fallback_reason` 说明原因。全量重建先清理带项目
+ownership 的关系，再以非 `DETACH` 方式删除带 `ThreatGraphProjection` 标签的节点；如果同库其他图
+给项目节点增加了外部关系，重建会失败并回滚，不会静默删除外部关系。
+
 LLM 请求等待期间默认每 30 秒输出一次心跳，并在重试时显示尝试序号和失败原因。
 可使用 `--heartbeat-seconds <秒数>` 调整间隔，设为 `0` 可关闭心跳。
 
@@ -208,6 +228,10 @@ docker compose down -v
 ```text
 GET /api/v1/health
 GET /api/v1/graph?target=APT28&depth=2
+GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
+GET /api/v1/neo4j/status
+POST /api/v1/neo4j/rebuild
+POST /api/v1/neo4j/sync
 GET /api/v1/reports/{target_group}
 ```
 

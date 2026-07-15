@@ -259,6 +259,76 @@ def test_reviewed_mode_uses_existing_result_without_calling_llm(tmp_path):
     service.close()
 
 
+def test_default_pipeline_triggers_projection_sync_after_sqlite_import(tmp_path):
+    document_path = tmp_path / "document.json"
+    extraction_path = tmp_path / "extraction.json"
+    document_path.write_text('{"doc_id":"doc-1"}', encoding="utf-8")
+    extraction_path.write_text('{"doc_id":"doc-1"}', encoding="utf-8")
+    sync_calls = []
+
+    class FakeOfflinePipeline:
+        def run(self, _document_path, _extraction_path):
+            return {"doc_id": "doc-1", "run_id": "reviewed-run"}
+
+    def sync_projection():
+        sync_calls.append(True)
+        return {"status": "succeeded", "changes": 3, "watermark": 3}
+
+    service = PipelineService(
+        tmp_path / "pipeline.db",
+        offline_pipeline=FakeOfflinePipeline(),
+        document_locator=lambda _doc_id: (
+            str(document_path),
+            str(extraction_path),
+        ),
+        projection_sync=sync_projection,
+    )
+
+    job = service.run_sync(doc_id="doc-1", extraction_mode="reviewed")
+
+    assert job["status"] == "succeeded"
+    assert sync_calls == [True]
+    assert job["result"]["neo4j_sync"] == {
+        "status": "succeeded",
+        "changes": 3,
+        "watermark": 3,
+    }
+    service.close()
+
+
+def test_projection_sync_failure_does_not_rollback_sqlite_pipeline(tmp_path):
+    document_path = tmp_path / "document.json"
+    extraction_path = tmp_path / "extraction.json"
+    document_path.write_text('{"doc_id":"doc-1"}', encoding="utf-8")
+    extraction_path.write_text('{"doc_id":"doc-1"}', encoding="utf-8")
+
+    class FakeOfflinePipeline:
+        def run(self, _document_path, _extraction_path):
+            return {"doc_id": "doc-1", "run_id": "reviewed-run"}
+
+    def failing_sync():
+        raise RuntimeError("bolt://用户名:密码@内网地址")
+
+    service = PipelineService(
+        tmp_path / "pipeline.db",
+        offline_pipeline=FakeOfflinePipeline(),
+        document_locator=lambda _doc_id: (
+            str(document_path),
+            str(extraction_path),
+        ),
+        projection_sync=failing_sync,
+    )
+
+    job = service.run_sync(doc_id="doc-1", extraction_mode="reviewed")
+
+    assert job["status"] == "succeeded"
+    assert job["result"]["neo4j_sync"] == {
+        "status": "failed",
+        "reason": "neo4j_sync_failed",
+    }
+    service.close()
+
+
 @pytest.mark.parametrize(
     "doc_id",
     ["apt28_080", "kimsuky_001", "lazarus_001"],
