@@ -41,6 +41,11 @@ def ensure_import_compatible_columns(connection: sqlite3.Connection) -> None:
                 connection.execute(
                     f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
                 )
+    if _table_exists(connection, "documents"):
+        connection.execute(
+            "CREATE INDEX IF NOT EXISTS idx_documents_content_hash "
+            "ON documents(content_hash)"
+        )
 
 
 def _validate_document_hashes(connection: sqlite3.Connection, text_column: str) -> None:

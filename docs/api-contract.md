@@ -168,12 +168,14 @@ POST /api/v1/documents/import
 
 说明：
 
-1. `schema_version` 必填，用于避免数据、LLM、后端和前端字段漂移。
-2. `target_group` 是主目标组织，`target_groups` 可保存多个相关组织。
-3. `content_hash` 用于重复导入判断，固定为 `sha256(clean_text 按 UTF-8 编码后的字节)`。
-4. `source_reliability` 优先使用 `A/B/C/D/unknown`，P0 可先人工填写。
-5. `published_at` 不确定时允许为 `null`，但 `retrieved_at` 必须保留。
-6. 导入成功后由后端基于 `clean_text` 生成 `chunks`，data 组不在 `document.json` 中手写 chunks。
+1. 请求体必须使用 `application/json`，并完整满足 `docs/schemas/document.schema.json`；旧的 `raw_text`、`text` 或 `content` 字段不会被自动当作 `clean_text`。
+2. `schema_version` 必填，用于避免数据、LLM、后端和前端字段漂移。
+3. `target_group` 是主目标组织，`target_groups` 可保存多个相关组织。
+4. `content_hash` 用于重复导入判断，固定为 `sha256(clean_text 按 UTF-8 编码后的字节)`；值与正文不一致时返回 HTTP 400 和 `ERR_VALIDATION`。
+5. `doc_id` 或 `content_hash` 已存在时不会重复写入，响应中的 `status` 为 `skipped`，`doc_id` 为首次导入记录的标识。
+6. `source_reliability` 优先使用 `A/B/C/D/unknown`，P0 可先人工填写。
+7. `published_at` 不确定时允许为 `null`，但 `retrieved_at` 必须保留。
+8. 导入成功后由后端基于 `clean_text` 生成 `chunks`，data 组不在 `document.json` 中手写 chunks。
 
 ---
 

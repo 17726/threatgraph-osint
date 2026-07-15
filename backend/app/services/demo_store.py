@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from backend.app.core.document_contract import require_valid_document
 from backend.app.db.schema import ensure_import_compatible_columns
 from backend.app.services.report_generator import generate_intelligent_report
 
@@ -1038,43 +1039,58 @@ class DemoStore:
 
     def import_document(self, document: dict) -> dict:
         """导入文档，去重后写入 documents 表，自动切 chunks。"""
+        require_valid_document(document)
         doc_id = document["doc_id"]
         clean_text = document["clean_text"]
-        content_hash = document.get("content_hash", "")
-        if not content_hash:
-            import hashlib
-            content_hash = hashlib.sha256(clean_text.encode("utf-8")).hexdigest()
+        content_hash = document["content_hash"]
         from datetime import UTC, datetime as dt
         now = dt.now(UTC).isoformat()
         with self.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
             existing = conn.execute(
-                "SELECT doc_id FROM documents WHERE doc_id = ?", (doc_id,)
+                "SELECT doc_id FROM documents WHERE doc_id = ? OR content_hash = ? ORDER BY doc_id LIMIT 1",
+                (doc_id, content_hash),
             ).fetchone()
             if existing:
-                return {"doc_id": doc_id, "status": "skipped", "message": "文档已存在"}
-            conn.execute(
-                """INSERT INTO documents (
-                  doc_id, schema_version, target_group, source_url, source_type,
-                  source_name, title, language, clean_text, content_hash,
-                  published_at, retrieved_at, source_reliability, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    doc_id,
-                    document.get("schema_version", "1.0"),
-                    document.get("target_group", ""),
-                    document.get("source_url", ""),
-                    document.get("source_type", ""),
-                    document.get("source_name", ""),
-                    document.get("title", ""),
-                    document.get("language", "zh"),
-                    clean_text,
-                    content_hash,
-                    document.get("published_at"),
-                    document.get("retrieved_at"),
-                    document.get("source_reliability", "unknown"),
-                    now,
-                ),
-            )
+                return {"doc_id": existing["doc_id"], "status": "skipped", "message": "文档已存在"}
+            try:
+                conn.execute(
+                    """INSERT INTO documents (
+                      doc_id, schema_version, target_group, source_url, source_type,
+                      source_name, title, language, clean_text, content_hash,
+                      published_at, retrieved_at, source_reliability, collection_item_id,
+                      target_groups_json, tlp, tags_json, metadata_json, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        doc_id,
+                        document.get("schema_version", "1.0"),
+                        document.get("target_group", ""),
+                        document.get("source_url", ""),
+                        document.get("source_type", ""),
+                        document.get("source_name", ""),
+                        document.get("title", ""),
+                        document.get("language", "zh"),
+                        clean_text,
+                        content_hash,
+                        document.get("published_at"),
+                        document.get("retrieved_at"),
+                        document.get("source_reliability", "unknown"),
+                        document.get("collection_item_id"),
+                        json.dumps(document.get("target_groups", [document.get("target_group", "")]), ensure_ascii=False),
+                        document.get("tlp", "TLP:CLEAR"),
+                        json.dumps(document.get("tags", []), ensure_ascii=False),
+                        json.dumps(document.get("metadata", {}), ensure_ascii=False),
+                        now,
+                    ),
+                )
+            except sqlite3.IntegrityError:
+                existing = conn.execute(
+                    "SELECT doc_id FROM documents WHERE doc_id = ? OR content_hash = ? ORDER BY doc_id LIMIT 1",
+                    (doc_id, content_hash),
+                ).fetchone()
+                if existing:
+                    return {"doc_id": existing["doc_id"], "status": "skipped", "message": "文档已存在"}
+                raise
             paragraphs = clean_text.split("\n")
             chunk_index = 0
             char_pos = 0
@@ -1087,9 +1103,10 @@ class DemoStore:
                 text_hash = hashlib.sha256(para.encode("utf-8")).hexdigest()
                 conn.execute(
                     """INSERT INTO chunks (
-                      chunk_id, doc_id, chunk_index, text, char_start, char_end, text_hash
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                    (chunk_id, doc_id, chunk_index, para, char_pos, char_pos + len(para), text_hash),
+                      chunk_id, doc_id, chunk_index, section_title, text,
+                      char_start, char_end, text_hash, token_count
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (chunk_id, doc_id, chunk_index, "", para, char_pos, char_pos + len(para), text_hash, len(para.split())),
                 )
                 chunk_index += 1
                 char_pos += len(para) + 1
