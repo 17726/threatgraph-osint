@@ -204,9 +204,11 @@ GET  /api/v1/pipeline/status/{job_id}
 5. `use_cache` 已废弃且会返回 HTTP 400。抽取模式必须使用含义明确的 `reviewed` 或 `live`，不能用布尔值同时表达“缓存偏好”和“外部调用授权”。
 6. `doc_id` 和 `target_group` 必须且只能提供一个。为避免一次误触发大量模型调用，`live` 只允许 `doc_id`；`reviewed` 可按目标组织运行，并按 `doc_id` 排序处理 SQLite 中的匹配文档。
 7. 同一作用域和抽取模式的 `pending` / `running` 请求复用活动任务，且只向后台执行器提交一次；执行前仍通过条件更新原子认领。
-8. `pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息。服务启动时把遗留的 `running` 标记为中断失败；服务正常关闭时等待在途任务结束。
-9. `live` 模式产生的 extraction_result 只写入系统临时目录，导入完成后删除；canonical 事实和任务状态写入 SQLite，不新增 `data/pipeline_*` 运行时目录。
+8. `pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息。服务启动时把遗留的 `running` 标记为中断失败，并以 SQLite 终态对账已有 live 运行档案；档案缺失、损坏或不可写不阻塞 SQLite 恢复。服务正常关闭时等待在途任务结束。
+9. `live` 模式在调用 SQLite 导入前，将 Extraction 与同 `run_id` 的 Candidate Audit 持久化到本机 `data/run_artifacts/`，并将 `running / succeeded / failed`、工件路径、SHA-256、LLM 调用观测和导入摘要写入 `data/run_logs/pipeline-run-<job_id>.json`。这些目录默认被 Git 忽略，不新增 `data/pipeline_*` 运行时目录。
 10. 流水线只有一个真实复合步骤，不为已经包含在离线流水线中的归一化、建图、分析和报告伪造独立成功状态。
+11. `live` 状态响应的 `run_archive` 用于定位本机运行档案；任务尚未开始时为 `null`。档案损坏时返回 `status=unavailable`，不能阻止 SQLite 中断恢复。档案只记录候选输出和运行观测，不改变 SQLite 作为 canonical 事实源的地位。
+12. `reviewed` 只读取 `config/course-demo.json` 或 `config/reviewed-extractions.json` 显式登记的工件，不扫描运行目录，也不会把刚生成的 live 结果自动视为已审核结果。
 
 提交成功响应示例：
 
@@ -229,6 +231,24 @@ GET  /api/v1/pipeline/status/{job_id}
 ```text
 pending -> running -> succeeded
                    -> failed
+```
+
+`live` 状态响应会额外返回：
+
+```json
+{
+  "run_archive": {
+    "run_log": "data/run_logs/pipeline-run-job_0123456789abcdef.json",
+    "status": "succeeded",
+    "run_id": "extract-apt28_049-deepseek-v4-flash-1.0-1.0-20260716010000000000-a1b2c3d4",
+    "artifacts": {
+      "result_path": "data/run_artifacts/extract-apt28_049-deepseek-v4-flash-1.0-1.0-20260716010000000000-a1b2c3d4.json",
+      "result_sha256": "...",
+      "candidate_audit_path": "data/run_artifacts/extract-apt28_049-deepseek-v4-flash-1.0-1.0-20260716010000000000-a1b2c3d4-candidate-audit.json",
+      "candidate_audit_sha256": "..."
+    }
+  }
+}
 ```
 
 ---

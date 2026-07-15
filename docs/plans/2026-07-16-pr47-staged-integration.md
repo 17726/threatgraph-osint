@@ -33,7 +33,7 @@
 | Neo4j 投影 | SQLite → Neo4j 投影方向正确；当前全量重建会删除整个数据库，缺少应用命名空间、状态/错误字段和真实集成验证 | 作为最后一个 P1 PR 重做，未达到门槛则暂缓 |
 | 前端实体一跳筛选 | 用户价值明确；当前实现复用 `target` 模糊语义、移除搜索高亮且存在无障碍和请求竞态问题 | 等后端显式 neighbors API 稳定后单独迁移 |
 | 报告生成按钮 | 最新 main 已有实现；原 PR 合并冲突后重复渲染按钮 | 不迁移 |
-| `data/pipeline_*` | 与 `data/documents`、`data/extracted` 重复，命名不符合正式工件规则，且不是经审核 Baseline | 不迁移 |
+| `data/pipeline_*` | `pipeline_documents` 与正式 Document 重复；11 份 Extraction 命名不符合正式规则且都缺 Candidate Audit，但候选内容可单独审核 | 不迁移运行时目录；按当前契约审核后，将 9 份非重复合法 Extraction 以正式 `run_id` 文件名迁入 `data/extracted`，限制见审核报告 |
 | 原设计/计划文档 | 能说明原作者思路，但内容与实现、当前路线均有漂移 | 由本文吸收有效结论，不迁移旧 `docs/superpowers/*` |
 
 ## 3. 提交身份与 PR 规则
@@ -399,7 +399,8 @@ docker compose run --rm backend python -m pytest backend/tests/test_neo4j_servic
 - `backend/app/services/scheduler_service.py`
 - `backend/tests/test_scheduler_service.py`
 - `data/pipeline_documents/*`
-- `data/pipeline_extracted/*`
+- `data/pipeline_extracted/*` 原目录及重复版本；9 份通过当前契约的非重复 Extraction 已按
+  `docs/reports/pr47-extraction-artifact-audit.md` 选择性迁入正式目录，但不作为评测 Baseline
 - `docs/superpowers/*`
 - 重复的 ReportPanel 按钮
 - 恢复 demo seed 的冲突修复

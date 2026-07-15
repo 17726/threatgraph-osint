@@ -62,16 +62,23 @@ flowchart LR
 | 模式 | 真实行为 | 适用场景 | 失败条件 |
 | --- | --- | --- | --- |
 | `reviewed` | 读取与 `doc_id` 对应的已审核 extraction_result，再调用现有离线流水线 | 主演示、离线兜底、结果复现 | 缺少已审核结果或契约不一致 |
-| `live` | 现场调用 `LLMExtractionService`，将结果写入临时文件并调用现有离线流水线 | 展示真实模型抽取能力 | 未配置密钥、外部服务失败、模型输出校验失败 |
+| `live` | 现场调用 `LLMExtractionService`，先持久化 Extraction、Candidate Audit 和任务运行摘要，再调用现有离线流水线 | 展示真实模型抽取能力并保留可审核运行记录 | 未配置密钥、外部服务失败、模型输出校验失败或档案写入失败 |
 
 `reviewed` 不会隐式回退到 `live`，`live` 也不会因为存在缓存而跳过模型调用。这样答辩时可以准确说明当前展示的是可复现结果还是现场模型结果。
+
+### `live` 运行档案
+
+1. 每个 live 任务以 Pipeline `job_id` 写入 `data/run_logs/pipeline-run-<job_id>.json`，状态与 SQLite 中的任务状态同步。
+2. 模型成功返回后，Extraction 和 Candidate Audit 使用权威 `run_id` 命名并写入 `data/run_artifacts/`；先归档、后导入，因而导入失败不会抹掉模型输出。
+3. 本机运行档案默认被 Git 忽略。需要跨机器复现时，必须经过评审后显式纳入版本控制，不能把整个运行时目录批量提交。
+4. 删除 SQLite 后可用已评审 Document/Extraction 重建 canonical graph；未提交的本机 live 档案只在当前机器可用，不构成团队级恢复保证。
 
 ### `reviewed` 工件选择
 
 1. 课程固定样本使用 `config/course-demo.json` 中明确的 Document/Extraction 对，不按文件名或修改时间猜测“最新”结果。
-2. 清单外文档会排除 `*-candidate-audit.json`，再使用现有 extraction_result 导入契约校验候选文件。
-3. 只有一份合法候选时才自动选择；存在多份合法结果时列出 `run_id` 并失败，由评审者显式加入清单。
-4. 清单中的路径必须位于仓库内，Document 和 Extraction 都必须通过导入契约校验。
+2. 其他已审核输入必须登记到 `config/reviewed-extractions.json`；目录中的 live 输出或未登记 JSON 不会被自动消费。
+3. 两份清单都拒绝重复 `doc_id`，路径必须位于仓库内，Extraction 必须通过当前 Document 的导入契约校验。
+4. live 工件完成评审后，维护者将选定文件迁入 `data/extracted/` 并登记清单；“文件唯一”不等于“已经审核”。
 
 ## 5. 数据进入演示白名单的门槛
 
