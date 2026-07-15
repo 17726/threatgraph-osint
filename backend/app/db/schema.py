@@ -54,7 +54,8 @@ def ensure_graph_sync_schema(connection: sqlite3.Connection) -> None:
         """
         CREATE TABLE IF NOT EXISTS graph_changes (
           change_id INTEGER PRIMARY KEY AUTOINCREMENT,
-          table_name TEXT NOT NULL,
+          table_name TEXT NOT NULL
+            CHECK (table_name IN ('entities', 'relations', 'evidence')),
           record_id TEXT NOT NULL,
           operation TEXT NOT NULL CHECK (operation IN ('upsert', 'delete')),
           changed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -63,6 +64,11 @@ def ensure_graph_sync_schema(connection: sqlite3.Connection) -> None:
         CREATE TABLE IF NOT EXISTS sync_state (
           state_key TEXT PRIMARY KEY,
           watermark INTEGER NOT NULL DEFAULT 0,
+          status TEXT NOT NULL DEFAULT 'requires_rebuild',
+          last_attempt_at TEXT,
+          last_success_at TEXT,
+          last_full_sync_at TEXT,
+          error_message TEXT,
           updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -123,7 +129,60 @@ def ensure_graph_sync_schema(connection: sqlite3.Connection) -> None:
           INSERT INTO graph_changes (table_name, record_id, operation)
           VALUES ('evidence', OLD.evidence_id, 'delete');
         END;
+        CREATE TRIGGER IF NOT EXISTS evidence_owner_graph_change_insert
+        AFTER INSERT ON evidence
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          SELECT 'entities', NEW.entity_id, 'upsert'
+          WHERE NEW.entity_id IS NOT NULL;
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          SELECT 'relations', NEW.relation_id, 'upsert'
+          WHERE NEW.relation_id IS NOT NULL;
+        END;
+        CREATE TRIGGER IF NOT EXISTS evidence_owner_graph_change_update
+        AFTER UPDATE ON evidence
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          SELECT 'entities', OLD.entity_id, 'upsert'
+          WHERE OLD.entity_id IS NOT NULL;
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          SELECT 'relations', OLD.relation_id, 'upsert'
+          WHERE OLD.relation_id IS NOT NULL;
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          SELECT 'entities', NEW.entity_id, 'upsert'
+          WHERE NEW.entity_id IS NOT NULL;
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          SELECT 'relations', NEW.relation_id, 'upsert'
+          WHERE NEW.relation_id IS NOT NULL;
+        END;
+        CREATE TRIGGER IF NOT EXISTS evidence_owner_graph_change_delete
+        AFTER DELETE ON evidence
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          SELECT 'entities', OLD.entity_id, 'upsert'
+          WHERE OLD.entity_id IS NOT NULL;
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          SELECT 'relations', OLD.relation_id, 'upsert'
+          WHERE OLD.relation_id IS NOT NULL;
+        END;
         """
+    )
+    sync_state_columns = _table_columns(connection, "sync_state")
+    migrations = {
+        "status": "TEXT NOT NULL DEFAULT 'requires_rebuild'",
+        "last_attempt_at": "TEXT",
+        "last_success_at": "TEXT",
+        "last_full_sync_at": "TEXT",
+        "error_message": "TEXT",
+    }
+    for column_name, definition in migrations.items():
+        if column_name not in sync_state_columns:
+            connection.execute(
+                f"ALTER TABLE sync_state ADD COLUMN {column_name} {definition}"
+            )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS idx_graph_changes_after_watermark "
+        "ON graph_changes(change_id, table_name, record_id)"
     )
 
 

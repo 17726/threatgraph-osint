@@ -5,6 +5,7 @@ import backend.app.main as main_module
 from backend.app.core.document_contract import document_content_hash
 from backend.app.services.demo_store import DemoStore
 from backend.app.services.graph_query_service import GraphQueryService
+from backend.app.services.neo4j_service import Neo4jService
 from backend.app.services.pipeline_service import PipelineService
 
 
@@ -50,6 +51,12 @@ def empty_store(tmp_path, monkeypatch):
         PipelineService(store.db_path, runner=lambda **_context: {}),
         raising=False,
     )
+    monkeypatch.setattr(
+        main_module,
+        "neo4j_service",
+        Neo4jService(store.db_path, driver=None),
+        raising=False,
+    )
 
 
 def test_health_reports_core_components():
@@ -60,6 +67,7 @@ def test_health_reports_core_components():
     assert body["success"] is True
     assert body["data"]["status"] == "healthy"
     assert body["data"]["components"]["sqlite"] == "ok"
+    assert body["data"]["components"]["neo4j"] == "disconnected"
 
 
 def test_graph_returns_empty_payload_when_database_has_no_graph_data():
@@ -216,6 +224,78 @@ def test_graph_path_passes_sqlite_filters(monkeypatch):
         "relation_types": ["USES", "TARGETS"],
         "min_confidence": 0.7,
     }
+
+
+def test_graph_path_prefers_neo4j_when_projection_is_ready(monkeypatch):
+    expected = {
+        "source": "a",
+        "target": "b",
+        "engine": "neo4j",
+        "paths": [{"nodes": [], "edges": [], "length": 1, "evidence_ids": []}],
+    }
+    monkeypatch.setattr(
+        main_module.neo4j_service,
+        "get_path",
+        lambda **_kwargs: expected,
+    )
+    monkeypatch.setattr(
+        main_module.graph_query_service,
+        "get_path",
+        lambda **_kwargs: (_ for _ in ()).throw(AssertionError("不应降级")),
+    )
+
+    response = client.get(
+        "/api/v1/graph/path",
+        params={"source": "a", "target": "b", "max_depth": 3},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["data"] == expected
+
+
+def test_graph_path_rejects_depth_above_neo4j_limit():
+    response = client.get(
+        "/api/v1/graph/path",
+        params={"source": "a", "target": "b", "max_depth": 9},
+    )
+
+    assert response.status_code == 422
+
+
+def test_neo4j_status_and_sync_endpoints(monkeypatch):
+    status_payload = {
+        "available": True,
+        "connection": "connected",
+        "status": "succeeded",
+        "watermark": 12,
+        "latest_change": 12,
+        "pending_changes": 0,
+        "requires_rebuild": False,
+        "last_attempt_at": "2026-07-16T00:00:00Z",
+        "last_success_at": "2026-07-16T00:00:00Z",
+        "last_full_sync_at": "2026-07-16T00:00:00Z",
+        "error": None,
+    }
+    monkeypatch.setattr(main_module.neo4j_service, "status", lambda: status_payload)
+    monkeypatch.setattr(
+        main_module.neo4j_service,
+        "rebuild",
+        lambda: {"status": "succeeded", "nodes": 2, "edges": 1, "evidence": 1, "watermark": 12},
+    )
+    monkeypatch.setattr(
+        main_module.neo4j_service,
+        "sync_incremental",
+        lambda: {"status": "succeeded", "changes": 0, "watermark": 12},
+    )
+
+    status_response = client.get("/api/v1/neo4j/status")
+    rebuild_response = client.post("/api/v1/neo4j/rebuild")
+    sync_response = client.post("/api/v1/neo4j/sync")
+
+    assert status_response.status_code == 200
+    assert status_response.json()["data"] == status_payload
+    assert rebuild_response.json()["data"]["nodes"] == 2
+    assert sync_response.json()["data"]["changes"] == 0
 
 
 def test_pipeline_run_submits_one_background_operation(monkeypatch):

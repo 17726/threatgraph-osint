@@ -369,9 +369,9 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 说明：
 
 1. `/graph` 默认从 SQLite 查询。
-2. `/graph/path` 在优先级 P0 使用 SQLite relations 表做基础 BFS 路径查询。
-3. `/graph/path` 在增强阶段 / 优先级 P1 优先使用 Neo4j Cypher 做正式多跳路径查询。
-4. Neo4j 不可用时，路径接口降级到 SQLite；如果 SQLite 也查不到路径，再返回清晰错误。
+2. `/graph/path` 的 `max_depth` 范围为 1 到 8；关系类型和最小置信度筛选同时作用于 Neo4j 与 SQLite 实现。
+3. `/graph/path` 优先使用 Neo4j Cypher 做多跳路径查询。Neo4j 正常返回空路径时不重复查询 SQLite。
+4. Neo4j 未配置、投影尚未全量构建或查询失败时，路径接口降级到 SQLite BFS，并增加稳定的 `fallback_reason`。
 
 路径查询返回：
 
@@ -627,12 +627,37 @@ POST /api/v1/evaluation/run
 
 ```text
 GET  /api/v1/neo4j/status
+POST /api/v1/neo4j/rebuild
 POST /api/v1/neo4j/sync
 ```
 
 说明：
 
-1. 增强阶段 / 优先级 P1 实现。
-2. 同步输入只能来自 SQLite canonical graph 或导出的 `graph.json`。
-3. 不允许从 LLM 原始输出同步到 Neo4j。
-4. 路径查询接口优先使用 Neo4j；失败时降级到 SQLite BFS。
+1. `status` 返回连接状态、同步状态、水位、最新变更、待同步数量、首次重建要求及最近时间和稳定错误码。
+2. `rebuild` 在同一个 SQLite 读快照中取得 canonical graph 与水位，在一个 Neo4j 写事务中替换本项目投影；先删除带项目 ownership 的关系，再以非 `DETACH` 方式删除 `ThreatGraphProjection` 节点。存在外部关系时整笔事务失败回滚。
+3. `sync` 读取 `(watermark, latest_change]` 的变更批次，使用稳定 ID 幂等 upsert/delete；只有 Neo4j 事务成功后才推进 SQLite 水位。首次增量同步前必须先全量重建，返回 HTTP 409。
+4. 同步输入只能来自 SQLite canonical graph，不允许从 LLM 原始输出同步到 Neo4j。
+5. Pipeline 成功写入 SQLite 后会尽力触发一次增量同步；投影失败不改变 Pipeline 的 SQLite 成功状态。
+6. 重建或同步连接失败返回 HTTP 503 和稳定原因码，不返回驱动异常、连接串或凭据。
+7. 路径查询接口只遍历本项目节点和带 ownership 的关系；未配置、未重建、同步失败、水位落后或查询失败时降级到 SQLite BFS。
+
+状态响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "available": true,
+    "connection": "connected",
+    "status": "succeeded",
+    "watermark": 42,
+    "latest_change": 42,
+    "pending_changes": 0,
+    "requires_rebuild": false,
+    "last_attempt_at": "2026-07-16T08:00:00+00:00",
+    "last_success_at": "2026-07-16T08:00:00+00:00",
+    "last_full_sync_at": "2026-07-16T08:00:00+00:00",
+    "error": null
+  }
+}
+```

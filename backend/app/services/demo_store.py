@@ -327,7 +327,9 @@ class DemoStore:
                   source_count INTEGER NOT NULL DEFAULT 0,
                   first_seen TEXT,
                   last_seen TEXT,
-                  tags_json TEXT NOT NULL DEFAULT '[]'
+                  tags_json TEXT NOT NULL DEFAULT '[]',
+                  created_at TEXT,
+                  updated_at TEXT
                 );
 
                 CREATE TABLE IF NOT EXISTS relations (
@@ -341,7 +343,9 @@ class DemoStore:
                   evidence_count INTEGER NOT NULL DEFAULT 0,
                   first_seen TEXT,
                   last_seen TEXT,
-                  validation_status TEXT NOT NULL DEFAULT 'valid'
+                  validation_status TEXT NOT NULL DEFAULT 'valid',
+                  created_at TEXT,
+                  updated_at TEXT
                 );
 
                 CREATE TABLE IF NOT EXISTS evidence (
@@ -360,7 +364,8 @@ class DemoStore:
                   published_at TEXT,
                   retrieved_at TEXT,
                   source_reliability TEXT NOT NULL DEFAULT 'unknown',
-                  language TEXT NOT NULL
+                  language TEXT NOT NULL,
+                  created_at TEXT
                 );
 
                 CREATE TABLE IF NOT EXISTS mitre_mappings (
@@ -472,6 +477,8 @@ class DemoStore:
                 "first_seen": "TEXT",
                 "last_seen": "TEXT",
                 "tags_json": "TEXT NOT NULL DEFAULT '[]'",
+                "created_at": "TEXT",
+                "updated_at": "TEXT",
             },
             "relations": {
                 "source_count": "INTEGER NOT NULL DEFAULT 0",
@@ -479,6 +486,8 @@ class DemoStore:
                 "first_seen": "TEXT",
                 "last_seen": "TEXT",
                 "validation_status": "TEXT NOT NULL DEFAULT 'valid'",
+                "created_at": "TEXT",
+                "updated_at": "TEXT",
             },
             "evidence": {
                 "source_type": "TEXT NOT NULL DEFAULT ''",
@@ -489,6 +498,7 @@ class DemoStore:
                 "published_at": "TEXT",
                 "retrieved_at": "TEXT",
                 "source_reliability": "TEXT NOT NULL DEFAULT 'unknown'",
+                "created_at": "TEXT",
             },
         }
         for table_name, columns in migrations.items():
@@ -501,6 +511,21 @@ class DemoStore:
                     connection.execute(
                         f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
                     )
+        now = datetime.now(UTC).isoformat()
+        connection.execute(
+            "UPDATE entities SET created_at = coalesce(created_at, ?), "
+            "updated_at = coalesce(updated_at, created_at, ?)",
+            (now, now),
+        )
+        connection.execute(
+            "UPDATE relations SET created_at = coalesce(created_at, ?), "
+            "updated_at = coalesce(updated_at, created_at, ?)",
+            (now, now),
+        )
+        connection.execute(
+            "UPDATE evidence SET created_at = coalesce(created_at, ?)",
+            (now,),
+        )
 
     def seed_demo_data(self, connection: sqlite3.Connection | None = None) -> None:
         owns_connection = connection is None

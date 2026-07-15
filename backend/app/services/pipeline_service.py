@@ -209,6 +209,7 @@ class PipelineService:
         extraction_service: Any | None = None,
         document_locator: Callable[[str], tuple[str, str | None]] | None = None,
         run_archive: PipelineRunArchive | None = None,
+        projection_sync: Callable[[], dict[str, Any]] | None = None,
     ) -> None:
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -216,6 +217,7 @@ class PipelineService:
         self.extraction_service = extraction_service
         self.document_locator = document_locator
         self.runner = runner
+        self.projection_sync = projection_sync
         self.run_archive = run_archive or PipelineRunArchive(
             extraction_dir=DEFAULT_LIVE_EXTRACTION_DIR,
             run_log_dir=DEFAULT_PIPELINE_RUN_LOG_DIR,
@@ -623,19 +625,32 @@ class PipelineService:
         extraction_mode: str,
     ) -> dict[str, Any]:
         if doc_id:
-            return {
+            result = {
                 "doc_ids": [doc_id],
                 "summaries": [self._run_document(job_id, doc_id, extraction_mode)],
             }
-        doc_ids = self._document_ids_from_sqlite(target_group or "")
-        if not doc_ids:
-            raise ValueError(f"没有匹配文档：target_group={target_group}")
-        return {
-            "doc_ids": doc_ids,
-            "summaries": [
-                self._run_document(job_id, item, extraction_mode) for item in doc_ids
-            ],
-        }
+        else:
+            doc_ids = self._document_ids_from_sqlite(target_group or "")
+            if not doc_ids:
+                raise ValueError(f"没有匹配文档：target_group={target_group}")
+            result = {
+                "doc_ids": doc_ids,
+                "summaries": [
+                    self._run_document(job_id, item, extraction_mode)
+                    for item in doc_ids
+                ],
+            }
+
+        if self.projection_sync is not None:
+            try:
+                result["neo4j_sync"] = self.projection_sync()
+            except Exception:
+                # Neo4j 是可重建查询投影，不得阻塞 SQLite canonical 写入。
+                result["neo4j_sync"] = {
+                    "status": "failed",
+                    "reason": "neo4j_sync_failed",
+                }
+        return result
 
     def _run_document(
         self,

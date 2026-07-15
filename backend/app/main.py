@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import Body, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +9,7 @@ from backend.app.core.document_contract import require_valid_document
 from backend.app.core.response import error_response, success_response
 from backend.app.services.demo_store import DemoStore
 from backend.app.services.graph_query_service import GraphQueryService
+from backend.app.services.neo4j_service import MAX_PATH_DEPTH, Neo4jService
 from backend.app.services.pipeline_service import (
     DEFAULT_EXTRACTION_MODE,
     PipelineService,
@@ -18,6 +20,7 @@ from backend.app.services.pipeline_service import (
 async def lifespan(_app: FastAPI):
     yield
     pipeline_service.close()
+    neo4j_service.close()
 
 
 app = FastAPI(
@@ -37,7 +40,20 @@ app.add_middleware(
 
 store = DemoStore()
 graph_query_service = GraphQueryService(store.db_path)
-pipeline_service = PipelineService(store.db_path)
+neo4j_uri = os.getenv("NEO4J_URI")
+neo4j_service = Neo4jService(
+    store.db_path,
+    uri=neo4j_uri,
+    auth=(
+        os.getenv("NEO4J_USER", "neo4j"),
+        os.getenv("NEO4J_PASSWORD", ""),
+    ) if neo4j_uri else None,
+    database=os.getenv("NEO4J_DATABASE") or None,
+)
+pipeline_service = PipelineService(
+    store.db_path,
+    projection_sync=neo4j_service.sync_incremental,
+)
 
 
 def _split_query_values(values: list[str]) -> list[str]:
@@ -60,6 +76,7 @@ async def http_exception_handler(_request, exc: HTTPException):
 @app.get("/api/v1/health")
 def health():
     components = store.health()
+    components["neo4j"] = neo4j_service.health()["status"]
     return success_response({"status": "healthy", "components": components})
 
 
@@ -138,19 +155,46 @@ def graph_neighbors(
 def graph_path(
     source: str = Query(...),
     target: str = Query(...),
-    max_depth: int = Query(default=4, ge=0, le=20),
+    max_depth: int = Query(default=4, ge=1, le=MAX_PATH_DEPTH),
     relation_types: list[str] = Query(default=[]),
     min_confidence: float | None = Query(default=None, ge=0, le=1),
 ):
-    return success_response(
-        graph_query_service.get_path(
-            source=source,
-            target=target,
-            max_depth=max_depth,
-            relation_types=_split_query_values(relation_types),
-            min_confidence=min_confidence,
-        )
-    )
+    filters = {
+        "source": source,
+        "target": target,
+        "max_depth": max_depth,
+        "relation_types": _split_query_values(relation_types),
+        "min_confidence": min_confidence,
+    }
+    result = neo4j_service.get_path(**filters)
+    if result.get("engine") != "neo4j":
+        fallback_reason = result.get("reason", "neo4j_unavailable")
+        result = graph_query_service.get_path(**filters)
+        result["fallback_reason"] = fallback_reason
+    return success_response(result)
+
+
+@app.get("/api/v1/neo4j/status")
+def neo4j_status():
+    return success_response(neo4j_service.status())
+
+
+@app.post("/api/v1/neo4j/rebuild")
+def neo4j_rebuild():
+    result = neo4j_service.rebuild()
+    if result["status"] != "succeeded":
+        raise HTTPException(status_code=503, detail=result.get("reason"))
+    return success_response(result)
+
+
+@app.post("/api/v1/neo4j/sync")
+def neo4j_sync():
+    result = neo4j_service.sync_incremental()
+    if result["status"] == "requires_rebuild":
+        raise HTTPException(status_code=409, detail="neo4j_requires_rebuild")
+    if result["status"] != "succeeded":
+        raise HTTPException(status_code=503, detail=result.get("reason"))
+    return success_response(result)
 
 
 @app.get("/api/v1/analysis/{target_group}/behavior")
