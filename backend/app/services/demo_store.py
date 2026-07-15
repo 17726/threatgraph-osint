@@ -657,6 +657,49 @@ class DemoStore:
             connection.execute("SELECT 1").fetchone()
         return {"sqlite": "ok", "neo4j": "disconnected", "llm": "not_configured"}
 
+    def get_entity(self, entity_id: str) -> dict[str, Any] | None:
+        with self.connect() as connection:
+            row = connection.execute(
+                "SELECT entity_id, name, type, aliases_json, description, confidence, "
+                "source_count, first_seen, last_seen, tags_json "
+                "FROM entities WHERE entity_id = ?",
+                (entity_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return {
+            "entity_id": row["entity_id"],
+            "name": row["name"],
+            "type": row["type"],
+            "aliases": json.loads(row["aliases_json"]) if row["aliases_json"] else [],
+            "description": row["description"],
+            "confidence": row["confidence"],
+            "source_count": row["source_count"],
+            "first_seen": row["first_seen"],
+            "last_seen": row["last_seen"],
+            "tags": json.loads(row["tags_json"]) if row["tags_json"] else [],
+        }
+
+    def search_entities(self, q: str) -> list[dict[str, Any]]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT entity_id, name, type, description, confidence "
+                "FROM entities "
+                "WHERE name LIKE ? OR entity_id LIKE ? OR description LIKE ? "
+                "LIMIT 20",
+                (f"%{q}%", f"%{q}%", f"%{q}%"),
+            ).fetchall()
+        return [
+            {
+                "entity_id": row["entity_id"],
+                "name": row["name"],
+                "type": row["type"],
+                "description": row["description"],
+                "confidence": row["confidence"],
+            }
+            for row in rows
+        ]
+
     def get_graph(self, target: str | None = None) -> dict[str, Any]:
         with self.connect() as connection:
             rows = connection.execute(
