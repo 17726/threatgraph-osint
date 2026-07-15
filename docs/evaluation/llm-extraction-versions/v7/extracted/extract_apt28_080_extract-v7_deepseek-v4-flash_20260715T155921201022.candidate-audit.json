@@ -1,0 +1,169 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_apt28_080_extract-v7_deepseek-v4-flash_20260715T155921201022",
+  "doc_id": "apt28_080",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v7",
+  "chunks": [
+    {
+      "chunk_id": "apt28_080_c001",
+      "rejected_entities": [
+        {
+          "name": "google.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "Used for internet connectivity check",
+          "mention_text": "google.com",
+          "evidence_text": "google.com",
+          "char_start": 18146,
+          "char_end": 18156,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "CVE",
+          "type": "CVE",
+          "aliases": [],
+          "description": "No specific CVE mentioned",
+          "mention_text": "",
+          "evidence_text": "",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.0,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 不能为空"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "UserInitMprLogonScript",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Sofacy's use of this registry key as an example of the Logon Scripts persistence technique",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "google.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "initial request sent from the Trojan is to google.com",
+          "char_start": 18103,
+          "char_end": 18156,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (google.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "C:\\Programdata",
+          "tail_type": "LOCATION",
+          "evidence_text": "C:\\Programdata folder",
+          "char_start": 3771,
+          "char_end": 3792,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,LOCATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "%LOCALAPPDATA%",
+          "tail_type": "LOCATION",
+          "evidence_text": "%LOCALAPPDATA%\\cdnver.dll",
+          "char_start": 4490,
+          "char_end": 4515,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,LOCATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "February 2018",
+          "tail_type": "TIME",
+          "evidence_text": "At the beginning of February 2018",
+          "char_start": 1057,
+          "char_end": 1090,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "cdnverify[.]net",
+          "head_type": "INFRASTRUCTURE",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "January 30, 2018",
+          "tail_type": "TIME",
+          "evidence_text": "domain cdnverify[.]net was registered on January 30, 2018",
+          "char_start": 8957,
+          "char_end": 9014,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (INFRASTRUCTURE,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Luckystrike",
+          "head_type": "TOOL",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "September 2016",
+          "tail_type": "TIME",
+          "evidence_text": "presented at DerbyCon 6 in September 2016",
+          "char_start": 5982,
+          "char_end": 6023,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (TOOL,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

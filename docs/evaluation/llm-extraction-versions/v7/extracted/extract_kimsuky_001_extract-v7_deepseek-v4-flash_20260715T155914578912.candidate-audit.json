@@ -1,0 +1,534 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_kimsuky_001_extract-v7_deepseek-v4-flash_20260715T155914578912",
+  "doc_id": "kimsuky_001",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v7",
+  "chunks": [
+    {
+      "chunk_id": "kimsuky_001_c001",
+      "rejected_entities": [
+        {
+          "name": "2487a29d1193b5f48d29df02804d8172",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "样本MD5",
+          "mention_text": "2487a29d1193b5f48d29df02804d8172",
+          "evidence_text": "2487a29d1193b5f48d29df02804d8172",
+          "char_start": 3869,
+          "char_end": 3901,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "2cbf145eb39818d2b43b8c03ddb28ddf",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "关联样本MD5",
+          "mention_text": "2cbf145eb39818d2b43b8c03ddb28ddf",
+          "evidence_text": "2cbf145eb39818d2b43b8c03ddb28ddf",
+          "char_start": 3923,
+          "char_end": 3955,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "9e9745415793488ecf0774c7477bf2ae",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "关联样本MD5",
+          "mention_text": "9e9745415793488ecf0774c7477bf2ae",
+          "evidence_text": "9e9745415793488ecf0774c7477bf2ae",
+          "char_start": 3957,
+          "char_end": 3989,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "e039be15ddf7334311ee01711ba69481",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "关联样本MD5",
+          "mention_text": "e039be15ddf7334311ee01711ba69481",
+          "evidence_text": "e039be15ddf7334311ee01711ba69481",
+          "char_start": 3991,
+          "char_end": 4023,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "获取录音数据",
+          "type": "BEHAVIOR_PATTERN",
+          "aliases": [],
+          "description": "恶意行为",
+          "mention_text": "获取录音数据",
+          "evidence_text": "获取录音数据",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "获取sd卡的文件目录",
+          "type": "BEHAVIOR_PATTERN",
+          "aliases": [],
+          "description": "恶意行为",
+          "mention_text": "获取sd卡的文件目录",
+          "evidence_text": "获取sd卡的文件目录",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "hxxp://bit[.]ly/2CZnAqD",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "短链接",
+          "mention_text": "hxxp://bit[.]ly/2CZnAqD",
+          "evidence_text": "hxxp://bit[.]ly/2CZnAqD",
+          "char_start": 471,
+          "char_end": 494,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "http://bit.ly/37gAUoo",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "短链接",
+          "mention_text": "http://bit.ly/37gAUoo",
+          "evidence_text": "http://bit.ly/37gAUoo",
+          "char_start": 4098,
+          "char_end": 4119,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "hxxp://oaass-torrent[.]com/KakaoTalk.APK",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "APK下载链接",
+          "mention_text": "hxxp://oaass-torrent[.]com/KakaoTalk.APK",
+          "evidence_text": "hxxp://oaass-torrent[.]com/KakaoTalk.APK",
+          "char_start": 496,
+          "char_end": 536,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "hxxp://download-apks[.]com/KaokaoTalk/",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "钓鱼页面链接",
+          "mention_text": "hxxp://download-apks[.]com/KaokaoTalk/",
+          "evidence_text": "hxxp://download-apks[.]com/KaokaoTalk/",
+          "char_start": 624,
+          "char_end": 662,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "hxxp://download-apks[.]com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "恶意分发网站",
+          "mention_text": "hxxp://download-apks[.]com",
+          "evidence_text": "hxxp://download-apks[.]com",
+          "char_start": 624,
+          "char_end": 650,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "http://download-apks[.]com/KakaoTalk/KakaoTalk.APK",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "APK下载链接",
+          "mention_text": "http://download-apks[.]com/KakaoTalk/KakaoTalk.APK",
+          "evidence_text": "http://download-apks[.]com/KakaoTalk/KakaoTalk.APK",
+          "char_start": 4215,
+          "char_end": 4265,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "http://2.56.151.8/manager",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "C2地址",
+          "mention_text": "http://2.56.151.8/manager",
+          "evidence_text": "http://2.56.151.8/manager",
+          "char_start": 4031,
+          "char_end": 4056,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "http://download-apks.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://download-apks[.]com",
+          "char_start": 624,
+          "char_end": 650,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "2.56.151.8",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "http://2.56.151.8/manager",
+          "char_start": 4031,
+          "char_end": 4056,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "2487a29d1193b5f48d29df02804d8172",
+          "tail_type": "MALWARE",
+          "evidence_text": "2487a29d1193b5f48d29df02804d8172",
+          "char_start": 3869,
+          "char_end": 3901,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (2487a29d1193b5f48d29df02804d8172, MALWARE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "2cbf145eb39818d2b43b8c03ddb28ddf",
+          "tail_type": "MALWARE",
+          "evidence_text": "2cbf145eb39818d2b43b8c03ddb28ddf",
+          "char_start": 3923,
+          "char_end": 3955,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (2cbf145eb39818d2b43b8c03ddb28ddf, MALWARE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "9e9745415793488ecf0774c7477bf2ae",
+          "tail_type": "MALWARE",
+          "evidence_text": "9e9745415793488ecf0774c7477bf2ae",
+          "char_start": 3957,
+          "char_end": 3989,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (9e9745415793488ecf0774c7477bf2ae, MALWARE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "e039be15ddf7334311ee01711ba69481",
+          "tail_type": "MALWARE",
+          "evidence_text": "e039be15ddf7334311ee01711ba69481",
+          "char_start": 3991,
+          "char_end": 4023,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (e039be15ddf7334311ee01711ba69481, MALWARE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "http://bit.ly/2CZnAqD",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "http://bit.ly/2CZnAqD",
+          "char_start": 4075,
+          "char_end": 4096,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "http://bit.ly/2CZnAqD",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "http://bit.ly/37gAUoo",
+          "char_start": 4098,
+          "char_end": 4119,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "http://download-apks.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "http://download-apks.com",
+          "char_start": 4121,
+          "char_end": 4145,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "http://oaass-torrent.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "http://oaass-torrent.com",
+          "char_start": 4147,
+          "char_end": 4171,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "http://download-apks.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "http://download-apks[.]com/KakaoTalk/KakaoTalk.APK",
+          "char_start": 4215,
+          "char_end": 4265,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "HAS_BEHAVIOR",
+          "tail_name": "获取录音数据",
+          "tail_type": "BEHAVIOR_PATTERN",
+          "evidence_text": "获取录音数据",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (获取录音数据, BEHAVIOR_PATTERN) 不在候选实体中",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "HAS_BEHAVIOR",
+          "tail_name": "获取sd卡的文件目录",
+          "tail_type": "BEHAVIOR_PATTERN",
+          "evidence_text": "获取sd卡的文件目录",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (获取sd卡的文件目录, BEHAVIOR_PATTERN) 不在候选实体中",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "LOCATED_IN",
+          "tail_name": "UTC+9",
+          "tail_type": "TIME",
+          "evidence_text": "攻击者所处的时区大概在：UTC+9",
+          "char_start": 3391,
+          "char_end": 3408,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,LOCATED_IN,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "LOCATED_IN",
+          "tail_name": "韩国",
+          "tail_type": "COUNTRY",
+          "evidence_text": "攻击者的具体位置在UTC+9的时区",
+          "char_start": 3468,
+          "char_end": 3485,
+          "confidence": 0.8,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,LOCATED_IN,COUNTRY)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "日本",
+          "tail_type": "COUNTRY",
+          "evidence_text": "控制该电脑的IP地址为一个日本的IP地址",
+          "char_start": 2906,
+          "char_end": 2926,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,COUNTRY)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "新加坡",
+          "tail_type": "COUNTRY",
+          "evidence_text": "初次和C2服务器交互实现发送指令的疑似攻击者IP地址是一个新加坡的IP地址",
+          "char_start": 3004,
+          "char_end": 3041,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,COUNTRY)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "2019年8月",
+          "tail_type": "TIME",
+          "evidence_text": "2019年8月",
+          "char_start": 4,
+          "char_end": 11,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "HAPPENED_AT",
+          "tail_name": "2019年9月17日",
+          "tail_type": "TIME",
+          "evidence_text": "2019年9月17日",
+          "char_start": 934,
+          "char_end": 944,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,HAPPENED_AT,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

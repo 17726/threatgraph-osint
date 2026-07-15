@@ -1,0 +1,305 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_lazarus_091_extract-v7_deepseek-v4-flash_20260715T155924762375",
+  "doc_id": "lazarus_091",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v7",
+  "chunks": [
+    {
+      "chunk_id": "lazarus_091_c001",
+      "rejected_entities": [
+        {
+          "name": "twitter.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "SNI domain used in fake TLS",
+          "mention_text": "twitter.com",
+          "evidence_text": "twitter.com",
+          "char_start": 4224,
+          "char_end": 4235,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "www.amazon.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "SNI domain used in fake TLS",
+          "mention_text": "www.amazon.com",
+          "evidence_text": "www.amazon.com",
+          "char_start": 4236,
+          "char_end": 4250,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "www.apple.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "SNI domain used in fake TLS",
+          "mention_text": "www.apple.com",
+          "evidence_text": "www.apple.com",
+          "char_start": 4251,
+          "char_end": 4264,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "www.bing.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "SNI domain used in fake TLS",
+          "mention_text": "www.bing.com",
+          "evidence_text": "www.bing.com",
+          "char_start": 4265,
+          "char_end": 4277,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "www.facebook.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "SNI domain used in fake TLS",
+          "mention_text": "www.facebook.com",
+          "evidence_text": "www.facebook.com",
+          "char_start": 4278,
+          "char_end": 4294,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "www.microsoft.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "SNI domain used in fake TLS",
+          "mention_text": "www.microsoft.com",
+          "evidence_text": "www.microsoft.com",
+          "char_start": 4295,
+          "char_end": 4312,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "www.yahoo.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "SNI domain used in fake TLS",
+          "mention_text": "www.yahoo.com",
+          "evidence_text": "www.yahoo.com",
+          "char_start": 4313,
+          "char_end": 4326,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "name": "www.join.me",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "SNI domain used in fake TLS",
+          "mention_text": "www.join.me",
+          "evidence_text": "www.join.me",
+          "char_start": 4327,
+          "char_end": 4338,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "DarkSeoul",
+          "tail_type": "CAMPAIGN",
+          "evidence_text": "the 2013 DarkSeoul attacks",
+          "char_start": 705,
+          "char_end": 731,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,ATTRIBUTED_TO,CAMPAIGN)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "twitter.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "twitter.com",
+          "char_start": 4224,
+          "char_end": 4235,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (twitter.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "www.amazon.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "www.amazon.com",
+          "char_start": 4236,
+          "char_end": 4250,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (www.amazon.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "www.apple.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "www.apple.com",
+          "char_start": 4251,
+          "char_end": 4264,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (www.apple.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "www.bing.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "www.bing.com",
+          "char_start": 4265,
+          "char_end": 4277,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (www.bing.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "www.facebook.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "www.facebook.com",
+          "char_start": 4278,
+          "char_end": 4294,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (www.facebook.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "www.microsoft.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "www.microsoft.com",
+          "char_start": 4295,
+          "char_end": 4312,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (www.microsoft.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "www.yahoo.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "www.yahoo.com",
+          "char_start": 4313,
+          "char_end": 4326,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (www.yahoo.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "www.join.me",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "www.join.me",
+          "char_start": 4327,
+          "char_end": 4338,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (www.join.me, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

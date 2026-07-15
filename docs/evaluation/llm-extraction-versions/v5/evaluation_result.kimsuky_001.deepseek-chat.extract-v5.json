@@ -1,0 +1,803 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-14T21:16:28.965992+00:00",
+  "extraction": {
+    "run_id": "extract_kimsuky_001_extract-v5_deepseek-chat_20260714T211559786810",
+    "doc_id": "kimsuky_001",
+    "model_name": "deepseek-chat",
+    "prompt_version": "extract-v5"
+  },
+  "golden": {
+    "target_group": "Kimsuky",
+    "doc_ids": [
+      "kimsuky_001"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": true,
+    "rejected_entities": 4,
+    "rejected_relations": 15
+  },
+  "entity_metrics": {
+    "predicted": 40,
+    "golden": 25,
+    "true_positive": 16,
+    "false_positive": 24,
+    "false_negative": 9,
+    "precision": 0.4,
+    "recall": 0.64,
+    "f1": 0.492308
+  },
+  "relation_metrics": {
+    "predicted": 32,
+    "golden": 16,
+    "true_positive": 9,
+    "false_positive": 23,
+    "false_negative": 7,
+    "precision": 0.28125,
+    "recall": 0.5625,
+    "f1": 0.375
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 2,
+      "golden": 2,
+      "true_positive": 2,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "CAMPAIGN": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "COUNTRY": {
+      "predicted": 3,
+      "golden": 3,
+      "true_positive": 3,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "FINANCIAL_ACCOUNT": {
+      "predicted": 3,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 13,
+      "golden": 7,
+      "true_positive": 4,
+      "false_positive": 9,
+      "false_negative": 3,
+      "precision": 0.307692,
+      "recall": 0.571429,
+      "f1": 0.4
+    },
+    "MALWARE": {
+      "predicted": 7,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 6,
+      "false_negative": 0,
+      "precision": 0.142857,
+      "recall": 1.0,
+      "f1": 0.25
+    },
+    "ORGANIZATION": {
+      "predicted": 3,
+      "golden": 3,
+      "true_positive": 2,
+      "false_positive": 1,
+      "false_negative": 1,
+      "precision": 0.666667,
+      "recall": 0.666667,
+      "f1": 0.666667
+    },
+    "PERSON": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "REGION": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TECHNIQUE": {
+      "predicted": 4,
+      "golden": 4,
+      "true_positive": 3,
+      "false_positive": 1,
+      "false_negative": 1,
+      "precision": 0.75,
+      "recall": 0.75,
+      "f1": 0.75
+    },
+    "TIME": {
+      "predicted": 3,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TOOL": {
+      "predicted": 2,
+      "golden": 2,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 1,
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5
+    }
+  },
+  "relation_metrics_by_type": {
+    "AFFILIATED_WITH": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "DISCOVERED_BY": {
+      "predicted": 0,
+      "golden": 2,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "HAPPENED_AT": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "LOCATED_IN": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "PART_OF": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "RELATED_TO": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TARGETS": {
+      "predicted": 5,
+      "golden": 2,
+      "true_positive": 1,
+      "false_positive": 4,
+      "false_negative": 1,
+      "precision": 0.2,
+      "recall": 0.5,
+      "f1": 0.285714
+    },
+    "USES": {
+      "predicted": 23,
+      "golden": 9,
+      "true_positive": 7,
+      "false_positive": 16,
+      "false_negative": 2,
+      "precision": 0.304348,
+      "recall": 0.777778,
+      "f1": 0.4375
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "Android用户",
+        "type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "钓鱼页面",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "GooglePlay",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "腾讯",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "KONNI攻击活动",
+        "type": "CAMPAIGN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "VPS",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "UTC+9",
+        "type": "REGION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "bit.ly/2CZnAqD",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "bit.ly/37gAUoo",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "2487a29d1193b5f48d29df02804d8172",
+        "type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "2cbf145eb39818d2b43b8c03ddb28ddf",
+        "type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "9e9745415793488ecf0774c7477bf2ae",
+        "type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "e039be15ddf7334311ee01711ba69481",
+        "type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "Android",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "bit.ly",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "GooglePlay",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "YouTube",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "C2",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "2019年9月17日",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "2019年8月",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "hsne••••••••••16@gmail.com",
+        "type": "FINANCIAL_ACCOUNT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "new••••••••••@mail.ru",
+        "type": "FINANCIAL_ACCOUNT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "UTC+9",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "downmaner15@rambler.ru",
+        "type": "FINANCIAL_ACCOUNT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "KONNI Android木马",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "KakaoTalk.APK",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "http://2.56.151.8/manager",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "http://bit.ly/2CZnAqD",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "http://bit.ly/37gAUoo",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "http://download-apks.com",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "http://oaass-torrent.com",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "http://oaass-torrent[.]com/KakaoTalk.APK",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "name": "http://download-apks[.]com/KakaoTalk/KakaoTalk.APK",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Android用户",
+        "tail_type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "钓鱼页面",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KaokaoTalk",
+        "head_type": "MALWARE",
+        "relation_type": "RELATED_TO",
+        "tail_name": "KakaoTalk",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI攻击活动",
+        "head_type": "CAMPAIGN",
+        "relation_type": "PART_OF",
+        "tail_name": "KONNI",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI攻击活动",
+        "head_type": "CAMPAIGN",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "ESTsecurity",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI攻击活动",
+        "head_type": "CAMPAIGN",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "奇安信威胁情报中心红雨滴团队",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "VPS",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hsne••••••••••16@gmail.com",
+        "tail_type": "FINANCIAL_ACCOUNT",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,USES,FINANCIAL_ACCOUNT)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "new••••••••••@mail.ru",
+        "tail_type": "FINANCIAL_ACCOUNT",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,USES,FINANCIAL_ACCOUNT)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "downmaner15@rambler.ru",
+        "tail_type": "FINANCIAL_ACCOUNT",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,USES,FINANCIAL_ACCOUNT)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "2487a29d1193b5f48d29df02804d8172",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "tail (2487a29d1193b5f48d29df02804d8172, MALWARE) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "2cbf145eb39818d2b43b8c03ddb28ddf",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "tail (2cbf145eb39818d2b43b8c03ddb28ddf, MALWARE) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "9e9745415793488ecf0774c7477bf2ae",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "tail (9e9745415793488ecf0774c7477bf2ae, MALWARE) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "e039be15ddf7334311ee01711ba69481",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "tail (e039be15ddf7334311ee01711ba69481, MALWARE) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "韩国",
+        "tail_type": "COUNTRY",
+        "source": "candidate_audit",
+        "audit_reason": "duplicate_relation_removed",
+        "validation_errors": []
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "KakaoTalk",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,TARGETS,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "YouTube",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,TARGETS,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "LOCATED_IN",
+        "tail_name": "UTC+9",
+        "tail_type": "TIME",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,LOCATED_IN,TIME)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAPPENED_AT",
+        "tail_name": "2019年8月",
+        "tail_type": "TIME",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,HAPPENED_AT,TIME)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAPPENED_AT",
+        "tail_name": "2019年9月17日",
+        "tail_type": "TIME",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,HAPPENED_AT,TIME)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "日本",
+        "tail_type": "COUNTRY",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,USES,COUNTRY)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "新加坡",
+        "tail_type": "COUNTRY",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,USES,COUNTRY)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Android",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "KONNI Android木马",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "bit.ly",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "KakaoTalk",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "http://2.56.151.8/manager",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ipipipip.net",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "KakaoTalk.APK",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_001_c001",
+        "head_name": "KONNI",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "GooglePlay",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}

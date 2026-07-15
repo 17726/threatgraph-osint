@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_kimsuky_001_extract-v6_deepseek-v4-flash_20260715T151629595502",
+  "doc_id": "kimsuky_001",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v6",
+  "chunks": [
+    {
+      "chunk_id": "kimsuky_001_c001",
+      "rejected_entities": [
+        {
+          "name": "朝鲜语",
+          "type": "LANGUAGE",
+          "aliases": [],
+          "description": "攻击者使用的语言",
+          "mention_text": "朝鲜语",
+          "evidence_text": "朝鲜语的ipipipip.net",
+          "char_start": 3265,
+          "char_end": 3281,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "未知实体类型: LANGUAGE"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "奇安信威胁情报中心红雨滴团队",
+          "head_type": "ORGANIZATION",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "KONNI",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "红雨滴团队针对该样本及样本传播的渠道进行了详细分析和关联",
+          "char_start": 250,
+          "char_end": 278,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,DISCOVERED_BY,APT_GROUP)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "ESTsecurity",
+          "head_type": "ORGANIZATION",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "KONNI",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "韩国安全厂商ESTsecurity披露了KONNIAPT组织使用Android端木马的新攻击活动",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,DISCOVERED_BY,APT_GROUP)",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "KONNI",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "朝鲜语",
+          "tail_type": "LANGUAGE",
+          "evidence_text": "攻击者使用的搜索引擎是朝鲜语的ipipipip.net",
+          "char_start": 3254,
+          "char_end": 3281,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,ATTRIBUTED_TO,LANGUAGE)",
+            "tail (朝鲜语, LANGUAGE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}
