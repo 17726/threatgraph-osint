@@ -13,6 +13,9 @@ data/evaluation/*
 data/extracted/*
 !data/extracted/extraction_result.apt28.thn.beardshell.v1.json
 !data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json
+!data/extracted/extract-apt28_080-deepseek-v4-flash-1.0-1.0-20260714075123666577-c463deb3.json
+!data/extracted/extract-kimsuky_001-deepseek-v4-flash-1.0-1.0-20260714080134257073-c920384d.json
+!data/extracted/extract-lazarus_001-deepseek-v4-flash-1.0-1.0-20260714080135364375-538cfcc0.json
 data/graph/*
 data/raw/*
 data/reports/*

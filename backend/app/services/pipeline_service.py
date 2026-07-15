@@ -16,6 +16,7 @@ from typing import Any, Callable
 from backend.app.db.schema import ensure_pipeline_schema
 from backend.app.services.llm_service import LLMExtractionService
 from backend.app.services.offline_extraction_pipeline import OfflineExtractionPipeline
+from scripts.validate_extraction_result import validate_import_payload
 
 
 REVIEWED_EXTRACTION_MODE = "reviewed"
@@ -25,6 +26,7 @@ REVIEWED_OPERATION = "import_extraction_and_build"
 LIVE_OPERATION = "extract_and_build"
 DEFAULT_OPERATION = REVIEWED_OPERATION
 INTERRUPTED_ERROR = "上次执行因服务进程中断而失败"
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _now() -> str:
@@ -37,6 +39,131 @@ def _operation_for_mode(extraction_mode: str) -> str:
     if extraction_mode == LIVE_EXTRACTION_MODE:
         return LIVE_OPERATION
     raise ValueError("extraction_mode 只支持 reviewed 或 live")
+
+
+def _load_json_object(path: Path, label: str) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"{label}无法读取: {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"{label}必须是 JSON 对象: {path}")
+    return payload
+
+
+def _resolve_repository_path(repository_root: Path, relative_path: str) -> Path:
+    if not isinstance(relative_path, str) or not relative_path.strip():
+        raise ValueError("演示清单中的路径不能为空")
+    root = repository_root.resolve()
+    candidate = (root / relative_path).resolve()
+    try:
+        candidate.relative_to(root)
+    except ValueError as exc:
+        raise ValueError(f"演示清单路径超出仓库: {relative_path}") from exc
+    return candidate
+
+
+def _manifest_sample(
+    repository_root: Path,
+    doc_id: str,
+    manifest_path: Path,
+) -> dict[str, Any] | None:
+    if not manifest_path.exists():
+        return None
+    manifest = _load_json_object(manifest_path, "课程演示清单")
+    if manifest.get("schema_version") != "1.0":
+        raise ValueError("课程演示清单 schema_version 必须为 1.0")
+    samples = manifest.get("samples")
+    if not isinstance(samples, list):
+        raise ValueError("课程演示清单 samples 必须是数组")
+    matches = [
+        item
+        for item in samples
+        if isinstance(item, dict) and item.get("doc_id") == doc_id
+    ]
+    if len(matches) > 1:
+        raise ValueError(f"课程演示清单包含重复 doc_id: {doc_id}")
+    if not matches:
+        return None
+
+    sample = matches[0]
+    configured_document_path = _resolve_repository_path(
+        repository_root,
+        sample.get("document", ""),
+    )
+    configured_document = _load_json_object(
+        configured_document_path,
+        "课程演示 Document",
+    )
+    if configured_document.get("doc_id") != doc_id:
+        raise ValueError(f"课程演示 Document 的 doc_id 不匹配: {doc_id}")
+    return sample
+
+
+def _valid_extraction(
+    path: Path,
+    document: dict[str, Any],
+) -> tuple[dict[str, Any] | None, list[str]]:
+    try:
+        payload = _load_json_object(path, "extraction_result")
+    except ValueError as exc:
+        return None, [str(exc)]
+    report = validate_import_payload(payload, document)
+    return (payload if report.ok else None), report.errors
+
+
+def select_reviewed_extraction(
+    repository_root: str | Path,
+    doc_id: str,
+    document: dict[str, Any],
+    *,
+    manifest_path: str | Path | None = None,
+) -> Path | None:
+    """选择唯一、契约合法的已审核抽取工件。"""
+    root = Path(repository_root).resolve()
+    active_manifest_path = (
+        Path(manifest_path).resolve()
+        if manifest_path is not None
+        else root / "config/course-demo.json"
+    )
+    sample = _manifest_sample(root, doc_id, active_manifest_path)
+    if sample is not None:
+        selected_path = _resolve_repository_path(
+            root,
+            sample.get("reviewed_extraction", ""),
+        )
+        if not selected_path.is_file():
+            raise ValueError(f"清单中的已审核抽取工件不存在: {selected_path}")
+        payload, errors = _valid_extraction(selected_path, document)
+        if payload is None:
+            raise ValueError(
+                "清单中的已审核抽取工件契约校验失败: "
+                + "; ".join(errors),
+            )
+        return selected_path
+
+    extracted_dir = root / "data/extracted"
+    candidates = sorted(
+        path
+        for path in extracted_dir.glob(f"*{doc_id}*.json")
+        if not path.name.endswith("-candidate-audit.json")
+    )
+    valid_candidates: list[tuple[Path, str]] = []
+    for candidate in candidates:
+        payload, _errors = _valid_extraction(candidate, document)
+        if payload is not None:
+            valid_candidates.append(
+                (candidate, str(payload.get("run_id", candidate.name)))
+            )
+
+    if not valid_candidates:
+        return None
+    if len(valid_candidates) > 1:
+        run_ids = ", ".join(run_id for _path, run_id in valid_candidates)
+        raise ValueError(
+            f"doc_id={doc_id} 存在多个合法已审核抽取结果: {run_ids}"
+        )
+    return valid_candidates[0][0]
 
 
 class PipelineService:
@@ -407,7 +534,8 @@ class PipelineService:
         extraction_mode: str,
     ) -> dict[str, Any]:
         document, source_document_path, reviewed_extraction_path = self._locate_inputs(
-            doc_id
+            doc_id,
+            include_reviewed=extraction_mode == REVIEWED_EXTRACTION_MODE,
         )
         with tempfile.TemporaryDirectory(prefix="threatgraph-pipeline-") as directory:
             temporary_directory = Path(directory)
@@ -458,6 +586,8 @@ class PipelineService:
     def _locate_inputs(
         self,
         doc_id: str,
+        *,
+        include_reviewed: bool = True,
     ) -> tuple[dict[str, Any], Path | None, Path | None]:
         if self.document_locator is not None:
             document_value, extraction_value = self.document_locator(doc_id)
@@ -466,23 +596,27 @@ class PipelineService:
             extraction_path = Path(extraction_value) if extraction_value else None
             return document, document_path, extraction_path
 
-        root = Path(__file__).resolve().parents[3]
-        extraction_paths = sorted(
-            (root / "data" / "extracted").glob(f"*{doc_id}*.json")
-        )
-        extraction_path = extraction_paths[0] if extraction_paths else None
-
         document = self._document_from_sqlite(doc_id)
         if document is not None:
+            extraction_path = (
+                select_reviewed_extraction(REPO_ROOT, doc_id, document)
+                if include_reviewed
+                else None
+            )
             return document, None, extraction_path
 
         document_paths = sorted(
-            (root / "data" / "documents").glob(f"**/{doc_id}.json")
+            (REPO_ROOT / "data" / "documents").glob(f"**/{doc_id}.json")
         )
         if not document_paths:
             raise ValueError(f"没有可执行的标准文档：doc_id={doc_id}")
         document_path = document_paths[0]
         document = json.loads(document_path.read_text(encoding="utf-8"))
+        extraction_path = (
+            select_reviewed_extraction(REPO_ROOT, doc_id, document)
+            if include_reviewed
+            else None
+        )
         return document, document_path, extraction_path
 
     def _invoke_offline_pipeline(

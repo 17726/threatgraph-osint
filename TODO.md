@@ -53,9 +53,9 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 | 课程核心项 | 当前状态 | 下一个验收证据 |
 | --- | --- | --- |
 | 三类来源与中英文 Document | 已有数据 | 覆盖检查命令和三类采集/转换记录 |
-| Document 导入、切块和 Pipeline | 代码已实现 | 三组织 `reviewed` 固定工件回归 |
-| LLM 候选抽取 | 已有数据 | 固定审核 Extraction 的显式选择与导入 |
-| 归一化、SQLite 图谱、证据与路径 API | 代码已实现 | 三组织独立验收库和前端切换 |
+| Document 导入、切块和 Pipeline | 已集成验证后半链路 | 三类来源上游接入同一任务 |
+| LLM 候选抽取 | 已集成验证 `reviewed` | 保留 `live` 作为显式可选现场演示 |
+| 归一化、SQLite 图谱、证据与路径 API | 已集成验证后端三样本 | 三组织前端切换和浏览器验收 |
 | 行为模式与 MITRE | 代码已实现基础规则 | 真实 MITRE 映射和 `evidence_ids` |
 | 三组织五章节报告 | 代码已实现 | 强制规则模式与三组织集成验收 |
 | 开发集最小评测 | 已有数据 | 统一标记为 development / exploratory，移除前端 Mock 指标 |
@@ -281,10 +281,10 @@ qa：质量门禁、验收测试、报告和答辩相关工作。
 
 ## 最近下一步
 
-1. [ ] **锁定三组织已审核 Extraction**（arch / llm / qa）
-   - [ ] 显式配置 APT28、Kimsuky、Lazarus 的 Document/Extraction 对。
-   - [ ] 排除 Candidate Audit，多个合法工件时明确报错。
-   - [ ] 在独立 SQLite 中验证三个 `reviewed` Pipeline 均产生非零实体、关系和证据。
+1. [x] **锁定三组织已审核 Extraction**（arch / llm / qa）
+   - [x] 显式配置 APT28、Kimsuky、Lazarus 的 Document/Extraction 对。
+   - [x] 排除 Candidate Audit，多个合法工件时明确报错。
+   - [x] 在独立 SQLite 中验证三个 `reviewed` Pipeline 均产生非零实体、关系和证据。
 
 2. [ ] **固化三类来源采集与预处理验收**（data / qa）
    - [ ] 输出三组织、三来源类型、中英文数量和 Schema/哈希错误。

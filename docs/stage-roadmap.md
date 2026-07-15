@@ -102,7 +102,7 @@ data/graph/graph.json
 
 Step 2 完成后，才可以称为 MVP。Step 0 只能称为 Demo 或脚手架闭环。
 
-当前状态：上述代码能力大部分已实现，但 `reviewed` 工件选择仍可能误读 Candidate Audit，因此在固定样本回归通过前不标记 Step 2 完成。
+当前状态：`reviewed` 工件已通过显式清单锁定，APT28、Kimsuky、Lazarus 三个真实样本已通过独立 SQLite 后端回归。由于三类来源上游编排和三组织前端浏览器验收仍未完成，Step 2 仍不标记完成。
 
 ### Step 3：课程验收闭环
 
