@@ -18,6 +18,31 @@ from scripts.validate_extraction_result import ALLOWED_RELATIONS
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_GOLDEN_SCHEMA_PATH = REPO_ROOT / "docs/schemas/golden.schema.json"
+FILE_EXTENSION_MATCH_ENTITY_TYPES = {"MALWARE", "TOOL"}
+FILE_EXTENSION_SUFFIXES = (
+    ".tar.gz",
+    ".tar.bz2",
+    ".tar.xz",
+    ".exe",
+    ".dll",
+    ".zip",
+    ".rar",
+    ".7z",
+    ".bat",
+    ".cmd",
+    ".ps1",
+    ".vbs",
+    ".js",
+    ".lnk",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".ppt",
+    ".pptx",
+    ".hwp",
+    ".rtf",
+)
 
 
 def validate_golden_schema(
@@ -45,18 +70,47 @@ def normalize_name(value: str) -> str:
     return normalized
 
 
+def _strip_file_extension(value: str) -> str | None:
+    for suffix in FILE_EXTENSION_SUFFIXES:
+        if value.endswith(suffix) and len(value) > len(suffix):
+            return value[: -len(suffix)]
+    return None
+
+
+def _name_variants(value: str, entity_type: str) -> set[str]:
+    normalized = normalize_name(value)
+    variants = {normalized} if normalized else set()
+    if entity_type in FILE_EXTENSION_MATCH_ENTITY_TYPES and normalized:
+        stripped = _strip_file_extension(normalized)
+        if stripped:
+            variants.add(stripped)
+    return variants
+
+
 def _entity_names(entity: dict[str, Any]) -> set[str]:
     values = [entity.get("name", ""), *entity.get("aliases", [])]
-    return {normalize_name(value) for value in values if isinstance(value, str) and value.strip()}
+    entity_type = entity.get("type", "")
+    return {
+        variant
+        for value in values
+        if isinstance(value, str) and value.strip()
+        for variant in _name_variants(value, entity_type)
+    }
 
 
 def _entity_match_score(predicted: dict[str, Any], golden: dict[str, Any]) -> int:
     if predicted.get("type") != golden.get("type"):
         return 0
+    entity_type = predicted.get("type", "")
     predicted_name = normalize_name(predicted.get("name", ""))
     golden_name = normalize_name(golden.get("name", ""))
     if predicted_name and predicted_name == golden_name:
         return 3
+    if _name_variants(predicted.get("name", ""), entity_type) & _name_variants(
+        golden.get("name", ""),
+        entity_type,
+    ):
+        return 2
     if _entity_names(predicted) & _entity_names(golden):
         return 2
     return 0
@@ -174,7 +228,12 @@ def _resolve_endpoint(
     name: str,
     entity_type: str,
 ) -> int | None:
-    matches = lookup.get((entity_type, normalize_name(name)), [])
+    matches = [
+        match
+        for variant in _name_variants(name, entity_type)
+        for match in lookup.get((entity_type, variant), [])
+    ]
+    matches = list(dict.fromkeys(matches))
     return matches[0] if len(matches) == 1 else None
 
 

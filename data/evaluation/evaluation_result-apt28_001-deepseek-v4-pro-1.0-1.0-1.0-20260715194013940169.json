@@ -1,0 +1,979 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-15T19:40:13.940169+00:00",
+  "extraction": {
+    "run_id": "extract-apt28_001-deepseek-v4-pro-1.0-1.0-20260714081237390418-dc023619",
+    "doc_id": "apt28_001",
+    "model_name": "deepseek-v4-pro",
+    "prompt_version": "1.0",
+    "schema_version": "1.0"
+  },
+  "golden": {
+    "language": "zh",
+    "doc_id": "apt28_001",
+    "schema_version": "1.0",
+    "golden_version": "1.0",
+    "target_group": "APT28",
+    "doc_ids": [
+      "apt28_001"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": true,
+    "rejected_entities": 0,
+    "rejected_relations": 22
+  },
+  "entity_metrics": {
+    "predicted": 30,
+    "golden": 21,
+    "true_positive": 10,
+    "false_positive": 20,
+    "false_negative": 11,
+    "precision": 0.333333,
+    "recall": 0.47619,
+    "f1": 0.392157
+  },
+  "relation_metrics": {
+    "predicted": 49,
+    "golden": 18,
+    "true_positive": 8,
+    "false_positive": 41,
+    "false_negative": 10,
+    "precision": 0.163265,
+    "recall": 0.444444,
+    "f1": 0.238806
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "BEHAVIOR_PATTERN": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "CAMPAIGN": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "COUNTRY": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 6,
+      "golden": 3,
+      "true_positive": 2,
+      "false_positive": 4,
+      "false_negative": 1,
+      "precision": 0.333333,
+      "recall": 0.666667,
+      "f1": 0.444444
+    },
+    "MALWARE": {
+      "predicted": 3,
+      "golden": 3,
+      "true_positive": 3,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "ORGANIZATION": {
+      "predicted": 3,
+      "golden": 5,
+      "true_positive": 2,
+      "false_positive": 1,
+      "false_negative": 3,
+      "precision": 0.666667,
+      "recall": 0.4,
+      "f1": 0.5
+    },
+    "TECHNIQUE": {
+      "predicted": 1,
+      "golden": 5,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TIME": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TOOL": {
+      "predicted": 12,
+      "golden": 3,
+      "true_positive": 2,
+      "false_positive": 10,
+      "false_negative": 1,
+      "precision": 0.166667,
+      "recall": 0.666667,
+      "f1": 0.266667
+    }
+  },
+  "relation_metrics_by_type": {
+    "AFFILIATED_WITH": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "ATTRIBUTED_TO": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "DISCOVERED_BY": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "HAPPENED_AT": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "HAS_BEHAVIOR": {
+      "predicted": 4,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 4,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "PART_OF": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TARGETS": {
+      "predicted": 2,
+      "golden": 2,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 1,
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5
+    },
+    "USES": {
+      "predicted": 41,
+      "golden": 13,
+      "true_positive": 7,
+      "false_positive": 34,
+      "false_negative": 6,
+      "precision": 0.170732,
+      "recall": 0.538462,
+      "f1": 0.259259
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "腾讯御见威胁情报中心",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "APT28攻击活动",
+        "type": "CAMPAIGN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "俄罗斯军方情报机构",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "IHS Markit邮箱",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "钓鱼邮件",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "白利用技术",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "后门技术",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "宏技术",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "注册表启动项持久化",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "美国政府机构",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "腾讯御界高级威胁检测系统",
+        "type": "TOOL",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "UserInitMprLogonScript",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "Russia",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "cdnver.bat",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "google.com",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "events@ihsmarkit.com",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "Upcoming Events February 2018.xls",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "N9A6C5T3.txt",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "vgekW8b1st6yjzPA9fewB70o7KC",
+        "type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "SNFIRNW",
+        "type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Servers",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "HKEY_CURRENT_USER\\Environment\\UserInitMprLogonScript",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "firefox.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "iexplore.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "Chrome.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "prefs.js",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "HttpSendRequestA",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "InternetReadFile",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "ZwWriteVirtualMemory",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "2018-02",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "name": "United States Government",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "AFFILIATED_WITH",
+        "tail_name": "俄罗斯军方情报机构",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "钓鱼邮件",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "白利用技术",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "后门技术",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "宏技术",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "注册表启动项持久化",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "美国政府机构",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "IHS Markit邮箱",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28攻击活动",
+        "head_type": "CAMPAIGN",
+        "relation_type": "PART_OF",
+        "tail_name": "APT28",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "APT28攻击活动",
+        "head_type": "CAMPAIGN",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "腾讯御见威胁情报中心",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "IHS Markit",
+        "tail_type": "ORGANIZATION",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,USES,ORGANIZATION)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "C3E4U3B1.exe",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "cdnver.dll",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,MALWARE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "C3E4U3B1.exe",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "cdnver.bat",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "rundll32.exe",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "firefox.exe",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "iexplore.exe",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "Chrome.exe",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "prefs.js",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "HttpSendRequestA",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "InternetReadFile",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "ZwWriteVirtualMemory",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "google.com",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "cdnverify.net",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "151.80.74.167",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Servers",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "HKEY_CURRENT_USER\\Environment\\UserInitMprLogonScript",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,INFRASTRUCTURE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "vgekW8b1st6yjzPA9fewB70o7KC",
+        "tail_type": "BEHAVIOR_PATTERN",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,HAS_BEHAVIOR,BEHAVIOR_PATTERN)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "cdnver.dll",
+        "head_type": "MALWARE",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "SNFIRNW",
+        "tail_type": "BEHAVIOR_PATTERN",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,HAS_BEHAVIOR,BEHAVIOR_PATTERN)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "certutil.exe",
+        "head_type": "TOOL",
+        "relation_type": "USES",
+        "tail_name": "N9A6C5T3.txt",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (TOOL,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "certutil.exe",
+        "head_type": "TOOL",
+        "relation_type": "USES",
+        "tail_name": "C3E4U3B1.exe",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (TOOL,USES,MALWARE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Upcoming Events February 2018.xls",
+        "head_type": "TOOL",
+        "relation_type": "USES",
+        "tail_name": "N9A6C5T3.txt",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (TOOL,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAPPENED_AT",
+        "tail_name": "2018-02",
+        "tail_type": "TIME",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,HAPPENED_AT,TIME)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Russia",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "UserInitMprLogonScript",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "cdnver.bat",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "google.com",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "events@ihsmarkit.com",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Upcoming Events February 2018.xls",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "N9A6C5T3.txt",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Servers",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "HKEY_CURRENT_USER\\Environment\\UserInitMprLogonScript",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "firefox.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "iexplore.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Chrome.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "prefs.js",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "HttpSendRequestA",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "InternetReadFile",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ZwWriteVirtualMemory",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "United States Government",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "vgekW8b1st6yjzPA9fewB70o7KC",
+        "tail_type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_001_c001",
+        "head_name": "Fancy Bear",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "SNFIRNW",
+        "tail_type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}
