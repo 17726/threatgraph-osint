@@ -28,6 +28,7 @@ data/extracted/*
 data/graph/*
 data/reports/*
 data/evaluation/*
+data/run_logs/*
 scripts/calculate_char_positions.py
 !data/.gitkeep
 !data/raw/.gitkeep

@@ -6,6 +6,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 
@@ -31,8 +32,26 @@ from scripts.export_graph_json import DEFAULT_OUTPUT_PATH, export_graph_json
 from scripts.validate_extraction_result import load_json
 
 
+DEFAULT_RUN_LOG_DIR = Path("data/run_logs")
+
+
 def progress(message: str) -> None:
     print(message, file=sys.stderr)
+
+
+def elapsed_ms(started_at: float) -> float:
+    return round((perf_counter() - started_at) * 1000, 3)
+
+
+def write_run_log(summary: dict[str, Any], log_dir: Path) -> Path:
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = log_dir / f"run-log-{summary['run_id']}.json"
+    summary["run_log"] = str(log_path)
+    log_path.write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return log_path
 
 
 def run_single(
@@ -47,7 +66,18 @@ def run_single(
     golden_path: Path | None = None,
     evaluation_output: Path | None = None,
     allow_legacy_artifacts: bool = False,
+    run_log_dir: Path = DEFAULT_RUN_LOG_DIR,
 ) -> dict[str, Any]:
+    total_started = perf_counter()
+    timing: dict[str, float | None] = {
+        "document_load_ms": None,
+        "llm_ms": None,
+        "evaluation_ms": None,
+        "sqlite_import_ms": None,
+        "graph_export_ms": None,
+        "total_ms": None,
+    }
+    stage_started = perf_counter()
     progress(f"[1/4] 加载文档: {document_path}")
     document = load_json(document_path)
     doc_id = document["doc_id"]
@@ -65,7 +95,9 @@ def run_single(
             golden,
             allow_legacy=allow_legacy_artifacts,
         )
+    timing["document_load_ms"] = elapsed_ms(stage_started)
 
+    stage_started = perf_counter()
     progress(f"[2/4] 调用 LLM (model={service.model})")
     result = service.extract(document, prompt_version=prompt_version)
     total_entities = sum(len(chunk["entities"]) for chunk in result["chunks"])
@@ -75,10 +107,12 @@ def run_single(
     audit_chunks = service.last_candidate_audit["chunks"] if service.last_candidate_audit else []
     rejected_entities = sum(len(chunk["rejected_entities"]) for chunk in audit_chunks)
     rejected_relations = sum(len(chunk["rejected_relations"]) for chunk in audit_chunks)
+    timing["llm_ms"] = elapsed_ms(stage_started)
     progress(f"  已保存候选结果: {output_path}")
     progress(f"  已保存被过滤候选审计: {audit_path}")
 
     summary: dict[str, Any] = {
+        "status": "succeeded",
         "doc_id": doc_id,
         "run_id": result["run_id"],
         "model": result["model_name"],
@@ -90,6 +124,8 @@ def run_single(
             "rejected_entities": rejected_entities,
             "rejected_relations": rejected_relations,
         },
+        "llm": service.last_api_observation,
+        "timing": timing,
     }
     if service.last_warnings:
         summary["warnings"] = service.last_warnings
@@ -97,6 +133,7 @@ def run_single(
             progress(f"  警告: {warning}")
 
     if golden_path:
+        stage_started = perf_counter()
         progress(f"[3/4] 对照 golden 评测: {golden_path}")
         evaluation = evaluate_extraction(
             result,
@@ -129,10 +166,12 @@ def run_single(
             f"entity={evaluation['entity_metrics']['f1']:.4f}, "
             f"relation={evaluation['relation_metrics']['f1']:.4f}"
         )
+        timing["evaluation_ms"] = elapsed_ms(stage_started)
     else:
         progress("[3/4] 未提供 --golden，跳过评测")
 
     if import_to_db:
+        stage_started = perf_counter()
         progress("[4/4] 导入 SQLite canonical graph")
         pipeline = OfflineExtractionPipeline(db_path)
         pipeline_summary = pipeline.run(str(document_path), str(output_path))
@@ -143,13 +182,19 @@ def run_single(
             "canonical_relations": pipeline_summary.canonical_relations,
             "evidence": pipeline_summary.evidence,
         }
+        timing["sqlite_import_ms"] = elapsed_ms(stage_started)
         if export_graph:
+            stage_started = perf_counter()
             graph_path = export_graph_json(db_path, DEFAULT_OUTPUT_PATH)
             summary["graph_export"] = str(graph_path)
+            timing["graph_export_ms"] = elapsed_ms(stage_started)
             progress(f"  图谱已导出: {graph_path}")
     else:
         progress("[4/4] 未提供 --import，跳过 SQLite 导入")
 
+    timing["total_ms"] = elapsed_ms(total_started)
+    log_path = write_run_log(summary, run_log_dir)
+    progress(f"  运行摘要日志: {log_path}")
     return summary
 
 
@@ -178,6 +223,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="覆盖 LLM_RELATION_REVIEW_PASSES",
     )
     parser.add_argument(
+        "--heartbeat-seconds",
+        type=float,
+        default=30.0,
+        help="LLM 请求等待期间的心跳输出间隔；设为 0 可关闭",
+    )
+    parser.add_argument(
         "--trust-env",
         action=argparse.BooleanOptionalAction,
         default=None,
@@ -194,6 +245,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--import", dest="import_to_db", action="store_true")
     parser.add_argument("--export-graph", action="store_true")
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
+    parser.add_argument(
+        "--run-log-dir",
+        type=Path,
+        default=DEFAULT_RUN_LOG_DIR,
+        help="每次运行的 JSON 摘要日志目录",
+    )
     parser.add_argument("--json", action="store_true", help="标准输出仅打印 JSON 摘要")
     return parser
 
@@ -220,6 +277,8 @@ def main(argv: list[str] | None = None) -> int:
         max_output_tokens=args.max_output_tokens,
         relation_review_passes=args.relation_review_passes,
         trust_env=args.trust_env,
+        heartbeat_interval_seconds=args.heartbeat_seconds,
+        progress_callback=progress,
     )
 
     try:
@@ -250,6 +309,7 @@ def main(argv: list[str] | None = None) -> int:
                     golden_path=args.golden,
                     evaluation_output=args.evaluation_output,
                     allow_legacy_artifacts=args.allow_legacy_artifacts,
+                    run_log_dir=args.run_log_dir,
                 )
             ]
         else:
@@ -271,6 +331,7 @@ def main(argv: list[str] | None = None) -> int:
                             db_path=args.db,
                             export_graph=args.export_graph,
                             prompt_version=args.prompt_version,
+                            run_log_dir=args.run_log_dir,
                         )
                     )
                 except Exception as exc:
