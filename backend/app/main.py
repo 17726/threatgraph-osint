@@ -2,6 +2,7 @@ from fastapi import Body, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from backend.app.core.document_contract import require_valid_document
 from backend.app.core.response import error_response, success_response
 from backend.app.services.demo_store import DemoStore
 
@@ -104,6 +105,13 @@ def analysis_run(target_group: str):
 
 @app.post("/api/v1/documents/import")
 def import_document(payload: dict = Body(...)):
+    try:
+        require_valid_document(payload)
+    except ValueError as exc:
+        return JSONResponse(
+            status_code=400,
+            content=error_response("ERR_VALIDATION", str(exc)),
+        )
     result = store.import_document(payload)
     return success_response(result)
 

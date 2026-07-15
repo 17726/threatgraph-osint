@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from backend.app.core.document_contract import require_valid_document
 from backend.app.db.schema import ensure_import_compatible_columns
 from backend.app.services.report_generator import generate_intelligent_report
 
@@ -1038,12 +1039,10 @@ class DemoStore:
 
     def import_document(self, document: dict) -> dict:
         """导入文档，去重后写入 documents 表，自动切 chunks。"""
+        require_valid_document(document)
         doc_id = document["doc_id"]
         clean_text = document["clean_text"]
-        content_hash = document.get("content_hash", "")
-        if not content_hash:
-            import hashlib
-            content_hash = hashlib.sha256(clean_text.encode("utf-8")).hexdigest()
+        content_hash = document["content_hash"]
         from datetime import UTC, datetime as dt
         now = dt.now(UTC).isoformat()
         with self.connect() as conn:

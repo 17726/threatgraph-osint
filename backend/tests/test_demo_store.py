@@ -1,8 +1,32 @@
 import json
 import sqlite3
 
+from backend.app.core.document_contract import document_content_hash
 from backend.app.services.demo_store import DemoStore
 from scripts.export_graph_json import export_graph_json
+
+
+def make_document(*, doc_id: str = "doc-1", clean_text: str = "APT28 使用恶意软件。") -> dict:
+    return {
+        "doc_id": doc_id,
+        "schema_version": "1.0",
+        "collection_item_id": "item-1",
+        "target_group": "APT28",
+        "target_groups": ["APT28", "Fancy Bear"],
+        "source_url": "https://example.test/report",
+        "source_type": "vendor_report",
+        "source_name": "Example",
+        "title": "测试报告",
+        "language": "zh",
+        "clean_text": clean_text,
+        "content_hash": document_content_hash(clean_text),
+        "published_at": None,
+        "retrieved_at": "2026-07-16T00:00:00Z",
+        "source_reliability": "B",
+        "tlp": "TLP:CLEAR",
+        "tags": ["APT28", "report"],
+        "metadata": {"collector": "data"},
+    }
 
 
 def test_new_store_creates_empty_graph(tmp_path):
@@ -38,6 +62,59 @@ def test_new_store_creates_import_compatible_document_schema(tmp_path):
         "metadata_json",
     } <= document_columns
     assert {"section_title", "token_count"} <= chunk_columns
+
+
+def test_new_store_indexes_document_content_hash(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+
+    DemoStore(db_path)
+
+    with sqlite3.connect(db_path) as connection:
+        indexes = {
+            row[1] for row in connection.execute("PRAGMA index_list(documents)")
+        }
+
+    assert "idx_documents_content_hash" in indexes
+
+
+def test_import_document_persists_the_complete_document_contract(tmp_path):
+    store = DemoStore(tmp_path / "db.sqlite")
+    document = make_document()
+
+    result = store.import_document(document)
+
+    assert result == {"doc_id": "doc-1", "status": "imported", "chunks": 1}
+    with store.connect() as connection:
+        row = connection.execute(
+            "SELECT * FROM documents WHERE doc_id = ?", (document["doc_id"],)
+        ).fetchone()
+        chunk = connection.execute(
+            "SELECT * FROM chunks WHERE doc_id = ?", (document["doc_id"],)
+        ).fetchone()
+    assert row["collection_item_id"] == "item-1"
+    assert json.loads(row["target_groups_json"]) == ["APT28", "Fancy Bear"]
+    assert row["tlp"] == "TLP:CLEAR"
+    assert json.loads(row["tags_json"]) == ["APT28", "report"]
+    assert json.loads(row["metadata_json"]) == {"collector": "data"}
+    assert chunk["section_title"] == ""
+    assert chunk["token_count"] == 2
+
+
+def test_import_document_skips_duplicate_content_and_returns_original_id(tmp_path):
+    store = DemoStore(tmp_path / "db.sqlite")
+    original = make_document(doc_id="doc-original")
+
+    assert store.import_document(original)["status"] == "imported"
+    result = store.import_document(make_document(doc_id="doc-duplicate"))
+
+    assert result == {
+        "doc_id": "doc-original",
+        "status": "skipped",
+        "message": "文档已存在",
+    }
+    with store.connect() as connection:
+        count = connection.execute("SELECT count(*) FROM documents").fetchone()[0]
+    assert count == 1
 
 
 def test_export_graph_json_writes_contract_shape(tmp_path):
