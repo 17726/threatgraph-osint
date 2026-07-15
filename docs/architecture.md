@@ -951,12 +951,14 @@ threatgraph-osint/
     evaluation/
 
   scripts/
-    collect_sources.py
-    seed_demo_data.py
-    run_pipeline.py
+    crawler_v1.py
+    run_llm_extraction.py
+    import_extraction_result.py
     export_graph_json.py
-    sync_neo4j.py
 ```
+
+上述目录中的 Neo4j 同步服务与路由是目标架构，当前尚未落地；当前仓库只提供
+Neo4j 容器。后端启动时只初始化 SQLite 表结构，不写入演示种子数据。
 
 ---
 
@@ -1011,14 +1013,13 @@ docker compose logs -f neo4j
 # 进入后端容器执行命令
 docker compose exec backend bash
 
-# 执行流水线脚本
-docker compose exec backend python scripts/run_pipeline.py --target APT28
+# 执行真实 LLM 抽取、导入 SQLite 并导出快照
+docker compose exec backend python scripts/run_llm_extraction.py \
+  --document data/documents/apt28/your-document.json \
+  --import --export-graph
 
 # 导出 graph.json
 docker compose exec backend python scripts/export_graph_json.py
-
-# 同步 Neo4j
-docker compose exec backend python scripts/sync_neo4j.py
 
 # 停止服务
 docker compose down
