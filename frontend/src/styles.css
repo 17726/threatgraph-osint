@@ -343,3 +343,12 @@ h2 {
     min-height: 440px;
   }
 }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loader-spin {
+  animation: spin 1s linear infinite;
+}
