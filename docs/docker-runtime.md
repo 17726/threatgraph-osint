@@ -155,18 +155,21 @@ docker compose logs -f neo4j
 # 进入后端容器
 docker compose exec backend bash
 
-# 运行流水线
-docker compose exec backend python scripts/run_pipeline.py --target APT28
+# 执行真实 LLM 抽取并导入 SQLite
+docker compose exec backend python scripts/run_llm_extraction.py \
+  --document data/documents/apt28/your-document.json \
+  --import --export-graph
 
 # 导出 graph.json
 docker compose exec backend python scripts/export_graph_json.py
 
-# 同步 Neo4j
-docker compose exec backend python scripts/sync_neo4j.py
-
 # 停止服务
 docker compose down
 ```
+
+> [!NOTE]
+> 当前仓库只提供 Neo4j 容器，尚未实现 `sync_neo4j.py`、`/api/v1/neo4j/*`
+> 和 Cypher 路径查询；图谱与路径接口当前使用 SQLite。
 
 ---
 

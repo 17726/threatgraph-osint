@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from backend.app.db.schema import ensure_import_compatible_columns
 from backend.app.services.report_generator import generate_intelligent_report
 
 
@@ -297,10 +298,9 @@ DEMO_REPORTS = [
 
 
 class DemoStore:
-    def __init__(self, db_path: str | Path | None = None, seed_demo: bool = True) -> None:
+    def __init__(self, db_path: str | Path | None = None) -> None:
         configured_path = db_path or os.getenv("SQLITE_DB_PATH") or DEFAULT_DB_PATH
         self.db_path = Path(configured_path)
-        self.seed_demo = seed_demo
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.initialize()
 
@@ -403,7 +403,9 @@ class DemoStore:
                 CREATE TABLE IF NOT EXISTS documents (
                   doc_id TEXT PRIMARY KEY,
                   schema_version TEXT NOT NULL DEFAULT '1.0',
+                  collection_item_id TEXT,
                   target_group TEXT NOT NULL,
+                  target_groups_json TEXT NOT NULL DEFAULT '[]',
                   source_url TEXT NOT NULL,
                   source_type TEXT NOT NULL,
                   source_name TEXT NOT NULL DEFAULT '',
@@ -414,6 +416,9 @@ class DemoStore:
                   published_at TEXT,
                   retrieved_at TEXT,
                   source_reliability TEXT NOT NULL DEFAULT 'unknown',
+                  tlp TEXT NOT NULL DEFAULT 'TLP:CLEAR',
+                  tags_json TEXT NOT NULL DEFAULT '[]',
+                  metadata_json TEXT NOT NULL DEFAULT '{}',
                   created_at TEXT NOT NULL
                 );
 
@@ -421,10 +426,12 @@ class DemoStore:
                   chunk_id TEXT PRIMARY KEY,
                   doc_id TEXT NOT NULL,
                   chunk_index INTEGER NOT NULL DEFAULT 0,
+                  section_title TEXT NOT NULL DEFAULT '',
                   text TEXT NOT NULL,
                   char_start INTEGER NOT NULL,
                   char_end INTEGER NOT NULL,
                   text_hash TEXT NOT NULL,
+                  token_count INTEGER,
                   FOREIGN KEY (doc_id) REFERENCES documents(doc_id)
                 );
 
@@ -451,9 +458,8 @@ class DemoStore:
                 );
                 """
             )
+            ensure_import_compatible_columns(connection)
             self._ensure_columns(connection)
-            if self.seed_demo:
-                self.seed_demo_data(connection)
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:
         migrations = {
@@ -1099,10 +1105,12 @@ class DemoStore:
         target_nodes = [
             node
             for node in nodes
-            if node["name"].lower() == normalized_target or node["id"].lower().endswith(f":{normalized_target}")
+            if node["name"].lower() == normalized_target
+            or node["id"].lower().endswith(f":{normalized_target}")
+            or normalized_target in {alias.lower() for alias in node["aliases"]}
         ]
         if not target_nodes:
-            return nodes, edges
+            return [], []
 
         target_ids = {node["id"] for node in target_nodes}
         visible_edges = [
