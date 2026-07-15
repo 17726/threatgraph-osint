@@ -238,6 +238,7 @@ GET /api/v1/entities/{entity_id}
 
 ```text
 GET /api/v1/graph?target=APT28&depth=2
+GET /api/v1/graph/neighbors?entity_id=technique:t1566
 GET /api/v1/graph/timeline?target=APT28
 GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 ```
@@ -248,6 +249,11 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 2. `docs/schemas/graph.schema.json` 约束的是导出的 `data/graph/graph.json` 快照，不要求 API 响应携带 `version`、`generated_at`、`exported_from`、`source_of_truth` 和 `analysis`。
 3. 行为分析、MITRE 映射和推理结果默认走第 8 节的 `/analysis/*` 接口；后续如需在图谱接口聚合分析结果，应新增显式参数或新接口。
 4. 如果后续要让 API 直接返回完整快照，必须同步更新本文件、前端类型和后端测试。
+5. `target` 仅按忽略大小写后的完整实体 ID、完整名称或完整别名匹配；默认 `depth=2`，`depth=0` 只返回中心实体。
+6. 列表筛选参数支持重复参数或逗号分隔值，包括 `entity_types`、`entity_ids`、`relation_types`、`tags`、`source_types` 和 `languages`。
+7. `first_seen_from` 与 `last_seen_to` 使用区间相交语义：实体或关系的活动区间只要与查询区间相交就保留；边界日期未知时不因时间筛选被排除。
+8. 任意筛选和 `limit` 都保证图闭包，返回边的两个端点一定同时存在于 `nodes`；有 `target` 时 `limit` 优先保留中心实体，再按跳数选取邻居。
+9. `/graph/neighbors` 专用于实体一跳查询，返回中心实体、直接邻居、连接边及相关证据，不复用组织筛选语义。
 
 图谱响应：
 
