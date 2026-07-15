@@ -62,5 +62,5 @@ print("所有抽取结果已导入 SQLite。")
 
 # 导出 graph.json
 print("导出 graph.json ...")
-graph_path = export_graph_json(DEFAULT_DB_PATH, DEFAULT_OUTPUT_PATH, seed_demo=False)
+graph_path = export_graph_json(DEFAULT_DB_PATH, DEFAULT_OUTPUT_PATH)
 print(f"图谱已导出: {graph_path}")

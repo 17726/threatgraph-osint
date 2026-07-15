@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { buildGraphQuery, fetchGraph, runPipeline } from "./client";
+import { buildGraphQuery, fetchGraph, fetchReport, runPipeline } from "./client";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -164,5 +164,17 @@ describe("fetchGraph", () => {
       target: "APT28",
       filters: {},
     });
+  });
+
+  it("图谱请求失败时向上抛出错误，不返回 Mock 数据", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("后端不可用")));
+
+    await expect(fetchGraph("APT28")).rejects.toThrow("后端不可用");
+  });
+
+  it("报告请求失败时向上抛出错误，不返回 Mock 数据", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("后端不可用")));
+
+    await expect(fetchReport("APT28")).rejects.toThrow("后端不可用");
   });
 });

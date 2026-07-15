@@ -8,7 +8,10 @@ from pathlib import Path
 from typing import Any
 
 from backend.app.core.document_contract import document_content_hash, require_valid_document
-from backend.app.db.schema import migrate_documents_clean_text_schema
+from backend.app.db.schema import (
+    ensure_import_compatible_columns,
+    migrate_documents_clean_text_schema,
+)
 from scripts.validate_extraction_result import (
     ALLOWED_RELATIONS,
     DEFAULT_SCHEMA_PATH,
@@ -342,6 +345,7 @@ class OfflineExtractionPipeline:
             """
         )
         migrate_documents_clean_text_schema(connection)
+        ensure_import_compatible_columns(connection)
         self._ensure_columns(connection)
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:

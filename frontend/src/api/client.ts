@@ -6,8 +6,6 @@ import type {
   ReportPayload,
   EntityDetail,
 } from "../types";
-import { getMockGraph, getMockReport } from "../data/mockPayload";
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 
 type PathResult = { nodes: GraphNode[]; edges: GraphEdge[] };
@@ -81,20 +79,20 @@ export function fetchGraph(target: string, filters: GraphFilters = {}): Promise<
 export function fetchReport(target: string): Promise<ReportPayload> {
   const url = `/reports/${encodeURIComponent(target)}`;
 
-  return getJson<ReportPayload>(url).catch(() => getMockReport(target));
+  return getJson<ReportPayload>(url);
 }
 
 export function generateReport(target: string): Promise<ReportPayload> {
   const url = `/reports/${encodeURIComponent(target)}/generate`;
 
-  return fetch(`${API_BASE_URL}${url}`, { method: "POST" }).then(
-    (response) => {
-      if (!response.ok) {
-        throw new Error(`报告生成失败：${response.status}`);
-      }
-      return response.json().then((payload: ApiResponse<ReportPayload>) => payload.data);
-    },
-  );
+  return fetch(`${API_BASE_URL}${url}`, { method: "POST" }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`报告生成失败：${response.status}`);
+    }
+    return response
+      .json()
+      .then((payload: ApiResponse<ReportPayload>) => payload.data);
+  });
 }
 
 export async function fetchPath(
@@ -111,7 +109,6 @@ export async function fetchPath(
   }
 }
 
-
 export async function fetchAnalysis<T = unknown>(
   target: string,
   type: "behavior" | "mitre" | "inferences" | "threat-assessment",
@@ -125,9 +122,10 @@ export function fetchNeighbors(entity: string): Promise<GraphPayload> {
 }
 
 export function fetchEntitySearch(query: string): Promise<GraphNode[]> {
-  return getJson<GraphNode[]>(`/entities/search?q=${encodeURIComponent(query)}`);
+  return getJson<GraphNode[]>(
+    `/entities/search?q=${encodeURIComponent(query)}`,
+  );
 }
-
 
 export function fetchEntity(id: string): Promise<EntityDetail> {
   return getJson<EntityDetail>(`/entities/${encodeURIComponent(id)}`);
