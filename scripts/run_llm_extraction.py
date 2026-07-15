@@ -16,6 +16,8 @@ if str(REPO_ROOT) not in sys.path:
 from backend.app.services.artifact_naming import (
     DEFAULT_PROMPT_VERSION,
     evaluation_filename,
+    validate_evaluation_artifact_filename,
+    validate_golden_artifact_filename,
 )
 from backend.app.services.demo_store import DEFAULT_DB_PATH
 from backend.app.services.extraction_evaluator import (
@@ -44,6 +46,7 @@ def run_single(
     prompt_version: str = DEFAULT_PROMPT_VERSION,
     golden_path: Path | None = None,
     evaluation_output: Path | None = None,
+    allow_legacy_artifacts: bool = False,
 ) -> dict[str, Any]:
     progress(f"[1/4] 加载文档: {document_path}")
     document = load_json(document_path)
@@ -57,6 +60,11 @@ def run_single(
         ]
         if golden_errors:
             raise ValueError("golden 校验失败: " + "; ".join(golden_errors))
+        validate_golden_artifact_filename(
+            golden_path,
+            golden,
+            allow_legacy=allow_legacy_artifacts,
+        )
 
     progress(f"[2/4] 调用 LLM (model={service.model})")
     result = service.extract(document, prompt_version=prompt_version)
@@ -105,6 +113,7 @@ def run_single(
                 evaluated_at=evaluation["evaluated_at"],
             )
             evaluation_output = Path("data/evaluation") / filename
+        validate_evaluation_artifact_filename(evaluation_output, evaluation)
         evaluation_output.parent.mkdir(parents=True, exist_ok=True)
         evaluation_output.write_text(
             json.dumps(evaluation, ensure_ascii=False, indent=2) + "\n",
@@ -177,6 +186,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--limit", type=int, help="批量模式最多处理 N 个文件")
     parser.add_argument("--golden", type=Path, help="单篇模式对应的 golden.json")
     parser.add_argument("--evaluation-output", type=Path, help="完整评测结果输出路径")
+    parser.add_argument(
+        "--allow-legacy-artifacts",
+        action="store_true",
+        help="显式允许历史/示例 Golden 跳过文件名比较",
+    )
     parser.add_argument("--import", dest="import_to_db", action="store_true")
     parser.add_argument("--export-graph", action="store_true")
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
@@ -235,6 +249,7 @@ def main(argv: list[str] | None = None) -> int:
                     prompt_version=args.prompt_version,
                     golden_path=args.golden,
                     evaluation_output=args.evaluation_output,
+                    allow_legacy_artifacts=args.allow_legacy_artifacts,
                 )
             ]
         else:

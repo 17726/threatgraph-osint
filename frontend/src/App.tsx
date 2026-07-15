@@ -1,30 +1,29 @@
 import ReactECharts from "echarts-for-react";
 import {
-  Activity,
-  Database,
-  FileText,
-  Network,
-  RefreshCw,
-  ShieldCheck,
+  Activity, Database, FileText, Network, RefreshCw, ShieldCheck, Upload,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { fetchGraph } from "./api/client";
+import { fetchGraph, fetchReport, generateReport } from "./api/client";
 import { buildGraphOption } from "./graphOptions";
-import type { Evidence, GraphEdge, GraphNode, GraphPayload } from "./types";
+import type { Evidence, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "./types";
 import NodeDetail from "./components/NodeDetail";
 import SearchBar from "./components/SearchBar";
+import TechniqueFilter from "./components/TechniqueFilter";
+import RegionFilter from "./components/RegionFilter";
 import TimelineBar from "./components/TimelineBar";
 import PathTracking from "./components/PathTracking";
 import ReportPanel from "./components/ReportPanel";
 import AnalysisPage from "./pages/AnalysisPage";
 import EvaluationPage from "./pages/EvaluationPage";
+import PipelineModal from "./components/PipelineModal";
 
 const TARGETS = ["APT28", "Lazarus", "Kimsuky"];
 
 export function App() {
   const [target, setTarget] = useState(TARGETS[0]);
   const [graph, setGraph] = useState<GraphPayload | null>(null);
+  const [report, setReport] = useState<ReportPayload | null>(null);
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(
     null,
   );
@@ -33,14 +32,19 @@ export function App() {
   const [reloadKey, setReloadKey] = useState(0);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
+  const [generating, setGenerating] = useState(false);
   const chartRef = useRef<any>(null);
   const chartInstanceRef = useRef<any>(null);
   const [currentYear, setCurrentYear] = useState(2026);
   const [highlightNodeIds, setHighlightNodeIds] = useState<string[]>([]);
   const [searchNodeId, setSearchNodeId] = useState<string | null>(null);
+  const [techniqueFilter, setTechniqueFilter] = useState("");
+  const [legendFilter, setLegendFilter] = useState<string | null>(null);
+  const [regionFilter, setRegionFilter] = useState("");
   const [page, setPage] = useState<"graph" | "analysis" | "evaluation">(
     "graph",
   );
+  const [pipelineOpen, setPipelineOpen] = useState(false);
   const firstSentence = (text: string): string => {
     const match = text.match(/^.*?[。！？.!?]/);
     return match ? match[0] : text;
@@ -53,6 +57,9 @@ export function App() {
     setSelectedNode(null);
     setSelectedEdge(null);
     setSearchNodeId(null);
+    setRegionFilter("");
+    setTechniqueFilter("");
+    setLegendFilter(null);
 
     fetchGraph(target)
       .then((graphPayload) => {
@@ -74,6 +81,16 @@ export function App() {
         }
       });
 
+    fetchReport(target)
+      .then((reportPayload) => {
+        if (!cancelled) {
+          setReport(reportPayload);
+        }
+      })
+      .catch(() => {
+        // 报告不存在时不阻断主流程
+      });
+
     return () => {
       cancelled = true;
     };
@@ -82,25 +99,65 @@ export function App() {
   const filteredGraph = useMemo(() => {
     if (!graph) return null;
     if (highlightNodeIds.length > 0) return graph;
-    if (currentYear >= 2026) return graph;
-    const activeIds = new Set(
-      graph.nodes
-        .filter((n) => {
+    let visible = graph.nodes;
+    if (currentYear < 2026) {
+      visible = visible.filter((n) => {
         if (!n.first_seen) return true;
         const fy = parseInt(n.first_seen.split("-")[0], 10);
         if (Number.isNaN(fy)) return true;
         return fy <= currentYear;
-      })
-      .map((n) => n.id),
-    );
+      });
+    }
+    if (techniqueFilter) {
+      const connectedIds = new Set([techniqueFilter]);
+      graph.edges.forEach((e) => {
+        if (e.source === techniqueFilter) connectedIds.add(e.target);
+        if (e.target === techniqueFilter) connectedIds.add(e.source);
+      });
+      visible = visible.filter((n) => connectedIds.has(n.id));
+    }
+    if (legendFilter) {
+      const typeIds = new Set(
+        graph.nodes.filter((n) => n.type === legendFilter).map((n) => n.id)
+      );
+      const connectedIds = new Set(typeIds);
+      graph.edges.forEach((e) => {
+        if (typeIds.has(e.source)) connectedIds.add(e.target);
+        if (typeIds.has(e.target)) connectedIds.add(e.source);
+      });
+      visible = visible.filter((n) => connectedIds.has(n.id));
+    }
+    if (regionFilter) {
+      const connectedIds = new Set([regionFilter]);
+      graph.edges.forEach((e) => {
+        if (e.source === regionFilter) connectedIds.add(e.target);
+        if (e.target === regionFilter) connectedIds.add(e.source);
+      });
+      visible = visible.filter((n) => connectedIds.has(n.id));
+    }
+    const visibleIds = new Set(visible.map((n) => n.id));
     return {
       ...graph,
-      nodes: graph.nodes.filter((n) => activeIds.has(n.id)),
+      nodes: visible,
       edges: graph.edges.filter(
-        (e) => activeIds.has(e.source) && activeIds.has(e.target),
+        (e) => visibleIds.has(e.source) && visibleIds.has(e.target),
       ),
     };
-  }, [graph, currentYear, highlightNodeIds]);
+  }, [graph, currentYear, techniqueFilter, regionFilter, highlightNodeIds, legendFilter]);
+  const countries = useMemo(
+    () =>
+      graph?.nodes
+        .filter((n) => n.type === "COUNTRY")
+        .map((n) => ({ id: n.id, name: n.name })) ?? [],
+    [graph],
+  );
+  const techniqueOptions = useMemo(
+    () =>
+      graph?.nodes
+        .filter((n) => n.type === "TECHNIQUE")
+        .map((n) => ({ id: n.id, name: n.name })) ?? [],
+    [graph],
+  );
   const graphOption = useMemo(
     () =>
       filteredGraph
@@ -124,6 +181,15 @@ export function App() {
           setSelectedNode(null);
         }
       }
+    });
+    instance.on("legendselectchanged", (params: any) => {
+      setLegendFilter((prev: string | null) => (prev === params.name ? null : params.name));
+      setTimeout(() => {
+        const cats = instance.getOption().legend?.[0]?.data || [];
+        cats.forEach((cat: any) => {
+          instance.dispatchAction({ type: "legendSelect", name: typeof cat === "string" ? cat : cat.name });
+        });
+      }, 0);
     });
   }, []);
 
@@ -159,6 +225,17 @@ export function App() {
   const handlePathClear = useCallback(() => {
     setHighlightNodeIds([]);
   }, []);
+  const handleGenerateReport = useCallback(async (tgt: string) => {
+    setGenerating(true);
+    try {
+      const reportPayload = await generateReport(tgt);
+      setReport(reportPayload);
+    } catch {
+      // 生成失败不影响主流程
+    } finally {
+      setGenerating(false);
+    }
+  }, []);
 
   return (
     <main className="app-shell">
@@ -192,9 +269,28 @@ export function App() {
           ))}
         </div>
         <SearchBar
-          nodes={filteredGraph?.nodes ?? []}
           onSelect={handleSearchSelect}
         />
+        <TechniqueFilter techniques={techniqueOptions} value={techniqueFilter} onChange={setTechniqueFilter} />
+        <RegionFilter countries={countries} value={regionFilter} onChange={setRegionFilter} />
+        <button
+          type="button"
+          onClick={() => setPipelineOpen(true)}
+          style={{
+            padding: "6px 12px",
+            borderRadius: 8,
+            border: "1px solid #d7dfdd",
+            background: "#ffffff",
+            cursor: "pointer",
+            fontSize: 13,
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          <Upload size={16} />
+          <span>导入文档</span>
+        </button>
         <div className="status-strip">
           <span>
             <Database size={16} />
@@ -240,7 +336,7 @@ export function App() {
       {error ? <div className="alert">{error}</div> : null}
 
       {page === "analysis" ? (
-        <AnalysisPage graph={graph} target={target} />
+        <AnalysisPage target={target} />
       ) : page === "evaluation" ? (
         <EvaluationPage />
       ) : (
@@ -280,7 +376,7 @@ export function App() {
                     }}
                   />
                   <NodeDetail
-                    node={selectedNode}
+                    entityId={selectedNode?.id ?? null}
                     onClose={() => setSelectedNode(null)}
                   />
                 </>
@@ -378,18 +474,13 @@ export function App() {
                       }}
                     />
                     <p style={{ color: "#64748b" }}>
-                      {graph?.nodes.find((n) => n.id === selectedEdge.source)
-                        ?.name ?? selectedEdge.source}{" "}
-                      →{" "}
-                      {graph?.nodes.find((n) => n.id === selectedEdge.target)
-                        ?.name ?? selectedEdge.target}
+                      {selectedEdge.source} → {selectedEdge.target}
                     </p>
                     <div style={{ marginTop: 12 }}>
-                      {graph?.evidence
-                        .filter((e) =>
-                          selectedEdge.evidence_ids?.includes(e.id),
-                        )
-                        .map((e) => (
+                      {(selectedEdge.evidence_ids ?? []).map((evId, evIdx) => {
+                        const e = graph?.evidence.find((ev) => ev.id === evId);
+                        if (!e) return null;
+                        return (
                           <div
                             key={e.id}
                             style={{
@@ -416,7 +507,7 @@ export function App() {
                               {e.source_name}
                             </a>
                           </div>
-                        ))}
+                        );})}
                     </div>
                   </div>
                 </>
@@ -464,9 +555,20 @@ export function App() {
             onChange={setCurrentYear}
           />
 
-          <ReportPanel graph={graph} target={target} />
+          <ReportPanel
+            graph={graph}
+            report={report}
+            target={target}
+            onGenerate={handleGenerateReport}
+            generating={generating}
+          />
         </>
       )}
+      <PipelineModal
+        open={pipelineOpen}
+        onClose={() => setPipelineOpen(false)}
+        onSuccess={() => setReloadKey((v) => v + 1)}
+      />
     </main>
   );
 }

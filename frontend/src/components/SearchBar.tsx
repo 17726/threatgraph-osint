@@ -1,40 +1,38 @@
 import { useState, useEffect, useRef } from "react";
+import { fetchEntitySearch } from "../api/client";
+import type { GraphNode } from "../types";
 
 interface SearchBarProps {
-  nodes: { id: string; name: string; type: string; aliases: string[] }[];
   onSelect: (nodeId: string) => void;
 }
 
-export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
+export default function SearchBar({ onSelect }: SearchBarProps) {
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<GraphNode[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const results =
-    query.length < 1
-      ? []
-      : nodes
-          .map((n) => {
-            const q = query.toLowerCase();
-            const name = n.name.toLowerCase();
-            let score = 0;
-            if (name.startsWith(q)) score += 100;
-            else if (name.includes(q)) score += 50;
-            if (n.aliases?.some((a) => a.toLowerCase().includes(q))) score += 30;
-            if (n.type?.toLowerCase().includes(q)) score += 10;
-            return { node: n, score };
-          })
-          .filter((item) => item.score > 0)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 8)
-          .map((item) => item.node);
+  useEffect(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (query.length < 1) {
+      setResults([]);
+      return;
+    }
+    timerRef.current = setTimeout(() => {
+      setLoading(true);
+      fetchEntitySearch(query)
+        .then(setResults)
+        .catch(() => setResults([]))
+        .finally(() => setLoading(false));
+    }, 250);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [query]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setShowResults(false);
       }
     };
@@ -43,77 +41,39 @@ export default function SearchBar({ nodes, onSelect }: SearchBarProps) {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ position: "relative", flex: 1, maxWidth: 420 }}
-    >
+    <div ref={containerRef} style={{ position: "relative", flex: 1, maxWidth: 420 }}>
       <input
         type="text"
         value={query}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          setShowResults(true);
-        }}
+        onChange={(e) => { setQuery(e.target.value); setShowResults(true); }}
         placeholder="搜索实体..."
         style={{
-          width: "100%",
-          padding: "8px 14px",
-          background: "#ffffff",
-          border: "1px solid #d7dfdd",
-          borderRadius: 8,
-          color: "#172026",
-          fontSize: 14,
-          outline: "none",
+          width: "100%", padding: "8px 14px", background: "#ffffff",
+          border: "1px solid #d7dfdd", borderRadius: 8, color: "#172026",
+          fontSize: 14, outline: "none",
         }}
       />
       {showResults && results.length > 0 && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            marginTop: 4,
-            background: "#ffffff",
-            border: "1px solid #d7dfdd",
-            borderRadius: 8,
-            maxHeight: 280,
-            overflowY: "auto",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            zIndex: 20,
-          }}
-        >
+        <div style={{
+          position: "absolute", top: "100%", left: 0, right: 0, marginTop: 4,
+          background: "#ffffff", border: "1px solid #d7dfdd", borderRadius: 8,
+          maxHeight: 280, overflowY: "auto", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", zIndex: 20,
+        }}>
           {results.map((n) => (
             <div
               key={n.id}
-              onClick={() => {
-                onSelect(n.id);
-                setShowResults(false);
-                setQuery("");
-              }}
-              style={{
-                padding: "10px 14px",
-                cursor: "pointer",
-                fontSize: 13,
-                borderBottom: "1px solid #e2e8e6",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#f8faf9")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
+              onClick={() => { onSelect(n.id); setShowResults(false); setQuery(""); }}
+              style={{ padding: "10px 14px", cursor: "pointer", fontSize: 13, borderBottom: "1px solid #e2e8e6" }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#f8faf9")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
-              <span style={{ fontWeight: 600, color: "#172026" }}>
-                {n.name}
-              </span>
-              <span style={{ marginLeft: 8, fontSize: 11, color: "#64748b" }}>
-                {n.type}
-              </span>
+              <span style={{ fontWeight: 600, color: "#172026" }}>{n.name}</span>
+              <span style={{ marginLeft: 8, fontSize: 11, color: "#64748b" }}>{n.type}</span>
             </div>
           ))}
         </div>
       )}
+      {loading && <span style={{ position: "absolute", right: 12, top: 10, fontSize: 11, color: "#94a3b8" }}>搜索中...</span>}
     </div>
   );
 }

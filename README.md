@@ -266,8 +266,8 @@ docker compose run --rm frontend npm run format:check
 
 ```bash
 docker compose run --rm backend python scripts/validate_extraction_result.py \
-  data/extracted/extraction_result.apt28.thn.beardshell.v1.json \
-  --document data/documents/apt28/apt28_049.json
+  data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json \
+  --document data/examples/document.apt28.thn.beardshell.example.json
 ```
 
 ### DeepSeek V4 真实抽取与评测
@@ -288,8 +288,10 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
   --json
 ```
 
-抽取结果仍只进入候选层；被过滤的原始候选会单独写入 `candidate-audit.json` 并在评测中计为
-false positive。需要生成正式图谱时显式追加 `--import --export-graph`。
+抽取结果仍只进入候选层；被过滤的候选会单独写入同一 `run_id` 的 Candidate Audit。当前
+评测器会把其中 rejected 项计入预测数量和 false positive，这是待拆分为 raw/validated 多作用域
+指标的历史口径，不能直接解释为模型本身的最终 F1。需要生成正式图谱时显式追加
+`--import --export-graph`。
 完整操作和评测口径见
 [`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md)。
 

@@ -48,6 +48,10 @@ data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_vers
 data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 ```
 
+正式文件名必须与 JSON payload 一致。Extraction/Candidate Audit 的 `run_id` 是权威身份，文件名
+只展示其中的文档、模型、版本、UTC 时间和随机后缀；校验器检查已有 ID，不重新生成 ID。
+历史/示例文件名只能通过显式 Legacy 开关使用，不能由宽泛 Glob 自动成为默认输入。
+
 `data/examples/` 是契约样例，不承载批量数据交付；`data/documents/` 才是后端导入真实清洗文档的默认目录。
 
 当前 APT28 样例分成两类来源：
@@ -67,7 +71,7 @@ The Hacker News 字段口径如下：
 1. `document.json` 必须包含来源、时间、语言、清洗正文 `clean_text`、目标组织和 `content_hash`；真实文档默认放在 `data/documents/<target_group>/`。
 2. LLM extraction result 只表示 LLM 候选结果，不能包含最终 `entity_id` 或 `relation_id`；正式文件必须按 `extract-...json` 命名，顶层 `run_id`、`doc_id`、`model_name`、`prompt_version`、`schema_version` 和 `generated_at` 必须能回溯到文件名。
 3. `candidate-audit` 表示同一 run 被过滤的原始候选，必须与对应 extraction result 使用同一个 `run_id`。
-4. Golden 表示人工标准答案，正式文件必须放在 `data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json`；内容按 `chunks[].entities` 和 `chunks[].relations` 组织，关系字段和 extraction result 统一使用 `head_name`、`head_type`、`tail_name`、`tail_type`。
+4. Golden 表示人工标准答案，当前正式文件以单篇 Document 为原子，必须放在 `data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json`；内容按 `chunks[].entities` 和 `chunks[].relations` 组织，关系字段和 extraction result 统一使用 `head_name`、`head_type`、`tail_name`、`tail_type`。单文档身份只约束当前文件格式，不直接决定全文或局部标注；标注覆盖范围及评分边界由独立目标评审确定，本次命名校验不冻结该结论。
 5. `prompt_version`、`schema_version` 和 `golden_version` 统一使用两段式数字版本，例如 `1.0`，不使用 `extract-v1`、`v1` 或 `1.0.0`。
 6. `graph.json` 只能由 SQLite canonical graph 导出，不能直接由 LLM 生成。
 7. 所有实体和关系都必须能通过 `evidence_text` 和字符位置追溯回文档正文。
