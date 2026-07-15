@@ -41,8 +41,6 @@ def normalize_name(value: str) -> str:
     normalized = re.sub(r"^https?://", "", normalized)
     # 归一化 defang 标记：golden 用 [.] 表示 defanged IP/域名，LLM 通常输出不含括号的原始格式
     normalized = normalized.replace("[.]", ".")
-    # 剥离末尾文件扩展名（LLM 常加而 golden 不加，如 golden "ElectronGold-1.1.1" vs LLM "ElectronGold-1.1.1.exe"）
-    normalized = re.sub(r"\.(exe|dll|zip|tar|gz|7z|rar|pdf|doc|docx|xls|xlsx)$", "", normalized)
     normalized = re.sub(r"\s+", " ", normalized)
     return normalized
 

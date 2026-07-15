@@ -280,12 +280,12 @@ def test_normalize_name_combined_defang_and_http():
     assert normalize_name("http://daedong.or[.]kr") == normalize_name("daedong.or.kr")
 
 
-def test_normalize_name_strips_file_extension():
-    assert normalize_name("ElectronGold-1.1.1.exe") == normalize_name("ElectronGold-1.1.1")
-    assert normalize_name("cdnver.dll") == normalize_name("cdnver")
-    assert normalize_name("notepad.exe") == normalize_name("notepad")
-    # 实体名本身不含扩展名时不受影响
-    assert normalize_name("ElectronGold-1.1.1") == normalize_name("ElectronGold-1.1.1")
+def test_normalize_name_preserves_file_extension():
+    assert normalize_name("ElectronGold-1.1.1.exe") != normalize_name("ElectronGold-1.1.1")
+    assert normalize_name("cdnver.dll") != normalize_name("cdnver")
+    assert normalize_name("notepad.exe") != normalize_name("notepad")
+    assert normalize_name("update.zip") != normalize_name("update")
+    assert normalize_name("archive.tar.gz") != normalize_name("archive")
 
 
 def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path, monkeypatch):
