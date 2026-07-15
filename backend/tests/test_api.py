@@ -218,18 +218,22 @@ def test_graph_path_passes_sqlite_filters(monkeypatch):
     }
 
 
-def test_pipeline_run_executes_one_manual_operation(monkeypatch):
+def test_pipeline_run_submits_one_background_operation(monkeypatch):
     calls = {}
 
-    def run_sync(**kwargs):
+    def submit_background(**kwargs):
         calls.update(kwargs)
         return {
             "job_id": "job-test",
             "operation": "extract_and_build",
-            "status": "succeeded",
+            "status": "pending",
         }
 
-    monkeypatch.setattr(main_module.pipeline_service, "run_sync", run_sync)
+    monkeypatch.setattr(
+        main_module.pipeline_service,
+        "submit_background",
+        submit_background,
+    )
 
     response = client.post(
         "/api/v1/pipeline/run",
@@ -243,6 +247,7 @@ def test_pipeline_run_executes_one_manual_operation(monkeypatch):
         "use_cache": False,
     }
     assert response.json()["data"]["operation"] == "extract_and_build"
+    assert response.json()["data"]["status"] == "pending"
 
 
 def test_pipeline_run_rejects_missing_scope_before_execution():

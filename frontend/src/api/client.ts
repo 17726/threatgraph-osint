@@ -82,28 +82,95 @@ export function fetchEntity(id: string): Promise<EntityDetail> {
 }
 
 export interface PipelineResult {
-  doc_id: string;
-  run_id: string;
-  chunks: number;
-  extracted_entities: number;
-  extracted_relations: number;
-  canonical_entities: number;
-  canonical_relations: number;
-  evidence: number;
-  behavior_patterns: number;
+  job_id: string;
+  status: string;
+  doc_id?: string;
+  run_id?: string;
+  chunks?: number;
+  extracted_entities?: number;
+  extracted_relations?: number;
+  canonical_entities?: number;
+  canonical_relations?: number;
+  evidence?: number;
+  behavior_patterns?: number;
 }
 
-export async function runPipeline(document: File): Promise<PipelineResult> {
-  const formData = new FormData();
-  formData.append("document", document);
+export interface PipelineStatus {
+  job_id: string;
+  status: string;
+  doc_id?: string;
+  target_group?: string;
+  current_step?: string | null;
+  failed_step?: string | null;
+  error?: string | null;
+  result?: Record<string, unknown> | null;
+}
 
-  const response = await fetch(`${API_BASE_URL}/pipeline/run`, {
+interface PipelineRunOptions {
+  maxWaitMs?: number;
+  intervalMs?: number;
+}
+
+async function pollPipelineStatus(
+  jobId: string,
+  options: PipelineRunOptions = {},
+): Promise<PipelineResult> {
+  const deadline = Date.now() + (options.maxWaitMs ?? 120_000);
+  const intervalMs = options.intervalMs ?? 2000;
+  while (Date.now() < deadline) {
+    const response = await fetch(`${API_BASE_URL}/pipeline/status/${jobId}`);
+    if (!response.ok) {
+      throw new Error(`查询 Pipeline 状态失败: ${response.status}`);
+    }
+    const payload = (await response.json()) as ApiResponse<PipelineStatus>;
+    const job = payload.data;
+    if (job.status === "succeeded") {
+      const result = (job.result ?? {}) as Record<string, unknown>;
+      const extract = result.extract as Record<string, unknown> | undefined;
+      const summary = (extract?.summary ?? result) as Record<string, unknown>;
+      return {
+        job_id: job.job_id,
+        status: job.status,
+        canonical_entities: (summary.canonical_entities ?? 0) as number,
+        canonical_relations: (summary.canonical_relations ?? 0) as number,
+        evidence: (summary.evidence ?? 0) as number,
+        behavior_patterns: (summary.behavior_patterns ?? 0) as number,
+        extracted_entities: (summary.extracted_entities ?? 0) as number,
+        extracted_relations: (summary.extracted_relations ?? 0) as number,
+      };
+    }
+    if (job.status === "failed") {
+      throw new Error(job.error || "Pipeline 运行失败");
+    }
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+  throw new Error("Pipeline 执行超时");
+}
+
+export async function runPipeline(
+  document: File,
+  options: PipelineRunOptions = {},
+): Promise<PipelineResult> {
+  const documentPayload = JSON.parse(await document.text()) as Record<
+    string,
+    unknown
+  >;
+
+  const response = await fetch(`${API_BASE_URL}/documents/import`, {
     method: "POST",
-    body: formData,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(documentPayload),
   });
   if (!response.ok) {
     throw new Error(`Pipeline 运行失败: ${response.status}`);
   }
-  const payload = (await response.json()) as ApiResponse<PipelineResult>;
-  return payload.data;
+  const payload = (await response.json()) as ApiResponse<{
+    doc_id: string;
+    job_id?: string;
+    status: string;
+  }>;
+  if (!payload.data.job_id) {
+    return { job_id: "", status: "skipped" };
+  }
+  return pollPipelineStatus(payload.data.job_id, options);
 }

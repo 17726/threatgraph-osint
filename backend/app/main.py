@@ -181,7 +181,7 @@ def analysis_run(target_group: str):
 @app.post("/api/v1/pipeline/run")
 def pipeline_run(payload: dict = Body(default={})):
     try:
-        result = pipeline_service.run_sync(
+        result = pipeline_service.submit_background(
             doc_id=payload.get("doc_id"),
             target_group=payload.get("target_group"),
             use_cache=payload.get("use_cache", True),

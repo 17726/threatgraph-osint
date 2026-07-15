@@ -7,6 +7,7 @@ import json
 import sqlite3
 import tempfile
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, is_dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -32,6 +33,7 @@ class PipelineService:
         db_path: str | Path,
         *,
         runner: Callable[..., Any] | None = None,
+        max_workers: int = 2,
         offline_pipeline: Any | None = None,
         document_locator: Callable[[str], tuple[str, str | None]] | None = None,
     ) -> None:
@@ -40,6 +42,10 @@ class PipelineService:
         self.offline_pipeline = offline_pipeline
         self.document_locator = document_locator
         self.runner = runner or self._run_default_operation
+        self._executor = ThreadPoolExecutor(
+            max_workers=max_workers,
+            thread_name_prefix="pipeline",
+        )
         self._initialize()
 
     def connect(self) -> sqlite3.Connection:
@@ -49,7 +55,7 @@ class PipelineService:
         return connection
 
     def close(self) -> None:
-        """为后续后台执行器保留统一生命周期接口。"""
+        self._executor.shutdown(wait=True)
 
     def _initialize(self) -> None:
         with self.connect() as connection:
@@ -164,6 +170,12 @@ class PipelineService:
     def submit(self, **kwargs: Any) -> dict[str, Any]:
         return self.create_job(**kwargs)
 
+    def submit_background(self, **kwargs: Any) -> dict[str, Any]:
+        job = self.create_job(**kwargs)
+        if job["status"] == "pending":
+            self._executor.submit(self._run_job, job["job_id"])
+        return job
+
     def claim(self, job_id: str) -> bool:
         started_at = _now()
         with self.connect() as connection:
@@ -185,6 +197,10 @@ class PipelineService:
 
     def run_sync(self, **kwargs: Any) -> dict[str, Any]:
         job = self.create_job(**kwargs)
+        return self._run_job(job["job_id"])
+
+    def _run_job(self, job_id: str) -> dict[str, Any]:
+        job = self.status(job_id)
         if not self.claim(job["job_id"]):
             return self.status(job["job_id"])
 

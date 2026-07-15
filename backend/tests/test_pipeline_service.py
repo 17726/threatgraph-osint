@@ -1,4 +1,6 @@
 import sqlite3
+import threading
+import time
 
 import pytest
 
@@ -117,3 +119,41 @@ def test_service_marks_interrupted_running_job_as_failed(tmp_path):
 
     assert status["status"] == "failed"
     assert "进程中断" in status["error"]
+
+
+def test_pipeline_submit_background_runs_without_blocking_caller(tmp_path):
+    started = threading.Event()
+    release = threading.Event()
+
+    def runner(**_context):
+        started.set()
+        release.wait(timeout=2)
+        return {"graph_updated": True}
+
+    service = PipelineService(tmp_path / "pipeline.db", runner=runner)
+
+    job = service.submit_background(doc_id="doc-1")
+
+    assert job["status"] == "pending"
+    assert started.wait(timeout=1)
+    release.set()
+
+    deadline = time.monotonic() + 2
+    while time.monotonic() < deadline:
+        status = service.status(job["job_id"])
+        if status["status"] == "succeeded":
+            break
+        time.sleep(0.01)
+
+    assert status["status"] == "succeeded"
+    assert status["result"] == {"graph_updated": True}
+    service.close()
+
+
+def test_pipeline_close_shuts_down_background_executor(tmp_path):
+    service = PipelineService(tmp_path / "pipeline.db", runner=lambda **_context: {})
+
+    service.close()
+
+    with pytest.raises(RuntimeError):
+        service._executor.submit(lambda: None)
