@@ -7,7 +7,10 @@ from pathlib import Path
 from typing import Any
 
 from backend.app.core.document_contract import require_valid_document
-from backend.app.db.schema import ensure_import_compatible_columns
+from backend.app.db.schema import (
+    ensure_graph_sync_schema,
+    ensure_import_compatible_columns,
+)
 from backend.app.services.report_generator import generate_intelligent_report
 
 
@@ -461,6 +464,7 @@ class DemoStore:
             )
             ensure_import_compatible_columns(connection)
             self._ensure_columns(connection)
+            ensure_graph_sync_schema(connection)
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:
         migrations = {

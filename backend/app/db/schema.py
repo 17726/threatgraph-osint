@@ -48,6 +48,85 @@ def ensure_import_compatible_columns(connection: sqlite3.Connection) -> None:
         )
 
 
+def ensure_graph_sync_schema(connection: sqlite3.Connection) -> None:
+    """创建 SQLite 到 Neo4j 投影同步所需的变更日志和水位表。"""
+    connection.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS graph_changes (
+          change_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          table_name TEXT NOT NULL,
+          record_id TEXT NOT NULL,
+          operation TEXT NOT NULL CHECK (operation IN ('upsert', 'delete')),
+          changed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS sync_state (
+          state_key TEXT PRIMARY KEY,
+          watermark INTEGER NOT NULL DEFAULT 0,
+          updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        INSERT OR IGNORE INTO sync_state (state_key, watermark)
+        VALUES ('neo4j', 0);
+
+        CREATE TRIGGER IF NOT EXISTS entities_graph_change_insert
+        AFTER INSERT ON entities
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('entities', NEW.entity_id, 'upsert');
+        END;
+        CREATE TRIGGER IF NOT EXISTS entities_graph_change_update
+        AFTER UPDATE ON entities
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('entities', NEW.entity_id, 'upsert');
+        END;
+        CREATE TRIGGER IF NOT EXISTS entities_graph_change_delete
+        AFTER DELETE ON entities
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('entities', OLD.entity_id, 'delete');
+        END;
+        CREATE TRIGGER IF NOT EXISTS relations_graph_change_insert
+        AFTER INSERT ON relations
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('relations', NEW.relation_id, 'upsert');
+        END;
+        CREATE TRIGGER IF NOT EXISTS relations_graph_change_update
+        AFTER UPDATE ON relations
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('relations', NEW.relation_id, 'upsert');
+        END;
+        CREATE TRIGGER IF NOT EXISTS relations_graph_change_delete
+        AFTER DELETE ON relations
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('relations', OLD.relation_id, 'delete');
+        END;
+        CREATE TRIGGER IF NOT EXISTS evidence_graph_change_insert
+        AFTER INSERT ON evidence
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('evidence', NEW.evidence_id, 'upsert');
+        END;
+        CREATE TRIGGER IF NOT EXISTS evidence_graph_change_update
+        AFTER UPDATE ON evidence
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('evidence', NEW.evidence_id, 'upsert');
+        END;
+        CREATE TRIGGER IF NOT EXISTS evidence_graph_change_delete
+        AFTER DELETE ON evidence
+        BEGIN
+          INSERT INTO graph_changes (table_name, record_id, operation)
+          VALUES ('evidence', OLD.evidence_id, 'delete');
+        END;
+        """
+    )
+
+
 def ensure_pipeline_schema(connection: sqlite3.Connection) -> None:
     """创建统一流水线任务及步骤状态表。"""
     connection.executescript(
