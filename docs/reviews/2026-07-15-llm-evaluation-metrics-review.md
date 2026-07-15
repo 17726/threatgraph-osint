@@ -24,9 +24,9 @@ Document
   -> Chunk Strategy
   -> Provider Response
   -> Raw Emission
-  -> 解析、规范化、去重
+  -> 逐条解析、Schema / 类型 / 关系矩阵 / 证据校验和审计
+  -> 语义规范化和去重
   -> Raw Semantic Candidate
-  -> Schema / 类型 / 关系矩阵 / 证据校验
   -> Validated Candidate
   -> 归一化和正式导入
   -> Accepted Graph
@@ -44,6 +44,15 @@ Document
 | Candidate Audit | 每条候选的 accepted/rejected/merged 状态和原因 | 不单独算 F1，提供诊断指标 |
 
 这里特意把 Raw Emission 和 Raw Semantic Candidate 分开。重复输出属于模型纪律问题，但不应伪装成另一条语义幻觉。语义 P/R/F1 使用去重后的集合，重复问题单独报告 `duplicate_rate`。
+
+校验和去重的顺序固定如下：
+
+1. 对每条 Raw Emission 独立执行解析、类型、关系矩阵和证据校验，并保留逐条审计状态。
+2. 在同一 Document 内按语义身份聚合同义重复项，形成 Raw Semantic Candidate。
+3. 同一语义候选只要至少一条 Raw Emission 通过校验，即进入 Validated Candidate；未通过的重复项仍保留为该候选的审计明细。
+4. 若同一语义候选所有 Raw Emission 都被拒绝，则它只存在于 Raw Semantic Candidate，不进入 Validated Candidate。
+
+这让 Raw Semantic 指标回答“模型是否发射了正确事实”，Validated 指标回答“当前校验政策是否保留了正确事实”。重复候选中一条有效、一条 offset 无效时，不应因为其中一条坏证据丢掉整条语义候选，也不能丢失坏证据的审计记录。
 
 ## 3. 评测单位
 
@@ -85,11 +94,18 @@ Golden 的原子是一篇 Document。Dataset 只是本次选了哪些 Document/G
 + 预测主体已匹配 Golden 主体
 + 预测客体已匹配 Golden 客体
 + relation_type 相同
-+ 方向相同
++ 按关系元数据匹配方向
 + 一对一匹配
 ```
 
 这是知识图谱抽取的主要语义指标。只识别出关系名称但端点错误，仍算 FP；对应 Golden 关系算 FN。
+
+关系方向由 `docs/schemas/relationship-matrix.md` 的关系元数据决定：
+
+- 有向关系：预测主体必须匹配 Golden 主体，预测客体必须匹配 Golden 客体。
+- 无向或对称关系：两端实体可以交换匹配；A-B 与 B-A 命中同一条 Golden，只能贡献一个 TP。
+
+无向关系需要先把端点规范化为稳定 pair key，再做一对一匹配；条件关系指标沿用同一规则。当前已知 `AFFILIATED_WITH` 属于无方向关系，不能按统一“方向相同”规则制造一对 FP/FN。
 
 ### 5.2 条件关系指标
 
@@ -97,11 +113,11 @@ Golden 的原子是一篇 Document。Dataset 只是本次选了哪些 Document/G
 
 > 如果主体和客体都找到了，模型是否判断对关系类型和方向？
 
-它用于诊断，不能替代端到端指标。报告中必须同时显示条件关系 support，避免只在少量容易样本上得到很高分。
+它用于诊断，不能替代端到端指标。这里的“方向”同样按关系元数据解释：有向关系检查方向，无向关系检查交换后的端点集合。报告中必须同时显示条件关系 support，避免只在少量容易样本上得到很高分。
 
 ### 5.3 跨段关系
 
-关系匹配不再要求相同 `chunk_id`。预测需要先还原全文身份。只要主体、客体、关系类型和方向符合 Golden，就可以参与匹配。
+关系匹配不再要求相同 `chunk_id`。预测需要先还原全文身份。只要主体、客体、关系类型和按关系元数据解释后的方向符合 Golden，就可以参与匹配。
 
 证据是否充分单独评分。这样可以区分“事实判断正确但证据范围不同”和“关系本身错误”。
 

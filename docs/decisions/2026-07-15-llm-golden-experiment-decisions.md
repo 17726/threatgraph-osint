@@ -92,17 +92,19 @@ Experiment
 
 ## 2. 仓库当前是什么状态
 
-当前 `main` 仍使用以下目录：
+当前 `main` 使用以下目录和运行产物边界：
 
 ```text
 data/documents/<target_group>/<doc_id>.json
 data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
-data/extracted/<抽取结果或候选审计文件>.json
-data/evaluation/<评测结果文件>.json
+data/extracted/extract-<...>.json
+data/extracted/extract-<...>-candidate-audit.json
+data/evaluation/evaluation_result-<...>.json
+data/run_logs/run-log-<run_id>.json        # 本机运行摘要，默认不入 Git
 data/threatgraph_osint.db
 ```
 
-PR #35 已经统一新运行的版本字段、UTC 标签和带随机后缀的 `run_id`。当前正式命名为：
+PR #35 和 PR #41 已经统一新运行的版本字段、UTC 标签、带随机后缀的 `run_id`，并补充文件名与 payload 的一致性校验。当前正式命名为：
 
 ```text
 data/extracted/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
@@ -111,24 +113,36 @@ data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_vers
 data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 ```
 
-仓库还保留旧文件，例如：
+截至 `main` 的 PR #49、#51、#53，仓库还新增了运行观测和手动 Pipeline 能力：
 
-```text
-data/extracted/extract_apt28_001_extract-v1_20260712T155115.json
-data/evaluation/evaluation_result.apt28_080.deepseek-v4-flash.extract-v1.json
-```
+- `scripts/run_llm_extraction.py` 默认写出 `data/run_logs/run-log-<run_id>.json`，记录阶段耗时、API 调用次数、Token 和重试摘要；该目录是本地运行产物，不是 Git 归档的 Experiment Manifest。
+- P0 Pipeline 已收敛为手动 `extract_and_build` 复合任务，状态落 SQLite，默认只消费已有审核抽取结果，不把 `use_cache=false` 当作调用外部模型授权。
+- `data/evaluation/` 当前只保留符合新命名的评测结果；旧式 `evaluation_result.*.extract-vN.json` 不再作为当前运行工件保留在该目录。
 
-这些文件没有被清理或迁进 Experiment 目录。当前 runner 仍把新结果写到 `data/extracted/` 和 `data/evaluation/`，没有以下能力：
+因此，`Promoted Experiment` 已被选作 Git 归档策略，但目前还不是独立运行环境。当前仍没有以下能力：
 
 - 没有 `data/runs/<run_id>/`；
 - 没有 `data/experiments/<experiment_id>/manifest.json`；
 - 没有 promote 命令或 `promoted` 状态字段；
-- 没有自动把普通运行整理成 Baseline 的流程；
-- 没有清理旧 Extraction/Evaluation 文件。
+- 没有自动把普通运行整理成 Baseline 的流程。
 
-因此，`Promoted Experiment` 已被选作 Git 归档策略，但目前还不是独立运行环境。当前代码没有相应状态或命令；在 Manifest 落地前，由 PR 描述说明实验问题、引用工件和结论。
+在 Manifest 落地前，由 PR 描述说明实验问题、引用工件和结论。运行日志可以作为排查和复盘材料，但不能替代 Dataset/Experiment Manifest。
 
-PR #41 已于 2026-07-14 合入 `main`，补充文件名与 payload 的一致性校验，但不负责目录迁移或 Experiment 生命周期。
+### 2.1 PR #36 的方案来源与演进
+
+PR #36 不能以当前提交形态整体合入：它基于旧父分支，包含多文档 Golden、全局 index/catalog、Candidate Audit 新 Schema、Docker/CI 自动同步等尚未冻结的边界，并且与当前 `main` 冲突。它同时也是后续 PR #41 与本文的关键方案来源，应保留可追溯关系，而不是简单描述为“被替代”。
+
+| PR #36 提议 | PR #41 / 本文的处理 |
+| --- | --- |
+| 统一工件身份、版本、UTC 标签、文件名与 payload 一致性 | PR #41 继承并加固，增加随机后缀 Run ID 与跨工件绑定校验 |
+| Candidate Audit 与 Extraction 绑定及独立契约 | 绑定已由 PR #41 继承；独立 Schema 延后到后续拆分 PR |
+| 多文档评测编组 | 从“多文档 Golden 文件”调整为“单文档 Golden + Dataset Manifest” |
+| catalog/index 支持发现和复现 | 目标保留；catalog 改为由权威工件派生的视图，Manifest 作为显式编组 |
+| 保存运行历史 | 从“全部工件入 Git”调整为“Promoted Experiment 经 PR 归档” |
+| CI/Docker 数据一致性 | 目标保留；CI 只校验不直推 main，Docker 使用明确 fixture/挂载 |
+| Legacy 工件可发现 | 目标保留；正式输入默认严格，宽 Glob 仅用于 catalog 或迁移盘点 |
+
+后续 Candidate Audit Schema、Dataset/Experiment Manifest、派生 catalog 和 CI 校验拆分 PR 应回链 PR #36。若实际复用 PR #36 的代码，应保留原作者提交，或按实际贡献添加共同作者信息。
 
 ## 3. PR #27 是什么
 

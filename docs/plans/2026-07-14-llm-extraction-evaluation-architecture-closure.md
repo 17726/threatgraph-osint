@@ -38,7 +38,7 @@
 - Document、chunk set、extraction run、Golden set、evaluation run 都有稳定 ID、版本、内容哈希和时间戳。
 - Golden 不依赖 chunk ID；改变切块参数后无需重标 Golden，仍可比较召回率、准确率、成本和时延。
 - 原始模型响应先于解析持久化；解析失败、Schema 失败和关系证据失败均可审计。
-- 评测至少给出实体与关系的 TP/FP/FN、P/R/F1、support，并区分 `raw_emission` 与 `validated_candidate` 两个作用域。
+- 评测至少给出实体与关系的 TP/FP/FN、P/R/F1、support，并区分 `raw_semantic` 与 `validated_candidate` 两个语义计分作用域；`raw_emission` 只用于逐条审计、重复率和拒绝率。
 - 关系评测同时报告端到端指标和“实体端点均正确时”的条件关系指标。
 - API 和前端读取真实评测运行，不再以 `mockEval.ts` 冒充验收结果。
 - 至少形成一个可复现基线包和一份切块消融实验报告，报告可追溯到数据、配置、模型与代码提交。
@@ -95,9 +95,10 @@ Document
   -> 与 Golden v2 文档级比较
 ```
 
-- `raw_emission`：所有可识别发射项均计入，包括重复、非法类型、缺证据和最终拒绝项。用于发现模型格式纪律、幻觉、重复和解析鲁棒性问题。
-- `validated_candidate`：只评测通过基础校验并去重后的候选。用于隔离“模型语义能力”与“格式/治理能力”。
-- 正式报告以 `validated_candidate` 的实体/关系端到端 F1 为主指标，同时必须附 `raw_emission` 指标、拒绝原因分布、条件关系 F1、成本和时延。
+- `raw_emission`：逐条保留所有可识别发射项，包括重复、非法类型、缺证据和最终拒绝项。它用于审计、重复率、拒绝率和解析鲁棒性，不直接作为语义 P/R/F1 分母。
+- `raw_semantic`：Raw Emission 按文档级语义身份规范化并去重后的候选集合。它用于衡量模型是否发射了正确事实。
+- `validated_candidate`：通过基础校验并按语义身份去重后的候选。它用于衡量当前校验政策保留下来的可用事实。
+- 正式报告以 `validated_candidate` 的实体/关系端到端 F1 为主指标，同时必须附 `raw_semantic` 指标、Raw Emission 审计指标、拒绝原因分布、条件关系 F1、成本和时延。
 
 ### 1.5 当前实现差距与对应任务
 
@@ -775,7 +776,7 @@ Expected：FAIL。
 同一 run 生成：
 
 ```text
-scope=raw_emission
+scope=raw_semantic
 scope=validated_candidate
 ```
 
@@ -922,7 +923,8 @@ git commit -m "feat: 提供真实评测运行 API"
 
 - Golden ID/版本/hash、prediction run、模型、chunk set、时间和运行状态；
 - `validated_candidate` 主指标及 TP/FP/FN/support；
-- `raw_emission` 指标、拒绝率、重复率；
+- `raw_semantic` 指标及 TP/FP/FN/support；
+- `raw_emission` 审计计数、拒绝率、重复率；
 - 实体、关系端到端、条件关系和证据指标；
 - 按类型/文档明细和 TP/FP/FN 错误列表；
 - 空数据、加载失败、运行未完成、指标分母为 0 的明确状态；
