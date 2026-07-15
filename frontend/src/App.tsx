@@ -4,7 +4,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { fetchGraph, fetchReport, generateReport } from "./api/client";
+import { buildGraphQuery, fetchGraph, fetchNeighbors, fetchReport, generateReport } from "./api/client";
 import { buildGraphOption } from "./graphOptions";
 import type { Evidence, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "./types";
 import NodeDetail from "./components/NodeDetail";
@@ -23,6 +23,7 @@ const TARGETS = ["APT28", "Lazarus", "Kimsuky"];
 export function App() {
   const [target, setTarget] = useState(TARGETS[0]);
   const [graph, setGraph] = useState<GraphPayload | null>(null);
+  const [searchGraph, setSearchGraph] = useState<GraphPayload | null>(null);
   const [report, setReport] = useState<ReportPayload | null>(null);
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(
     null,
@@ -57,11 +58,16 @@ export function App() {
     setSelectedNode(null);
     setSelectedEdge(null);
     setSearchNodeId(null);
-    setRegionFilter("");
-    setTechniqueFilter("");
     setLegendFilter(null);
 
-    fetchGraph(target)
+    setGraph(null);
+    setSearchGraph(null);
+    const graphQuery = buildGraphQuery(target, techniqueFilter, regionFilter);
+    fetchGraph(graphQuery.target, {
+      ...graphQuery.filters,
+      last_seen_to: `${currentYear}-12-31`,
+      depth: 0,
+    })
       .then((graphPayload) => {
         if (cancelled) {
           return;
@@ -94,56 +100,29 @@ export function App() {
     return () => {
       cancelled = true;
     };
-  }, [target, reloadKey]);
+  }, [target, reloadKey, techniqueFilter, regionFilter, currentYear]);
 
   const filteredGraph = useMemo(() => {
-    if (!graph) return null;
-    if (highlightNodeIds.length > 0) return graph;
-    let visible = graph.nodes;
-    if (currentYear < 2026) {
-      visible = visible.filter((n) => {
-        if (!n.first_seen) return true;
-        const fy = parseInt(n.first_seen.split("-")[0], 10);
-        if (Number.isNaN(fy)) return true;
-        return fy <= currentYear;
-      });
+    const activeGraph = searchGraph ?? graph;
+    if (!activeGraph || !legendFilter) {
+      return activeGraph;
     }
-    if (techniqueFilter) {
-      const connectedIds = new Set([techniqueFilter]);
-      graph.edges.forEach((e) => {
-        if (e.source === techniqueFilter) connectedIds.add(e.target);
-        if (e.target === techniqueFilter) connectedIds.add(e.source);
-      });
-      visible = visible.filter((n) => connectedIds.has(n.id));
-    }
-    if (legendFilter) {
-      const typeIds = new Set(
-        graph.nodes.filter((n) => n.type === legendFilter).map((n) => n.id)
-      );
-      const connectedIds = new Set(typeIds);
-      graph.edges.forEach((e) => {
-        if (typeIds.has(e.source)) connectedIds.add(e.target);
-        if (typeIds.has(e.target)) connectedIds.add(e.source);
-      });
-      visible = visible.filter((n) => connectedIds.has(n.id));
-    }
-    if (regionFilter) {
-      const connectedIds = new Set([regionFilter]);
-      graph.edges.forEach((e) => {
-        if (e.source === regionFilter) connectedIds.add(e.target);
-        if (e.target === regionFilter) connectedIds.add(e.source);
-      });
-      visible = visible.filter((n) => connectedIds.has(n.id));
-    }
-    const visibleIds = new Set(visible.map((n) => n.id));
+    const typeIds = new Set(
+      activeGraph.nodes.filter((n) => n.type === legendFilter).map((n) => n.id),
+    );
+    const visibleIds = new Set(typeIds);
+    activeGraph.edges.forEach((e) => {
+      if (typeIds.has(e.source)) visibleIds.add(e.target);
+      if (typeIds.has(e.target)) visibleIds.add(e.source);
+    });
     return {
-      ...graph,
-      nodes: visible,
-      edges: graph.edges.filter(
+      ...activeGraph,
+      nodes: activeGraph.nodes.filter((n) => visibleIds.has(n.id)),
+      edges: activeGraph.edges.filter(
         (e) => visibleIds.has(e.source) && visibleIds.has(e.target),
       ),
     };
-  }, [graph, currentYear, techniqueFilter, regionFilter, highlightNodeIds, legendFilter]);
+  }, [graph, searchGraph, legendFilter]);
   const countries = useMemo(
     () =>
       graph?.nodes
@@ -161,9 +140,9 @@ export function App() {
   const graphOption = useMemo(
     () =>
       filteredGraph
-        ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId })
+        ? buildGraphOption(filteredGraph, { highlightNodeIds })
         : null,
-    [filteredGraph, highlightNodeIds, searchNodeId],
+    [filteredGraph, highlightNodeIds],
   );
 
   const handleChartReady = useCallback((instance: any) => {
@@ -194,30 +173,26 @@ export function App() {
   }, []);
 
   const handleSearchSelect = useCallback(
-    (nodeId: string) => {
-      const instance = chartInstanceRef.current;
-      if (!instance || !filteredGraph) return;
-      const idx = filteredGraph.nodes.findIndex((n) => n.id === nodeId);
-      if (idx >= 0) {
-        setSearchNodeId(nodeId);
-        // 重置视图并居中到目标节点
-        instance.dispatchAction({ type: "restore" });
-        try {
-          const opt = instance.getOption();
-          const node = opt.series?.[0]?.data?.[idx];
-          if (node && typeof node.x === "number" && typeof node.y === "number") {
-            instance.setOption({ series: [{ center: [node.x, node.y], zoom: 1.8 }] });
-          }
-        } catch (_) { /* 忽略坐标读取失败 */ }
-        instance.dispatchAction({
-          type: "focusNodeAdjacency",
-          seriesIndex: 0,
-          dataIndex: idx,
+    (node: GraphNode) => {
+      setSearchNodeId(node.id);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+      fetchNeighbors(node.id)
+        .then((payload) => {
+          setSearchGraph(payload);
+          setSelectedEvidence(payload.evidence[0] ?? null);
+        })
+        .catch((cause: unknown) => {
+          setError(cause instanceof Error ? cause.message : "实体筛选失败");
         });
-      }
     },
-    [filteredGraph],
+    [],
   );
+  const handleSearchClear = useCallback(() => {
+    setSearchGraph(null);
+    setSearchNodeId(null);
+    setError(null);
+  }, []);
   const handlePathFound = useCallback((ids: string[]) => {
     setHighlightNodeIds(ids);
     setSelectedNode(null);
@@ -270,6 +245,7 @@ export function App() {
         </div>
         <SearchBar
           onSelect={handleSearchSelect}
+          onClear={handleSearchClear}
         />
         <TechniqueFilter techniques={techniqueOptions} value={techniqueFilter} onChange={setTechniqueFilter} />
         <RegionFilter countries={countries} value={regionFilter} onChange={setRegionFilter} />

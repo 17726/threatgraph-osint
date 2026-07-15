@@ -244,23 +244,32 @@ graph.schema.json -> data/graph/graph.json
 └── docker-compose.yml    本地开发编排配置
 ```
 
-## 开发验证
+### 文档导入与统一流水线
+
+标准文档已完成清洗，前端导入 JSON 后调用 `POST /api/v1/documents/import`，后端成功写入 SQLite 后默认自动触发：
+
+```text
+extract -> normalize -> build_graph -> analyze_behavior -> infer -> report -> neo4j_sync
+```
+
+接口统一使用 `Content-Type: application/json`，不使用 multipart。也可以直接调用 `POST /api/v1/pipeline/run` 传入 `doc_id`、`target_group`、`use_cache` 和可选 `steps`。
+
 
 ### 后端测试
 
 ```bash
-docker compose build backend
-docker compose run --rm backend python -m pytest backend/tests -v
+python -m pytest backend/tests -v
 ```
 
 ### 前端测试与构建
 
 ```bash
-docker compose build frontend
-docker compose run --rm frontend npm run test
-docker compose run --rm frontend npm run build
-docker compose run --rm frontend npm run format:check
+npm --prefix frontend run test
+npm --prefix frontend run build
+npm --prefix frontend run format:check
 ```
+
+Docker 环境也可使用原有 `docker compose run --rm backend ...` 与 `docker compose run --rm frontend ...` 命令。
 
 ### 离线抽取结果校验
 

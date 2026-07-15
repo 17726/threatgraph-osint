@@ -1,0 +1,32 @@
+{
+  "doc_id": "lazarus_003",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "source_url": "https://www.freebuf.com/news/170082.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "又是朝鲜？！疑似与朝鲜相关的黑客盗取17个国家的数据",
+  "language": "zh",
+  "clean_text": "McAfee 高级威胁研究团队发布的一份新的报告指出，一项名为 Operation GhostSecret 的大型黑客活动疑似与朝鲜政府支持的黑客组织 Lazarus 有关，因为攻击中使用了与该组织有关的各种工具和恶意程序。\n\n研究人员最初以为 Operation GhostSecret 只是 3 月初发生在几个土耳其金融机构和政府组织的大规模网络攻击，但 McAfee 的报告显示，这个攻击实际上波及了 17 个国家。背后攻击者瞄准关键基础设施、娱乐、金融、医疗保健和电信等多个行业，窃取业内敏感数据，目前依旧活跃。\n\n3 月15 日至 19 日，美国、澳大利亚、日本和中国的服务器多次受到感染。泰国近 50 台服务器受到恶意软件的严重打击，是所有国家中受到攻击最严重的。\n\nMcAfee 首席科学家 Raj Samani 指出：\n\n在监测这场战役时，我们发现，第一阶段攻击的曝光公开之后，并没有减缓攻击活动的进程。背后攻击者持续行动，而且还扩大了攻击范围、增加了他们使用的工具。\n\n报告还指出，朝鲜政府相关的黑客组织一直在扩大其网络犯罪的范围。最初，他们只是窃取军事机密以及窃取加密货币用于弥补政府的严重财政赤字，如今，已经扩展到多个行业和领域。近几个月的高风险网络攻击都与朝鲜黑客组织有关。例如，美国网络安全公司 Recorded Future 的研究人员表示，1 月份针对韩国加密货币交易所 Coinlink 的黑客攻击活动使用了与索尼和 WannaCry 攻击相同的恶意软件，背后就是 Lazarus 组织。 Lazarus 组织 2009 年就开始活跃，当时他们通过感染 MyDoom 病毒袭击美国和韩国的网站，造成了严重影响。\n\n*参考来源：businessinsider，AngelaY 编译整理，转载请注明来自 FreeBuf.COM",
+  "content_hash": "sha256:07495b56a72b31d6ce1ba49640e1868e2f23f6df63e1b56411b7091c19e0215a",
+  "published_at": "2018-04-28",
+  "retrieved_at": "2026-07-07T16:57:21Z",
+  "source_reliability": "C",
+  "collection_item_id": null,
+  "tlp": "TLP:CLEAR",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "tags": [
+    "资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_003",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_003.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "doc_id": "lazarus_009",
+  "schema_version": "1.0",
+  "target_group": "Lazarus",
+  "source_url": "https://www.freebuf.com/company-information/213830.html",
+  "source_type": "news",
+  "source_name": "FreeBuf",
+  "title": "【注意】谨防Ouroboros勒索病毒偷袭！！！",
+  "language": "zh",
+  "clean_text": "概 况\n\n近日，美创安全实验室监测到Ouroboros勒索病毒在国内有部分传播，监测数据表明，已有湖北、山东等地的医疗、电力系统的电脑遭遇该勒索病毒攻击。Ouroboros勒索病毒首次出现于2019年8月中旬，目前发现其主要通过垃圾邮件渠道传播，由于其PDB路径中包含Ouroboros故因此得名，该病毒加密文件后会添加.Lazarus扩展后缀。\n\n病毒情况\n\n美创安全实验室第一时间拿到相关病毒样本，经 virustotal 检测，确认为 Ouroboros勒索病毒。Ouroboros在执行加密时，采用的是高强度的AES算法进行加密。加密后，影响用户关键业务运行，且暂时无法解密，故提醒各政企机构提高警惕。\n\n详细信息\n\n经过分析发现，病毒运行后首先调用PowerShell程序,通过vssadmin delete shadows /all /y命令删除卷影副本。接着，采用高强度的AES算法对存储在计算机上的所有文件进行加密。并在桌面上留下勒索信息文件，文件名为Read-Me-Now.txt，提示受害者如何缴纳赎金获取解密工具，文件信息如下：\n\n防护措施\n\n美创安全实验室再次提醒广大用户，勒索病毒以防为主，目前大部分勒索病毒加密后的文件都无法解密，注意日常防范措施，以尽可能避免损失：\n\n（1）及时给电脑打补丁，修复漏洞。\n\n（2）对重要的数据文件定期进行非本地备份。\n\n（3）不要点击来源不明的邮件附件，不从不明网站下载软件。\n\n（4）RDP远程服务器等连接尽量使用高强度且无规律的密码，不要使用弱密码。\n\n（5）尽量关闭不必要的文件共享。\n\n（6）尽量关闭不必要的端口。\n\n以上为防护勒索病毒的常规方式，为了更好的应对已知或未知勒索病毒的威胁，美创通过对大量勒索病毒的分析，基于零信任、守白知黑原则，创造性的研究出针对勒索病毒的终端产品【诺亚防勒索系统】。诺亚防勒索在不关心漏洞传播方式的情况下，可防护任何已知或未知的勒索病毒。以下为诺亚防勒索针对这款勒索病毒的防护效果。\n\n美创诺亚防勒索可通过服务端统一下发策略并更新。默认策略可保护office文档【如想保护数据库文件可通过添加策略一键保护】。\n\n无诺亚防勒索防护的情况下：\n\n在test目录下，添加以下文件，若服务器中了勒索病毒，该文件被加密，增加了.Lazarus后缀，并且无法正常打开。\n\n开启诺亚防勒索的情况下：\n\n双击执行病毒文件，当勒索病毒尝试加密被保护文件，即test目录下的文件时，诺亚防勒索提出警告并拦截该行为。\n\n查看系统上被测试的文件，可被正常打开，成功防护恶意软件对被保护文件的加密行为。\n\n开启堡垒模式的情况下：\n\n为保护系统全部文件，可一键开启诺亚防勒索的堡垒模式。堡垒模式主要针对亚终端，例如ATM机，ATM机的终端基本不太会更新，那么堡垒模式提供一种机制：任何开启堡垒模式之后再进入终端的可执行文件都将被阻止运行，从而实现诺亚防勒索的最强防护模式。\n\n运行在堡垒模式下，执行该病毒，立刻被移除到隔离区，因此可阻止任何未知勒索病毒的执行。",
+  "content_hash": "sha256:fc92ae47cfd8ff72b76fd79352adeb01dcafdce792bd9b58039aa2504eea1a8a",
+  "published_at": "2019-09-09",
+  "retrieved_at": "2026-07-07T17:03:56Z",
+  "source_reliability": "C",
+  "collection_item_id": null,
+  "tlp": "TLP:CLEAR",
+  "target_groups": [
+    "Lazarus"
+  ],
+  "tags": [
+    "企业资讯",
+    "news"
+  ],
+  "metadata": {
+    "collector": "data",
+    "legacy_doc_id": "lazarus_009",
+    "legacy_source_type": "news_article",
+    "raw_path": "data/raw/crawler_output_lazarus/lazarus_009.json",
+    "converter": "scripts/convert_raw_documents.py",
+    "cleaning": "light_format_cleaning"
+  }
+}

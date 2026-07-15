@@ -237,6 +237,30 @@ export default function ReportPanel({
     <section className="report-panel">
       <div className="panel-heading">
         <h2>{target} - 威胁分析报告</h2>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {onGenerate && (
+            <button
+              type="button"
+              disabled={generating}
+              onClick={() => onGenerate(target)}
+              style={{
+                padding: "4px 10px",
+                borderRadius: 6,
+                border: "1px solid #0f766e",
+                background: generating ? "#e2e8e6" : "#0f766e",
+                cursor: generating ? "not-allowed" : "pointer",
+                fontSize: 12,
+                color: generating ? "#94a3b8" : "#fff",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <Sparkles size={14} />
+              {generating ? "生成中..." : "生成智能报告"}
+            </button>
+          )}
+        </div>
       </div>
       <div style={{ padding: 16, maxHeight: 400, overflowY: "auto", fontSize: 13 }}>
         <h3

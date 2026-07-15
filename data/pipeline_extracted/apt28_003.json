@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract-apt28_003-deepseek-v4-flash-1.0-1.0-20260715163031621153-d60aa196",
+  "doc_id": "apt28_003",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "1.0",
+  "generated_at": "2026-07-15T16:30:31.621153+00:00",
+  "chunks": [
+    {
+      "chunk_id": "apt28_003_c001",
+      "entities": [
+        {
+          "name": "APT28",
+          "type": "APT_GROUP",
+          "aliases": [
+            "Fancy Bear",
+            "Pawn Storm",
+            "Sednit",
+            "Sofacy",
+            "Strontium"
+          ],
+          "description": "俄罗斯黑客组织",
+          "mention_text": "APT28组织（又名Fancy Bear，Pawn Storm，Sednit，Sofacy和Strontium）",
+          "evidence_text": "APT28组织（又名Fancy Bear，Pawn Storm，Sednit，Sofacy和Strontium）俄罗斯黑客",
+          "char_start": 40,
+          "char_end": 101,
+          "confidence": 0.95,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "德国政府",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "description": "德国联邦政府",
+          "mention_text": "德国政府",
+          "evidence_text": "德国政府证实，黑客侵入其计算机网络并植入了恶意软件。",
+          "char_start": 0,
+          "char_end": 26,
+          "confidence": 0.95,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "德国内政部",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "description": "德国内政部门",
+          "mention_text": "德国内政部",
+          "evidence_text": "德国内政部门表示该事件的证实仍在调查之中。",
+          "char_start": 293,
+          "char_end": 314,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "俄罗斯",
+          "type": "COUNTRY",
+          "aliases": [],
+          "description": "俄罗斯联邦",
+          "mention_text": "俄罗斯",
+          "evidence_text": "与俄罗斯有联系的APT28组织",
+          "char_start": 454,
+          "char_end": 469,
+          "confidence": 0.95,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "德国议会",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "description": "德国议会系统",
+          "mention_text": "德国议会的系统",
+          "evidence_text": "APT组织入侵了德国议会的系统。",
+          "char_start": 491,
+          "char_end": 507,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "DPA",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "description": "德国新闻机构",
+          "mention_text": "DPA",
+          "evidence_text": "德国新闻机构DPA报道称",
+          "char_start": 27,
+          "char_end": 39,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "FreeBuf",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "description": "网络安全媒体",
+          "mention_text": "FreeBuf.COM",
+          "evidence_text": "转载请注明来自FreeBuf.COM",
+          "char_start": 595,
+          "char_end": 613,
+          "confidence": 0.5,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "Andy",
+          "type": "PERSON",
+          "aliases": [],
+          "description": "FreeBuf小编",
+          "mention_text": "Andy",
+          "evidence_text": "FB小编Andy编译",
+          "char_start": 584,
+          "char_end": 594,
+          "confidence": 0.5,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "俄罗斯",
+          "tail_type": "COUNTRY",
+          "evidence_text": "与俄罗斯有联系的APT28组织",
+          "char_start": 454,
+          "char_end": 469,
+          "confidence": 0.95,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "德国议会",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "APT组织入侵了德国议会的系统。",
+          "char_start": 491,
+          "char_end": 507,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        }
+      ]
+    }
+  ]
+}

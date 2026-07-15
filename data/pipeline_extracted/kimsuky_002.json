@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract-kimsuky_002-deepseek-v4-flash-1.0-1.0-20260715164510364872-0b83f1db",
+  "doc_id": "kimsuky_002",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "1.0",
+  "generated_at": "2026-07-15T16:45:10.364872+00:00",
+  "chunks": [
+    {
+      "chunk_id": "kimsuky_002_c001",
+      "entities": [
+        {
+          "name": "Kimsuky",
+          "type": "APT_GROUP",
+          "aliases": [],
+          "description": "长期针对韩国的APT组织",
+          "mention_text": "kimsuky",
+          "evidence_text": "安全研究人员发现一例kimsuky利用疫情搞事情的样本",
+          "char_start": 75,
+          "char_end": 102,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "COVID-19",
+          "type": "EVENT",
+          "aliases": [
+            "新冠肺炎"
+          ],
+          "description": "新冠疫情",
+          "mention_text": "新冠肺炎",
+          "evidence_text": "新冠肺炎在韩国大爆发",
+          "char_start": 3,
+          "char_end": 13,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "South Korea",
+          "type": "COUNTRY",
+          "aliases": [
+            "韩国"
+          ],
+          "description": "韩国",
+          "mention_text": "韩国",
+          "evidence_text": "新冠肺炎在韩国大爆发",
+          "char_start": 3,
+          "char_end": 13,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "vnext.mireene[.]com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "恶意宏下载Hta文件的域名",
+          "mention_text": "vnext.mireene[.]com",
+          "evidence_text": "从vnext.mireene[.]com/theme/basic/skin/member/basic/upload/search.hta下载Hta文件",
+          "char_start": 383,
+          "char_end": 458,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "kiseong[.]co[.]kr",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "同源样本的后续地址域名",
+          "mention_text": "kiseong[.]co[.]kr",
+          "evidence_text": "后续地址 http://kiseong[.]co[.]kr/m/public/navi/rabin/pop[.]hta",
+          "char_start": 548,
+          "char_end": 607,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "코로나바이러스 대응.doc",
+          "type": "MALWARE",
+          "aliases": [
+            "冠状病毒对应.doc"
+          ],
+          "description": "利用疫情相关新闻的恶意文档",
+          "mention_text": "코로나바이러스 대응.doc_（冠状病毒对应）",
+          "evidence_text": "文件名 코로나바이러스 대응.doc_（冠状病毒对应）",
+          "char_start": 115,
+          "char_end": 142,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "name": "50416931926754d867c9e5f418a4d08a",
+          "type": "MALWARE",
+          "aliases": [],
+          "description": "同源样本的MD5",
+          "mention_text": "md5 50416931926754d867c9e5f418a4d08a",
+          "evidence_text": "md5 50416931926754d867c9e5f418a4d08a",
+          "char_start": 504,
+          "char_end": 540,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "Kimsuky",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "South Korea",
+          "tail_type": "COUNTRY",
+          "evidence_text": "长期针对韩国的APT组织",
+          "char_start": 47,
+          "char_end": 59,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        },
+        {
+          "head_name": "Kimsuky",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "코로나바이러스 대응.doc",
+          "tail_type": "MALWARE",
+          "evidence_text": "安全研究人员发现一例kimsuky利用疫情搞事情的样本",
+          "char_start": 75,
+          "char_end": 102,
+          "confidence": 0.9,
+          "candidate_status": "candidate",
+          "validation_status": "valid",
+          "validation_errors": []
+        }
+      ]
+    }
+  ]
+}

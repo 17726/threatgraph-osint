@@ -1,4 +1,4 @@
-﻿import json
+﻿﻿import json
 import os
 import sqlite3
 from collections import deque
@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from backend.app.db.schema import ensure_graph_sync_schema
 from backend.app.services.report_generator import generate_intelligent_report
 
 
@@ -452,11 +453,23 @@ class DemoStore:
                 """
             )
             self._ensure_columns(connection)
+            ensure_graph_sync_schema(connection)
             if self.seed_demo:
                 self.seed_demo_data(connection)
 
     def _ensure_columns(self, connection: sqlite3.Connection) -> None:
         migrations = {
+            "documents": {
+                "collection_item_id": "TEXT",
+                "target_groups_json": "TEXT NOT NULL DEFAULT '[]'",
+                "tlp": "TEXT NOT NULL DEFAULT 'TLP:CLEAR'",
+                "tags_json": "TEXT NOT NULL DEFAULT '[]'",
+                "metadata_json": "TEXT NOT NULL DEFAULT '{}'",
+            },
+            "chunks": {
+                "section_title": "TEXT NOT NULL DEFAULT ''",
+                "token_count": "INTEGER",
+            },
             "entities": {
                 "first_seen": "TEXT",
                 "last_seen": "TEXT",
@@ -691,6 +704,7 @@ class DemoStore:
             ).fetchall()
         return [
             {
+                "id": row["entity_id"],
                 "entity_id": row["entity_id"],
                 "name": row["name"],
                 "type": row["type"],
@@ -1041,34 +1055,51 @@ class DemoStore:
         from datetime import UTC, datetime as dt
         now = dt.now(UTC).isoformat()
         with self.connect() as conn:
+            conn.execute("BEGIN IMMEDIATE")
             existing = conn.execute(
-                "SELECT doc_id FROM documents WHERE doc_id = ?", (doc_id,)
+                "SELECT doc_id FROM documents WHERE doc_id = ? OR content_hash = ? ORDER BY doc_id LIMIT 1",
+                (doc_id, content_hash),
             ).fetchone()
             if existing:
-                return {"doc_id": doc_id, "status": "skipped", "message": "文档已存在"}
-            conn.execute(
-                """INSERT INTO documents (
-                  doc_id, schema_version, target_group, source_url, source_type,
-                  source_name, title, language, clean_text, content_hash,
-                  published_at, retrieved_at, source_reliability, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    doc_id,
-                    document.get("schema_version", "1.0"),
-                    document.get("target_group", ""),
-                    document.get("source_url", ""),
-                    document.get("source_type", ""),
-                    document.get("source_name", ""),
-                    document.get("title", ""),
-                    document.get("language", "zh"),
-                    clean_text,
-                    content_hash,
-                    document.get("published_at"),
-                    document.get("retrieved_at"),
-                    document.get("source_reliability", "unknown"),
-                    now,
-                ),
-            )
+                return {"doc_id": existing["doc_id"], "status": "skipped", "message": "文档已存在"}
+            try:
+                conn.execute(
+                    """INSERT INTO documents (
+                      doc_id, schema_version, target_group, source_url, source_type,
+                      source_name, title, language, clean_text, content_hash,
+                      published_at, retrieved_at, source_reliability, collection_item_id,
+                      target_groups_json, tlp, tags_json, metadata_json, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        doc_id,
+                        document.get("schema_version", "1.0"),
+                        document.get("target_group", ""),
+                        document.get("source_url", ""),
+                        document.get("source_type", ""),
+                        document.get("source_name", ""),
+                        document.get("title", ""),
+                        document.get("language", "zh"),
+                        clean_text,
+                        content_hash,
+                        document.get("published_at"),
+                        document.get("retrieved_at"),
+                        document.get("source_reliability", "unknown"),
+                        document.get("collection_item_id"),
+                        json.dumps(document.get("target_groups", [document.get("target_group", "")]), ensure_ascii=False),
+                        document.get("tlp", "TLP:CLEAR"),
+                        json.dumps(document.get("tags", []), ensure_ascii=False),
+                        json.dumps(document.get("metadata", {}), ensure_ascii=False),
+                        now,
+                    ),
+                )
+            except sqlite3.IntegrityError:
+                existing = conn.execute(
+                    "SELECT doc_id FROM documents WHERE doc_id = ? OR content_hash = ? ORDER BY doc_id LIMIT 1",
+                    (doc_id, content_hash),
+                ).fetchone()
+                if existing:
+                    return {"doc_id": existing["doc_id"], "status": "skipped", "message": "文档已存在"}
+                raise
             paragraphs = clean_text.split("\n")
             chunk_index = 0
             char_pos = 0
@@ -1081,9 +1112,10 @@ class DemoStore:
                 text_hash = hashlib.sha256(para.encode("utf-8")).hexdigest()
                 conn.execute(
                     """INSERT INTO chunks (
-                      chunk_id, doc_id, chunk_index, text, char_start, char_end, text_hash
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                    (chunk_id, doc_id, chunk_index, para, char_pos, char_pos + len(para), text_hash),
+                      chunk_id, doc_id, chunk_index, section_title, text,
+                      char_start, char_end, text_hash, token_count
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (chunk_id, doc_id, chunk_index, "", para, char_pos, char_pos + len(para), text_hash, len(para.split())),
                 )
                 chunk_index += 1
                 char_pos += len(para) + 1

@@ -188,17 +188,23 @@ GET  /api/v1/pipeline/status/{job_id}
 
 ```json
 {
+  "doc_id": "apt28_049",
   "target_group": "APT28",
   "use_cache": true,
-  "steps": ["clean", "extract", "normalize", "build_graph", "analyze_behavior", "infer", "report"]
+  "steps": ["extract", "normalize", "build_graph", "analyze_behavior", "infer", "report", "neo4j_sync"]
 }
 ```
 
-说明：
+`steps` 省略时使用上述默认顺序。标准文档已完成清洗，流水线不包含 `clean` 步骤。成功响应返回后台任务信息；文档导入接口会在导入事务成功后自动提交同一默认流水线任务。
 
-1. 优先级 P0 可以同步执行，直接返回结果。
-2. 后续可升级为后台任务。
-3. 所有中间结果写入 SQLite。
+文档导入接口统一接收 JSON，不接收 multipart：
+
+```text
+POST /api/v1/documents/import
+Content-Type: application/json
+```
+
+请求体为第 4 节的标准文档对象，导入成功响应的 `data` 至少包含 `doc_id`、`status`、`chunks`；自动触发开启时还包含 `job_id`。前端导入文档应先解析 JSON，再以 JSON 请求调用此接口。
 
 ---
 
