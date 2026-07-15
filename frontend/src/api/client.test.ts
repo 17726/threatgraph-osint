@@ -29,10 +29,7 @@ describe("API 客户端", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
     const client = (await import("./client")) as typeof import("./client") & {
-      fetchNeighbors?: (
-        entityId: string,
-        options?: { signal?: AbortSignal },
-      ) => Promise<unknown>;
+      fetchNeighbors?: (entityId: string, options?: { signal?: AbortSignal }) => Promise<unknown>;
     };
 
     expect(client.fetchNeighbors).toBeTypeOf("function");
@@ -42,71 +39,63 @@ describe("API 客户端", () => {
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(
-        /\/api\/v1\/graph\/neighbors\?entity_id=technique%3At1566$/,
-      ),
+      expect.stringMatching(/\/api\/v1\/graph\/neighbors\?entity_id=technique%3At1566$/),
       { signal: controller.signal },
     );
   });
 
   it("导入文档后显式提交后台流水线并轮询直到完成", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockImplementation(async (input: RequestInfo | URL) => {
-        const url = String(input);
-        if (url.includes("/documents/import")) {
-          return {
-            ok: true,
-            json: async () => ({
-              success: true,
-              data: { doc_id: "apt28_001", status: "imported" },
-            }),
-          };
-        }
-        if (url.includes("/pipeline/run")) {
-          return {
-            ok: true,
-            json: async () => ({
-              success: true,
-              data: { job_id: "job-1", status: "pending" },
-            }),
-          };
-        }
-        if (url.includes("/pipeline/status/job-1")) {
-          return {
-            ok: true,
-            json: async () => ({
-              success: true,
-              data: {
-                job_id: "job-1",
-                status: "succeeded",
-                result: {
-                  doc_ids: ["apt28_001"],
-                  summaries: [
-                    {
-                      canonical_entities: 10,
-                      canonical_relations: 5,
-                      evidence: 12,
-                      behavior_patterns: 3,
-                      extracted_entities: 15,
-                      extracted_relations: 7,
-                    },
-                  ],
-                },
+    const fetchMock = vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/documents/import")) {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: { doc_id: "apt28_001", status: "imported" },
+          }),
+        };
+      }
+      if (url.includes("/pipeline/run")) {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: { job_id: "job-1", status: "pending" },
+          }),
+        };
+      }
+      if (url.includes("/pipeline/status/job-1")) {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: {
+              job_id: "job-1",
+              status: "succeeded",
+              result: {
+                doc_ids: ["apt28_001"],
+                summaries: [
+                  {
+                    canonical_entities: 10,
+                    canonical_relations: 5,
+                    evidence: 12,
+                    behavior_patterns: 3,
+                    extracted_entities: 15,
+                    extracted_relations: 7,
+                  },
+                ],
               },
-            }),
-          };
-        }
-        throw new Error(`未预期请求: ${url}`);
-      });
+            },
+          }),
+        };
+      }
+      throw new Error(`未预期请求: ${url}`);
+    });
     vi.stubGlobal("fetch", fetchMock);
-    const document = new File(
-      [JSON.stringify({ doc_id: "apt28_001" })],
-      "apt28_001.json",
-      {
-        type: "application/json",
-      },
-    );
+    const document = new File([JSON.stringify({ doc_id: "apt28_001" })], "apt28_001.json", {
+      type: "application/json",
+    });
 
     const result = await runPipeline(document, {
       extractionMode: "reviewed",
@@ -125,48 +114,41 @@ describe("API 客户端", () => {
 
   it("重复文档仍可显式重新运行流水线", async () => {
     const requestedUrls: string[] = [];
-    const fetchMock = vi
-      .fn()
-      .mockImplementation(async (input: RequestInfo | URL) => {
-        const url = String(input);
-        requestedUrls.push(url);
-        if (url.includes("/documents/import")) {
-          return {
-            ok: true,
-            json: async () => ({
-              success: true,
-              data: { doc_id: "apt28_001", status: "skipped" },
-            }),
-          };
-        }
-        if (url.includes("/pipeline/run")) {
-          return {
-            ok: true,
-            json: async () => ({
-              success: true,
-              data: { job_id: "job-2", status: "pending" },
-            }),
-          };
-        }
+    const fetchMock = vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      requestedUrls.push(url);
+      if (url.includes("/documents/import")) {
         return {
           ok: true,
           json: async () => ({
             success: true,
-            data: { job_id: "job-2", status: "succeeded", result: {} },
+            data: { doc_id: "apt28_001", status: "skipped" },
           }),
         };
-      });
+      }
+      if (url.includes("/pipeline/run")) {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: { job_id: "job-2", status: "pending" },
+          }),
+        };
+      }
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: { job_id: "job-2", status: "succeeded", result: {} },
+        }),
+      };
+    });
     vi.stubGlobal("fetch", fetchMock);
-    const document = new File(
-      [JSON.stringify({ doc_id: "apt28_001" })],
-      "apt28_001.json",
-    );
+    const document = new File([JSON.stringify({ doc_id: "apt28_001" })], "apt28_001.json");
 
     await runPipeline(document, { intervalMs: 0 });
 
-    expect(requestedUrls.some((url) => url.includes("/pipeline/run"))).toBe(
-      true,
-    );
+    expect(requestedUrls.some((url) => url.includes("/pipeline/run"))).toBe(true);
   });
 
   it("导入失败时显示后端统一错误消息", async () => {
@@ -186,51 +168,44 @@ describe("API 客户端", () => {
     );
     const document = new File(["{}"], "invalid.json");
 
-    await expect(runPipeline(document)).rejects.toThrow(
-      "content_hash 与正文不一致",
-    );
+    await expect(runPipeline(document)).rejects.toThrow("content_hash 与正文不一致");
   });
 
   it("取消信号会终止状态轮询", async () => {
     const controller = new AbortController();
     let statusCalls = 0;
-    const fetchMock = vi
-      .fn()
-      .mockImplementation(async (input: RequestInfo | URL) => {
-        const url = String(input);
-        if (url.includes("/documents/import")) {
-          return {
-            ok: true,
-            json: async () => ({
-              success: true,
-              data: { doc_id: "apt28_001", status: "imported" },
-            }),
-          };
-        }
-        if (url.includes("/pipeline/run")) {
-          return {
-            ok: true,
-            json: async () => ({
-              success: true,
-              data: { job_id: "job-3", status: "pending" },
-            }),
-          };
-        }
-        statusCalls += 1;
-        controller.abort();
+    const fetchMock = vi.fn().mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/documents/import")) {
         return {
           ok: true,
           json: async () => ({
             success: true,
-            data: { job_id: "job-3", status: "running", result: {} },
+            data: { doc_id: "apt28_001", status: "imported" },
           }),
         };
-      });
+      }
+      if (url.includes("/pipeline/run")) {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            data: { job_id: "job-3", status: "pending" },
+          }),
+        };
+      }
+      statusCalls += 1;
+      controller.abort();
+      return {
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: { job_id: "job-3", status: "running", result: {} },
+        }),
+      };
+    });
     vi.stubGlobal("fetch", fetchMock);
-    const document = new File(
-      [JSON.stringify({ doc_id: "apt28_001" })],
-      "apt28_001.json",
-    );
+    const document = new File([JSON.stringify({ doc_id: "apt28_001" })], "apt28_001.json");
 
     await expect(
       runPipeline(document, {

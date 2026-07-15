@@ -44,16 +44,11 @@ export function generateReport(target: string): Promise<ReportPayload> {
     if (!response.ok) {
       throw new Error(`报告生成失败：${response.status}`);
     }
-    return response
-      .json()
-      .then((payload: ApiResponse<ReportPayload>) => payload.data);
+    return response.json().then((payload: ApiResponse<ReportPayload>) => payload.data);
   });
 }
 
-export async function fetchPath(
-  source: string,
-  target: string,
-): Promise<PathResult> {
+export async function fetchPath(source: string, target: string): Promise<PathResult> {
   const url = `/graph/path?source=${encodeURIComponent(source)}&target=${encodeURIComponent(target)}`;
   try {
     const payload = await getJson<PathApiPayload>(url);
@@ -75,18 +70,13 @@ export function fetchNeighbors(
   entityId: string,
   options: { signal?: AbortSignal } = {},
 ): Promise<GraphPayload> {
-  return getJson<GraphPayload>(
-    `/graph/neighbors?entity_id=${encodeURIComponent(entityId)}`,
-    {
-      signal: options.signal,
-    },
-  );
+  return getJson<GraphPayload>(`/graph/neighbors?entity_id=${encodeURIComponent(entityId)}`, {
+    signal: options.signal,
+  });
 }
 
 export function fetchEntitySearch(query: string): Promise<GraphNode[]> {
-  return getJson<GraphNode[]>(
-    `/entities/search?q=${encodeURIComponent(query)}`,
-  );
+  return getJson<GraphNode[]>(`/entities/search?q=${encodeURIComponent(query)}`);
 }
 
 export function fetchEntity(id: string): Promise<EntityDetail> {
@@ -136,10 +126,7 @@ type ApiErrorPayload = {
   };
 };
 
-async function responseData<T>(
-  response: Response,
-  fallbackMessage: string,
-): Promise<T> {
+async function responseData<T>(response: Response, fallbackMessage: string): Promise<T> {
   let payload: ApiResponse<T> | ApiErrorPayload | null = null;
   try {
     payload = (await response.json()) as ApiResponse<T> | ApiErrorPayload;
@@ -147,8 +134,7 @@ async function responseData<T>(
     // 非 JSON 错误仍使用包含状态码的兜底消息。
   }
   if (!response.ok || !payload || payload.success !== true) {
-    const message =
-      payload && "error" in payload ? payload.error?.message : undefined;
+    const message = payload && "error" in payload ? payload.error?.message : undefined;
     throw new Error(message || `${fallbackMessage}: ${response.status}`);
   }
   return payload.data;
@@ -158,10 +144,7 @@ function abortError(): DOMException {
   return new DOMException("操作已取消", "AbortError");
 }
 
-function abortableDelay(
-  milliseconds: number,
-  signal?: AbortSignal,
-): Promise<void> {
+function abortableDelay(milliseconds: number, signal?: AbortSignal): Promise<void> {
   if (signal?.aborted) return Promise.reject(abortError());
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
@@ -176,9 +159,7 @@ function abortableDelay(
   });
 }
 
-function pipelineSummary(
-  result: Record<string, unknown>,
-): Record<string, unknown> {
+function pipelineSummary(result: Record<string, unknown>): Record<string, unknown> {
   const summaries = result.summaries;
   if (Array.isArray(summaries) && summaries.length > 0) {
     return summaries[0] as Record<string, unknown>;
@@ -198,10 +179,7 @@ async function pollPipelineStatus(
     const response = await fetch(`${API_BASE_URL}/pipeline/status/${jobId}`, {
       signal: options.signal,
     });
-    const job = await responseData<PipelineStatus>(
-      response,
-      "查询 Pipeline 状态失败",
-    );
+    const job = await responseData<PipelineStatus>(response, "查询 Pipeline 状态失败");
     if (job.status === "succeeded") {
       const result = (job.result ?? {}) as Record<string, unknown>;
       const summary = pipelineSummary(result);
@@ -231,10 +209,7 @@ export async function runPipeline(
 ): Promise<PipelineResult> {
   let documentPayload: Record<string, unknown>;
   try {
-    documentPayload = JSON.parse(await document.text()) as Record<
-      string,
-      unknown
-    >;
+    documentPayload = JSON.parse(await document.text()) as Record<string, unknown>;
   } catch {
     throw new Error("文档不是有效的 JSON");
   }
@@ -260,10 +235,7 @@ export async function runPipeline(
     }),
     signal: options.signal,
   });
-  const job = await responseData<PipelineStatus>(
-    pipelineResponse,
-    "Pipeline 提交失败",
-  );
+  const job = await responseData<PipelineStatus>(pipelineResponse, "Pipeline 提交失败");
   options.onStatus?.(job.status === "running" ? "running" : "pending");
   const result = await pollPipelineStatus(job.job_id, options);
   return { ...result, doc_id: imported.doc_id };
