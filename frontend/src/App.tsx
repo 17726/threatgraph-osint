@@ -1,6 +1,12 @@
 import ReactECharts from "echarts-for-react";
 import {
-  Activity, Database, FileText, Network, RefreshCw, ShieldCheck, Upload,
+  Activity,
+  Database,
+  FileText,
+  Network,
+  RefreshCw,
+  ShieldCheck,
+  Upload,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -11,7 +17,13 @@ import {
   generateReport,
 } from "./api/client";
 import { buildGraphOption } from "./graphOptions";
-import type { Evidence, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "./types";
+import type {
+  Evidence,
+  GraphEdge,
+  GraphNode,
+  GraphPayload,
+  ReportPayload,
+} from "./types";
 import NodeDetail from "./components/NodeDetail";
 import SearchBar from "./components/SearchBar";
 import TechniqueFilter from "./components/TechniqueFilter";
@@ -51,6 +63,7 @@ export function App() {
     "graph",
   );
   const [pipelineOpen, setPipelineOpen] = useState(false);
+  const neighborRequestRef = useRef<AbortController | null>(null);
   const firstSentence = (text: string): string => {
     const match = text.match(/^.*?[。！？.!?]/);
     return match ? match[0] : text;
@@ -58,6 +71,9 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false;
+    neighborRequestRef.current?.abort();
+    neighborRequestRef.current = null;
+    setSearchGraph(null);
     setLoading(true);
     setError(null);
     setSelectedNode(null);
@@ -103,10 +119,10 @@ export function App() {
   }, [target, reloadKey]);
 
   const filteredGraph = useMemo(() => {
-    if (searchGraph) return searchGraph;
-    if (!graph) return null;
-    if (highlightNodeIds.length > 0) return graph;
-    let visible = graph.nodes;
+    const activeGraph = searchGraph ?? graph;
+    if (!activeGraph) return null;
+    if (highlightNodeIds.length > 0) return activeGraph;
+    let visible = activeGraph.nodes;
     if (currentYear < 2026) {
       visible = visible.filter((n) => {
         if (!n.first_seen) return true;
@@ -117,7 +133,7 @@ export function App() {
     }
     if (techniqueFilter) {
       const connectedIds = new Set([techniqueFilter]);
-      graph.edges.forEach((e) => {
+      activeGraph.edges.forEach((e) => {
         if (e.source === techniqueFilter) connectedIds.add(e.target);
         if (e.target === techniqueFilter) connectedIds.add(e.source);
       });
@@ -125,10 +141,12 @@ export function App() {
     }
     if (legendFilter) {
       const typeIds = new Set(
-        graph.nodes.filter((n) => n.type === legendFilter).map((n) => n.id)
+        activeGraph.nodes
+          .filter((n) => n.type === legendFilter)
+          .map((n) => n.id),
       );
       const connectedIds = new Set(typeIds);
-      graph.edges.forEach((e) => {
+      activeGraph.edges.forEach((e) => {
         if (typeIds.has(e.source)) connectedIds.add(e.target);
         if (typeIds.has(e.target)) connectedIds.add(e.source);
       });
@@ -136,7 +154,7 @@ export function App() {
     }
     if (regionFilter) {
       const connectedIds = new Set([regionFilter]);
-      graph.edges.forEach((e) => {
+      activeGraph.edges.forEach((e) => {
         if (e.source === regionFilter) connectedIds.add(e.target);
         if (e.target === regionFilter) connectedIds.add(e.source);
       });
@@ -144,9 +162,9 @@ export function App() {
     }
     const visibleIds = new Set(visible.map((n) => n.id));
     return {
-      ...graph,
+      ...activeGraph,
       nodes: visible,
-      edges: graph.edges.filter(
+      edges: activeGraph.edges.filter(
         (e) => visibleIds.has(e.source) && visibleIds.has(e.target),
       ),
     };
@@ -198,37 +216,48 @@ export function App() {
       }
     });
     instance.on("legendselectchanged", (params: any) => {
-      setLegendFilter((prev: string | null) => (prev === params.name ? null : params.name));
+      setLegendFilter((prev: string | null) =>
+        prev === params.name ? null : params.name,
+      );
       setTimeout(() => {
         const cats = instance.getOption().legend?.[0]?.data || [];
         cats.forEach((cat: any) => {
-          instance.dispatchAction({ type: "legendSelect", name: typeof cat === "string" ? cat : cat.name });
+          instance.dispatchAction({
+            type: "legendSelect",
+            name: typeof cat === "string" ? cat : cat.name,
+          });
         });
       }, 0);
     });
   }, []);
 
-  const handleSearchSelect = useCallback(
-    (nodeId: string) => {
-      setSearchNodeId(nodeId);
-      setSelectedNode(null);
-      setSelectedEdge(null);
-      fetchNeighbors(nodeId)
-        .then((payload) => {
-          setSearchGraph(payload);
-          setSelectedEvidence(payload.evidence[0] ?? null);
-        })
-        .catch((cause: unknown) => {
-          setError(cause instanceof Error ? cause.message : "实体筛选失败");
-        });
-    },
-    [],
-  );
+  const handleSearchSelect = useCallback((nodeId: string) => {
+    neighborRequestRef.current?.abort();
+    const controller = new AbortController();
+    neighborRequestRef.current = controller;
+    setSearchNodeId(nodeId);
+    setSelectedNode(null);
+    setSelectedEdge(null);
+    setError(null);
+    fetchNeighbors(nodeId, { signal: controller.signal })
+      .then((payload) => {
+        if (controller.signal.aborted) return;
+        setSearchGraph(payload);
+        setSelectedEvidence(payload.evidence[0] ?? null);
+      })
+      .catch((cause: unknown) => {
+        if (controller.signal.aborted) return;
+        setError(cause instanceof Error ? cause.message : "实体筛选失败");
+      });
+  }, []);
   const handleSearchClear = useCallback(() => {
+    neighborRequestRef.current?.abort();
+    neighborRequestRef.current = null;
     setSearchGraph(null);
     setSearchNodeId(null);
+    setSelectedEvidence(graph?.evidence[0] ?? null);
     setError(null);
-  }, []);
+  }, [graph]);
   const handlePathFound = useCallback((ids: string[]) => {
     setHighlightNodeIds(ids);
     setSelectedNode(null);
@@ -280,11 +309,20 @@ export function App() {
           ))}
         </div>
         <SearchBar
+          key={target}
           onSelect={handleSearchSelect}
           onClear={handleSearchClear}
         />
-        <TechniqueFilter techniques={techniqueOptions} value={techniqueFilter} onChange={setTechniqueFilter} />
-        <RegionFilter countries={countries} value={regionFilter} onChange={setRegionFilter} />
+        <TechniqueFilter
+          techniques={techniqueOptions}
+          value={techniqueFilter}
+          onChange={setTechniqueFilter}
+        />
+        <RegionFilter
+          countries={countries}
+          value={regionFilter}
+          onChange={setRegionFilter}
+        />
         <button
           type="button"
           onClick={() => setPipelineOpen(true)}
@@ -356,7 +394,7 @@ export function App() {
           <section className="metrics-grid">
             <Metric label="实体" value={filteredGraph?.nodes.length ?? 0} />
             <Metric label="关系" value={filteredGraph?.edges.length ?? 0} />
-            <Metric label="证据" value={graph?.evidence.length ?? 0} />
+            <Metric label="证据" value={filteredGraph?.evidence.length ?? 0} />
             <Metric label="目标" value={target} />
           </section>
 
@@ -490,7 +528,9 @@ export function App() {
                     </p>
                     <div style={{ marginTop: 12 }}>
                       {(selectedEdge.evidence_ids ?? []).map((evId, evIdx) => {
-                        const e = graph?.evidence.find((ev) => ev.id === evId);
+                        const e = filteredGraph?.evidence.find(
+                          (ev) => ev.id === evId,
+                        );
                         if (!e) return null;
                         return (
                           <div
@@ -519,7 +559,8 @@ export function App() {
                               {e.source_name}
                             </a>
                           </div>
-                        );})}
+                        );
+                      })}
                     </div>
                   </div>
                 </>
@@ -530,19 +571,25 @@ export function App() {
                     <FileText size={18} />
                   </div>
                   <div className="evidence-list">
-                    {graph?.evidence.map((item) => (
+                    {filteredGraph?.evidence.map((item) => (
                       <div
-                      className={
-                        selectedEvidence?.id === item.id
-                          ? "evidence-item active"
-                          : "evidence-item"
-                      }
-                      key={item.id}
-                      onClick={() => setSelectedEvidence(item)}
-                    >
-                      <a href={item.source_url} target="_blank" rel="noreferrer">{item.id}</a>
-                      <span>{firstSentence(item.text)}</span>
-                    </div>
+                        className={
+                          selectedEvidence?.id === item.id
+                            ? "evidence-item active"
+                            : "evidence-item"
+                        }
+                        key={item.id}
+                        onClick={() => setSelectedEvidence(item)}
+                      >
+                        <a
+                          href={item.source_url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {item.id}
+                        </a>
+                        <span>{firstSentence(item.text)}</span>
+                      </div>
                     ))}
                   </div>
                   {selectedEvidence ? (
