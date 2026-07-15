@@ -1,21 +1,9 @@
 // @vitest-environment jsdom
 
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  fetchEntitySearch,
-  fetchGraph,
-  fetchNeighbors,
-  fetchReport,
-} from "./api/client";
+import { fetchEntitySearch, fetchGraph, fetchNeighbors, fetchReport } from "./api/client";
 import { App } from "./App";
 import type { GraphNode, GraphPayload, ReportPayload } from "./types";
 
@@ -79,14 +67,9 @@ function entityMetric(): HTMLElement {
 
 describe("实体一跳筛选", () => {
   beforeEach(() => {
-    vi.mocked(fetchGraph).mockResolvedValue(
-      graph("base-1", "base-2", "base-3"),
-    );
+    vi.mocked(fetchGraph).mockResolvedValue(graph("base-1", "base-2", "base-3"));
     vi.mocked(fetchReport).mockResolvedValue(report);
-    vi.mocked(fetchEntitySearch).mockResolvedValue([
-      node("entity:first"),
-      node("entity:second"),
-    ]);
+    vi.mocked(fetchEntitySearch).mockResolvedValue([node("entity:first"), node("entity:second")]);
   });
 
   afterEach(() => {
@@ -158,9 +141,6 @@ describe("实体一跳筛选", () => {
 
     await waitFor(() => expect(entityMetric().textContent).toContain("3"));
     expect(requestOptions?.signal?.aborted).toBe(true);
-    expect(
-      (screen.getByRole("textbox", { name: "搜索实体" }) as HTMLInputElement)
-        .value,
-    ).toBe("");
+    expect((screen.getByRole("textbox", { name: "搜索实体" }) as HTMLInputElement).value).toBe("");
   });
 });

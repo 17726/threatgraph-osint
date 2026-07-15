@@ -1,12 +1,6 @@
 // @vitest-environment jsdom
 
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-} from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentType } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -67,9 +61,7 @@ describe("实体搜索框", () => {
     fireEvent.click(result);
 
     expect(onSelect).toHaveBeenCalledWith("apt_group:apt28");
-    expect((screen.getByRole("textbox") as HTMLInputElement).value).toBe(
-      "APT28",
-    );
+    expect((screen.getByRole("textbox") as HTMLInputElement).value).toBe("APT28");
   });
 
   it("清空搜索输入时通知上层恢复组织图谱", () => {

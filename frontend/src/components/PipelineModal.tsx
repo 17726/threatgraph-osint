@@ -1,18 +1,6 @@
-import {
-  FileText,
-  Upload,
-  X,
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
-  BookOpen,
-} from "lucide-react";
+import { FileText, Upload, X, Loader2, CheckCircle2, AlertCircle, BookOpen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import {
-  runPipeline,
-  type ExtractionMode,
-  type PipelineResult,
-} from "../api/client";
+import { runPipeline, type ExtractionMode, type PipelineResult } from "../api/client";
 
 interface PipelineModalProps {
   open: boolean;
@@ -21,26 +9,17 @@ interface PipelineModalProps {
   onSuccess: () => void;
 }
 
-type Status =
-  "idle" | "importing" | "pending" | "running" | "success" | "error";
+type Status = "idle" | "importing" | "pending" | "running" | "success" | "error";
 
-const STATUS_LABELS: Record<
-  Exclude<Status, "idle" | "success" | "error">,
-  string
-> = {
+const STATUS_LABELS: Record<Exclude<Status, "idle" | "success" | "error">, string> = {
   importing: "正在校验并导入标准文档...",
   pending: "任务已提交，等待后台执行...",
   running: "正在抽取实体关系并更新图谱...",
 };
 
-export default function PipelineModal({
-  open,
-  onClose,
-  onSuccess,
-}: PipelineModalProps) {
+export default function PipelineModal({ open, onClose, onSuccess }: PipelineModalProps) {
   const [documentFile, setDocumentFile] = useState<File | null>(null);
-  const [extractionMode, setExtractionMode] =
-    useState<ExtractionMode>("reviewed");
+  const [extractionMode, setExtractionMode] = useState<ExtractionMode>("reviewed");
   const [status, setStatus] = useState<Status>("idle");
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
@@ -207,9 +186,7 @@ export default function PipelineModal({
                 }}
               >
                 <FileText size={16} color="#0f766e" />
-                <span style={{ color: "#166534", fontWeight: 500 }}>
-                  {documentFile.name}
-                </span>
+                <span style={{ color: "#166534", fontWeight: 500 }}>{documentFile.name}</span>
                 <span style={{ color: "#9ca3af", fontSize: 11 }}>
                   ({(documentFile.size / 1024).toFixed(1)} KB)
                 </span>

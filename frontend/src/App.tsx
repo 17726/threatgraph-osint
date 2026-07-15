@@ -10,20 +10,9 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import {
-  fetchGraph,
-  fetchNeighbors,
-  fetchReport,
-  generateReport,
-} from "./api/client";
+import { fetchGraph, fetchNeighbors, fetchReport, generateReport } from "./api/client";
 import { buildGraphOption } from "./graphOptions";
-import type {
-  Evidence,
-  GraphEdge,
-  GraphNode,
-  GraphPayload,
-  ReportPayload,
-} from "./types";
+import type { Evidence, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "./types";
 import NodeDetail from "./components/NodeDetail";
 import SearchBar from "./components/SearchBar";
 import TechniqueFilter from "./components/TechniqueFilter";
@@ -42,9 +31,7 @@ export function App() {
   const [graph, setGraph] = useState<GraphPayload | null>(null);
   const [searchGraph, setSearchGraph] = useState<GraphPayload | null>(null);
   const [report, setReport] = useState<ReportPayload | null>(null);
-  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(
-    null,
-  );
+  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -59,9 +46,7 @@ export function App() {
   const [techniqueFilter, setTechniqueFilter] = useState("");
   const [legendFilter, setLegendFilter] = useState<string | null>(null);
   const [regionFilter, setRegionFilter] = useState("");
-  const [page, setPage] = useState<"graph" | "analysis" | "evaluation">(
-    "graph",
-  );
+  const [page, setPage] = useState<"graph" | "analysis" | "evaluation">("graph");
   const [pipelineOpen, setPipelineOpen] = useState(false);
   const neighborRequestRef = useRef<AbortController | null>(null);
   const firstSentence = (text: string): string => {
@@ -141,9 +126,7 @@ export function App() {
     }
     if (legendFilter) {
       const typeIds = new Set(
-        activeGraph.nodes
-          .filter((n) => n.type === legendFilter)
-          .map((n) => n.id),
+        activeGraph.nodes.filter((n) => n.type === legendFilter).map((n) => n.id),
       );
       const connectedIds = new Set(typeIds);
       activeGraph.edges.forEach((e) => {
@@ -164,9 +147,7 @@ export function App() {
     return {
       ...activeGraph,
       nodes: visible,
-      edges: activeGraph.edges.filter(
-        (e) => visibleIds.has(e.source) && visibleIds.has(e.target),
-      ),
+      edges: activeGraph.edges.filter((e) => visibleIds.has(e.source) && visibleIds.has(e.target)),
     };
   }, [
     graph,
@@ -179,23 +160,19 @@ export function App() {
   ]);
   const countries = useMemo(
     () =>
-      graph?.nodes
-        .filter((n) => n.type === "COUNTRY")
-        .map((n) => ({ id: n.id, name: n.name })) ?? [],
+      graph?.nodes.filter((n) => n.type === "COUNTRY").map((n) => ({ id: n.id, name: n.name })) ??
+      [],
     [graph],
   );
   const techniqueOptions = useMemo(
     () =>
-      graph?.nodes
-        .filter((n) => n.type === "TECHNIQUE")
-        .map((n) => ({ id: n.id, name: n.name })) ?? [],
+      graph?.nodes.filter((n) => n.type === "TECHNIQUE").map((n) => ({ id: n.id, name: n.name })) ??
+      [],
     [graph],
   );
   const graphOption = useMemo(
     () =>
-      filteredGraph
-        ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId })
-        : null,
+      filteredGraph ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId }) : null,
     [filteredGraph, highlightNodeIds, searchNodeId],
   );
 
@@ -216,9 +193,7 @@ export function App() {
       }
     });
     instance.on("legendselectchanged", (params: any) => {
-      setLegendFilter((prev: string | null) =>
-        prev === params.name ? null : params.name,
-      );
+      setLegendFilter((prev: string | null) => (prev === params.name ? null : params.name));
       setTimeout(() => {
         const cats = instance.getOption().legend?.[0]?.data || [];
         cats.forEach((cat: any) => {
@@ -308,21 +283,13 @@ export function App() {
             </button>
           ))}
         </div>
-        <SearchBar
-          key={target}
-          onSelect={handleSearchSelect}
-          onClear={handleSearchClear}
-        />
+        <SearchBar key={target} onSelect={handleSearchSelect} onClear={handleSearchClear} />
         <TechniqueFilter
           techniques={techniqueOptions}
           value={techniqueFilter}
           onChange={setTechniqueFilter}
         />
-        <RegionFilter
-          countries={countries}
-          value={regionFilter}
-          onChange={setRegionFilter}
-        />
+        <RegionFilter countries={countries} value={regionFilter} onChange={setRegionFilter} />
         <button
           type="button"
           onClick={() => setPipelineOpen(true)}
@@ -374,11 +341,7 @@ export function App() {
               fontWeight: page === p ? 600 : 400,
             }}
           >
-            {p === "graph"
-              ? "知识图谱"
-              : p === "analysis"
-                ? "行为分析"
-                : "评测结果"}
+            {p === "graph" ? "知识图谱" : p === "analysis" ? "行为分析" : "评测结果"}
           </button>
         ))}
       </div>
@@ -508,13 +471,10 @@ export function App() {
                     </div>
                     <p>
                       置信度:{" "}
-                      <strong style={{ color: "#172026" }}>
-                        {selectedEdge.confidence}
-                      </strong>
+                      <strong style={{ color: "#172026" }}>{selectedEdge.confidence}</strong>
                     </p>
                     <p>
-                      来源数: {selectedEdge.source_count} · 证据:{" "}
-                      {selectedEdge.evidence_count} 条
+                      来源数: {selectedEdge.source_count} · 证据: {selectedEdge.evidence_count} 条
                     </p>
                     <hr
                       style={{
@@ -528,9 +488,7 @@ export function App() {
                     </p>
                     <div style={{ marginTop: 12 }}>
                       {(selectedEdge.evidence_ids ?? []).map((evId, evIdx) => {
-                        const e = filteredGraph?.evidence.find(
-                          (ev) => ev.id === evId,
-                        );
+                        const e = filteredGraph?.evidence.find((ev) => ev.id === evId);
                         if (!e) return null;
                         return (
                           <div
@@ -543,9 +501,7 @@ export function App() {
                               background: "#f8faf9",
                             }}
                           >
-                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>
-                              {e.text}
-                            </p>
+                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>{e.text}</p>
                             <a
                               href={e.source_url}
                               target="_blank"
@@ -581,11 +537,7 @@ export function App() {
                         key={item.id}
                         onClick={() => setSelectedEvidence(item)}
                       >
-                        <a
-                          href={item.source_url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
+                        <a href={item.source_url} target="_blank" rel="noreferrer">
                           {item.id}
                         </a>
                         <span>{firstSentence(item.text)}</span>

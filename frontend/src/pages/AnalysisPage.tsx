@@ -15,10 +15,16 @@ export default function AnalysisPage({ target }: AnalysisPageProps) {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetchAnalysis<AnalysisResponse>(target, "mitre").then(r => setMitre(r.mappings ?? [])),
-      fetchAnalysis<AnalysisResponse>(target, "behavior").then(r => setBehavior(r.patterns ?? [])),
-      fetchAnalysis<AnalysisResponse>(target, "inferences").then(r => setInferences(r.inferences ?? [])),
-    ]).catch(() => {}).finally(() => setLoading(false));
+      fetchAnalysis<AnalysisResponse>(target, "mitre").then((r) => setMitre(r.mappings ?? [])),
+      fetchAnalysis<AnalysisResponse>(target, "behavior").then((r) =>
+        setBehavior(r.patterns ?? []),
+      ),
+      fetchAnalysis<AnalysisResponse>(target, "inferences").then((r) =>
+        setInferences(r.inferences ?? []),
+      ),
+    ])
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [target]);
 
   if (loading) return <p style={{ padding: 20, color: "#64748b" }}>加载中...</p>;
@@ -39,15 +45,27 @@ export default function AnalysisPage({ target }: AnalysisPageProps) {
           <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0f766e", margin: "0 0 8px" }}>
             MITRE ATT&CK 映射
           </h3>
-          {mitre.length === 0 ? <p style={{ color: "#94a3b8" }}>暂无数据</p> : (
+          {mitre.length === 0 ? (
+            <p style={{ color: "#94a3b8" }}>暂无数据</p>
+          ) : (
             Object.entries(tacticMap).map(([tactic, items]) => (
               <div key={tactic} style={{ marginBottom: 8 }}>
-                <p style={{ fontSize: 12, color: "#64748b", fontWeight: 600, margin: "0 0 4px" }}>{tactic}</p>
+                <p style={{ fontSize: 12, color: "#64748b", fontWeight: 600, margin: "0 0 4px" }}>
+                  {tactic}
+                </p>
                 {items.map((m) => (
-                  <div key={m.mapping_id} style={{
-                    display: "flex", justifyContent: "space-between", padding: "6px 10px",
-                    background: "#f8faf9", borderRadius: 6, border: "1px solid #e2e8e6", marginBottom: 2,
-                  }}>
+                  <div
+                    key={m.mapping_id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      padding: "6px 10px",
+                      background: "#f8faf9",
+                      borderRadius: 6,
+                      border: "1px solid #e2e8e6",
+                      marginBottom: 2,
+                    }}
+                  >
                     <div>
                       <span style={{ fontWeight: 600, color: "#172026" }}>{m.technique_id}</span>
                       <span style={{ marginLeft: 8, color: "#475569" }}>{m.technique_name}</span>
@@ -64,13 +82,23 @@ export default function AnalysisPage({ target }: AnalysisPageProps) {
           <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0f766e", margin: "0 0 8px" }}>
             行为模式
           </h3>
-          {behavior.length === 0 ? <p style={{ color: "#94a3b8" }}>暂无数据</p> : (
+          {behavior.length === 0 ? (
+            <p style={{ color: "#94a3b8" }}>暂无数据</p>
+          ) : (
             behavior.map((p) => (
-              <div key={p.pattern_id} style={{
-                padding: "10px 12px", background: "#f8faf9", borderRadius: 6,
-                border: "1px solid #e2e8e6", marginBottom: 6,
-              }}>
-                <p style={{ margin: "0 0 4px", fontWeight: 600, color: "#0f766e", fontSize: 13 }}>{p.stage}</p>
+              <div
+                key={p.pattern_id}
+                style={{
+                  padding: "10px 12px",
+                  background: "#f8faf9",
+                  borderRadius: 6,
+                  border: "1px solid #e2e8e6",
+                  marginBottom: 6,
+                }}
+              >
+                <p style={{ margin: "0 0 4px", fontWeight: 600, color: "#0f766e", fontSize: 13 }}>
+                  {p.stage}
+                </p>
                 <p style={{ margin: 0, color: "#475569", fontSize: 12 }}>{p.description}</p>
                 <p style={{ margin: "4px 0 0", color: "#94a3b8", fontSize: 11 }}>
                   相关技术: {p.technique_ids?.join(", ") ?? "-"} | 置信度: {p.confidence}
@@ -84,15 +112,22 @@ export default function AnalysisPage({ target }: AnalysisPageProps) {
           <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0f766e", margin: "0 0 8px" }}>
             推断关系
           </h3>
-          {inferences.length === 0 ? <p style={{ color: "#94a3b8" }}>暂无数据</p> : (
+          {inferences.length === 0 ? (
+            <p style={{ color: "#94a3b8" }}>暂无数据</p>
+          ) : (
             inferences.map((r) => (
-              <div key={r.inferred_relation_id} style={{
-                padding: "6px 10px", background: "#f8faf9", borderRadius: 6,
-                border: "1px solid #e2e8e6", marginBottom: 4,
-              }}>
+              <div
+                key={r.inferred_relation_id}
+                style={{
+                  padding: "6px 10px",
+                  background: "#f8faf9",
+                  borderRadius: 6,
+                  border: "1px solid #e2e8e6",
+                  marginBottom: 4,
+                }}
+              >
                 <p style={{ margin: 0, fontSize: 12 }}>
-                  <span style={{ color: "#64748b" }}>{r.type}</span>{" "}
-                  {r.source} → {r.target}{" "}
+                  <span style={{ color: "#64748b" }}>{r.type}</span> {r.source} → {r.target}{" "}
                   <span style={{ color: "#94a3b8", fontStyle: "italic" }}>({r.confidence})</span>
                 </p>
                 <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>{r.rationale}</p>

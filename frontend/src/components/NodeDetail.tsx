@@ -24,8 +24,13 @@ export default function NodeDetail({ entityId, onClose }: NodeDetailProps) {
   const [detail, setDetail] = useState<EntityDetail | null>(null);
 
   useEffect(() => {
-    if (!entityId) { setDetail(null); return; }
-    fetchEntity(entityId).then(setDetail).catch(() => setDetail(null));
+    if (!entityId) {
+      setDetail(null);
+      return;
+    }
+    fetchEntity(entityId)
+      .then(setDetail)
+      .catch(() => setDetail(null));
   }, [entityId]);
 
   if (!detail) return null;
@@ -67,9 +72,7 @@ export default function NodeDetail({ entityId, onClose }: NodeDetailProps) {
         }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
-            {detail.name}
-          </h3>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>{detail.name}</h3>
           <span
             style={{
               display: "inline-block",

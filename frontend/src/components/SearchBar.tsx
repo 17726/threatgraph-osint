@@ -45,10 +45,7 @@ export default function SearchBar({ onSelect, onClear }: SearchBarProps) {
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setShowResults(false);
       }
     };
@@ -57,10 +54,7 @@ export default function SearchBar({ onSelect, onClear }: SearchBarProps) {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ position: "relative", flex: 1, maxWidth: 420 }}
-    >
+    <div ref={containerRef} style={{ position: "relative", flex: 1, maxWidth: 420 }}>
       <input
         aria-label="搜索实体"
         type="text"
@@ -120,19 +114,11 @@ export default function SearchBar({ onSelect, onClear }: SearchBarProps) {
                 border: "none",
                 borderBottom: "1px solid #e2e8e6",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#f8faf9")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#f8faf9")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
-              <span style={{ fontWeight: 600, color: "#172026" }}>
-                {n.name}
-              </span>
-              <span style={{ marginLeft: 8, fontSize: 11, color: "#64748b" }}>
-                {n.type}
-              </span>
+              <span style={{ fontWeight: 600, color: "#172026" }}>{n.name}</span>
+              <span style={{ marginLeft: 8, fontSize: 11, color: "#64748b" }}>{n.type}</span>
             </button>
           ))}
         </div>
