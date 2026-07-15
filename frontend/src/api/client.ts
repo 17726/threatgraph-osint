@@ -71,6 +71,12 @@ export async function fetchAnalysis<T = unknown>(
   return getJson<T>("/analysis/" + encodeURIComponent(target) + "/" + type);
 }
 
+export function fetchNeighbors(entityId: string): Promise<GraphPayload> {
+  return getJson<GraphPayload>(
+    `/graph?target=${encodeURIComponent(entityId)}&depth=1`,
+  );
+}
+
 export function fetchEntitySearch(query: string): Promise<GraphNode[]> {
   return getJson<GraphNode[]>(
     `/entities/search?q=${encodeURIComponent(query)}`,

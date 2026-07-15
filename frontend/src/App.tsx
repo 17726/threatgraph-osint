@@ -4,7 +4,12 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { fetchGraph, fetchReport, generateReport } from "./api/client";
+import {
+  fetchGraph,
+  fetchNeighbors,
+  fetchReport,
+  generateReport,
+} from "./api/client";
 import { buildGraphOption } from "./graphOptions";
 import type { Evidence, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "./types";
 import NodeDetail from "./components/NodeDetail";
@@ -23,6 +28,7 @@ const TARGETS = ["APT28", "Lazarus", "Kimsuky"];
 export function App() {
   const [target, setTarget] = useState(TARGETS[0]);
   const [graph, setGraph] = useState<GraphPayload | null>(null);
+  const [searchGraph, setSearchGraph] = useState<GraphPayload | null>(null);
   const [report, setReport] = useState<ReportPayload | null>(null);
   const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(
     null,
@@ -97,6 +103,7 @@ export function App() {
   }, [target, reloadKey]);
 
   const filteredGraph = useMemo(() => {
+    if (searchGraph) return searchGraph;
     if (!graph) return null;
     if (highlightNodeIds.length > 0) return graph;
     let visible = graph.nodes;
@@ -143,7 +150,15 @@ export function App() {
         (e) => visibleIds.has(e.source) && visibleIds.has(e.target),
       ),
     };
-  }, [graph, currentYear, techniqueFilter, regionFilter, highlightNodeIds, legendFilter]);
+  }, [
+    graph,
+    searchGraph,
+    currentYear,
+    techniqueFilter,
+    regionFilter,
+    highlightNodeIds,
+    legendFilter,
+  ]);
   const countries = useMemo(
     () =>
       graph?.nodes
@@ -195,29 +210,25 @@ export function App() {
 
   const handleSearchSelect = useCallback(
     (nodeId: string) => {
-      const instance = chartInstanceRef.current;
-      if (!instance || !filteredGraph) return;
-      const idx = filteredGraph.nodes.findIndex((n) => n.id === nodeId);
-      if (idx >= 0) {
-        setSearchNodeId(nodeId);
-        // 重置视图并居中到目标节点
-        instance.dispatchAction({ type: "restore" });
-        try {
-          const opt = instance.getOption();
-          const node = opt.series?.[0]?.data?.[idx];
-          if (node && typeof node.x === "number" && typeof node.y === "number") {
-            instance.setOption({ series: [{ center: [node.x, node.y], zoom: 1.8 }] });
-          }
-        } catch (_) { /* 忽略坐标读取失败 */ }
-        instance.dispatchAction({
-          type: "focusNodeAdjacency",
-          seriesIndex: 0,
-          dataIndex: idx,
+      setSearchNodeId(nodeId);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+      fetchNeighbors(nodeId)
+        .then((payload) => {
+          setSearchGraph(payload);
+          setSelectedEvidence(payload.evidence[0] ?? null);
+        })
+        .catch((cause: unknown) => {
+          setError(cause instanceof Error ? cause.message : "实体筛选失败");
         });
-      }
     },
-    [filteredGraph],
+    [],
   );
+  const handleSearchClear = useCallback(() => {
+    setSearchGraph(null);
+    setSearchNodeId(null);
+    setError(null);
+  }, []);
   const handlePathFound = useCallback((ids: string[]) => {
     setHighlightNodeIds(ids);
     setSelectedNode(null);
@@ -270,6 +281,7 @@ export function App() {
         </div>
         <SearchBar
           onSelect={handleSearchSelect}
+          onClear={handleSearchClear}
         />
         <TechniqueFilter techniques={techniqueOptions} value={techniqueFilter} onChange={setTechniqueFilter} />
         <RegionFilter countries={countries} value={regionFilter} onChange={setRegionFilter} />

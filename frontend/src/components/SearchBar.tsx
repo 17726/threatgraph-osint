@@ -4,9 +4,10 @@ import type { GraphNode } from "../types";
 
 interface SearchBarProps {
   onSelect: (nodeId: string) => void;
+  onClear: () => void;
 }
 
-export default function SearchBar({ onSelect }: SearchBarProps) {
+export default function SearchBar({ onSelect, onClear }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GraphNode[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -45,8 +46,13 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
       <input
         type="text"
         value={query}
-        onChange={(e) => { setQuery(e.target.value); setShowResults(true); }}
-        placeholder="搜索实体..."
+        onChange={(e) => {
+          const value = e.target.value;
+          setQuery(value);
+          setShowResults(true);
+          if (!value.trim()) onClear();
+        }}
+        placeholder="搜索实体并筛选一跳关系..."
         style={{
           width: "100%", padding: "8px 14px", background: "#ffffff",
           border: "1px solid #d7dfdd", borderRadius: 8, color: "#172026",
@@ -62,7 +68,11 @@ export default function SearchBar({ onSelect }: SearchBarProps) {
           {results.map((n) => (
             <div
               key={n.id}
-              onClick={() => { onSelect(n.id); setShowResults(false); setQuery(""); }}
+              onClick={() => {
+                onSelect(n.id);
+                setShowResults(false);
+                setQuery(n.name);
+              }}
               style={{ padding: "10px 14px", cursor: "pointer", fontSize: 13, borderBottom: "1px solid #e2e8e6" }}
               onMouseEnter={(e) => (e.currentTarget.style.background = "#f8faf9")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
