@@ -29,7 +29,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 
 | 能力 | 当前状态 | 说明 |
 | --- | --- | --- |
-| 目标组织切换 | 已实现 | 支持 APT28、Lazarus、Kimsuky 演示数据 |
+| 目标组织切换 | 已实现 | 支持按 APT28、Lazarus、Kimsuky 查询 SQLite 正式图谱；空库返回空图 |
 | 知识图谱可视化 | 已实现 | 展示实体、关系、时间过滤和路径追踪 |
 | 实体与关系详情 | 已实现 | 支持查看类型、置信度、验证状态和证据 |
 | 行为分析 | 已实现基础页面 | 展示攻击阶段、技术映射和分析结果 |
@@ -119,7 +119,7 @@ Windows PowerShell：
 Copy-Item .env.example .env
 ```
 
-演示数据不依赖 LLM API Key。真实抽取默认使用 DeepSeek V4 Flash；只在本地 `.env`
+启动时只创建 SQLite 表，不自动写入演示数据。真实抽取默认使用 DeepSeek V4 Flash；只在本地 `.env`
 填写 `LLM_API_KEY`，不要把密钥放进命令行、代码或提交记录。
 
 ### 2. 启动服务
@@ -146,21 +146,40 @@ docker compose up
 | 健康检查 | <http://localhost:8000/api/v1/health> |
 | Neo4j Browser | <http://localhost:7474> |
 
-### 3. 初始化或导出演示数据
+### 3. 导入真实抽取结果
 
-在另一个终端执行：
+启动后数据库默认为空。要调用 LLM 抽取、导入 SQLite 并导出图谱快照，执行：
 
 ```bash
-docker compose run --rm backend python scripts/seed_demo_data.py
-docker compose run --rm backend python scripts/export_graph_json.py
+docker compose run --rm backend python scripts/run_llm_extraction.py \
+  --document data/documents/apt28/your-document.json \
+  --import --export-graph --json
 ```
 
-生成文件：
+也可以将已有的 `document.json` 和 `extraction_result.json` 导入：
+
+```bash
+docker compose run --rm backend python scripts/import_extraction_result.py \
+  --document data/documents/apt28/your-document.json \
+  --extraction-result data/extracted/your-extraction-result.json \
+  --export-graph
+```
+
+运行后生成或更新：
 
 ```text
 SQLite 数据库：data/threatgraph_osint.db
 图谱快照：data/graph/graph.json
+运行摘要：data/run_logs/run-log-<run_id>.json
 ```
+
+运行摘要记录文档加载、LLM、Golden 评测、SQLite 导入、图谱导出和总耗时，
+并聚合本次 LLM API 调用次数与 Token 使用量。`data/run_logs/` 是本机运行产物，
+默认不提交到 Git；如需临时输出到其他目录，可增加
+`--run-log-dir <目录>`。
+
+LLM 请求等待期间默认每 30 秒输出一次心跳，并在重试时显示尝试序号和失败原因。
+可使用 `--heartbeat-seconds <秒数>` 调整间隔，设为 `0` 可关闭心跳。
 
 ### 4. 停止服务
 
@@ -238,7 +257,7 @@ graph.schema.json -> data/graph/graph.json
 │   ├── extracted/        抽取结果
 │   ├── graph/            graph.json 导出快照
 │   └── threatgraph_osint.db
-├── scripts/              数据初始化、导入、转换和导出脚本
+├── scripts/              数据导入、转换和导出脚本
 ├── docs/                 架构、契约、运行和协作文档
 ├── TODO.md               当前任务与进展
 └── docker-compose.yml    本地开发编排配置

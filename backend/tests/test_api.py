@@ -1,9 +1,55 @@
+import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
+import backend.app.main as main_module
+from backend.app.core.document_contract import document_content_hash
+from backend.app.services.demo_store import DemoStore
+from backend.app.services.graph_query_service import GraphQueryService
+from backend.app.services.pipeline_service import PipelineService
 
 
-client = TestClient(app)
+client = TestClient(main_module.app)
+error_client = TestClient(main_module.app, raise_server_exceptions=False)
+
+
+def make_document(*, doc_id: str = "doc-1", clean_text: str = "APT28 使用恶意软件。") -> dict:
+    return {
+        "doc_id": doc_id,
+        "schema_version": "1.0",
+        "target_group": "APT28",
+        "target_groups": ["APT28"],
+        "source_url": "https://example.test/report",
+        "source_type": "vendor_report",
+        "source_name": "Example",
+        "title": "测试报告",
+        "language": "zh",
+        "clean_text": clean_text,
+        "content_hash": document_content_hash(clean_text),
+        "published_at": None,
+        "retrieved_at": "2026-07-16T00:00:00Z",
+        "source_reliability": "B",
+        "tlp": "TLP:CLEAR",
+        "tags": ["APT28"],
+        "metadata": {},
+    }
+
+
+@pytest.fixture(autouse=True)
+def empty_store(tmp_path, monkeypatch):
+    store = DemoStore(tmp_path / "empty.db")
+    monkeypatch.setattr(main_module, "store", store)
+    monkeypatch.setattr(
+        main_module,
+        "graph_query_service",
+        GraphQueryService(store.db_path),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        main_module,
+        "pipeline_service",
+        PipelineService(store.db_path, runner=lambda **_context: {}),
+        raising=False,
+    )
 
 
 def test_health_reports_core_components():
@@ -16,77 +62,197 @@ def test_health_reports_core_components():
     assert body["data"]["components"]["sqlite"] == "ok"
 
 
-def test_graph_returns_demo_nodes_edges_and_evidence():
+def test_graph_returns_empty_payload_when_database_has_no_graph_data():
     response = client.get("/api/v1/graph", params={"target": "APT28"})
 
     assert response.status_code == 200
     data = response.json()["data"]
     assert data["schema_version"] == "1.0"
-    assert {node["id"] for node in data["nodes"]} >= {
-        "apt_group:apt28",
-        "technique:t1566",
-    }
-    assert any(edge["source"] == "apt_group:apt28" for edge in data["edges"])
-    assert data["evidence"]
-    assert data["evidence"][0]["source_type"]
+    assert data["nodes"] == []
+    assert data["edges"] == []
+    assert data["evidence"] == []
 
 
-def test_report_returns_markdown_for_target_group():
+def test_report_returns_not_found_when_database_has_no_report():
     response = client.get("/api/v1/reports/APT28")
 
-    assert response.status_code == 200
-    data = response.json()["data"]
-    assert data["target_group"] == "APT28"
-    assert isinstance(data["title"], str)
-    assert isinstance(data["markdown"], str)
+    assert response.status_code == 404
 
 
-def test_generate_report_creates_intelligent_report_with_sections():
+def test_generate_report_for_empty_target():
     response = client.post("/api/v1/reports/APT28/generate")
 
+    assert response.status_code == 404
+
+
+def test_import_rejects_legacy_raw_text_without_clean_text():
+    payload = make_document()
+    payload.pop("clean_text")
+    payload["raw_text"] = "未经显式清洗的正文"
+
+    response = error_client.post("/api/v1/documents/import", json=payload)
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "ERR_VALIDATION"
+
+
+def test_import_rejects_content_hash_mismatch():
+    payload = make_document()
+    payload["content_hash"] = "sha256:" + "0" * 64
+
+    response = error_client.post("/api/v1/documents/import", json=payload)
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "ERR_VALIDATION"
+
+
+def test_graph_passes_filters_and_keeps_default_depth(monkeypatch):
+    calls = {}
+
+    def get_graph(**kwargs):
+        calls.update(kwargs)
+        return {"nodes": [], "edges": [], "evidence": []}
+
+    monkeypatch.setattr(main_module.graph_query_service, "get_graph", get_graph)
+
+    response = client.get(
+        "/api/v1/graph",
+        params=[
+            ("entity_types", "APT_GROUP,MALWARE"),
+            ("entity_ids", "technique:t1566"),
+            ("relation_types", "USES"),
+            ("tags", "apt"),
+            ("source_types", "knowledge_base"),
+            ("languages", "zh"),
+            ("first_seen_from", "2015-01-01"),
+            ("last_seen_to", "2026-01-01"),
+            ("min_confidence", "0.8"),
+            ("limit", "10"),
+        ],
+    )
+
     assert response.status_code == 200
-    data = response.json()["data"]
-    assert data["target_group"] == "APT28"
-    assert isinstance(data["title"], str)
-    assert "APT28" in data["title"]
-    assert isinstance(data["markdown"], str)
-    assert isinstance(data["sections"], list)
-    assert len(data["sections"]) >= 4  # 至少应有 4 个章节
-    assert "generated_at" in data
-
-    # 验证章节结构
-    section_types = {s["section_type"] for s in data["sections"]}
-    assert "profile" in section_types
-    assert "behavior_patterns" in section_types
-    assert "network" in section_types
-    assert "timeline" in section_types
-    assert "threat_assessment" in section_types
-
-    # 验证每个章节包含必要字段
-    for section in data["sections"]:
-        assert "section_id" in section
-        assert "section_type" in section
-        assert "title" in section
-        assert "markdown" in section
-        assert "evidence_ids" in section
-        assert "analysis_refs" in section
-        assert "graph_refs" in section
-        assert "sort_order" in section
+    assert calls == {
+        "target": None,
+        "entity_types": ["APT_GROUP", "MALWARE"],
+        "entity_ids": ["technique:t1566"],
+        "relation_types": ["USES"],
+        "tags": ["apt"],
+        "source_types": ["knowledge_base"],
+        "languages": ["zh"],
+        "first_seen_from": "2015-01-01",
+        "last_seen_to": "2026-01-01",
+        "min_confidence": 0.8,
+        "depth": 2,
+        "limit": 10,
+    }
 
 
-def test_generate_report_then_get_returns_sections():
-    """先生成报告，再 GET 应返回结构化章节。"""
-    client.post("/api/v1/reports/APT28/generate")
-    response = client.get("/api/v1/reports/APT28")
+def test_graph_neighbors_uses_explicit_one_hop_service(monkeypatch):
+    calls = {}
+
+    def get_neighbors(entity_id, **kwargs):
+        calls["entity_id"] = entity_id
+        calls.update(kwargs)
+        return {"nodes": [], "edges": [], "evidence": []}
+
+    monkeypatch.setattr(
+        main_module.graph_query_service,
+        "get_neighbors",
+        get_neighbors,
+    )
+
+    response = client.get(
+        "/api/v1/graph/neighbors",
+        params={
+            "entity_id": "technique:t1566",
+            "relation_types": "USES,TARGETS",
+            "min_confidence": "0.7",
+            "limit": "20",
+        },
+    )
 
     assert response.status_code == 200
-    data = response.json()["data"]
-    assert data["target_group"] == "APT28"
-    assert "sections" in data
-    assert len(data["sections"]) >= 4
+    assert calls == {
+        "entity_id": "technique:t1566",
+        "relation_types": ["USES", "TARGETS"],
+        "source_types": [],
+        "languages": [],
+        "min_confidence": 0.7,
+        "limit": 20,
+    }
 
 
-def test_generate_report_for_nonexistent_target():
-    response = client.post("/api/v1/reports/NONEXISTENT/generate")
+def test_graph_path_passes_sqlite_filters(monkeypatch):
+    calls = {}
+
+    def get_path(**kwargs):
+        calls.update(kwargs)
+        return {
+            "source": kwargs["source"],
+            "target": kwargs["target"],
+            "engine": "sqlite",
+            "paths": [],
+        }
+
+    monkeypatch.setattr(main_module.graph_query_service, "get_path", get_path)
+
+    response = client.get(
+        "/api/v1/graph/path",
+        params={
+            "source": "a",
+            "target": "b",
+            "max_depth": "3",
+            "relation_types": "USES,TARGETS",
+            "min_confidence": "0.7",
+        },
+    )
+
+    assert response.status_code == 200
+    assert calls == {
+        "source": "a",
+        "target": "b",
+        "max_depth": 3,
+        "relation_types": ["USES", "TARGETS"],
+        "min_confidence": 0.7,
+    }
+
+
+def test_pipeline_run_executes_one_manual_operation(monkeypatch):
+    calls = {}
+
+    def run_sync(**kwargs):
+        calls.update(kwargs)
+        return {
+            "job_id": "job-test",
+            "operation": "extract_and_build",
+            "status": "succeeded",
+        }
+
+    monkeypatch.setattr(main_module.pipeline_service, "run_sync", run_sync)
+
+    response = client.post(
+        "/api/v1/pipeline/run",
+        json={"doc_id": "doc-1", "use_cache": False},
+    )
+
+    assert response.status_code == 200
+    assert calls == {
+        "doc_id": "doc-1",
+        "target_group": None,
+        "use_cache": False,
+    }
+    assert response.json()["data"]["operation"] == "extract_and_build"
+
+
+def test_pipeline_run_rejects_missing_scope_before_execution():
+    response = client.post("/api/v1/pipeline/run", json={})
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "ERR_VALIDATION"
+
+
+def test_pipeline_status_returns_not_found_for_unknown_job():
+    response = client.get("/api/v1/pipeline/status/missing-job")
 
     assert response.status_code == 404

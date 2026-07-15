@@ -29,6 +29,9 @@
       "minLength": 1,
       "pattern": "^[a-z0-9][a-z0-9_\\-]*$"
     },
+    "collection_item_id": {
+      "type": ["string", "null"]
+    },
     "schema_version": {
       "const": "1.0"
     },

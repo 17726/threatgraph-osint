@@ -6,10 +6,11 @@ import hashlib
 import json
 import os
 import re
+import threading
 import time
 import unicodedata
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import httpx
 
@@ -530,6 +531,8 @@ class LLMExtractionService:
         trust_env: bool | None = None,
         transport: httpx.BaseTransport | None = None,
         prompt_path: Path | None = None,
+        heartbeat_interval_seconds: float = 30.0,
+        progress_callback: Callable[[str], None] | None = None,
     ) -> None:
         self.base_url = (base_url or os.getenv("LLM_BASE_URL", DEFAULT_BASE_URL)).rstrip("/")
         self.api_key = api_key if api_key is not None else os.getenv("LLM_API_KEY", "")
@@ -546,9 +549,43 @@ class LLMExtractionService:
         )
         self.trust_env = _env_bool("LLM_TRUST_ENV", False) if trust_env is None else trust_env
         self.transport = transport
+        self.heartbeat_interval_seconds = max(0.0, heartbeat_interval_seconds)
+        self.progress_callback = progress_callback
         self.system_prompt = load_system_prompt(prompt_path)
         self.last_warnings: list[str] = []
         self.last_candidate_audit: dict[str, Any] | None = None
+        self.last_api_observation: dict[str, Any] = {}
+        self._reset_api_observation()
+
+    def _reset_api_observation(self) -> None:
+        self.last_api_observation = {
+            "calls": 0,
+            "duration_ms": 0.0,
+            "usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            },
+        }
+
+    def _accumulate_usage(self, usage: object) -> None:
+        if not isinstance(usage, dict):
+            return
+        totals = self.last_api_observation["usage"]
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+            value = usage.get(key)
+            if isinstance(value, int):
+                totals[key] += value
+
+    def _emit_progress(self, message: str) -> None:
+        if self.progress_callback is not None:
+            self.progress_callback(message)
+
+    def _heartbeat(self, stop_event: threading.Event, started_at: float) -> None:
+        interval = self.heartbeat_interval_seconds
+        while interval > 0 and not stop_event.wait(interval):
+            waited_seconds = round(time.perf_counter() - started_at)
+            self._emit_progress(f"  LLM API 请求已等待 {waited_seconds} 秒")
 
     def _require_api_key(self) -> None:
         if not self.api_key.strip():
@@ -563,6 +600,7 @@ class LLMExtractionService:
     def preflight(self) -> dict[str, Any]:
         """Make a minimal real request without storing the credential or response."""
         self._require_api_key()
+        self._reset_api_observation()
         content, metadata = self._call_api(
             [
                 {"role": "system", "content": "Return JSON only."},
@@ -589,6 +627,7 @@ class LLMExtractionService:
         """Extract candidate entities and relations from one document."""
         self._require_api_key()
         ensure_version(prompt_version, field_name="prompt_version")
+        self._reset_api_observation()
         self.last_warnings = []
         self.last_candidate_audit = None
         doc_id = document["doc_id"]
@@ -622,6 +661,10 @@ class LLMExtractionService:
         last_error: Exception | None = None
         for attempt in range(self.max_retries):
             attempt_max_tokens = min(self.max_output_tokens * (2**attempt), 65536)
+            self._emit_progress(
+                f"  开始第 {attempt + 1}/{self.max_retries} 次抽取请求"
+                f"（max_tokens={attempt_max_tokens}）"
+            )
             try:
                 response_text, metadata = self._call_api(
                     messages,
@@ -669,6 +712,11 @@ class LLMExtractionService:
                 last_error = exc
                 if attempt < self.max_retries - 1:
                     error_detail = self._safe_error_text(exc)
+                    retry_delay = min(2**attempt, 4)
+                    self._emit_progress(
+                        f"  第 {attempt + 1}/{self.max_retries} 次抽取请求失败，"
+                        f"{retry_delay} 秒后重试：{error_detail}"
+                    )
                     messages.append(
                         {
                             "role": "user",
@@ -679,7 +727,7 @@ class LLMExtractionService:
                             ),
                         }
                     )
-                    time.sleep(min(2**attempt, 4))
+                    time.sleep(retry_delay)
 
         raise RuntimeError(
             f"LLM 抽取失败 (已尝试 {self.max_retries} 次): {last_error}"
@@ -781,29 +829,52 @@ class LLMExtractionService:
         if self.base_url.startswith("https://api.deepseek.com"):
             body["thinking"] = {"type": "disabled"}
 
-        with httpx.Client(
-            timeout=self.timeout,
-            trust_env=self.trust_env,
-            transport=self.transport,
-        ) as client:
-            response = client.post(
-                f"{self.base_url}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                },
-                json=body,
+        request_started = time.perf_counter()
+        heartbeat_stop = threading.Event()
+        heartbeat_thread: threading.Thread | None = None
+        if self.progress_callback is not None and self.heartbeat_interval_seconds > 0:
+            heartbeat_thread = threading.Thread(
+                target=self._heartbeat,
+                args=(heartbeat_stop, request_started),
+                daemon=True,
             )
-            try:
-                response.raise_for_status()
-            except httpx.HTTPStatusError as exc:
-                detail = self._safe_error_text(response.text.strip(), limit=500)
-                raise httpx.HTTPStatusError(
-                    f"LLM API 返回 HTTP {response.status_code}: {detail}",
-                    request=exc.request,
-                    response=exc.response,
-                ) from exc
-            payload = response.json()
+            heartbeat_thread.start()
+        try:
+            with httpx.Client(
+                timeout=self.timeout,
+                trust_env=self.trust_env,
+                transport=self.transport,
+            ) as client:
+                response = client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json=body,
+                )
+        finally:
+            heartbeat_stop.set()
+            if heartbeat_thread is not None:
+                heartbeat_thread.join(timeout=1)
+            elapsed_ms = (time.perf_counter() - request_started) * 1000
+            self.last_api_observation["calls"] += 1
+            self.last_api_observation["duration_ms"] = round(
+                self.last_api_observation["duration_ms"] + elapsed_ms,
+                3,
+            )
+
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            detail = self._safe_error_text(response.text.strip(), limit=500)
+            raise httpx.HTTPStatusError(
+                f"LLM API 返回 HTTP {response.status_code}: {detail}",
+                request=exc.request,
+                response=exc.response,
+            ) from exc
+        payload = response.json()
+        self._accumulate_usage(payload.get("usage"))
 
         try:
             content = payload["choices"][0]["message"]["content"]

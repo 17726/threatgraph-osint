@@ -1,0 +1,834 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-14T07:59:48.485891+00:00",
+  "extraction": {
+    "run_id": "extract-apt28_080-deepseek-v4-flash-1.0-1.0-20260714075123666577-c463deb3",
+    "doc_id": "apt28_080",
+    "model_name": "deepseek-v4-flash",
+    "prompt_version": "1.0",
+    "schema_version": "1.0"
+  },
+  "golden": {
+    "language": "en",
+    "doc_id": "apt28_080",
+    "schema_version": "1.0",
+    "golden_version": "1.0",
+    "target_group": "APT28",
+    "doc_ids": [
+      "apt28_080"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": true,
+    "rejected_entities": 4,
+    "rejected_relations": 12
+  },
+  "entity_metrics": {
+    "predicted": 30,
+    "golden": 32,
+    "true_positive": 12,
+    "false_positive": 18,
+    "false_negative": 20,
+    "precision": 0.4,
+    "recall": 0.375,
+    "f1": 0.387097
+  },
+  "relation_metrics": {
+    "predicted": 20,
+    "golden": 24,
+    "true_positive": 5,
+    "false_positive": 15,
+    "false_negative": 19,
+    "precision": 0.25,
+    "recall": 0.208333,
+    "f1": 0.227273
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 2,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667
+    },
+    "BEHAVIOR_PATTERN": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "CAMPAIGN": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "CVE": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "EVENT": {
+      "predicted": 2,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 2,
+      "golden": 2,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 1,
+      "precision": 0.5,
+      "recall": 0.5,
+      "f1": 0.5
+    },
+    "MALWARE": {
+      "predicted": 2,
+      "golden": 3,
+      "true_positive": 2,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 1.0,
+      "recall": 0.666667,
+      "f1": 0.8
+    },
+    "ORGANIZATION": {
+      "predicted": 8,
+      "golden": 6,
+      "true_positive": 4,
+      "false_positive": 4,
+      "false_negative": 2,
+      "precision": 0.5,
+      "recall": 0.666667,
+      "f1": 0.571429
+    },
+    "PERSON": {
+      "predicted": 3,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "REGION": {
+      "predicted": 2,
+      "golden": 2,
+      "true_positive": 2,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "TECHNIQUE": {
+      "predicted": 1,
+      "golden": 5,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TIME": {
+      "predicted": 1,
+      "golden": 3,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 2,
+      "precision": 1.0,
+      "recall": 0.333333,
+      "f1": 0.5
+    },
+    "TOOL": {
+      "predicted": 4,
+      "golden": 9,
+      "true_positive": 1,
+      "false_positive": 3,
+      "false_negative": 8,
+      "precision": 0.25,
+      "recall": 0.111111,
+      "f1": 0.153846
+    }
+  },
+  "relation_metrics_by_type": {
+    "ATTRIBUTED_TO": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "HAS_BEHAVIOR": {
+      "predicted": 4,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 4,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "RELATED_TO": {
+      "predicted": 0,
+      "golden": 2,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TARGETS": {
+      "predicted": 6,
+      "golden": 4,
+      "true_positive": 2,
+      "false_positive": 4,
+      "false_negative": 2,
+      "precision": 0.333333,
+      "recall": 0.5,
+      "f1": 0.4
+    },
+    "USES": {
+      "predicted": 8,
+      "golden": 18,
+      "true_positive": 3,
+      "false_positive": 5,
+      "false_negative": 15,
+      "precision": 0.375,
+      "recall": 0.166667,
+      "f1": 0.230769
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Ministries of Foreign Affairs",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "government institutions",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "phishing email",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Microsoft Excel",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "certutil",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "PowerShell",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "cdnverify[.]net",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "UserInitMprLogonScript",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "loader Trojan",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "iexplore.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "firefox.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "chrome.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "January 30, 2018",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "September 2016",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "DealersChoice",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "rundll32.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "explorer.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "CreateProcessAsUser",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "RtlDecompressBuffer",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "LZNT1",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "cdnverify.net",
+        "type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Bryan Lee",
+        "type": "PERSON",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "CVE",
+        "type": "CVE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 不能为空"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "STRONTIUM",
+        "type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "duplicate_or_alias_merged",
+        "validation_errors": []
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Ministry of Foreign Affairs",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Microsoft",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "WildFire",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "AutoFocus",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Traps",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ESET",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ThreatConnect",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "DerbyCon 6",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "DealersChoice",
+        "type": "CAMPAIGN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Mike Harbison",
+        "type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Robert Falcone",
+        "type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Upcoming Defense events February 2018",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Logon Scripts",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "UserInitMprLogonScript",
+        "type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "phishing email",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Microsoft Excel",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "certutil",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "PowerShell",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Ministries of Foreign Affairs",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "government institutions",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "UserInitMprLogonScript",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "cdnverify[.]net",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "loader Trojan",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "iexplore.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "firefox.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "chrome.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "RELATED_TO",
+        "tail_name": "DealersChoice",
+        "tail_type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "rundll32.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "explorer.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "CreateProcessAsUser",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "RtlDecompressBuffer",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "LZNT1",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "SofacyCarberp",
+        "head_type": "MALWARE",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Carberp",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "SofacyCarberp",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "cdnverify.net",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,INFRASTRUCTURE)",
+          "tail (cdnverify.net, INFRASTRUCTURE) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Sofacy",
+        "tail_type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,ATTRIBUTED_TO,APT_GROUP)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "SofacyCarberp",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "Carberp",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,MALWARE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Ministry of Foreign Affairs",
+        "tail_type": "ORGANIZATION",
+        "source": "candidate_audit",
+        "audit_reason": "duplicate_relation_removed",
+        "validation_errors": []
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Europe",
+        "tail_type": "REGION",
+        "source": "candidate_audit",
+        "audit_reason": "duplicate_relation_removed",
+        "validation_errors": []
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "North America",
+        "tail_type": "REGION",
+        "source": "candidate_audit",
+        "audit_reason": "duplicate_relation_removed",
+        "validation_errors": []
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "SofacyCarberp",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "cdnverify.net",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,INFRASTRUCTURE)",
+          "tail (cdnverify.net, INFRASTRUCTURE) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Sofacy",
+        "tail_type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,ATTRIBUTED_TO,APT_GROUP)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "UserInitMprLogonScript",
+        "tail_type": "BEHAVIOR_PATTERN",
+        "source": "candidate_audit",
+        "audit_reason": "duplicate_relation_removed",
+        "validation_errors": []
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "Logon Scripts",
+        "tail_type": "TECHNIQUE",
+        "source": "candidate_audit",
+        "audit_reason": "duplicate_relation_removed",
+        "validation_errors": []
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "SofacyCarberp",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "Carberp",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,MALWARE)"
+        ]
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hotfixmsupload.com",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "duplicate_relation_removed",
+        "validation_errors": []
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Ministry of Foreign Affairs",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "UserInitMprLogonScript",
+        "tail_type": "BEHAVIOR_PATTERN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAS_BEHAVIOR",
+        "tail_name": "Logon Scripts",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}

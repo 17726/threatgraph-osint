@@ -19,6 +19,14 @@ def test_document_schema_uses_clean_text_contract() -> None:
     assert "raw_text" not in schema["properties"]
 
 
+def test_document_schema_accepts_collection_item_identity() -> None:
+    schema = load_json("docs/schemas/document.schema.json")
+
+    assert schema["properties"]["collection_item_id"] == {
+        "type": ["string", "null"]
+    }
+
+
 def test_document_example_hashes_clean_text() -> None:
     document = load_json("data/examples/document.apt28.thn.beardshell.example.json")
 

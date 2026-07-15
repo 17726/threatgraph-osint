@@ -266,6 +266,28 @@ def test_normalize_name_is_case_and_whitespace_insensitive():
     assert normalize_name("  Fancy   BEAR ") == normalize_name("fancy bear")
 
 
+def test_normalize_name_strips_http_prefix():
+    assert normalize_name("http://bit.ly/37gAUoo") == normalize_name("bit.ly/37gAUoo")
+    assert normalize_name("https://bit.ly/37gAUoo") == normalize_name("bit.ly/37gAUoo")
+
+
+def test_normalize_name_normalizes_defang_brackets():
+    assert normalize_name("103.224.82[.]154") == normalize_name("103.224.82.154")
+    assert normalize_name("daedong.or[.]kr") == normalize_name("daedong.or.kr")
+
+
+def test_normalize_name_combined_defang_and_http():
+    assert normalize_name("http://daedong.or[.]kr") == normalize_name("daedong.or.kr")
+
+
+def test_normalize_name_preserves_file_extension():
+    assert normalize_name("ElectronGold-1.1.1.exe") != normalize_name("ElectronGold-1.1.1")
+    assert normalize_name("cdnver.dll") != normalize_name("cdnver")
+    assert normalize_name("notepad.exe") != normalize_name("notepad")
+    assert normalize_name("update.zip") != normalize_name("update")
+    assert normalize_name("archive.tar.gz") != normalize_name("archive")
+
+
 def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "backend.app.services.extraction_evaluator.now_utc",

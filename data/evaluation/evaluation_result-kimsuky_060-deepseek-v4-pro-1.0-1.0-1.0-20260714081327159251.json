@@ -1,0 +1,1230 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-14T08:13:27.159251+00:00",
+  "extraction": {
+    "run_id": "extract-kimsuky_060-deepseek-v4-pro-1.0-1.0-20260714081238647062-4fc445be",
+    "doc_id": "kimsuky_060",
+    "model_name": "deepseek-v4-pro",
+    "prompt_version": "1.0",
+    "schema_version": "1.0"
+  },
+  "golden": {
+    "language": "en",
+    "doc_id": "kimsuky_060",
+    "schema_version": "1.0",
+    "golden_version": "1.0",
+    "target_group": "Kimsuky",
+    "doc_ids": [
+      "kimsuky_060"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": true,
+    "rejected_entities": 14,
+    "rejected_relations": 28
+  },
+  "entity_metrics": {
+    "predicted": 32,
+    "golden": 35,
+    "true_positive": 16,
+    "false_positive": 16,
+    "false_negative": 19,
+    "precision": 0.5,
+    "recall": 0.457143,
+    "f1": 0.477612
+  },
+  "relation_metrics": {
+    "predicted": 33,
+    "golden": 28,
+    "true_positive": 0,
+    "false_positive": 33,
+    "false_negative": 28,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 4,
+      "golden": 4,
+      "true_positive": 1,
+      "false_positive": 3,
+      "false_negative": 3,
+      "precision": 0.25,
+      "recall": 0.25,
+      "f1": 0.25
+    },
+    "CAMPAIGN": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "COUNTRY": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "CVE": {
+      "predicted": 3,
+      "golden": 3,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INDUSTRY": {
+      "predicted": 3,
+      "golden": 3,
+      "true_positive": 3,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "MALWARE": {
+      "predicted": 7,
+      "golden": 7,
+      "true_positive": 5,
+      "false_positive": 2,
+      "false_negative": 2,
+      "precision": 0.714286,
+      "recall": 0.714286,
+      "f1": 0.714286
+    },
+    "ORGANIZATION": {
+      "predicted": 8,
+      "golden": 7,
+      "true_positive": 5,
+      "false_positive": 3,
+      "false_negative": 2,
+      "precision": 0.625,
+      "recall": 0.714286,
+      "f1": 0.666667
+    },
+    "TECHNIQUE": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TIME": {
+      "predicted": 1,
+      "golden": 3,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TOOL": {
+      "predicted": 2,
+      "golden": 6,
+      "true_positive": 1,
+      "false_positive": 1,
+      "false_negative": 5,
+      "precision": 0.5,
+      "recall": 0.166667,
+      "f1": 0.25
+    }
+  },
+  "relation_metrics_by_type": {
+    "AFFILIATED_WITH": {
+      "predicted": 0,
+      "golden": 3,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "ATTRIBUTED_TO": {
+      "predicted": 3,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "DISCOVERED_BY": {
+      "predicted": 4,
+      "golden": 2,
+      "true_positive": 0,
+      "false_positive": 4,
+      "false_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "EXPLOITS": {
+      "predicted": 3,
+      "golden": 2,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "HAPPENED_AT": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "PART_OF": {
+      "predicted": 3,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "RELATED_TO": {
+      "predicted": 0,
+      "golden": 3,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TARGETS": {
+      "predicted": 7,
+      "golden": 5,
+      "true_positive": 0,
+      "false_positive": 7,
+      "false_negative": 5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "USES": {
+      "predicted": 12,
+      "golden": 12,
+      "true_positive": 0,
+      "false_positive": 12,
+      "false_negative": 12,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Lazarus Group",
+        "type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Kimsuky",
+        "type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Konni",
+        "type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "MagicRAT",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "EarlyRat",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "HazyLoad",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "VMWare Horizon",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "JetBrains TeamCity",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "DLang",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "AutoIt",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "CVE-2021-44228",
+        "type": "CVE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "CVE-2021-44832",
+        "type": "CVE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "CVE-2023-42793",
+        "type": "CVE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Microsoft",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "U.S. Treasury Department",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "spear-phishing",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "March 2023",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "September 2023",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "November 30, 2023",
+        "type": "TIME",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Lazarus Group",
+        "type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "HazyLoad",
+        "type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "CVE-2021-44228",
+        "type": "CVE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "CVE-2021-44832",
+        "type": "CVE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "CVE-2023-42793",
+        "type": "CVE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Microsoft",
+        "type": "ORGANIZATION",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Kimsuky",
+        "type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "MagicRAT",
+        "type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "EarlyRat",
+        "type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "U.S. Treasury Department",
+        "type": "ORGANIZATION",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "November 30, 2023",
+        "type": "TIME",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Konni",
+        "type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "JetBrains TeamCity",
+        "type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "Veracode",
+        "type": "ORGANIZATION",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "North Korea",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "name": "VMWare Horizon",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Andariel",
+        "head_type": "APT_GROUP",
+        "relation_type": "AFFILIATED_WITH",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "AFFILIATED_WITH",
+        "tail_name": "Reconnaissance General Bureau (RGB)",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "AFFILIATED_WITH",
+        "tail_name": "Reconnaissance General Bureau (RGB)",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Operation Blacksmith",
+        "head_type": "CAMPAIGN",
+        "relation_type": "PART_OF",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "NineRAT",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "DLRAT",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "BottomLoader",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "HazyLoad",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "MagicRAT",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "EarlyRat",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "EXPLOITS",
+        "tail_name": "CVE-2021-44228",
+        "tail_type": "CVE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "EXPLOITS",
+        "tail_name": "CVE-2023-42793",
+        "tail_type": "CVE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "South American agricultural organization",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "European manufacturing entity",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "manufacturing",
+        "tail_type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "agriculture",
+        "tail_type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "physical security",
+        "tail_type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "NineRAT",
+        "head_type": "MALWARE",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Telegram",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Operation Blacksmith",
+        "head_type": "CAMPAIGN",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "Cisco Talos",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "HazyLoad",
+        "head_type": "TOOL",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "Microsoft",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Amadey",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "RftRAT",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "AutoIt",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "spear-phishing",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Konni",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "U.S. Treasury Department",
+        "head_type": "ORGANIZATION",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Kimsuky",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "VMWare Horizon",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "JetBrains TeamCity",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "North Korea",
+        "tail_type": "COUNTRY",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Operation Blacksmith",
+        "head_type": "CAMPAIGN",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (CAMPAIGN,ATTRIBUTED_TO,APT_GROUP)",
+          "tail (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Andariel",
+        "head_type": "APT_GROUP",
+        "relation_type": "PART_OF",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,PART_OF,APT_GROUP)",
+          "tail (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "NineRAT",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "DLRAT",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "BottomLoader",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "HazyLoad",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "tail (HazyLoad, TOOL) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "EXPLOITS",
+        "tail_name": "CVE-2021-44228",
+        "tail_type": "CVE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "tail (CVE-2021-44228, CVE) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "EXPLOITS",
+        "tail_name": "CVE-2023-42793",
+        "tail_type": "CVE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "tail (CVE-2023-42793, CVE) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "NineRAT",
+        "head_type": "MALWARE",
+        "relation_type": "USES",
+        "tail_name": "Telegram",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (MALWARE,USES,TOOL)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "MagicRAT",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "tail (MagicRAT, MALWARE) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Andariel",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "EarlyRat",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "tail (EarlyRat, MALWARE) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Andariel",
+        "head_type": "APT_GROUP",
+        "relation_type": "EXPLOITS",
+        "tail_name": "CVE-2021-44228",
+        "tail_type": "CVE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "tail (CVE-2021-44228, CVE) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Amadey",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Kimsuky, APT_GROUP) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "RftRAT",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Kimsuky, APT_GROUP) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "PART_OF",
+        "tail_name": "Reconnaissance General Bureau",
+        "tail_type": "ORGANIZATION",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,PART_OF,ORGANIZATION)",
+          "head (Kimsuky, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "PART_OF",
+        "tail_name": "Reconnaissance General Bureau",
+        "tail_type": "ORGANIZATION",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,PART_OF,ORGANIZATION)",
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "North Korea",
+        "tail_type": "COUNTRY",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Kimsuky, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "North Korea",
+        "tail_type": "COUNTRY",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Kimsuky, APT_GROUP) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "U.S. Treasury Department",
+        "head_type": "ORGANIZATION",
+        "relation_type": "TARGETS",
+        "tail_name": "Kimsuky",
+        "tail_type": "APT_GROUP",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (ORGANIZATION,TARGETS,APT_GROUP)",
+          "head (U.S. Treasury Department, ORGANIZATION) 不在候选实体中",
+          "tail (Kimsuky, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Kimsuky",
+        "head_type": "APT_GROUP",
+        "relation_type": "HAPPENED_AT",
+        "tail_name": "November 30, 2023",
+        "tail_type": "TIME",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,HAPPENED_AT,TIME)",
+          "head (Kimsuky, APT_GROUP) 不在候选实体中",
+          "tail (November 30, 2023, TIME) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Konni",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "CVE-2021-44228",
+        "tail_type": "CVE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (APT_GROUP,USES,CVE)",
+          "head (Konni, APT_GROUP) 不在候选实体中",
+          "tail (CVE-2021-44228, CVE) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "VMWare Horizon",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "JetBrains TeamCity",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "head (Lazarus Group, APT_GROUP) 不在候选实体中",
+          "tail (JetBrains TeamCity, INFRASTRUCTURE) 不在候选实体中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Cisco Talos",
+        "head_type": "ORGANIZATION",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "Operation Blacksmith",
+        "tail_type": "CAMPAIGN",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (ORGANIZATION,DISCOVERED_BY,CAMPAIGN)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Microsoft",
+        "head_type": "ORGANIZATION",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "HazyLoad",
+        "tail_type": "TOOL",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (ORGANIZATION,DISCOVERED_BY,TOOL)",
+          "head (Microsoft, ORGANIZATION) 不在候选实体中",
+          "tail (HazyLoad, TOOL) 不在候选实体中",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "AhnLab Security Emergency Response Center",
+        "head_type": "ORGANIZATION",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "Amadey",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (ORGANIZATION,DISCOVERED_BY,MALWARE)"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "AhnLab Security Emergency Response Center",
+        "head_type": "ORGANIZATION",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "RftRAT",
+        "tail_type": "MALWARE",
+        "source": "candidate_audit",
+        "audit_reason": "validation_failed",
+        "validation_errors": [
+          "不允许组合 (ORGANIZATION,DISCOVERED_BY,MALWARE)",
+          "evidence_text 未出现在 document.clean_text 中"
+        ]
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Operation Blacksmith",
+        "head_type": "CAMPAIGN",
+        "relation_type": "TARGETS",
+        "tail_name": "manufacturing",
+        "tail_type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Operation Blacksmith",
+        "head_type": "CAMPAIGN",
+        "relation_type": "TARGETS",
+        "tail_name": "agriculture",
+        "tail_type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Operation Blacksmith",
+        "head_type": "CAMPAIGN",
+        "relation_type": "TARGETS",
+        "tail_name": "physical security",
+        "tail_type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Operation Blacksmith",
+        "head_type": "CAMPAIGN",
+        "relation_type": "TARGETS",
+        "tail_name": "South American agricultural organization",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "kimsuky_060_c001",
+        "head_name": "Operation Blacksmith",
+        "head_type": "CAMPAIGN",
+        "relation_type": "TARGETS",
+        "tail_name": "European manufacturing entity",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}

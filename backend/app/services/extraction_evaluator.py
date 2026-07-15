@@ -37,7 +37,12 @@ def validate_golden_schema(
 def normalize_name(value: str) -> str:
     normalized = unicodedata.normalize("NFKC", value).casefold().strip()
     normalized = normalized.strip("\"'`")
-    return re.sub(r"\s+", " ", normalized)
+    # 剥离 http:// / https:// 前缀（LLM 常加而 golden 不加，如 golden "bit.ly/37gAUoo" vs LLM "http://bit.ly/37gAUoo"）
+    normalized = re.sub(r"^https?://", "", normalized)
+    # 归一化 defang 标记：golden 用 [.] 表示 defanged IP/域名，LLM 通常输出不含括号的原始格式
+    normalized = normalized.replace("[.]", ".")
+    normalized = re.sub(r"\s+", " ", normalized)
+    return normalized
 
 
 def _entity_names(entity: dict[str, Any]) -> set[str]:
