@@ -15,8 +15,8 @@
 | [`reference-comparison.md`](reference-comparison.md)                     | 开源项目对比分析                                                        |
 | [`references/course-requirements.md`](references/course-requirements.md) | 课程实验要求（脱敏）                                                    |
 | [`guides/`](guides/)                                                     | 面向各组的上手指南和交付检查                                            |
-| [`decisions/2026-07-15-llm-golden-experiment-decisions.md`](decisions/2026-07-15-llm-golden-experiment-decisions.md) | LLM 标注、实验归档与切块评测的目标证据评审稿 |
-| [`reviews/2026-07-15-llm-evaluation-metrics-review.md`](reviews/2026-07-15-llm-evaluation-metrics-review.md) | LLM 评测指标计算逻辑二审稿 |
+| [`decisions/2026-07-15-llm-golden-experiment-decisions.md`](decisions/2026-07-15-llm-golden-experiment-decisions.md) | LLM 标注、实验归档与切块评测决策 |
+| [`reviews/2026-07-15-llm-evaluation-metrics-review.md`](reviews/2026-07-15-llm-evaluation-metrics-review.md) | LLM 实体关系抽取评测指标契约 |
 | [`plans/`](plans/)                                                       | 实施计划                                                                |
 | [`reference-architecture-reports/`](reference-architecture-reports/)     | 开源架构调研报告（GraphRAG / MISP / OpenCTI / SpiderFoot / TypeDB-CTI） |
 
