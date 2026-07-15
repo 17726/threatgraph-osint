@@ -57,6 +57,8 @@ def ensure_pipeline_schema(connection: sqlite3.Connection) -> None:
           doc_id TEXT,
           target_group TEXT,
           use_cache INTEGER NOT NULL DEFAULT 1 CHECK (use_cache IN (0, 1)),
+          operation TEXT NOT NULL DEFAULT 'extract_and_build',
+          request_key TEXT,
           steps_json TEXT NOT NULL DEFAULT '[]',
           status TEXT NOT NULL CHECK (status IN ('pending', 'running', 'succeeded', 'failed')),
           current_step TEXT,
@@ -81,6 +83,24 @@ def ensure_pipeline_schema(connection: sqlite3.Connection) -> None:
           FOREIGN KEY (job_id) REFERENCES pipeline_jobs(job_id) ON DELETE CASCADE
         );
         """
+    )
+    existing_columns = _table_columns(connection, "pipeline_jobs")
+    if "operation" not in existing_columns:
+        connection.execute(
+            "ALTER TABLE pipeline_jobs ADD COLUMN operation TEXT "
+            "NOT NULL DEFAULT 'extract_and_build'"
+        )
+    if "request_key" not in existing_columns:
+        connection.execute(
+            "ALTER TABLE pipeline_jobs ADD COLUMN request_key TEXT"
+        )
+        connection.execute(
+            "UPDATE pipeline_jobs SET request_key = job_id WHERE request_key IS NULL"
+        )
+    connection.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_pipeline_jobs_active_request "
+        "ON pipeline_jobs(request_key) "
+        "WHERE status IN ('pending', 'running')"
     )
 
 

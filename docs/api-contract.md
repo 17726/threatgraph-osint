@@ -190,17 +190,20 @@ GET  /api/v1/pipeline/status/{job_id}
 
 ```json
 {
-  "target_group": "APT28",
-  "use_cache": true,
-  "steps": ["clean", "extract", "normalize", "build_graph", "analyze_behavior", "infer", "report"]
+  "doc_id": "apt28_049",
+  "use_cache": true
 }
 ```
 
 说明：
 
-1. 优先级 P0 可以同步执行，直接返回结果。
-2. 后续可升级为后台任务。
-3. 所有中间结果写入 SQLite。
+1. P0 只暴露一个真实复合操作 `extract_and_build`，内部复用现有离线抽取建图流水线；请求不接受伪步骤数组。
+2. `doc_id` 和 `target_group` 必须且只能提供一个。按目标组织运行时，按 `doc_id` 排序处理 SQLite 中匹配的文档。
+3. 本阶段同步执行并返回最终任务状态；`pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息，状态接口可按 `job_id` 重查。
+4. 同一作用域、操作和 `use_cache` 的 `pending` / `running` 请求复用活动任务；执行前通过条件更新原子认领，避免同一任务被重复执行。
+5. 服务启动时把遗留的 `running` 任务标记为中断失败，不把未知进度伪装成可恢复任务。
+6. 默认执行只消费已有的标准文档和已审核抽取结果，不自动调用真实 LLM；`use_cache=false` 也不构成调用外部模型的授权。
+7. 所有事实和任务状态写入 SQLite；临时标准文档使用系统临时目录，不新增 `data/pipeline_*` 运行时目录。
 
 ---
 
