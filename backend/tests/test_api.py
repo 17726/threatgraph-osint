@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 
 import backend.app.main as main_module
 from backend.app.services.demo_store import DemoStore
+from backend.app.services.graph_query_service import GraphQueryService
 
 
 client = TestClient(main_module.app)
@@ -10,7 +11,9 @@ client = TestClient(main_module.app)
 
 @pytest.fixture(autouse=True)
 def empty_store(tmp_path, monkeypatch):
-    monkeypatch.setattr(main_module, "store", DemoStore(tmp_path / "empty.db"))
+    store = DemoStore(tmp_path / "empty.db", seed_demo=False)
+    monkeypatch.setattr(main_module, "store", store)
+    monkeypatch.setattr(main_module, "graph_query_service", GraphQueryService(store.db_path))
 
 
 def test_health_reports_core_components():

@@ -194,7 +194,7 @@ def test_offline_pipeline_updates_api_graph_store(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
 
-    graph = DemoStore(db_path).get_graph(target="APT28")
+    graph = DemoStore(db_path, seed_demo=False).get_graph(target="APT28")
 
     assert len(graph["nodes"]) == 11
     assert len(graph["edges"]) == 10
@@ -204,7 +204,7 @@ def test_offline_pipeline_updates_api_graph_store(tmp_path):
 
 def test_offline_pipeline_imports_after_api_store_initializes_database(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
-    DemoStore(db_path)
+    DemoStore(db_path, seed_demo=False)
 
     summary = OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
 
@@ -217,7 +217,7 @@ def test_offline_pipeline_generates_report_cache(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)
 
-    report = DemoStore(db_path).get_report("APT28")
+    report = DemoStore(db_path, seed_demo=False).get_report("APT28")
 
     assert report is not None
     assert report["title"] == "APT28 离线候选抽取报告"

@@ -1,11 +1,10 @@
-from scripts.seed_demo_data import seed_demo_data
-
+from backend.app.services.demo_store import DemoStore
 from backend.app.services.graph_query_service import GraphQueryService
 
 
 def test_graph_query_filters_entity_ids_within_target_bfs_scope(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_graph(
         target="APT28",
@@ -27,7 +26,7 @@ def test_graph_query_filters_entity_ids_within_target_bfs_scope(tmp_path):
 
 def test_graph_query_entity_ids_without_target_keeps_only_selected_entities(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_graph(entity_ids=["technique:t1566"])
 
@@ -37,7 +36,7 @@ def test_graph_query_entity_ids_without_target_keeps_only_selected_entities(tmp_
 
 def test_graph_query_returns_empty_graph_when_target_is_missing(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_graph(target="does-not-exist")
 
@@ -48,7 +47,7 @@ def test_graph_query_returns_empty_graph_when_target_is_missing(tmp_path):
 
 def test_graph_query_returns_empty_graph_when_target_is_excluded_by_entity_filter(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_graph(
         target="APT28",
@@ -62,7 +61,7 @@ def test_graph_query_returns_empty_graph_when_target_is_excluded_by_entity_filte
 
 def test_graph_query_source_filters_keep_only_evidence_supported_graph_items(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_graph(
         source_types=["knowledge_base"],
@@ -83,7 +82,7 @@ def test_graph_query_source_filters_keep_only_evidence_supported_graph_items(tmp
 
 def test_graph_query_supports_alias_filters_and_metadata(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_graph(
         target="Fancy Bear",
@@ -109,7 +108,7 @@ def test_graph_query_supports_alias_filters_and_metadata(tmp_path):
 
 def test_graph_query_filters_relation_type_and_confidence(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_graph(
         target="apt_group:apt28",
@@ -128,7 +127,7 @@ def test_graph_query_filters_relation_type_and_confidence(tmp_path):
 
 def test_graph_query_limit_and_evidence_source_filters(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_graph(
         source_types=["knowledge_base"],
@@ -145,7 +144,7 @@ def test_graph_query_limit_and_evidence_source_filters(tmp_path):
 
 def test_path_query_supports_depth_relation_and_confidence_filters(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
     service = GraphQueryService(db_path)
 
     result = service.get_path(
@@ -166,7 +165,7 @@ def test_path_query_supports_depth_relation_and_confidence_filters(tmp_path):
 
 def test_path_query_does_not_reuse_relation_ids_as_global_visited_state(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
     service = GraphQueryService(db_path)
 
     result = service.get_path("technique:t1566", "malware:x-agent", max_depth=3)
@@ -181,7 +180,7 @@ def test_path_query_does_not_reuse_relation_ids_as_global_visited_state(tmp_path
 
 def test_path_query_respects_max_depth_and_returns_compatible_shape(tmp_path):
     db_path = tmp_path / "graph.db"
-    seed_demo_data(db_path)
+    DemoStore(db_path, seed_demo=True)
 
     result = GraphQueryService(db_path).get_path(
         "apt_group:apt28", "malware:x-agent", max_depth=0

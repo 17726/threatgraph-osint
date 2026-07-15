@@ -17,7 +17,7 @@ def export_graph_json(
     db_path: str | Path = DEFAULT_DB_PATH,
     output_path: str | Path = DEFAULT_OUTPUT_PATH,
 ) -> Path:
-    store = DemoStore(db_path)
+    store = DemoStore(db_path, seed_demo=False)
     graph = store.get_graph()
     payload = {
         "version": "2.0",

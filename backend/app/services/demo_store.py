@@ -298,9 +298,10 @@ DEMO_REPORTS = [
 
 
 class DemoStore:
-    def __init__(self, db_path: str | Path | None = None) -> None:
+    def __init__(self, db_path: str | Path | None = None, seed_demo: bool = True) -> None:
         configured_path = db_path or os.getenv("SQLITE_DB_PATH") or DEFAULT_DB_PATH
         self.db_path = Path(configured_path)
+        self.seed_demo = seed_demo
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.initialize()
 

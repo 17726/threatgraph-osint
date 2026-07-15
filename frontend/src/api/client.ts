@@ -67,13 +67,7 @@ export function fetchGraph(target: string, filters: GraphFilters = {}): Promise<
     if (value !== undefined) params.set(key, String(value));
   }
 
-  return getJson<GraphPayload>(`/graph?${params.toString()}`).catch((error: unknown) => {
-    const hasFilters = Object.entries(filters).some(([key, value]) => key !== "depth" && value !== undefined);
-    if (target === "APT28" && !hasFilters) {
-      return getMockGraph(target);
-    }
-    throw error;
-  });
+  return getJson<GraphPayload>(`/graph?${params.toString()}`);
 }
 
 export function fetchReport(target: string): Promise<ReportPayload> {

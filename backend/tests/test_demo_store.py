@@ -87,7 +87,7 @@ def test_initialize_keeps_existing_duplicate_hash_rows_usable(tmp_path):
 def test_new_store_creates_empty_graph(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
 
-    graph = DemoStore(db_path).get_graph(target="APT28")
+    graph = DemoStore(db_path, seed_demo=False).get_graph(target="APT28")
     assert graph == {
         "schema_version": "1.0",
         "nodes": [],
@@ -99,7 +99,7 @@ def test_new_store_creates_empty_graph(tmp_path):
 def test_new_store_creates_import_compatible_document_schema(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
 
-    DemoStore(db_path)
+    DemoStore(db_path, seed_demo=False)
 
     with sqlite3.connect(db_path) as connection:
         document_columns = {
@@ -135,7 +135,7 @@ def test_export_graph_json_writes_contract_shape(tmp_path):
 
 def test_unknown_target_does_not_return_unrelated_graph(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
-    DemoStore(db_path)
+    DemoStore(db_path, seed_demo=False)
     with sqlite3.connect(db_path) as connection:
         connection.execute(
             """
@@ -147,7 +147,7 @@ def test_unknown_target_does_not_return_unrelated_graph(tmp_path):
             ("apt_group:other", "Other", "APT_GROUP", "[]", "", 1.0, 1, "[]"),
         )
 
-    graph = DemoStore(db_path).get_graph(target="APT28")
+    graph = DemoStore(db_path, seed_demo=False).get_graph(target="APT28")
     assert graph["nodes"] == []
     assert graph["edges"] == []
     assert graph["evidence"] == []
@@ -155,7 +155,7 @@ def test_unknown_target_does_not_return_unrelated_graph(tmp_path):
 
 def test_graph_target_matches_entity_alias(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
-    DemoStore(db_path)
+    DemoStore(db_path, seed_demo=False)
     with sqlite3.connect(db_path) as connection:
         connection.execute(
             """
@@ -176,6 +176,6 @@ def test_graph_target_matches_entity_alias(tmp_path):
             ),
         )
 
-    graph = DemoStore(db_path).get_graph(target="APT28")
+    graph = DemoStore(db_path, seed_demo=False).get_graph(target="APT28")
 
     assert [node["id"] for node in graph["nodes"]] == ["apt_group:fancy-bear"]

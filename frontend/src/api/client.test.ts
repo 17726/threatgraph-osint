@@ -109,14 +109,11 @@ describe("fetchGraph", () => {
     );
   });
 
-  it("默认演示目标无过滤条件请求失败时回退到 mock", async () => {
+  it("默认演示目标无过滤条件请求失败时抛出错误", async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error("后端不可用"));
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(fetchGraph("APT28")).resolves.toEqual(expect.objectContaining({
-      nodes: expect.any(Array),
-      edges: expect.any(Array),
-    }));
+    await expect(fetchGraph("APT28")).rejects.toThrow("后端不可用");
   });
 
   it("带过滤条件请求失败时抛出错误而不是回退到 mock", async () => {
