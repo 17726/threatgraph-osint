@@ -225,8 +225,8 @@ def test_pipeline_run_submits_one_background_operation(monkeypatch):
         calls.update(kwargs)
         return {
             "job_id": "job-test",
-            "operation": "extract_and_build",
-            "status": "pending",
+            "operation": "import_extraction_and_build",
+            "status": "running",
         }
 
     monkeypatch.setattr(
@@ -237,17 +237,28 @@ def test_pipeline_run_submits_one_background_operation(monkeypatch):
 
     response = client.post(
         "/api/v1/pipeline/run",
-        json={"doc_id": "doc-1", "use_cache": False},
+        json={"doc_id": "doc-1", "extraction_mode": "reviewed"},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     assert calls == {
         "doc_id": "doc-1",
         "target_group": None,
-        "use_cache": False,
+        "extraction_mode": "reviewed",
     }
-    assert response.json()["data"]["operation"] == "extract_and_build"
-    assert response.json()["data"]["status"] == "pending"
+    assert response.json()["data"]["operation"] == "import_extraction_and_build"
+    assert response.json()["data"]["status"] == "running"
+
+
+def test_pipeline_run_rejects_ambiguous_use_cache_flag():
+    response = client.post(
+        "/api/v1/pipeline/run",
+        json={"doc_id": "doc-1", "use_cache": False},
+    )
+
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "ERR_VALIDATION"
+    assert "extraction_mode" in response.json()["error"]["message"]
 
 
 def test_pipeline_run_rejects_missing_scope_before_execution():

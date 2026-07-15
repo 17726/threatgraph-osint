@@ -95,6 +95,8 @@ export interface PipelineResult {
   behavior_patterns?: number;
 }
 
+export type ExtractionMode = "reviewed" | "live";
+
 export interface PipelineStatus {
   job_id: string;
   status: string;
@@ -106,9 +108,71 @@ export interface PipelineStatus {
   result?: Record<string, unknown> | null;
 }
 
-interface PipelineRunOptions {
+export interface PipelineRunOptions {
   maxWaitMs?: number;
   intervalMs?: number;
+  extractionMode?: ExtractionMode;
+  signal?: AbortSignal;
+  onStatus?: (status: "importing" | "pending" | "running") => void;
+}
+
+type ApiErrorPayload = {
+  success: false;
+  error?: {
+    code?: string;
+    message?: string;
+  };
+};
+
+async function responseData<T>(
+  response: Response,
+  fallbackMessage: string,
+): Promise<T> {
+  let payload: ApiResponse<T> | ApiErrorPayload | null = null;
+  try {
+    payload = (await response.json()) as ApiResponse<T> | ApiErrorPayload;
+  } catch {
+    // 非 JSON 错误仍使用包含状态码的兜底消息。
+  }
+  if (!response.ok || !payload || payload.success !== true) {
+    const message =
+      payload && "error" in payload ? payload.error?.message : undefined;
+    throw new Error(message || `${fallbackMessage}: ${response.status}`);
+  }
+  return payload.data;
+}
+
+function abortError(): DOMException {
+  return new DOMException("操作已取消", "AbortError");
+}
+
+function abortableDelay(
+  milliseconds: number,
+  signal?: AbortSignal,
+): Promise<void> {
+  if (signal?.aborted) return Promise.reject(abortError());
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      signal?.removeEventListener("abort", handleAbort);
+      resolve();
+    }, milliseconds);
+    const handleAbort = () => {
+      clearTimeout(timeout);
+      reject(abortError());
+    };
+    signal?.addEventListener("abort", handleAbort, { once: true });
+  });
+}
+
+function pipelineSummary(
+  result: Record<string, unknown>,
+): Record<string, unknown> {
+  const summaries = result.summaries;
+  if (Array.isArray(summaries) && summaries.length > 0) {
+    return summaries[0] as Record<string, unknown>;
+  }
+  const extract = result.extract as Record<string, unknown> | undefined;
+  return (extract?.summary ?? result) as Record<string, unknown>;
 }
 
 async function pollPipelineStatus(
@@ -118,16 +182,17 @@ async function pollPipelineStatus(
   const deadline = Date.now() + (options.maxWaitMs ?? 120_000);
   const intervalMs = options.intervalMs ?? 2000;
   while (Date.now() < deadline) {
-    const response = await fetch(`${API_BASE_URL}/pipeline/status/${jobId}`);
-    if (!response.ok) {
-      throw new Error(`查询 Pipeline 状态失败: ${response.status}`);
-    }
-    const payload = (await response.json()) as ApiResponse<PipelineStatus>;
-    const job = payload.data;
+    if (options.signal?.aborted) throw abortError();
+    const response = await fetch(`${API_BASE_URL}/pipeline/status/${jobId}`, {
+      signal: options.signal,
+    });
+    const job = await responseData<PipelineStatus>(
+      response,
+      "查询 Pipeline 状态失败",
+    );
     if (job.status === "succeeded") {
       const result = (job.result ?? {}) as Record<string, unknown>;
-      const extract = result.extract as Record<string, unknown> | undefined;
-      const summary = (extract?.summary ?? result) as Record<string, unknown>;
+      const summary = pipelineSummary(result);
       return {
         job_id: job.job_id,
         status: job.status,
@@ -142,7 +207,8 @@ async function pollPipelineStatus(
     if (job.status === "failed") {
       throw new Error(job.error || "Pipeline 运行失败");
     }
-    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    options.onStatus?.(job.status === "running" ? "running" : "pending");
+    await abortableDelay(intervalMs, options.signal);
   }
   throw new Error("Pipeline 执行超时");
 }
@@ -151,26 +217,42 @@ export async function runPipeline(
   document: File,
   options: PipelineRunOptions = {},
 ): Promise<PipelineResult> {
-  const documentPayload = JSON.parse(await document.text()) as Record<
-    string,
-    unknown
-  >;
+  let documentPayload: Record<string, unknown>;
+  try {
+    documentPayload = JSON.parse(await document.text()) as Record<
+      string,
+      unknown
+    >;
+  } catch {
+    throw new Error("文档不是有效的 JSON");
+  }
 
-  const response = await fetch(`${API_BASE_URL}/documents/import`, {
+  options.onStatus?.("importing");
+  const importResponse = await fetch(`${API_BASE_URL}/documents/import`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(documentPayload),
+    signal: options.signal,
   });
-  if (!response.ok) {
-    throw new Error(`Pipeline 运行失败: ${response.status}`);
-  }
-  const payload = (await response.json()) as ApiResponse<{
+  const imported = await responseData<{
     doc_id: string;
-    job_id?: string;
     status: string;
-  }>;
-  if (!payload.data.job_id) {
-    return { job_id: "", status: "skipped" };
-  }
-  return pollPipelineStatus(payload.data.job_id, options);
+  }>(importResponse, "文档导入失败");
+
+  const pipelineResponse = await fetch(`${API_BASE_URL}/pipeline/run`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      doc_id: imported.doc_id,
+      extraction_mode: options.extractionMode ?? "reviewed",
+    }),
+    signal: options.signal,
+  });
+  const job = await responseData<PipelineStatus>(
+    pipelineResponse,
+    "Pipeline 提交失败",
+  );
+  options.onStatus?.(job.status === "running" ? "running" : "pending");
+  const result = await pollPipelineStatus(job.job_id, options);
+  return { ...result, doc_id: imported.doc_id };
 }

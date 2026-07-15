@@ -296,6 +296,9 @@ docker compose run --rm backend python -m pytest backend/tests -v
 - 前端解析标准 JSON 后先导入，再显式提交 doc_id；重复文档仍可手动重新运行。
 - 使用 `AbortController` 停止已关闭弹窗的轮询。
 - 读取统一错误响应，不只显示 HTTP 状态码。
+- 用 `extraction_mode=reviewed|live` 替代含义不清且未生效的 `use_cache`；`reviewed` 只使用已审核结果，`live` 才调用外部模型。
+- `reviewed` 任务记录 `import_extraction_and_build`，`live` 任务记录 `extract_and_build`，避免把导入既有结果误称为现场抽取。
+- `live` 只允许单个 `doc_id`，禁止按目标组织误触发批量 LLM 调用。
 - 不重复添加当前 main 已有的报告生成按钮。
 
 **Step 4: 前后端验证**

@@ -57,7 +57,9 @@ def ensure_pipeline_schema(connection: sqlite3.Connection) -> None:
           doc_id TEXT,
           target_group TEXT,
           use_cache INTEGER NOT NULL DEFAULT 1 CHECK (use_cache IN (0, 1)),
-          operation TEXT NOT NULL DEFAULT 'extract_and_build',
+          extraction_mode TEXT NOT NULL DEFAULT 'reviewed'
+            CHECK (extraction_mode IN ('reviewed', 'live')),
+          operation TEXT NOT NULL DEFAULT 'import_extraction_and_build',
           request_key TEXT,
           steps_json TEXT NOT NULL DEFAULT '[]',
           status TEXT NOT NULL CHECK (status IN ('pending', 'running', 'succeeded', 'failed')),
@@ -85,10 +87,15 @@ def ensure_pipeline_schema(connection: sqlite3.Connection) -> None:
         """
     )
     existing_columns = _table_columns(connection, "pipeline_jobs")
+    if "extraction_mode" not in existing_columns:
+        connection.execute(
+            "ALTER TABLE pipeline_jobs ADD COLUMN extraction_mode TEXT "
+            "NOT NULL DEFAULT 'reviewed'"
+        )
     if "operation" not in existing_columns:
         connection.execute(
             "ALTER TABLE pipeline_jobs ADD COLUMN operation TEXT "
-            "NOT NULL DEFAULT 'extract_and_build'"
+            "NOT NULL DEFAULT 'import_extraction_and_build'"
         )
     if "request_key" not in existing_columns:
         connection.execute(
