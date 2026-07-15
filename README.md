@@ -178,6 +178,14 @@ SQLite 数据库：data/threatgraph_osint.db
 默认不提交到 Git；如需临时输出到其他目录，可增加
 `--run-log-dir <目录>`。
 
+前端显式发起的 `live` Pipeline 使用同一套本机档案目录：Extraction 与 Candidate Audit
+写入 `data/run_artifacts/<run_id>*.json`，任务摘要写入
+`data/run_logs/pipeline-run-<job_id>.json`。任务失败或服务进程中断时仍保留摘要，已经成功生成的
+候选工件不会因后续 SQLite 导入失败而删除。这些运行时文件默认被 Git 忽略，也不会被 `reviewed`
+模式自动消费；只有经过评审、迁入 `data/extracted/` 并登记到
+`config/reviewed-extractions.json` 或课程演示清单的工件，才能作为已审核输入使用。
+服务重启时以 SQLite 任务终态对账已有 live 摘要；本机档案损坏不会阻止服务恢复。
+
 LLM 请求等待期间默认每 30 秒输出一次心跳，并在重试时显示尝试序号和失败原因。
 可使用 `--heartbeat-seconds <秒数>` 调整间隔，设为 `0` 可关闭心跳。
 

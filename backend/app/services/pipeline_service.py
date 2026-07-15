@@ -16,6 +16,7 @@ from typing import Any, Callable
 from backend.app.db.schema import ensure_pipeline_schema
 from backend.app.services.llm_service import LLMExtractionService
 from backend.app.services.offline_extraction_pipeline import OfflineExtractionPipeline
+from backend.app.services.pipeline_run_archive import PipelineRunArchive
 from scripts.validate_extraction_result import validate_import_payload
 
 
@@ -27,6 +28,8 @@ LIVE_OPERATION = "extract_and_build"
 DEFAULT_OPERATION = REVIEWED_OPERATION
 INTERRUPTED_ERROR = "上次执行因服务进程中断而失败"
 REPO_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_LIVE_EXTRACTION_DIR = REPO_ROOT / "data/run_artifacts"
+DEFAULT_PIPELINE_RUN_LOG_DIR = REPO_ROOT / "data/run_logs"
 
 
 def _now() -> str:
@@ -112,6 +115,38 @@ def _valid_extraction(
     return (payload if report.ok else None), report.errors
 
 
+def _registry_artifact(
+    repository_root: Path,
+    doc_id: str,
+    registry_path: Path,
+) -> Path | None:
+    if not registry_path.exists():
+        return None
+    registry = _load_json_object(registry_path, "审核工件清单")
+    if registry.get("schema_version") != "1.0":
+        raise ValueError("审核工件清单 schema_version 必须为 1.0")
+    artifacts = registry.get("artifacts")
+    if not isinstance(artifacts, list):
+        raise ValueError("审核工件清单 artifacts 必须是数组")
+    indexed: dict[str, dict[str, Any]] = {}
+    for item in artifacts:
+        if not isinstance(item, dict):
+            raise ValueError("审核工件清单 artifacts 条目必须是对象")
+        item_doc_id = item.get("doc_id")
+        if not isinstance(item_doc_id, str) or not item_doc_id:
+            raise ValueError("审核工件清单 doc_id 不能为空")
+        if item_doc_id in indexed:
+            raise ValueError(f"审核工件清单包含重复 doc_id: {item_doc_id}")
+        indexed[item_doc_id] = item
+    selected = indexed.get(doc_id)
+    if selected is None:
+        return None
+    return _resolve_repository_path(
+        repository_root,
+        selected.get("reviewed_extraction", ""),
+    )
+
+
 def select_reviewed_extraction(
     repository_root: str | Path,
     doc_id: str,
@@ -142,28 +177,23 @@ def select_reviewed_extraction(
             )
         return selected_path
 
-    extracted_dir = root / "data/extracted"
-    candidates = sorted(
-        path
-        for path in extracted_dir.glob(f"*{doc_id}*.json")
-        if not path.name.endswith("-candidate-audit.json")
+    selected_path = _registry_artifact(
+        root,
+        doc_id,
+        root / "config/reviewed-extractions.json",
     )
-    valid_candidates: list[tuple[Path, str]] = []
-    for candidate in candidates:
-        payload, _errors = _valid_extraction(candidate, document)
-        if payload is not None:
-            valid_candidates.append(
-                (candidate, str(payload.get("run_id", candidate.name)))
-            )
-
-    if not valid_candidates:
+    if selected_path is None:
         return None
-    if len(valid_candidates) > 1:
-        run_ids = ", ".join(run_id for _path, run_id in valid_candidates)
+    if not selected_path.is_file():
         raise ValueError(
-            f"doc_id={doc_id} 存在多个合法已审核抽取结果: {run_ids}"
+            f"审核工件清单中的抽取结果不存在: {selected_path}"
         )
-    return valid_candidates[0][0]
+    payload, errors = _valid_extraction(selected_path, document)
+    if payload is None:
+        raise ValueError(
+            "审核工件清单中的抽取结果契约校验失败: " + "; ".join(errors)
+        )
+    return selected_path
 
 
 class PipelineService:
@@ -178,13 +208,19 @@ class PipelineService:
         offline_pipeline: Any | None = None,
         extraction_service: Any | None = None,
         document_locator: Callable[[str], tuple[str, str | None]] | None = None,
+        run_archive: PipelineRunArchive | None = None,
     ) -> None:
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.offline_pipeline = offline_pipeline
         self.extraction_service = extraction_service
         self.document_locator = document_locator
-        self.runner = runner or self._run_default_operation
+        self.runner = runner
+        self.run_archive = run_archive or PipelineRunArchive(
+            extraction_dir=DEFAULT_LIVE_EXTRACTION_DIR,
+            run_log_dir=DEFAULT_PIPELINE_RUN_LOG_DIR,
+            path_root=REPO_ROOT,
+        )
         self._executor = ThreadPoolExecutor(
             max_workers=max_workers,
             thread_name_prefix="pipeline",
@@ -205,6 +241,7 @@ class PipelineService:
         self._executor.shutdown(wait=True)
 
     def _initialize(self) -> None:
+        live_terminal_jobs: list[tuple[str, str, str, str | None]] = []
         with self.connect() as connection:
             ensure_pipeline_schema(connection)
             interrupted_at = _now()
@@ -229,6 +266,41 @@ class PipelineService:
                         WHERE job_id IN ({placeholders})""",
                     (INTERRUPTED_ERROR, interrupted_at, *running_ids),
                 )
+            live_terminal_jobs = [
+                (
+                    row["job_id"],
+                    row["status"],
+                    row["result_json"],
+                    row["error_message"],
+                )
+                for row in connection.execute(
+                    """SELECT job_id, status, result_json, error_message
+                       FROM pipeline_jobs
+                       WHERE extraction_mode = 'live'
+                         AND status IN ('succeeded', 'failed')"""
+                ).fetchall()
+            ]
+        for job_id, status, result_json, error_message in live_terminal_jobs:
+            try:
+                archive_summary = self.run_archive.summary(job_id)
+                if archive_summary is None or archive_summary["status"] in {
+                    status,
+                    "unavailable",
+                }:
+                    continue
+                if status == "succeeded":
+                    self.run_archive.succeed(
+                        job_id,
+                        json.loads(result_json or "{}"),
+                    )
+                else:
+                    self.run_archive.fail_if_started(
+                        job_id,
+                        error_message or INTERRUPTED_ERROR,
+                    )
+            except Exception:
+                # SQLite 是任务状态事实源；损坏或不可写的本机档案不能阻止服务恢复。
+                pass
 
     def _validate_scope(
         self,
@@ -394,18 +466,46 @@ class PipelineService:
             "target_group": job["target_group"],
             "extraction_mode": job["extraction_mode"],
         }
+        archive_live = (
+            job["extraction_mode"] == LIVE_EXTRACTION_MODE
+            and self.runner is None
+        )
         try:
-            result = self.runner(**context)
+            if archive_live:
+                self.run_archive.start(
+                    job_id=job_id,
+                    doc_id=job["doc_id"],
+                    operation=job["operation"],
+                )
+            if self.runner is None:
+                result = self._run_default_operation(job_id=job_id, **context)
+            else:
+                result = self.runner(**context)
             if inspect.isawaitable(result):
                 result = asyncio.run(result)
             if result is None:
                 result = {}
         except Exception as exc:
-            self._finish_failed(job_id, exc)
+            failure = self._archive_failure(job_id, exc) if archive_live else exc
+            self._finish_failed(job_id, failure)
             return self.status(job_id)
 
-        self._finish_succeeded(job_id, result)
+        try:
+            self._finish_succeeded(job_id, result)
+            if archive_live:
+                self.run_archive.succeed(job_id, result)
+        except Exception as exc:
+            failure = self._archive_failure(job_id, exc) if archive_live else exc
+            self._finish_failed(job_id, failure)
         return self.status(job_id)
+
+    def _archive_failure(self, job_id: str, exc: Exception) -> Exception:
+        error = str(exc) or exc.__class__.__name__
+        try:
+            self.run_archive.fail_if_started(job_id, error)
+        except Exception:
+            error = f"{error}；运行档案更新失败"
+        return RuntimeError(error)
 
     @staticmethod
     def _operation_for_job(
@@ -446,14 +546,16 @@ class PipelineService:
             operation = self._operation_for_job(connection, job_id)
             connection.execute(
                 """UPDATE pipeline_job_steps
-                   SET status = 'failed', error_message = ?, finished_at = ?
+                   SET status = 'failed', result_json = '{}',
+                       error_message = ?, finished_at = ?
                    WHERE job_id = ? AND step_name = ?""",
                 (error, finished_at, job_id, operation),
             )
             connection.execute(
                 """UPDATE pipeline_jobs
                    SET status = 'failed', current_step = NULL,
-                       failed_step = operation, error_message = ?, finished_at = ?
+                       failed_step = operation, result_json = '{}',
+                       error_message = ?, finished_at = ?
                    WHERE job_id = ?""",
                 (error, finished_at, job_id),
             )
@@ -473,6 +575,11 @@ class PipelineService:
                    WHERE job_id = ? ORDER BY step_order""",
                 (job_id,),
             ).fetchall()
+        run_archive = (
+            self.run_archive.summary(job_id)
+            if row["extraction_mode"] == LIVE_EXTRACTION_MODE
+            else None
+        )
         return {
             **self._job_dict(row),
             "current_step": row["current_step"],
@@ -482,6 +589,7 @@ class PipelineService:
             "created_at": row["created_at"],
             "started_at": row["started_at"],
             "finished_at": row["finished_at"],
+            "run_archive": run_archive,
             "steps": [
                 {
                     "step_name": item["step_name"],
@@ -509,6 +617,7 @@ class PipelineService:
     def _run_default_operation(
         self,
         *,
+        job_id: str,
         doc_id: str | None,
         target_group: str | None,
         extraction_mode: str,
@@ -516,7 +625,7 @@ class PipelineService:
         if doc_id:
             return {
                 "doc_ids": [doc_id],
-                "summaries": [self._run_document(doc_id, extraction_mode)],
+                "summaries": [self._run_document(job_id, doc_id, extraction_mode)],
             }
         doc_ids = self._document_ids_from_sqlite(target_group or "")
         if not doc_ids:
@@ -524,12 +633,13 @@ class PipelineService:
         return {
             "doc_ids": doc_ids,
             "summaries": [
-                self._run_document(item, extraction_mode) for item in doc_ids
+                self._run_document(job_id, item, extraction_mode) for item in doc_ids
             ],
         }
 
     def _run_document(
         self,
+        job_id: str,
         doc_id: str,
         extraction_mode: str,
     ) -> dict[str, Any]:
@@ -557,24 +667,53 @@ class PipelineService:
                 }
             else:
                 extraction_service = self.extraction_service or LLMExtractionService()
-                extraction_result = extraction_service.extract(document)
-                if inspect.isawaitable(extraction_result):
-                    extraction_result = asyncio.run(extraction_result)
-                extraction_path = temporary_directory / "extraction_result.json"
-                extraction_path.write_text(
-                    json.dumps(extraction_result, ensure_ascii=False, indent=2),
-                    encoding="utf-8",
+                try:
+                    extraction_result = extraction_service.extract(document)
+                    if inspect.isawaitable(extraction_result):
+                        extraction_result = asyncio.run(extraction_result)
+                except Exception:
+                    try:
+                        self.run_archive.observe(
+                            job_id,
+                            llm=getattr(
+                                extraction_service,
+                                "last_api_observation",
+                                {},
+                            ),
+                            warnings=getattr(
+                                extraction_service,
+                                "last_warnings",
+                                [],
+                            ),
+                        )
+                    except Exception:
+                        pass
+                    raise
+                api_observation = getattr(
+                    extraction_service,
+                    "last_api_observation",
+                    {},
                 )
+                warnings = getattr(extraction_service, "last_warnings", [])
+                artifacts = self.run_archive.attach_extraction(
+                    job_id,
+                    extraction_result,
+                    getattr(extraction_service, "last_candidate_audit", None),
+                    llm=api_observation,
+                    warnings=warnings,
+                )
+                extraction_path = self.run_archive.path_root / artifacts["result_path"]
                 extraction_metadata = {
                     "mode": LIVE_EXTRACTION_MODE,
                     "source": "live_llm",
+                    "run_id": extraction_result["run_id"],
                     "model": getattr(extraction_service, "model", ""),
-                    "api": getattr(
-                        extraction_service,
-                        "last_api_observation",
-                        {},
+                    "api": api_observation,
+                    "warnings": warnings,
+                    "artifacts": artifacts,
+                    "run_log": self.run_archive.display_path(
+                        self.run_archive.log_path(job_id)
                     ),
-                    "warnings": getattr(extraction_service, "last_warnings", []),
                 }
 
             summary = self._invoke_offline_pipeline(
