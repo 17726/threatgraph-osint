@@ -17,6 +17,32 @@ def _table_columns(connection: sqlite3.Connection, table_name: str) -> set[str]:
     return {row[1] for row in connection.execute(f"PRAGMA table_info({table_name})")}
 
 
+def ensure_import_compatible_columns(connection: sqlite3.Connection) -> None:
+    """补齐 API 启动库与离线导入共同依赖的文档、切块字段。"""
+    migrations = {
+        "documents": {
+            "collection_item_id": "TEXT",
+            "target_groups_json": "TEXT NOT NULL DEFAULT '[]'",
+            "tlp": "TEXT NOT NULL DEFAULT 'TLP:CLEAR'",
+            "tags_json": "TEXT NOT NULL DEFAULT '[]'",
+            "metadata_json": "TEXT NOT NULL DEFAULT '{}'",
+        },
+        "chunks": {
+            "section_title": "TEXT NOT NULL DEFAULT ''",
+            "token_count": "INTEGER",
+        },
+    }
+    for table_name, columns in migrations.items():
+        if not _table_exists(connection, table_name):
+            continue
+        existing_columns = _table_columns(connection, table_name)
+        for column_name, column_definition in columns.items():
+            if column_name not in existing_columns:
+                connection.execute(
+                    f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
+                )
+
+
 def _validate_document_hashes(connection: sqlite3.Connection, text_column: str) -> None:
     rows = connection.execute(
         f"SELECT doc_id, {text_column}, content_hash FROM documents ORDER BY doc_id"
