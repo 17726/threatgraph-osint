@@ -19,6 +19,36 @@ describe("API 客户端", () => {
     await expect(fetchReport("APT28")).rejects.toThrow("后端不可用");
   });
 
+  it("一跳查询调用语义明确的 neighbors 接口", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: { schema_version: "1.0", nodes: [], edges: [], evidence: [] },
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const client = (await import("./client")) as typeof import("./client") & {
+      fetchNeighbors?: (
+        entityId: string,
+        options?: { signal?: AbortSignal },
+      ) => Promise<unknown>;
+    };
+
+    expect(client.fetchNeighbors).toBeTypeOf("function");
+    const controller = new AbortController();
+    await client.fetchNeighbors?.("technique:t1566", {
+      signal: controller.signal,
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /\/api\/v1\/graph\/neighbors\?entity_id=technique%3At1566$/,
+      ),
+      { signal: controller.signal },
+    );
+  });
+
   it("导入文档后显式提交后台流水线并轮询直到完成", async () => {
     const fetchMock = vi
       .fn()
@@ -73,7 +103,9 @@ describe("API 客户端", () => {
     const document = new File(
       [JSON.stringify({ doc_id: "apt28_001" })],
       "apt28_001.json",
-      { type: "application/json" },
+      {
+        type: "application/json",
+      },
     );
 
     const result = await runPipeline(document, {

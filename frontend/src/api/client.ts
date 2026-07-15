@@ -16,8 +16,8 @@ type PathApiPayload =
       paths?: Array<PathResult>;
     };
 
-async function getJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`);
+async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, init);
   if (!response.ok) {
     throw new Error(`请求失败：${response.status}`);
   }
@@ -69,6 +69,18 @@ export async function fetchAnalysis<T = unknown>(
   type: "behavior" | "mitre" | "inferences" | "threat-assessment",
 ): Promise<T> {
   return getJson<T>("/analysis/" + encodeURIComponent(target) + "/" + type);
+}
+
+export function fetchNeighbors(
+  entityId: string,
+  options: { signal?: AbortSignal } = {},
+): Promise<GraphPayload> {
+  return getJson<GraphPayload>(
+    `/graph/neighbors?entity_id=${encodeURIComponent(entityId)}`,
+    {
+      signal: options.signal,
+    },
+  );
 }
 
 export function fetchEntitySearch(query: string): Promise<GraphNode[]> {
