@@ -1,0 +1,390 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_apt28_080_extract-v6_deepseek-v4-flash_20260715T151809363661",
+  "doc_id": "apt28_080",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v6",
+  "chunks": [
+    {
+      "chunk_id": "apt28_080_c001",
+      "rejected_entities": [
+        {
+          "name": "google.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "Used for internet connectivity check",
+          "mention_text": "google.com",
+          "evidence_text": "The initial request sent from the Trojan is to google.com, likely as an internet connectivity check",
+          "char_start": 18099,
+          "char_end": 18198,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "google.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "The initial request sent from the Trojan is to google.com, likely as an internet connectivity check",
+          "char_start": 18099,
+          "char_end": 18198,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (google.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Upcoming Events February 2018.xls",
+          "tail_type": "TOOL",
+          "evidence_text": "Filename: Upcoming Events February 2018.xls",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "C:\\Programdata",
+          "tail_type": "LOCATION",
+          "evidence_text": "writes this data to a text file in the C:\\Programdata folder",
+          "char_start": 3732,
+          "char_end": 3792,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,LOCATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "%LOCALAPPDATA%",
+          "tail_type": "LOCATION",
+          "evidence_text": "The loader will drop the following files in the %LOCALAPPDATA% file path",
+          "char_start": 12861,
+          "char_end": 12933,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,LOCATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Upcoming Defense events February 2018",
+          "tail_type": "EVENT",
+          "evidence_text": "using the subject line of Upcoming Defense events February 2018",
+          "char_start": 1472,
+          "char_end": 1535,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,EVENT)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Jane's 360 defense events",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "a sender address claiming to be from Jane's 360 defense events <events@ihsmarkit.com>",
+          "char_start": 1540,
+          "char_end": 1625,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,ORGANIZATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "IHSMarkit",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "Jane’s by IHSMarkit is a well-known supplier of information and analysis",
+          "char_start": 1627,
+          "char_end": 1699,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,ORGANIZATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Bryan Lee",
+          "tail_type": "PERSON",
+          "evidence_text": "By:\nBryan Lee",
+          "char_start": 155,
+          "char_end": 168,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,PERSON)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Mike Harbison",
+          "tail_type": "PERSON",
+          "evidence_text": "Mike Harbison",
+          "char_start": 169,
+          "char_end": 182,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,PERSON)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Robert Falcone",
+          "tail_type": "PERSON",
+          "evidence_text": "Robert Falcone",
+          "char_start": 183,
+          "char_end": 197,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,PERSON)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "February 28, 2018",
+          "tail_type": "TIME",
+          "evidence_text": "Published:\nFebruary 28, 2018",
+          "char_start": 198,
+          "char_end": 226,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "2018",
+          "tail_type": "TIME",
+          "evidence_text": "the new calendar year of 2018",
+          "char_start": 520,
+          "char_end": 549,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "February 2018",
+          "tail_type": "TIME",
+          "evidence_text": "At the beginning of February 2018",
+          "char_start": 1057,
+          "char_end": 1090,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "January 30, 2018",
+          "tail_type": "TIME",
+          "evidence_text": "the domain cdnverify[.]net was registered on January 30, 2018",
+          "char_start": 8953,
+          "char_end": 9014,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "September 2016",
+          "tail_type": "TIME",
+          "evidence_text": "presented at DerbyCon 6 in September 2016",
+          "char_start": 5982,
+          "char_end": 6023,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "September 2017",
+          "tail_type": "TIME",
+          "evidence_text": "ThreatConnect had made the same observation regarding this patterning in September 2017",
+          "char_start": 8379,
+          "char_end": 8466,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "late 2016",
+          "tail_type": "TIME",
+          "evidence_text": "the DealersChoice attacks in late 2016",
+          "char_start": 10699,
+          "char_end": 10737,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,TIME)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "ThreatConnect",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "ThreatConnect had made the same observation regarding this patterning in September 2017",
+          "char_start": 8379,
+          "char_end": 8466,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,ORGANIZATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Microsoft",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "Microsoft in a legal complaint against STRONTIUM (Sofacy)",
+          "char_start": 8725,
+          "char_end": 8782,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,ORGANIZATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "ESET",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "as previously reported by ESET",
+          "char_start": 16535,
+          "char_end": 16565,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,ORGANIZATION)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Sofacy",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Palo Alto Networks",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "Palo Alto Networks customers are protected from this threat",
+          "char_start": 9740,
+          "char_end": 9799,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (APT_GROUP,USES,ORGANIZATION)"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

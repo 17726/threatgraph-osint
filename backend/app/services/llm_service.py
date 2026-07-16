@@ -35,9 +35,45 @@ from scripts.validate_extraction_result import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_EXTRACTION_SCHEMA_PATH = REPO_ROOT / "docs/schemas/extraction-result.schema.json"
-DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-1.0.md"
+DEFAULT_PROMPT_PATH = REPO_ROOT / "docs/prompts/extract-v7.md"
 DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-v4-flash"
+
+# Prompt-displayed matrix stays at v5 restrictions to avoid model over-generation.
+# ALLOWED_RELATIONS (expanded in v6) is used for code-level validation only.
+PROMPT_RELATION_MATRIX = {
+    **ALLOWED_RELATIONS,
+    "USES": {
+        "heads": {"PERSON", "ORGANIZATION", "COUNTRY", "APT_GROUP", "CAMPAIGN"},
+        "tails": {"MALWARE", "TOOL", "TECHNIQUE", "INFRASTRUCTURE"},
+        "pairs": {
+            (head, tail)
+            for head in {"PERSON", "ORGANIZATION", "COUNTRY", "APT_GROUP", "CAMPAIGN"}
+            for tail in {"MALWARE", "TOOL", "TECHNIQUE", "INFRASTRUCTURE"}
+        },
+    },
+    "HAS_BEHAVIOR": {
+        "heads": {"APT_GROUP", "CAMPAIGN"},
+        "tails": {"BEHAVIOR_PATTERN", "TECHNIQUE"},
+        "pairs": {
+            (head, tail)
+            for head in {"APT_GROUP", "CAMPAIGN"}
+            for tail in {"BEHAVIOR_PATTERN", "TECHNIQUE"}
+        },
+    },
+    "INSTANCE_OF": {
+        "heads": {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"},
+        "tails": {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"},
+        "pairs": {
+            (entity_type, entity_type)
+            for entity_type in {"ORGANIZATION", "PERSON", "LOCATION", "INFRASTRUCTURE"}
+        },
+    },
+}
+
+
+class LLMResponseTruncatedError(ValueError):
+    """The provider stopped before completing the requested JSON response."""
 
 
 def load_schema(schema_path: Path | None = None) -> dict[str, Any]:
@@ -73,7 +109,7 @@ def load_system_prompt(prompt_path: Path | None = None) -> str:
     entity_types = "\n".join(f"- {entity_type}" for entity_type in ENTITY_TYPES)
     relation_types = "\n".join(f"- {relation_type}" for relation_type in RELATION_TYPES)
     allowed_pairs = []
-    for relation_type, rule in ALLOWED_RELATIONS.items():
+    for relation_type, rule in PROMPT_RELATION_MATRIX.items():
         if relation_type == "RELATED_TO":
             allowed_pairs.append("- RELATED_TO: 任意实体类型 -> 任意实体类型（仅人工兜底）")
             continue
@@ -106,6 +142,16 @@ def _schema_enum(name: str) -> tuple[str, ...]:
 
 ENTITY_TYPES = _schema_enum("entity_type")
 RELATION_TYPES = _schema_enum("relation_type")
+
+BENIGN_CONNECTIVITY_DOMAINS = {
+    "google.com", "amazon.com", "apple.com", "bing.com",
+    "facebook.com", "microsoft.com", "yahoo.com", "twitter.com",
+    "join.me", "youtube.com", "instagram.com", "linkedin.com",
+    "github.com", "dropbox.com", "office.com", "live.com",
+    "outlook.com", "azure.com", "cloudflare.com", "akamai.net",
+}
+
+_HASH_PATTERN = re.compile(r"^[A-Fa-f0-9]{32,64}$")
 
 
 def now_iso() -> str:
@@ -166,15 +212,74 @@ def _extract_json_object(response_text: str) -> dict[str, Any]:
 def _find_text_span(clean_text: str, evidence: str) -> tuple[int | None, int | None]:
     if not evidence:
         return None, None
+    # 1. Exact match (fast path, preserves accuracy)
     start = clean_text.find(evidence)
-    if start < 0:
-        return None, None
-    return start, start + len(evidence)
+    if start >= 0:
+        return start, start + len(evidence)
+    # 2. Fuzzy match: each whitespace char in evidence becomes \s+,
+    #    and \s* is inserted between every adjacent pair, so whitespace
+    #    can appear anywhere (not just where evidence has it).
+    #    Handles "Kimusky, also" vs "Kimusky\n, also" (whitespace shifted).
+    pattern = r"\s*".join(
+        r"\s+" if ch.isspace() else re.escape(ch) for ch in evidence
+    )
+    try:
+        match = re.search(pattern, clean_text, re.IGNORECASE)
+        if match:
+            return match.start(), match.end()
+    except re.error:
+        pass
+    # 3. URL normalization: model often writes hxxp:// or uses [.] in URLs
+    #    while the document uses http:// and plain dots. Try all combinations.
+    if any(marker in evidence.lower() for marker in ("hxxp", "http", "[.]", "[://]", "://")):
+        candidates = [evidence]
+        # hxxp ↔ http, hxxps ↔ https
+        for a, b in [("hxxp://", "http://"), ("hxxps://", "https://"),
+                     ("hxxp", "http"), ("hxxps", "https"),
+                     ("HXXP://", "HTTP://"), ("HXXPS://", "HTTPS://"),
+                     ("HXXP", "HTTP"), ("HXXPS", "HTTPS")]:
+            new = []
+            for c in candidates:
+                new.append(c)
+                if a in c:
+                    new.append(c.replace(a, b))
+                if b in c:
+                    new.append(c.replace(b, a))
+            candidates = list(dict.fromkeys(new))
+        # [.] ↔ .
+        new = []
+        for c in candidates:
+            new.append(c)
+            if "[.]" in c:
+                new.append(c.replace("[.]", "."))
+            if "." in c and "[.]" not in c:
+                new.append(c.replace(".", "[.]"))
+        candidates = list(dict.fromkeys(new))
+        # [://] ↔ ://
+        for a, b in [("[://]", "://")]:
+            new = []
+            for c in candidates:
+                new.append(c)
+                if a in c:
+                    new.append(c.replace(a, b))
+                if b in c:
+                    new.append(c.replace(b, a))
+            candidates = list(dict.fromkeys(new))
+        # Search case-insensitively since URL schemes may vary in case
+        text_lower = clean_text.lower()
+        for variant in candidates:
+            if variant == evidence:
+                continue
+            start = text_lower.find(variant.lower())
+            if start >= 0:
+                return start, start + len(variant)
+    return None, None
 
 
 def _normalize_candidate_name(value: str) -> str:
+    """Normalize for dedup/name comparison: NFKC (fullwidth→halfwidth), lowercase, remove all whitespace."""
     normalized = unicodedata.normalize("NFKC", value).casefold().strip()
-    return re.sub(r"\s+", " ", normalized)
+    return re.sub(r"\s+", "", normalized)
 
 
 def _candidate_names(candidate: dict[str, Any]) -> set[str]:
@@ -331,6 +436,8 @@ def parse_llm_response_with_audit(
             raise ValueError(f"entities[{index}] 必须是对象")
         evidence = entity.get("evidence_text", "")
         char_start, char_end = _find_text_span(clean_text, evidence)
+        if char_start is not None and clean_text[char_start:char_end] != evidence:
+            evidence = clean_text[char_start:char_end]
         aliases = entity.get("aliases", [])
         if isinstance(aliases, list) and all(isinstance(alias, str) for alias in aliases):
             aliases = list(dict.fromkeys(alias for alias in aliases if alias))
@@ -350,7 +457,30 @@ def parse_llm_response_with_audit(
         }
         errors = validate_entity(candidate)
         if evidence and char_start is None:
-            errors.append("evidence_text 未出现在 document.clean_text 中")
+            # evidence_text may be hallucinated by the model (e.g. invented alias
+            # sentences that don't exist in the source). Fall back to entity name
+            # — if the name appears in the document, use it as evidence instead.
+            name_fallback = candidate.get("name", "")
+            if name_fallback:
+                ns, ne = _find_text_span(clean_text, name_fallback)
+                if ns is not None:
+                    evidence = clean_text[ns:ne]
+                    char_start = ns
+                    char_end = ne
+                    candidate["evidence_text"] = evidence
+                    candidate["char_start"] = char_start
+                    candidate["char_end"] = char_end
+            if char_start is None:
+                errors.append("evidence_text 未出现在 document.clean_text 中")
+        name = candidate.get("name", "")
+        if _HASH_PATTERN.match(name) and candidate["type"] == "MALWARE":
+            errors.append("SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体")
+        if candidate["type"] == "INFRASTRUCTURE":
+            name_lower = name.lower().rstrip(".")
+            for domain in BENIGN_CONNECTIVITY_DOMAINS:
+                if name_lower == domain or name_lower.endswith("." + domain):
+                    errors.append("良性连通性检测域名不能作为 INFRASTRUCTURE")
+                    break
         candidate["validation_status"] = "valid" if not errors else "invalid"
         candidate["validation_errors"] = errors
         processed_entities.append(candidate)
@@ -368,6 +498,44 @@ def parse_llm_response_with_audit(
         if candidate["validation_status"] != "valid"
     ]
     rejected_entities.extend(merged_entities)
+
+    # --- Infrastructure URL dedup ---
+    # Merge INFRASTRUCTURE entities that share the same base domain/IP.
+    # E.g. "hxxp://51.255.219[.]82/theme.gif" and "51.255.219.82" both resolve
+    # to the same host. Keep the shortest-name entity, merge aliases.
+    _infra_remap: dict[str, str] = {}
+    _infra_groups: dict[str, list[int]] = {}
+    for _i, _ent in enumerate(accepted_entities):
+        if _ent["type"] == "INFRASTRUCTURE":
+            _raw = _ent["name"]
+            _raw = _raw.replace("[.]", ".").replace("[://]", "://")
+            _raw = _raw.split("://")[-1]  # drop scheme
+            _raw = _raw.split("/")[0].split(":")[0]  # host only
+            _base = _raw.lower().strip()
+            if _base:
+                _infra_groups.setdefault(_base, []).append(_i)
+    _infra_deduped: list[dict[str, Any]] = []
+    for _indices in _infra_groups.values():
+        if len(_indices) <= 1:
+            continue
+        _canonical_idx = min(_indices, key=lambda _j: len(accepted_entities[_j]["name"]))
+        _canonical = accepted_entities[_canonical_idx]
+        for _j in _indices:
+            if _j == _canonical_idx:
+                continue
+            _dup = accepted_entities[_j]
+            _infra_remap[_dup["name"]] = _canonical["name"]
+            for _alias in (_dup["name"], *_dup.get("aliases", [])):
+                if _alias != _canonical["name"] and _alias not in _canonical.get("aliases", []):
+                    _canonical["aliases"].append(_alias)
+            _infra_deduped.append(_audit_candidate(_dup, "infrastructure_url_merged"))
+    if _infra_remap:
+        accepted_entities = [
+            _e for _e in accepted_entities
+            if not (_e["type"] == "INFRASTRUCTURE" and _e["name"] in _infra_remap)
+        ]
+        rejected_entities.extend(_infra_deduped)
+
     known_entities: set[tuple[str, str]] = set()
     endpoint_names: dict[tuple[str, str], str] = {}
     for candidate in accepted_entities:
@@ -385,6 +553,12 @@ def parse_llm_response_with_audit(
                 "name"
             ]
 
+    # Wire infrastructure remap into known_entities/endpoint_names so
+    # relations referencing deduped URLs resolve to the canonical entity.
+    for _old_name, _canonical_name in _infra_remap.items():
+        known_entities.add((_old_name, "INFRASTRUCTURE"))
+        endpoint_names[("INFRASTRUCTURE", _normalize_candidate_name(_old_name))] = _canonical_name
+
     processed_relations: list[dict[str, Any]] = []
     rejected_relations: list[dict[str, Any]] = []
     seen_relations: set[tuple[str, str, str, str, str]] = set()
@@ -393,6 +567,8 @@ def parse_llm_response_with_audit(
             raise ValueError(f"relations[{index}] 必须是对象")
         evidence = relation.get("evidence_text", "")
         char_start, char_end = _find_text_span(clean_text, evidence)
+        if char_start is not None and clean_text[char_start:char_end] != evidence:
+            evidence = clean_text[char_start:char_end]
         head_name = relation.get("head_name", "")
         tail_name = relation.get("tail_name", "")
         head_type = relation.get("head_type", "")
@@ -509,6 +685,17 @@ candidate_status、validation_status 和 validation_errors，再校验最终 ext
 
 同一实体和同一关系只输出一次。禁止枚举关系矩阵；原文没有明示的关系不要输出。
 单轮最多输出 80 个实体和 80 个关系。关系复核会另行补漏，不要为了追求数量降低证据标准。
+
+重要提醒：
+- evidence_text 必须逐字复制自 <chunk_text>，禁止任何改写、概括、缩写或调整大小写。在 chunk_text 中找到原文句子后直接 copy-paste，不要自己重新打字
+- URL、域名、IP 地址必须原样保留原文写法：原文是 http:// 就不要写成 hxxp://，原文是 hxxp:// 就不要写成 http://；原文有 [.] 就保留 [.]，原文是 . 就不要加方括号
+- 安全厂商（如 Unit 42、Microsoft、ESET、ThreatConnect、Palo Alto Networks）发现/监测/报告威胁活动 → 不要生成 DISCOVERED_BY、ATTRIBUTED_TO 或 AFFILIATED_WITH 关系
+- 安全公司拥有或运营自己的产品/工具（如 WildFire、AutoFocus、Traps）→ 不要生成 CONTROLS 关系
+- 工具/技术/基础设施的使用关系必须以 APT_GROUP 或 CAMPAIGN 为主体，恶意软件(MALWARE)不能作为 USES 关系的主体
+- 全文扫描所有可执行文件、命令行工具、攻击技术和网络基础设施，不要只关注文章前半部分
+- 不要忘记抽取日期、月份、年份等 TIME 类型实体
+- 实体名称使用原文措辞，保持单复数一致（如原文是 "Ministries" 不要写成 "Ministry"）
+- 中文文档中"XX攻击活动""XX行动""XX行动"等表述应抽取为 CAMPAIGN 类型实体
 
 <chunk_text>
 {clean_text}
@@ -660,7 +847,7 @@ class LLMExtractionService:
 
         last_error: Exception | None = None
         for attempt in range(self.max_retries):
-            attempt_max_tokens = min(self.max_output_tokens * (2**attempt), 65536)
+            attempt_max_tokens = self.max_output_tokens
             self._emit_progress(
                 f"  开始第 {attempt + 1}/{self.max_retries} 次抽取请求"
                 f"（max_tokens={attempt_max_tokens}）"
@@ -671,7 +858,7 @@ class LLMExtractionService:
                     max_tokens=attempt_max_tokens,
                 )
                 if metadata.get("finish_reason") == "length":
-                    raise ValueError(
+                    raise LLMResponseTruncatedError(
                         f"LLM 输出达到 max_tokens={attempt_max_tokens}，JSON 被截断"
                     )
                 chunk_result, chunk_audit = parse_llm_response_with_audit(
@@ -717,13 +904,23 @@ class LLMExtractionService:
                         f"  第 {attempt + 1}/{self.max_retries} 次抽取请求失败，"
                         f"{retry_delay} 秒后重试：{error_detail}"
                     )
+                    if isinstance(exc, LLMResponseTruncatedError):
+                        retry_instruction = (
+                            "上一次输出因过长而被截断。请在相同 token 预算内从头生成更紧凑的"
+                            "完整 JSON；最多保留 80 个高置信实体和 80 个有直接证据的关系。"
+                            "不要复制整段原文，不要枚举关系，不要增加输出数量。"
+                        )
+                    else:
+                        retry_instruction = (
+                            "上一次输出未通过校验。请重新生成完整且可解析的 JSON；"
+                            "不要输出 Markdown，不要省略必填字段，不要在 JSON 后追加文字。"
+                        )
                     messages.append(
                         {
                             "role": "user",
                             "content": (
-                                "上一次输出未通过校验。请重新生成完整且可解析的 JSON；"
-                                "不要输出 Markdown，不要省略必填字段，不要在 JSON 后追加文字。"
-                                f"校验错误：{error_detail}"
+                                retry_instruction
+                                + f"校验错误：{error_detail}"
                             ),
                         }
                     )
@@ -773,7 +970,7 @@ class LLMExtractionService:
                         },
                         {"role": "user", "content": review_prompt},
                     ],
-                    max_tokens=min(self.max_output_tokens, 32768),
+                    max_tokens=self.max_output_tokens,
                 )
                 if metadata.get("finish_reason") == "length":
                     raise ValueError("关系复核输出被截断")

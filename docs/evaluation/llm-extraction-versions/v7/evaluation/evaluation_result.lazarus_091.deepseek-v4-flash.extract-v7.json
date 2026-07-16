@@ -1,0 +1,491 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-15T16:10:31.806724+00:00",
+  "extraction": {
+    "run_id": "extract_lazarus_091_extract-v7_deepseek-v4-flash_20260715T155924762375",
+    "doc_id": "lazarus_091",
+    "model_name": "deepseek-v4-flash",
+    "prompt_version": "extract-v7"
+  },
+  "golden": {
+    "target_group": "Lazarus",
+    "doc_ids": [
+      "lazarus_091"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": false,
+    "rejected_entities": 0,
+    "rejected_relations": 0
+  },
+  "entity_metrics": {
+    "predicted": 45,
+    "golden": 33,
+    "true_positive": 27,
+    "false_positive": 18,
+    "false_negative": 6,
+    "precision": 0.6,
+    "recall": 0.818182,
+    "f1": 0.692308
+  },
+  "relation_metrics": {
+    "predicted": 29,
+    "golden": 33,
+    "true_positive": 24,
+    "false_positive": 5,
+    "false_negative": 9,
+    "precision": 0.827586,
+    "recall": 0.727273,
+    "f1": 0.774194
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "CAMPAIGN": {
+      "predicted": 3,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.333333,
+      "recall": 1.0,
+      "f1": 0.5
+    },
+    "COUNTRY": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "EVENT": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 23,
+      "golden": 22,
+      "true_positive": 22,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.956522,
+      "recall": 1.0,
+      "f1": 0.977778
+    },
+    "MALWARE": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "ORGANIZATION": {
+      "predicted": 4,
+      "golden": 2,
+      "true_positive": 2,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667
+    },
+    "TECHNIQUE": {
+      "predicted": 1,
+      "golden": 4,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 4,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TIME": {
+      "predicted": 6,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 6,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TOOL": {
+      "predicted": 6,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 5,
+      "false_negative": 0,
+      "precision": 0.166667,
+      "recall": 1.0,
+      "f1": 0.285714
+    }
+  },
+  "relation_metrics_by_type": {
+    "ATTRIBUTED_TO": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "DISCOVERED_BY": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "PART_OF": {
+      "predicted": 0,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "RELATED_TO": {
+      "predicted": 1,
+      "golden": 2,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TARGETS": {
+      "predicted": 1,
+      "golden": 2,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.666667
+    },
+    "USES": {
+      "predicted": 25,
+      "golden": 27,
+      "true_positive": 23,
+      "false_positive": 2,
+      "false_negative": 4,
+      "precision": 0.92,
+      "recall": 0.851852,
+      "f1": 0.884615
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "DarkSeoul attacks",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Spear Phishing",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "fake TLS",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "VBA macros",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Registry persistence",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Korea",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Operation Blockbuster",
+        "type": "CAMPAIGN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Novetta",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "DarkSeoul",
+        "type": "CAMPAIGN",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "2014",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "2013",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "AutoFocus",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "VirusTotal",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "6 March 2017",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "한싹시스템.doc",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "www.kuipernet.co.kr",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Visual Basic for Applications",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Microsoft Word",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "March 2nd, 2017",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "java.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "Blue Coat",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "2016",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "WildFire",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "name": "April 7, 2017",
+        "type": "TIME",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Korea",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Spear Phishing",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "fake TLS",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "VBA macros",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Registry persistence",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Blockbuster Sequel",
+        "head_type": "CAMPAIGN",
+        "relation_type": "DISCOVERED_BY",
+        "tail_name": "Unit 42",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Blockbuster Sequel",
+        "head_type": "CAMPAIGN",
+        "relation_type": "PART_OF",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "RELATED_TO",
+        "tail_name": "DarkSeoul attacks",
+        "tail_type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Korea",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus",
+        "head_type": "APT_GROUP",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Sony Pictures Entertainment",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Visual Basic for Applications",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Lazarus",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "java.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Operation Blockbuster",
+        "head_type": "CAMPAIGN",
+        "relation_type": "ATTRIBUTED_TO",
+        "tail_name": "Lazarus",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_091_c001",
+        "head_name": "Blockbuster Sequel",
+        "head_type": "CAMPAIGN",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Operation Blockbuster",
+        "tail_type": "CAMPAIGN",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}

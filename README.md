@@ -23,7 +23,7 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 本项目对应《网络空间安全综合实验》实验三：**开源情报资源中潜在行为和关系的大模型深度分析系统**。
 
 > [!IMPORTANT]
-> 当前仓库处于 P0 / Step 1 迭代阶段。前端图谱、行为分析、评测页面和离线抽取验证已具备基础实现；真实样本文档的完整闭环、自动采集和 Neo4j 增强能力仍按路线逐步完善。
+> 当前仓库处于课程 P0 核心链路收口阶段。标准 Document 导入、`reviewed/live` 抽取、候选校验、归一化建图、SQLite 查询和前端刷新已有基础实现；当前优先完成三类来源、三个目标组织、行为/MITRE 和五章节报告的固定样本验收。完整评测平台和 Neo4j 不阻塞 P0。
 
 ## 系统能力
 
@@ -32,13 +32,13 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 | 目标组织切换 | 已实现 | 支持按 APT28、Lazarus、Kimsuky 查询 SQLite 正式图谱；空库返回空图 |
 | 知识图谱可视化 | 已实现 | 展示实体、关系、时间过滤和路径追踪 |
 | 实体与关系详情 | 已实现 | 支持查看类型、置信度、验证状态和证据 |
-| 行为分析 | 已实现基础页面 | 展示攻击阶段、技术映射和分析结果 |
-| 评测结果 | 已实现 Mock 页面 | 展示实体、关系抽取指标原型和错误样例，当前指标为前端 Mock 数据 |
-| FastAPI API | 已实现 P0 接口 | 提供健康检查、图谱和报告接口 |
+| 行为分析 | 代码已实现基础规则 | 已有行为模式和分析页面，真实 MITRE 映射待三组织验收 |
+| 评测结果 | 已有开发集数据 | 后端已有候选评测工件；前端仍是 Mock，只计划替换为最小开发集摘要 |
+| FastAPI API | 已实现 P0 基础接口 | 提供文档导入、Pipeline、图谱、路径、分析和报告接口 |
 | SQLite 运行时主库 | 已确定 | 保存 canonical graph、证据、导入状态和同步水位 |
 | 文档与候选抽取契约 | 已冻结 | 提供 JSON Schema、样例和关系合法性矩阵 |
-| 自动采集 | 规划中 | 后续接入 HTTP 页面、RSS/Atom 等来源 |
-| Neo4j 图查询投影 | P1 增强 | 承担多维查询、关键路径、图算法和增量同步演示 |
+| 三类来源采集 | 已有数据，待集成验收 | 已有安全来源和新闻采集器、社媒/论坛数据转换器，待固化清洗与覆盖检查 |
+| Neo4j 图查询投影 | 已实现基础能力 | 支持全量重建、基于 SQLite 水位的幂等增量同步、状态检查和多跳路径查询 |
 
 ### 核心原则
 
@@ -178,6 +178,34 @@ SQLite 数据库：data/threatgraph_osint.db
 默认不提交到 Git；如需临时输出到其他目录，可增加
 `--run-log-dir <目录>`。
 
+前端显式发起的 `live` Pipeline 使用同一套本机档案目录：Extraction 与 Candidate Audit
+写入 `data/run_artifacts/<run_id>*.json`，任务摘要写入
+`data/run_logs/pipeline-run-<job_id>.json`。任务失败或服务进程中断时仍保留摘要，已经成功生成的
+候选工件不会因后续 SQLite 导入失败而删除。这些运行时文件默认被 Git 忽略，也不会被 `reviewed`
+模式自动消费；只有经过评审、迁入 `data/extracted/` 并登记到
+`config/reviewed-extractions.json` 或课程演示清单的工件，才能作为已审核输入使用。
+服务重启时以 SQLite 任务终态对账已有 live 摘要；本机档案损坏不会阻止服务恢复。
+
+每次默认 Pipeline 成功写入 SQLite 后会尝试推进 Neo4j 增量投影。Neo4j 未启动或尚未完成首次
+全量重建时，SQLite 任务仍保持成功，任务结果中的 `neo4j_sync` 会说明投影状态。首次使用或清空
+Neo4j 数据后，执行：
+
+```bash
+curl -X POST http://localhost:8000/api/v1/neo4j/rebuild
+curl http://localhost:8000/api/v1/neo4j/status
+```
+
+后续也可手动触发幂等增量同步：
+
+```bash
+curl -X POST http://localhost:8000/api/v1/neo4j/sync
+```
+
+`GET /api/v1/graph/path` 在投影就绪且水位追平时优先使用 Neo4j；连接失败、查询失败、投影未初始化
+或存在待同步变更时自动降级到 SQLite，并通过 `fallback_reason` 说明原因。全量重建先清理带项目
+ownership 的关系，再以非 `DETACH` 方式删除带 `ThreatGraphProjection` 标签的节点；如果同库其他图
+给项目节点增加了外部关系，重建会失败并回滚，不会静默删除外部关系。
+
 LLM 请求等待期间默认每 30 秒输出一次心跳，并在重试时显示尝试序号和失败原因。
 可使用 `--heartbeat-seconds <秒数>` 调整间隔，设为 `0` 可关闭心跳。
 
@@ -200,6 +228,10 @@ docker compose down -v
 ```text
 GET /api/v1/health
 GET /api/v1/graph?target=APT28&depth=2
+GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
+GET /api/v1/neo4j/status
+POST /api/v1/neo4j/rebuild
+POST /api/v1/neo4j/sync
 GET /api/v1/reports/{target_group}
 ```
 
@@ -323,6 +355,7 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
 | [`docs/architecture.md`](docs/architecture.md) | 系统架构、数据流和分层边界 |
 | [`docs/api-contract.md`](docs/api-contract.md) | FastAPI 接口契约 |
 | [`docs/data-contract.md`](docs/data-contract.md) | SQLite 数据层契约 |
+| [`docs/demo-flow.md`](docs/demo-flow.md) | 课程全链路演示路径、当前实现边界与数据门槛 |
 | [`docs/schemas/README.md`](docs/schemas/README.md) | JSON Schema 与样例说明 |
 | [`docs/docker-runtime.md`](docs/docker-runtime.md) | Docker Compose 运行契约 |
 | [`docs/team-workflow.md`](docs/team-workflow.md) | 小组职责与协作流程 |
@@ -351,13 +384,13 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
 
 ```text
 Step 0  脚手架与 Mock 闭环       已完成
-Step 1  真实样本文档闭环          进行中
-Step 2  P0 MVP 闭环               待完成
-Step 3  课程验收闭环              待完成
-Step 4  Neo4j、采集与报告增强     规划中
+Step 1  真实样本与后半链路        基础实现已完成
+Step 2  P0 MVP 闭环               待固定工件集成验收
+Step 3  课程验收闭环              进行中
+Step 4  Neo4j、调度与报告导出增强    P1
 ```
 
-当前首要目标是使用至少一份可追溯真实文档，跑通“导入 → 切块 → 候选抽取 → 归一化 → 正式图谱 → 前端展示”的闭环。
+当前首要目标是使用 APT28、Kimsuky、Lazarus 三份显式审核工件，在独立 SQLite 中复现“导入 → 候选抽取 → 归一化 → 正式图谱 → 行为/MITRE → 结构化报告 → 前端展示”。
 
 ## 数据与隐私约束
 

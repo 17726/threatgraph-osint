@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "artifacts": [
+    {
+      "doc_id": "apt28_002",
+      "reviewed_extraction": "data/extracted/extract-apt28_002-deepseek-v4-flash-1.0-1.0-20260715164054539671-8210bd88.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    },
+    {
+      "doc_id": "apt28_003",
+      "reviewed_extraction": "data/extracted/extract-apt28_003-deepseek-v4-flash-1.0-1.0-20260715163031621153-d60aa196.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    },
+    {
+      "doc_id": "apt28_004",
+      "reviewed_extraction": "data/extracted/extract-apt28_004-deepseek-v4-flash-1.0-1.0-20260715162358672192-9ce4f314.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    },
+    {
+      "doc_id": "apt28_005",
+      "reviewed_extraction": "data/extracted/extract-apt28_005-deepseek-v4-flash-1.0-1.0-20260715163418277720-5bd6e541.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    },
+    {
+      "doc_id": "apt28_049",
+      "reviewed_extraction": "data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json",
+      "source": "人工审核基线",
+      "limitations": []
+    },
+    {
+      "doc_id": "kimsuky_002",
+      "reviewed_extraction": "data/extracted/extract-kimsuky_002-deepseek-v4-flash-1.0-1.0-20260715164510364872-0b83f1db.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    },
+    {
+      "doc_id": "kimsuky_003",
+      "reviewed_extraction": "data/extracted/extract-kimsuky_003-deepseek-v4-flash-1.0-1.0-20260715165023050179-26b919a5.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    },
+    {
+      "doc_id": "lazarus_003",
+      "reviewed_extraction": "data/extracted/extract-lazarus_003-deepseek-v4-flash-1.0-1.0-20260715165705817031-ea7fa9e8.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    },
+    {
+      "doc_id": "lazarus_004",
+      "reviewed_extraction": "data/extracted/extract-lazarus_004-deepseek-v4-flash-1.0-1.0-20260715170625039041-b238b30b.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    },
+    {
+      "doc_id": "lazarus_009",
+      "reviewed_extraction": "data/extracted/extract-lazarus_009-deepseek-v4-flash-1.0-1.0-20260715170817092736-a7024896.json",
+      "source": "PR #47 e9d3f5b6",
+      "limitations": ["candidate_audit_missing"]
+    }
+  ]
+}

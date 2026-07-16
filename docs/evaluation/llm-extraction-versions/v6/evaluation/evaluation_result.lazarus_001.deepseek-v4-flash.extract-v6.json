@@ -1,0 +1,1354 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-15T16:10:31.770189+00:00",
+  "extraction": {
+    "run_id": "extract_lazarus_001_extract-v6_deepseek-v4-flash_20260715T151649024054",
+    "doc_id": "lazarus_001",
+    "model_name": "deepseek-v4-flash",
+    "prompt_version": "extract-v6"
+  },
+  "golden": {
+    "target_group": "Lazarus",
+    "doc_ids": [
+      "lazarus_001"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": false,
+    "rejected_entities": 0,
+    "rejected_relations": 0
+  },
+  "entity_metrics": {
+    "predicted": 92,
+    "golden": 37,
+    "true_positive": 27,
+    "false_positive": 65,
+    "false_negative": 10,
+    "precision": 0.293478,
+    "recall": 0.72973,
+    "f1": 0.418605
+  },
+  "relation_metrics": {
+    "predicted": 76,
+    "golden": 31,
+    "true_positive": 15,
+    "false_positive": 61,
+    "false_negative": 16,
+    "precision": 0.197368,
+    "recall": 0.483871,
+    "f1": 0.280374
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "COUNTRY": {
+      "predicted": 4,
+      "golden": 2,
+      "true_positive": 2,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667
+    },
+    "CVE": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "INDUSTRY": {
+      "predicted": 3,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.333333,
+      "recall": 1.0,
+      "f1": 0.5
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 28,
+      "golden": 1,
+      "true_positive": 0,
+      "false_positive": 28,
+      "false_negative": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "MALWARE": {
+      "predicted": 16,
+      "golden": 4,
+      "true_positive": 4,
+      "false_positive": 12,
+      "false_negative": 0,
+      "precision": 0.25,
+      "recall": 1.0,
+      "f1": 0.4
+    },
+    "ORGANIZATION": {
+      "predicted": 13,
+      "golden": 11,
+      "true_positive": 10,
+      "false_positive": 3,
+      "false_negative": 1,
+      "precision": 0.769231,
+      "recall": 0.909091,
+      "f1": 0.833333
+    },
+    "TECHNIQUE": {
+      "predicted": 7,
+      "golden": 10,
+      "true_positive": 4,
+      "false_positive": 3,
+      "false_negative": 6,
+      "precision": 0.571429,
+      "recall": 0.4,
+      "f1": 0.470588
+    },
+    "TIME": {
+      "predicted": 9,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 9,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "TOOL": {
+      "predicted": 10,
+      "golden": 7,
+      "true_positive": 5,
+      "false_positive": 5,
+      "false_negative": 2,
+      "precision": 0.5,
+      "recall": 0.714286,
+      "f1": 0.588235
+    }
+  },
+  "relation_metrics_by_type": {
+    "ATTRIBUTED_TO": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "EXPLOITS": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "RELATED_TO": {
+      "predicted": 3,
+      "golden": 6,
+      "true_positive": 1,
+      "false_positive": 2,
+      "false_negative": 5,
+      "precision": 0.333333,
+      "recall": 0.166667,
+      "f1": 0.222222
+    },
+    "TARGETS": {
+      "predicted": 11,
+      "golden": 3,
+      "true_positive": 2,
+      "false_positive": 9,
+      "false_negative": 1,
+      "precision": 0.181818,
+      "recall": 0.666667,
+      "f1": 0.285714
+    },
+    "USES": {
+      "predicted": 60,
+      "golden": 21,
+      "true_positive": 11,
+      "false_positive": 49,
+      "false_negative": 10,
+      "precision": 0.183333,
+      "recall": 0.52381,
+      "f1": 0.271605
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "钓鱼邮件",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "台湾远东国际商业银行",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "短链接",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "CHM",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "SWIFT",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "数据擦除",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "DDoS",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "AppLocker",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "LNK",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "TinyCC短链接",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "phishing",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "spear-phishing",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "process injection",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "memory injection",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "AppLocker bypass",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "TinyURL",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxps://skype.2[.]vu/1",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://201.211.183[.]215:8080/update.php?t=Skype&r=update",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://telegramupdate.2[.]vu/5",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://122.248.34[.]23/lndex.php?t=Telegram&r=1.1.9",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://skypeupdate.2[.]vu/1",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://122.248.34[.]23/lndex.php?t=SkypeSetup&r=mail_new",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://skype.2[.]vu/k",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://dogecoin.deaftone[.]com:8080/mainls.cs",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://vietcasino.linkpc[.]net:8080/search.jsp",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://tinyurl[.]com/y9jbk8cg",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://www.businesshop[.]net/hide.gif",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://158.69.57[.]135/theme.gif",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://51.255.219[.]82/theme.gif",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://51.255.219[.]82/files/download/falconcoin.pdf",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://198.100.157[.]239/hide.gif",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://198.100.157[.]239/theme.gif",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://www.energydonate[.]com/images/character.gif",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxps://xn--bitcoingld-lcb[.]org",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxps://bitcoingöld[.]org",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxps://bitcoingöld[.]org/bitcoingold.exe",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxps://electrüm[.]org",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxps://xn--electrms2a[.]org/electrum-3.0.3.exe",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://macintosh.linkpc[.]net:8080/mainls.cs",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://180.235.133[.]235/img.gif",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hxxp://www[.]webkingston[.]com/update.jsp?action=need_update",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "www.energydonate[.]com",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "online-help.serveftp[.]com",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "trade.publicvm[.]com",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "banking",
+        "type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "Poland",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "Taiwan",
+        "type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "Far Eastern International Bank (FEIB)",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "IRS",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "KSNET",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "M2Soft",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2017年6月30号",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2016年10月",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2016年底",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2017年初",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2017年7月初",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2017年8月",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2017年10月",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2017年11月",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "2017年12月",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "CVE-2017-",
+        "type": "CVE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "xplatform.exe",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "ksnetadsl.dll",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "hkp.dll",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "appView.js",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "PowerOpt.vbs",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "opt.ps1",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "ProxyAutoUpdate.ps1",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "detail.ps1",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "PwdOpt.vbs",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "ProxyServer.vbs",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "ElectronGold-1.1.1.exe",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "ElectronGold-1.1.exe",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "bitcoingold.exe",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "name": "electrum-3.0.3.exe",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "PowerRatankba",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "钓鱼邮件",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "短链接",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "CHM",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "DDoS",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "数据擦除",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "AppLocker",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "LNK",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "TinyCC短链接",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "台湾远东国际商业银行",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "SWIFT",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "BAE",
+        "head_type": "ORGANIZATION",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Kaspersky",
+        "head_type": "ORGANIZATION",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "ESET",
+        "head_type": "ORGANIZATION",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Symantec",
+        "head_type": "ORGANIZATION",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Lazarus Group",
+        "tail_type": "APT_GROUP",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "趋势科技",
+        "head_type": "ORGANIZATION",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Ratankba",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "phishing",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "spear-phishing",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "process injection",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "memory injection",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "AppLocker bypass",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "TinyURL",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "TinyCC",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxps://skype.2[.]vu/1",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://201.211.183[.]215:8080/update.php?t=Skype&r=update",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://telegramupdate.2[.]vu/5",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://122.248.34[.]23/lndex.php?t=Telegram&r=1.1.9",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://skypeupdate.2[.]vu/1",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://122.248.34[.]23/lndex.php?t=SkypeSetup&r=mail_new",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://skype.2[.]vu/k",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://dogecoin.deaftone[.]com:8080/mainls.cs",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://vietcasino.linkpc[.]net:8080/search.jsp",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://tinyurl[.]com/y9jbk8cg",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://www.businesshop[.]net/hide.gif",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://158.69.57[.]135/theme.gif",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://51.255.219[.]82/theme.gif",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://51.255.219[.]82/files/download/falconcoin.pdf",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://198.100.157[.]239/hide.gif",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://198.100.157[.]239/theme.gif",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://www.energydonate[.]com/images/character.gif",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxps://xn--bitcoingld-lcb[.]org",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxps://bitcoingöld[.]org",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxps://bitcoingöld[.]org/bitcoingold.exe",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxps://electrüm[.]org",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxps://xn--electrms2a[.]org/electrum-3.0.3.exe",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://macintosh.linkpc[.]net:8080/mainls.cs",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://180.235.133[.]235/img.gif",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hxxp://www[.]webkingston[.]com/update.jsp?action=need_update",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "www.energydonate[.]com",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "online-help.serveftp[.]com",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "trade.publicvm[.]com",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "banking",
+        "tail_type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "POS",
+        "tail_type": "INDUSTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Poland",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Taiwan",
+        "tail_type": "COUNTRY",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Far Eastern International Bank (FEIB)",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Coinbase",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Bithumb",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "Falcon Coin",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "IRS",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "EXPLOITS",
+        "tail_name": "CVE-2017-",
+        "tail_type": "CVE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "RatankbaPOS",
+        "head_type": "MALWARE",
+        "relation_type": "RELATED_TO",
+        "tail_name": "Ratankba",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "PowerRatankba",
+        "head_type": "MALWARE",
+        "relation_type": "RELATED_TO",
+        "tail_name": "RatankbaPOS",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "xplatform.exe",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ksnetadsl.dll",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "hkp.dll",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "appView.js",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "PowerOpt.vbs",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "opt.ps1",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ProxyAutoUpdate.ps1",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "detail.ps1",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "PwdOpt.vbs",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ProxyServer.vbs",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ElectronGold-1.1.1.exe",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ElectronGold-1.1.exe",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "bitcoingold.exe",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "lazarus_001_c001",
+        "head_name": "Lazarus Group",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "electrum-3.0.3.exe",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}

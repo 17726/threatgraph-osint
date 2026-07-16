@@ -88,6 +88,17 @@ data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_vers
 data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 ```
 
+前端 Pipeline 的未审核 live 输出使用独立运行目录：
+
+```text
+data/run_artifacts/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
+data/run_artifacts/extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>-candidate-audit.json
+```
+
+`data/run_artifacts/` 默认不提交，也不代表人工审核结论。工件经审核后迁入
+`data/extracted/`，并显式登记到 `config/reviewed-extractions.json`；课程固定样本则登记到
+`config/course-demo.json`。Pipeline 不根据文件名、修改时间或目录中“唯一候选”推断审核状态。
+
 `run_id` 字段是 Extraction Run 的权威身份；正式文件名是可读标签，必须与 payload 中的
 `doc_id`、模型、Prompt、Schema、UTC 时间和随机后缀一致。UTC 时间戳只负责排序和展示，不能
 单独作为唯一身份。正式工件默认执行严格命名校验；历史样例只能由调用方显式声明 Legacy，且
@@ -105,7 +116,7 @@ data/documents/<target_group>/*.json
 
 1. data 组提交真实样本时，复制 `document.apt28.thn.beardshell.example.json` 的字段结构，在 `data/documents/<target_group>/` 下新增文档，替换 `clean_text`、来源，并按 `clean_text` 重新生成 `content_hash`。
 2. arch / qa / be 做标准名和别名对齐时，参考 `reference.apt28.mitre.example.json`。
-3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系；只有被选入报告、有效负向结论或后续回归的运行才归档到 `data/extracted/extract-...json`，并用同一 `run_id` 保存 `...-candidate-audit.json`。
+3. llm 组提交候选抽取时，复制 `extraction_result.apt28.thn.beardshell.example.json` 后替换候选实体和候选关系；live 运行在本机用同一 `run_id` 保存 Extraction 与 Candidate Audit。只有被选入报告、有效负向结论或后续回归的运行才迁入 `data/extracted/`、登记审核清单并显式归档到 Git；不得批量提交整个运行时目录。
 4. be 导出图谱时，输出必须兼容 `graph.schema.json` 和 `graph.apt28.thn.beardshell.example.json`。
 5. qa 做人工标准答案时，先从 `golden.apt28.thn.beardshell.example.json` 扩展，并保持兼容 `docs/schemas/golden.schema.json`；正式 golden 放到 `data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json`。
 6. 字段改动先改 schema 和样例，再同步代码；不能只改一端。
@@ -125,7 +136,7 @@ document.json
   data 组交付到 data/documents/ 的清洗后文档，是后端切块后的 LLM 输入来源
 
 extract-<doc_id>-<model>-<prompt_version>-<schema_version>-<timestamp>-<run_suffix>.json
-  llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入；同一运行必须有稳定 run_id，可选保存同 run_id 的 candidate audit
+  llm 组基于 document.json 生成的候选实体和候选关系，是后端归一化的输入；同一运行必须有稳定 run_id。当前 live 流程必须保存同 run_id 的 Candidate Audit；缺少历史 Candidate Audit 的 Legacy 工件只能作为受限导入输入，不能用于 raw/validated 口径评测 Baseline
 
 golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
   qa 组维护的人工标准答案，用于评测候选抽取质量；结构和 extraction result 一样按 chunks 归属实体和关系，但不包含候选状态、置信度或后端最终实体/关系 ID
@@ -651,6 +662,42 @@ CREATE TABLE evaluation_runs (
   notes TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL,
   FOREIGN KEY (run_id) REFERENCES extraction_runs(run_id)
+);
+```
+
+### 3.19 graph_changes
+
+记录 SQLite canonical graph 的有序变更日志，供 Neo4j 投影按水位增量同步。实体、关系和证据表的
+insert/update/delete 触发器负责写入；同一记录可出现多条变更，消费端按批次结束时的当前状态执行
+幂等 upsert 或 delete。证据触发器还会为其新旧 `entity_id` / `relation_id` owner 记录 upsert，确保
+证据新增、改绑或删除后，投影中的聚合 `evidence_ids` 同步刷新。
+
+```sql
+CREATE TABLE graph_changes (
+  change_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  table_name TEXT NOT NULL
+    CHECK (table_name IN ('entities', 'relations', 'evidence')),
+  record_id TEXT NOT NULL,
+  operation TEXT NOT NULL CHECK (operation IN ('upsert', 'delete')),
+  changed_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 3.20 sync_state
+
+保存可重建查询投影的消费水位和可观测状态。`watermark` 只有在 Neo4j 写事务成功后推进；
+`last_full_sync_at` 为空表示必须先全量重建。
+
+```sql
+CREATE TABLE sync_state (
+  state_key TEXT PRIMARY KEY,
+  watermark INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'requires_rebuild',
+  last_attempt_at TEXT,
+  last_success_at TEXT,
+  last_full_sync_at TEXT,
+  error_message TEXT,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 ```
 

@@ -5,15 +5,7 @@ function pct(n: number) {
   return `${(n * 100).toFixed(0)}%`;
 }
 
-function MetricCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
+function MetricCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div
       style={{
@@ -23,17 +15,9 @@ function MetricCard({
         borderRadius: 8,
       }}
     >
-      <p style={{ margin: "0 0 4px", fontSize: 12, color: "#64748b" }}>
-        {label}
-      </p>
-      <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#172026" }}>
-        {value}
-      </p>
-      {sub && (
-        <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
-          {sub}
-        </p>
-      )}
+      <p style={{ margin: "0 0 4px", fontSize: 12, color: "#64748b" }}>{label}</p>
+      <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#172026" }}>{value}</p>
+      {sub && <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>{sub}</p>}
     </div>
   );
 }
@@ -149,9 +133,7 @@ export default function EvaluationPage() {
               >
                 {e.type}
               </span>
-              <p style={{ margin: "4px 0 0", fontSize: 13, color: "#334155" }}>
-                {e.description}
-              </p>
+              <p style={{ margin: "4px 0 0", fontSize: 13, color: "#334155" }}>{e.description}</p>
             </div>
           ))}
         </div>

@@ -15,17 +15,19 @@ services:
       LLM_MODEL: ${LLM_MODEL:-deepseek-v4-flash}
       LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-120}
       LLM_MAX_RETRIES: ${LLM_MAX_RETRIES:-3}
-      LLM_MAX_OUTPUT_TOKENS: ${LLM_MAX_OUTPUT_TOKENS:-32768}
+      LLM_MAX_OUTPUT_TOKENS: ${LLM_MAX_OUTPUT_TOKENS:-16384}
       LLM_RELATION_REVIEW_PASSES: ${LLM_RELATION_REVIEW_PASSES:-0}
       LLM_TRUST_ENV: ${LLM_TRUST_ENV:-false}
-      NEO4J_URI: bolt://neo4j:7687
-      NEO4J_USER: neo4j
-      NEO4J_PASSWORD: change_me_for_local_dev
+      NEO4J_URI: ${NEO4J_URI:-bolt://neo4j:7687}
+      NEO4J_USER: ${NEO4J_USER:-neo4j}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-change_me_for_local_dev}
+      NEO4J_DATABASE: ${NEO4J_DATABASE:-neo4j}
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app/backend
       - ./scripts:/app/scripts
+      - ./config:/app/config:ro
       - ./docs:/app/docs:ro
       - ./data:/app/data
     command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -48,7 +50,7 @@ services:
   neo4j:
     image: neo4j:5-community
     environment:
-      NEO4J_AUTH: neo4j/change_me_for_local_dev
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-change_me_for_local_dev}
     ports:
       - "7474:7474"
       - "7687:7687"

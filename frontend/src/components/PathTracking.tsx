@@ -8,11 +8,7 @@ interface PathTrackingProps {
   onPathClear: () => void;
 }
 
-export default function PathTracking({
-  nodes,
-  onPathFound,
-  onPathClear,
-}: PathTrackingProps) {
+export default function PathTracking({ nodes, onPathFound, onPathClear }: PathTrackingProps) {
   const [fromId, setFromId] = useState("");
   const [toId, setToId] = useState("");
   const [traversing, setTraversing] = useState(false);

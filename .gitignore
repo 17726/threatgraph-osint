@@ -28,6 +28,7 @@ data/extracted/*
 data/graph/*
 data/reports/*
 data/evaluation/*
+data/run_artifacts/*
 data/run_logs/*
 scripts/calculate_char_positions.py
 !data/.gitkeep
@@ -43,6 +44,7 @@ scripts/calculate_char_positions.py
 !data/evaluation/.gitkeep
 !data/evaluation/golden*.json
 !data/evaluation/evaluation_result.*.json
+!data/evaluation/evaluation_result-*.json
 
 # Local verification artifacts
 output/

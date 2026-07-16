@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+import os
+
 from fastapi import Body, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -6,13 +9,25 @@ from backend.app.core.document_contract import require_valid_document
 from backend.app.core.response import error_response, success_response
 from backend.app.services.demo_store import DemoStore
 from backend.app.services.graph_query_service import GraphQueryService
-from backend.app.services.pipeline_service import PipelineService
+from backend.app.services.neo4j_service import MAX_PATH_DEPTH, Neo4jService
+from backend.app.services.pipeline_service import (
+    DEFAULT_EXTRACTION_MODE,
+    PipelineService,
+)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    yield
+    pipeline_service.close()
+    neo4j_service.close()
 
 
 app = FastAPI(
     title="ThreatGraph-OSINT API",
     description="开源威胁情报知识图谱研判系统 P0 API",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -25,7 +40,20 @@ app.add_middleware(
 
 store = DemoStore()
 graph_query_service = GraphQueryService(store.db_path)
-pipeline_service = PipelineService(store.db_path)
+neo4j_uri = os.getenv("NEO4J_URI")
+neo4j_service = Neo4jService(
+    store.db_path,
+    uri=neo4j_uri,
+    auth=(
+        os.getenv("NEO4J_USER", "neo4j"),
+        os.getenv("NEO4J_PASSWORD", ""),
+    ) if neo4j_uri else None,
+    database=os.getenv("NEO4J_DATABASE") or None,
+)
+pipeline_service = PipelineService(
+    store.db_path,
+    projection_sync=neo4j_service.sync_incremental,
+)
 
 
 def _split_query_values(values: list[str]) -> list[str]:
@@ -48,6 +76,7 @@ async def http_exception_handler(_request, exc: HTTPException):
 @app.get("/api/v1/health")
 def health():
     components = store.health()
+    components["neo4j"] = neo4j_service.health()["status"]
     return success_response({"status": "healthy", "components": components})
 
 
@@ -63,7 +92,7 @@ def graph(
     first_seen_from: str | None = Query(default=None),
     last_seen_to: str | None = Query(default=None),
     min_confidence: float | None = Query(default=None, ge=0, le=1),
-    depth: int = Query(default=2, ge=0, le=20),
+    depth: int = Query(default=20, ge=0, le=20),
     limit: int | None = Query(default=None, ge=1),
 ):
     return success_response(
@@ -104,6 +133,7 @@ def generate_report(target_group: str):
 @app.get("/api/v1/graph/neighbors")
 def graph_neighbors(
     entity_id: str = Query(...),
+    depth: int = Query(default=20, ge=1, le=20),
     relation_types: list[str] = Query(default=[]),
     source_types: list[str] = Query(default=[]),
     languages: list[str] = Query(default=[]),
@@ -113,6 +143,7 @@ def graph_neighbors(
     return success_response(
         graph_query_service.get_neighbors(
             entity_id,
+            depth=depth,
             relation_types=_split_query_values(relation_types),
             source_types=_split_query_values(source_types),
             languages=_split_query_values(languages),
@@ -126,19 +157,46 @@ def graph_neighbors(
 def graph_path(
     source: str = Query(...),
     target: str = Query(...),
-    max_depth: int = Query(default=4, ge=0, le=20),
+    max_depth: int = Query(default=4, ge=1, le=MAX_PATH_DEPTH),
     relation_types: list[str] = Query(default=[]),
     min_confidence: float | None = Query(default=None, ge=0, le=1),
 ):
-    return success_response(
-        graph_query_service.get_path(
-            source=source,
-            target=target,
-            max_depth=max_depth,
-            relation_types=_split_query_values(relation_types),
-            min_confidence=min_confidence,
-        )
-    )
+    filters = {
+        "source": source,
+        "target": target,
+        "max_depth": max_depth,
+        "relation_types": _split_query_values(relation_types),
+        "min_confidence": min_confidence,
+    }
+    result = neo4j_service.get_path(**filters)
+    if result.get("engine") != "neo4j":
+        fallback_reason = result.get("reason", "neo4j_unavailable")
+        result = graph_query_service.get_path(**filters)
+        result["fallback_reason"] = fallback_reason
+    return success_response(result)
+
+
+@app.get("/api/v1/neo4j/status")
+def neo4j_status():
+    return success_response(neo4j_service.status())
+
+
+@app.post("/api/v1/neo4j/rebuild")
+def neo4j_rebuild():
+    result = neo4j_service.rebuild()
+    if result["status"] != "succeeded":
+        raise HTTPException(status_code=503, detail=result.get("reason"))
+    return success_response(result)
+
+
+@app.post("/api/v1/neo4j/sync")
+def neo4j_sync():
+    result = neo4j_service.sync_incremental()
+    if result["status"] == "requires_rebuild":
+        raise HTTPException(status_code=409, detail="neo4j_requires_rebuild")
+    if result["status"] != "succeeded":
+        raise HTTPException(status_code=503, detail=result.get("reason"))
+    return success_response(result)
 
 
 @app.get("/api/v1/analysis/{target_group}/behavior")
@@ -181,17 +239,29 @@ def analysis_run(target_group: str):
 @app.post("/api/v1/pipeline/run")
 def pipeline_run(payload: dict = Body(default={})):
     try:
-        result = pipeline_service.run_sync(
+        if "use_cache" in payload:
+            raise ValueError(
+                "use_cache 已废弃；请使用 extraction_mode=reviewed 或 live"
+            )
+        unknown_fields = sorted(
+            set(payload) - {"doc_id", "target_group", "extraction_mode"}
+        )
+        if unknown_fields:
+            raise ValueError(f"流水线请求包含未知字段: {', '.join(unknown_fields)}")
+        result = pipeline_service.submit_background(
             doc_id=payload.get("doc_id"),
             target_group=payload.get("target_group"),
-            use_cache=payload.get("use_cache", True),
+            extraction_mode=payload.get(
+                "extraction_mode",
+                DEFAULT_EXTRACTION_MODE,
+            ),
         )
     except ValueError as exc:
         return JSONResponse(
             status_code=400,
             content=error_response("ERR_VALIDATION", str(exc)),
         )
-    return success_response(result)
+    return JSONResponse(status_code=202, content=success_response(result))
 
 
 @app.get("/api/v1/pipeline/status/{job_id}")

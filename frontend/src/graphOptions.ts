@@ -20,16 +20,11 @@ export interface BuildOptions {
   searchNodeId?: string | null;
 }
 
-export function buildGraphOption(
-  payload: GraphPayload,
-  opts?: BuildOptions,
-): EChartsOption {
+export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EChartsOption {
   const highlightSet = new Set(opts?.highlightNodeIds ?? []);
   const searchNodeId: string | null | undefined = opts?.searchNodeId;
 
-  const categories = Array.from(
-    new Set(payload.nodes.map((node) => node.type)),
-  ).map((type) => ({
+  const categories = Array.from(new Set(payload.nodes.map((node) => node.type))).map((type) => ({
     name: type,
     itemStyle: { color: TYPE_COLORS[type] ?? "#64748b" },
   }));
@@ -52,8 +47,7 @@ export function buildGraphOption(
         if (!data?.name) {
           return "";
         }
-        const tag =
-          data._raw?.validation_status === "invalid" ? "【系统推断】" : "";
+        const tag = data._raw?.validation_status === "invalid" ? "【系统推断】" : "";
         return `${tag}${data.name}<br/>类型：${data.type ?? "关系"}<br/>置信度：${data.value ?? "-"}`;
       },
     },
@@ -107,7 +101,9 @@ export function buildGraphOption(
           const sz = node.type === "APT_GROUP" ? 56 : node.type === "COUNTRY" ? 48 : 36;
           const dim = (highlightSet.size > 0 || searchNodeId) && !isHL && !isSN;
           return {
-            id: node.id, name: node.name, type: node.type,
+            id: node.id,
+            name: node.name,
+            type: node.type,
             value: Number(node.confidence.toFixed(2)),
             category: node.type,
             symbolSize: isSN ? Math.round(sz * 1.5) : sz,
@@ -119,24 +115,31 @@ export function buildGraphOption(
               shadowColor: isSN ? "rgba(245,158,11,0.7)" : "transparent",
               opacity: dim ? 0.12 : 1,
             },
-            label: { show: true, fontSize: isSN ? 16 : dim ? 10 : 12, color: isSN ? "#f59e0b" : "#172026", fontWeight: isSN ? 700 : 400 },
+            label: {
+              show: true,
+              fontSize: isSN ? 16 : dim ? 10 : 12,
+              color: isSN ? "#f59e0b" : "#172026",
+              fontWeight: isSN ? 700 : 400,
+            },
             _raw: node,
           };
         }),
         links: payload.edges.map((edge) => {
           const isSearched = !!searchNodeId;
-          const pathEdge = (highlightSet.has(edge.source) && highlightSet.has(edge.target))
-            || (isSearched && (edge.source === searchNodeId || edge.target === searchNodeId));
+          const pathEdge =
+            (highlightSet.has(edge.source) && highlightSet.has(edge.target)) ||
+            (isSearched && (edge.source === searchNodeId || edge.target === searchNodeId));
           const isInfer = edge.validation_status === "invalid";
           return {
             source: edge.source,
             target: edge.target,
             name: edge.label,
-            lineStyle: (highlightSet.size > 0 || isSearched)
-              ? { opacity: pathEdge ? 1 : 0.08 }
-              : isInfer
-                ? { opacity: 0.4, type: "dashed" as const, color: "#9ca3af" }
-                : undefined,
+            lineStyle:
+              highlightSet.size > 0 || isSearched
+                ? { opacity: pathEdge ? 1 : 0.08 }
+                : isInfer
+                  ? { opacity: 0.4, type: "dashed" as const, color: "#9ca3af" }
+                  : undefined,
             _raw: edge,
           };
         }),

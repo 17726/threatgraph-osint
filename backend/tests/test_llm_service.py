@@ -53,7 +53,7 @@ def test_llm_service_uses_schema_enums_and_repository_prompt():
 
     assert ENTITY_TYPES == tuple(schema["$defs"]["entity_type"]["enum"])
     assert RELATION_TYPES == tuple(schema["$defs"]["relation_type"]["enum"])
-    assert DEFAULT_PROMPT_PATH.name == "extract-1.0.md"
+    assert DEFAULT_PROMPT_PATH.name == "extract-v7.md"
     system_prompt = load_system_prompt()
     assert "不要生成 entity_id" in system_prompt
     assert "USES:" in system_prompt
@@ -254,7 +254,7 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
     def handler(request: httpx.Request) -> httpx.Response:
         body = json.loads(request.content)
         assert "ThreatGraph" in body["messages"][0]["content"]
-        assert "prompt_version=1.0" in body["messages"][1]["content"]
+        assert "prompt_version=extract-v7" in body["messages"][1]["content"]
         return api_response(
             {
                 "entities": [
@@ -304,9 +304,9 @@ def test_extract_returns_contract_valid_candidate_result(tmp_path):
 
     assert result["doc_id"] == "doc"
     assert result["model_name"] == "test-model"
-    assert result["prompt_version"] == "1.0"
+    assert result["prompt_version"] == "extract-v7"
     assert result["generated_at"].endswith("+00:00")
-    assert result["run_id"].startswith("extract-doc-test-model-1.0-1.0-")
+    assert result["run_id"].startswith("extract-doc-test-model-extract-v7-1.0-")
     assert result["chunks"][0]["chunk_id"] == "doc_c001"
     assert len(result["chunks"][0]["entities"]) == 2
     assert len(result["chunks"][0]["relations"]) == 1
@@ -389,6 +389,52 @@ def test_extract_reports_retry_attempts(monkeypatch):
     assert any("开始第 1/2 次抽取请求" in message for message in messages)
     assert any("第 1/2 次抽取请求失败" in message for message in messages)
     assert any("开始第 2/2 次抽取请求" in message for message in messages)
+
+
+def test_truncated_response_retries_with_same_budget_and_compaction_prompt(monkeypatch):
+    request_bodies: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        request_bodies.append(body)
+        if len(request_bodies) == 1:
+            return httpx.Response(
+                200,
+                json={
+                    "model": "test-model",
+                    "choices": [
+                        {
+                            "message": {"content": '{"entities": ['},
+                            "finish_reason": "length",
+                        }
+                    ],
+                    "usage": {
+                        "prompt_tokens": 10,
+                        "completion_tokens": 512,
+                        "total_tokens": 522,
+                    },
+                },
+            )
+        return api_response({"entities": [], "relations": []})
+
+    monkeypatch.setattr("backend.app.services.llm_service.time.sleep", lambda _seconds: None)
+    service = LLMExtractionService(
+        base_url="https://example.test/v1",
+        api_key="test-secret",
+        model="test-model",
+        max_retries=2,
+        max_output_tokens=512,
+        relation_review_passes=0,
+        transport=httpx.MockTransport(handler),
+    )
+
+    result = service.extract(build_document("doc", "APT28 activity."))
+
+    assert result["chunks"][0]["entities"] == []
+    assert [body["max_tokens"] for body in request_bodies] == [512, 512]
+    retry_prompt = request_bodies[1]["messages"][-1]["content"]
+    assert "相同 token 预算" in retry_prompt
+    assert "最多保留 80 个高置信实体" in retry_prompt
 
 
 def test_generate_run_id_uses_versioned_artifact_contract():

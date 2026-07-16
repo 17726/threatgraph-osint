@@ -1,0 +1,405 @@
+{
+  "schema_version": "1.0",
+  "target_group": "APT28",
+  "doc_ids": [
+    "apt28_001"
+  ],
+  "chunks": [
+    {
+      "chunk_id": "apt28_001_c001",
+      "doc_id": "apt28_001",
+      "char_start": 0,
+      "char_end": 3324,
+      "note": "apt28_001 当前文档长度可作为单 chunk 输入。",
+      "entities": [
+        {
+          "name": "腾讯御见威胁情报中心",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "近日腾讯御见威胁情报中心在监测Fancy Bear“奇幻熊”组织的攻击活动过程中",
+          "char_start": 0,
+          "char_end": 40
+        },
+        {
+          "name": "APT28攻击活动",
+          "type": "CAMPAIGN",
+          "aliases": [],
+          "evidence_text": "近日腾讯御见威胁情报中心在监测Fancy Bear“奇幻熊”组织的攻击活动过程中",
+          "char_start": 0,
+          "char_end": 40
+        },
+        {
+          "name": "APT28",
+          "type": "APT_GROUP",
+          "aliases": [
+            "奇幻熊",
+            "Fancy Bear",
+            "T-APT-12",
+            "Pawn Storm",
+            "Sofacy Group",
+            "Sednit",
+            "STRONTIUM"
+          ],
+          "evidence_text": "“奇幻熊”（Fancy Bear，T-APT-12）组织，也被称作APT28, Pawn Storm, Sofacy Group, Sednit或STRONTIUM",
+          "char_start": 98,
+          "char_end": 180
+        },
+        {
+          "name": "俄罗斯军方情报机构",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "是一个长期从事网络间谍活动并与俄罗斯军方情报机构相关的APT组织",
+          "char_start": 181,
+          "char_end": 213
+        },
+        {
+          "name": "IHS Markit邮箱",
+          "type": "INFRASTRUCTURE",
+          "aliases": [
+            "events@ihsmarkit.com",
+            "events@ihsmarkit.com邮箱"
+          ],
+          "evidence_text": "该组织利用英国信息服务提供商IHS Markit公司的邮箱账号",
+          "char_start": 306,
+          "char_end": 337
+        },
+        {
+          "name": "IHS Markit",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "该组织利用英国信息服务提供商IHS Markit公司的邮箱账号",
+          "char_start": 306,
+          "char_end": 337
+        },
+        {
+          "name": "罗马尼亚外交部",
+          "type": "ORGANIZATION",
+          "aliases": [],
+          "evidence_text": "向罗马尼亚外交部发送钓鱼邮件进行定向攻击",
+          "char_start": 337,
+          "char_end": 357
+        },
+        {
+          "name": "钓鱼邮件",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "向罗马尼亚外交部发送钓鱼邮件进行定向攻击",
+          "char_start": 337,
+          "char_end": 357
+        },
+        {
+          "name": "白利用技术",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "该组织使用了最新的白利用技术",
+          "char_start": 368,
+          "char_end": 382
+        },
+        {
+          "name": "certutil",
+          "type": "TOOL",
+          "aliases": [
+            "证书管理程序",
+            "证书管理程序certutil",
+            "证书管理程序certutil.exe",
+            "certutil.exe"
+          ],
+          "evidence_text": "白利用程序为证书管理程序certutil.exe",
+          "char_start": 383,
+          "char_end": 407
+        },
+        {
+          "name": "后门技术",
+          "type": "TECHNIQUE",
+          "aliases": [],
+          "evidence_text": "该组织还使用了最新的后门技术",
+          "char_start": 411,
+          "char_end": 425
+        },
+        {
+          "name": "Carberp",
+          "type": "MALWARE",
+          "aliases": [
+            "Carberp银行木马的变种",
+            "Carberp银行木马",
+            "Carberp木马"
+          ],
+          "evidence_text": "本次攻击中使用的木马为Carberp银行木马的变种",
+          "char_start": 464,
+          "char_end": 489
+        },
+        {
+          "name": "宏技术",
+          "type": "TECHNIQUE",
+          "aliases": [
+            "宏代码"
+          ],
+          "evidence_text": "反而使用了office固有的宏技术",
+          "char_start": 2653,
+          "char_end": 2670
+        },
+        {
+          "name": "注册表启动项持久化",
+          "type": "TECHNIQUE",
+          "aliases": [
+            "UserInitMprLogonScript注册表键值",
+            "UserInitMprLogonScript注册表",
+            "UserInitMprLogonScript"
+          ],
+          "evidence_text": "利用UserInitMprLogonScript注册表键值来实现开机自启动",
+          "char_start": 426,
+          "char_end": 463
+        },
+        {
+          "name": "美国政府机构",
+          "type": "ORGANIZATION",
+          "aliases": [
+            "美国政府"
+          ],
+          "evidence_text": "该组织也曾使用钓鱼邮件及Carberp变种木马对美国政府机构进行攻击",
+          "char_start": 515,
+          "char_end": 549
+        },
+        {
+          "name": "cdnver.dll",
+          "type": "MALWARE",
+          "aliases": [
+            "cdnver"
+          ],
+          "evidence_text": "木马的主要功能都集中在cdnver.dll中",
+          "char_start": 1355,
+          "char_end": 1377
+        },
+        {
+          "name": "cdnverify.net",
+          "type": "INFRASTRUCTURE",
+          "aliases": [
+            "cdnverify"
+          ],
+          "evidence_text": "第二个c2为“cdnverify.net”",
+          "char_start": 1684,
+          "char_end": 1705
+        },
+        {
+          "name": "151.80.74.167",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "evidence_text": "151.80.74.167",
+          "char_start": 3128,
+          "char_end": 3141
+        },
+        {
+          "name": "c3e4u3b1.exe",
+          "type": "MALWARE",
+          "aliases": [
+            "c3e4u3b1"
+          ],
+          "evidence_text": "c3e4u3b1.exe执行后会释放cdnver.dll和cdnver.bat",
+          "char_start": 1038,
+          "char_end": 1077
+        },
+        {
+          "name": "腾讯御界高级威胁检测系统",
+          "type": "TOOL",
+          "aliases": [],
+          "evidence_text": "腾讯御界高级威胁检测系统基于腾讯反病毒实验室的安全能力",
+          "char_start": 2707,
+          "char_end": 2734
+        },
+        {
+          "name": "rundll32.exe",
+          "type": "TOOL",
+          "aliases": [
+            "rundll32"
+          ],
+          "evidence_text": "会利用rundll32.exe 来执行cdnver.dll",
+          "char_start": 1221,
+          "char_end": 1250
+        }
+      ],
+      "relations": [
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "AFFILIATED_WITH",
+          "tail_name": "俄罗斯军方情报机构",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "与俄罗斯军方情报机构相关的APT组织",
+          "char_start": 195,
+          "char_end": 213
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "钓鱼邮件",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "发送钓鱼邮件进行定向攻击",
+          "char_start": 345,
+          "char_end": 357
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "白利用技术",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "该组织使用了最新的白利用技术",
+          "char_start": 368,
+          "char_end": 382
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "后门技术",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "该组织还使用了最新的后门技术",
+          "char_start": 411,
+          "char_end": 425
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "宏技术",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "反而使用了office固有的宏技术",
+          "char_start": 2653,
+          "char_end": 2670
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "certutil",
+          "tail_type": "TOOL",
+          "evidence_text": "白利用程序为证书管理程序certutil.exe",
+          "char_start": 383,
+          "char_end": 407
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Carberp",
+          "tail_type": "MALWARE",
+          "evidence_text": "本次攻击中使用的木马为Carberp银行木马的变种",
+          "char_start": 464,
+          "char_end": 489
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "cdnver.dll",
+          "tail_type": "MALWARE",
+          "evidence_text": "木马的主要功能都集中在cdnver.dll中",
+          "char_start": 1355,
+          "char_end": 1377
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "注册表启动项持久化",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "利用UserInitMprLogonScript注册表键值来实现开机自启动",
+          "char_start": 426,
+          "char_end": 463
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "罗马尼亚外交部",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "向罗马尼亚外交部发送钓鱼邮件进行定向攻击",
+          "char_start": 337,
+          "char_end": 357
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "TARGETS",
+          "tail_name": "美国政府机构",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "该组织也曾使用钓鱼邮件及Carberp变种木马对美国政府机构进行攻击",
+          "char_start": 515,
+          "char_end": 549
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "cdnverify.net",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "第二个c2为“cdnverify.net”",
+          "char_start": 1684,
+          "char_end": 1705
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "151.80.74.167",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "151.80.74.167",
+          "char_start": 3128,
+          "char_end": 3141
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "c3e4u3b1.exe",
+          "tail_type": "MALWARE",
+          "evidence_text": "c3e4u3b1.exe执行后会释放cdnver.dll和cdnver.bat",
+          "char_start": 1038,
+          "char_end": 1077
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "rundll32.exe",
+          "tail_type": "TOOL",
+          "evidence_text": "会利用rundll32.exe 来执行cdnver.dll",
+          "char_start": 1221,
+          "char_end": 1250
+        },
+        {
+          "head_name": "APT28",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "IHS Markit邮箱",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "该组织利用英国信息服务提供商IHS Markit公司的邮箱账号",
+          "char_start": 306,
+          "char_end": 337
+        },
+        {
+          "head_name": "APT28攻击活动",
+          "head_type": "CAMPAIGN",
+          "relation_type": "PART_OF",
+          "tail_name": "APT28",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "近日腾讯御见威胁情报中心在监测Fancy Bear“奇幻熊”组织的攻击活动过程中",
+          "char_start": 0,
+          "char_end": 40
+        },
+        {
+          "head_name": "APT28攻击活动",
+          "head_type": "CAMPAIGN",
+          "relation_type": "DISCOVERED_BY",
+          "tail_name": "腾讯御见威胁情报中心",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "近日腾讯御见威胁情报中心在监测Fancy Bear“奇幻熊”组织的攻击活动过程中",
+          "char_start": 0,
+          "char_end": 40
+        }
+      ]
+    }
+  ],
+  "notes": "中文黄金集 - apt28_001，人工标注，不含 canonical_id。\n1. 俄罗斯军方情报机构使用 AFFILIATED_WITH，原文仅表达“相关”，不表达明确归因。\n2. IHS Markit邮箱使用 INFRASTRUCTURE 表示被侵用的邮箱基础设施；IHS Markit作为背景组织实体保留，两者使用相同证据。当前 Schema 没有 COMPROMISES 关系，也不建立 IHS Markit CONTROLS IHS Markit邮箱；该语义需后续商讨 Schema。\n3. APT28攻击活动是根据 Fancy Bear 组织的攻击活动规范化生成的 CAMPAIGN，使用 PART_OF 关联 APT28。\n4. N9A6C5T3.txt 是文件工件，当前 Schema 没有合适类型，因此不纳入正式实体。\n5. 注册表启动项持久化是对 UserInitMprLogonScript 注册表键值行为的规范化技术名称。\n6. cdnver.dll 按攻击组织级样本归因口径保留 USES 关系。\n7. 进程注入和截屏纳入 TECHNIQUE；API 和浏览器进程暂不纳入。\n8. 腾讯御界高级威胁检测系统在末段作为背景工具实体加入，与 APT28 无直接关系。"
+}

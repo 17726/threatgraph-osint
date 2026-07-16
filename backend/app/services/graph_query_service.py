@@ -143,20 +143,21 @@ class GraphQueryService:
     def get_neighbors(
         self,
         entity_id: str,
+        depth: int = 20,
         relation_types: Iterable[str] | None = None,
         source_types: Iterable[str] | None = None,
         languages: Iterable[str] | None = None,
         min_confidence: float | None = None,
         limit: int | None = None,
     ) -> dict[str, Any]:
-        """返回中心实体、直接邻居、连接边及相关证据。"""
+        """返回中心实体、邻居（N 跳）、连接边及相关证据。"""
         return self.get_graph(
             target=entity_id,
             relation_types=relation_types,
             source_types=source_types,
             languages=languages,
             min_confidence=min_confidence,
-            depth=1,
+            depth=depth,
             limit=limit,
         )
 

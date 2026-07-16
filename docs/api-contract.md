@@ -191,19 +191,65 @@ GET  /api/v1/pipeline/status/{job_id}
 ```json
 {
   "doc_id": "apt28_049",
-  "use_cache": true
+  "extraction_mode": "reviewed"
 }
 ```
 
 说明：
 
-1. P0 只暴露一个真实复合操作 `extract_and_build`，内部复用现有离线抽取建图流水线；请求不接受伪步骤数组。
-2. `doc_id` 和 `target_group` 必须且只能提供一个。按目标组织运行时，按 `doc_id` 排序处理 SQLite 中匹配的文档。
-3. 本阶段同步执行并返回最终任务状态；`pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息，状态接口可按 `job_id` 重查。
-4. 同一作用域、操作和 `use_cache` 的 `pending` / `running` 请求复用活动任务；执行前通过条件更新原子认领，避免同一任务被重复执行。
-5. 服务启动时把遗留的 `running` 任务标记为中断失败，不把未知进度伪装成可恢复任务。
-6. 默认执行只消费已有的标准文档和已审核抽取结果，不自动调用真实 LLM；`use_cache=false` 也不构成调用外部模型的授权。
-7. 所有事实和任务状态写入 SQLite；临时标准文档使用系统临时目录，不新增 `data/pipeline_*` 运行时目录。
+1. 前端先调用文档导入接口，再由用户显式调用本接口；文档导入不会自动产生 LLM 费用。
+2. 接口创建后台任务并返回 HTTP 202。调用方使用返回的 `job_id` 轮询状态接口，直到 `succeeded` 或 `failed`。
+3. `extraction_mode=reviewed` 只消费仓库中已有的已审核抽取结果，真实操作名为 `import_extraction_and_build`；缺少已审核结果时明确失败，不隐式调用 LLM。
+4. `extraction_mode=live` 显式调用后端配置的 `LLMExtractionService`，真实操作名为 `extract_and_build`；模型输出先通过 extraction_result 契约校验，再由现有 `OfflineExtractionPipeline` 归一化并写入 SQLite。
+5. `use_cache` 已废弃且会返回 HTTP 400。抽取模式必须使用含义明确的 `reviewed` 或 `live`，不能用布尔值同时表达“缓存偏好”和“外部调用授权”。
+6. `doc_id` 和 `target_group` 必须且只能提供一个。为避免一次误触发大量模型调用，`live` 只允许 `doc_id`；`reviewed` 可按目标组织运行，并按 `doc_id` 排序处理 SQLite 中的匹配文档。
+7. 同一作用域和抽取模式的 `pending` / `running` 请求复用活动任务，且只向后台执行器提交一次；执行前仍通过条件更新原子认领。
+8. `pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息。服务启动时把遗留的 `running` 标记为中断失败，并以 SQLite 终态对账已有 live 运行档案；档案缺失、损坏或不可写不阻塞 SQLite 恢复。服务正常关闭时等待在途任务结束。
+9. `live` 模式在调用 SQLite 导入前，将 Extraction 与同 `run_id` 的 Candidate Audit 持久化到本机 `data/run_artifacts/`，并将 `running / succeeded / failed`、工件路径、SHA-256、LLM 调用观测和导入摘要写入 `data/run_logs/pipeline-run-<job_id>.json`。这些目录默认被 Git 忽略，不新增 `data/pipeline_*` 运行时目录。
+10. 流水线只有一个真实复合步骤，不为已经包含在离线流水线中的归一化、建图、分析和报告伪造独立成功状态。
+11. `live` 状态响应的 `run_archive` 用于定位本机运行档案；任务尚未开始时为 `null`。档案损坏时返回 `status=unavailable`，不能阻止 SQLite 中断恢复。档案只记录候选输出和运行观测，不改变 SQLite 作为 canonical 事实源的地位。
+12. `reviewed` 只读取 `config/course-demo.json` 或 `config/reviewed-extractions.json` 显式登记的工件，不扫描运行目录，也不会把刚生成的 live 结果自动视为已审核结果。
+
+提交成功响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "job_id": "job_0123456789abcdef",
+    "doc_id": "apt28_049",
+    "target_group": null,
+    "extraction_mode": "reviewed",
+    "operation": "import_extraction_and_build",
+    "status": "running"
+  }
+}
+```
+
+状态值：
+
+```text
+pending -> running -> succeeded
+                   -> failed
+```
+
+`live` 状态响应会额外返回：
+
+```json
+{
+  "run_archive": {
+    "run_log": "data/run_logs/pipeline-run-job_0123456789abcdef.json",
+    "status": "succeeded",
+    "run_id": "extract-apt28_049-deepseek-v4-flash-1.0-1.0-20260716010000000000-a1b2c3d4",
+    "artifacts": {
+      "result_path": "data/run_artifacts/extract-apt28_049-deepseek-v4-flash-1.0-1.0-20260716010000000000-a1b2c3d4.json",
+      "result_sha256": "...",
+      "candidate_audit_path": "data/run_artifacts/extract-apt28_049-deepseek-v4-flash-1.0-1.0-20260716010000000000-a1b2c3d4-candidate-audit.json",
+      "candidate_audit_sha256": "..."
+    }
+  }
+}
+```
 
 ---
 
@@ -323,9 +369,9 @@ GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
 说明：
 
 1. `/graph` 默认从 SQLite 查询。
-2. `/graph/path` 在优先级 P0 使用 SQLite relations 表做基础 BFS 路径查询。
-3. `/graph/path` 在增强阶段 / 优先级 P1 优先使用 Neo4j Cypher 做正式多跳路径查询。
-4. Neo4j 不可用时，路径接口降级到 SQLite；如果 SQLite 也查不到路径，再返回清晰错误。
+2. `/graph/path` 的 `max_depth` 范围为 1 到 8；关系类型和最小置信度筛选同时作用于 Neo4j 与 SQLite 实现。
+3. `/graph/path` 优先使用 Neo4j Cypher 做多跳路径查询。Neo4j 正常返回空路径时不重复查询 SQLite。
+4. Neo4j 未配置、投影尚未全量构建或查询失败时，路径接口降级到 SQLite BFS，并增加稳定的 `fallback_reason`。
 
 路径查询返回：
 
@@ -581,12 +627,37 @@ POST /api/v1/evaluation/run
 
 ```text
 GET  /api/v1/neo4j/status
+POST /api/v1/neo4j/rebuild
 POST /api/v1/neo4j/sync
 ```
 
 说明：
 
-1. 增强阶段 / 优先级 P1 实现。
-2. 同步输入只能来自 SQLite canonical graph 或导出的 `graph.json`。
-3. 不允许从 LLM 原始输出同步到 Neo4j。
-4. 路径查询接口优先使用 Neo4j；失败时降级到 SQLite BFS。
+1. `status` 返回连接状态、同步状态、水位、最新变更、待同步数量、首次重建要求及最近时间和稳定错误码。
+2. `rebuild` 在同一个 SQLite 读快照中取得 canonical graph 与水位，在一个 Neo4j 写事务中替换本项目投影；先删除带项目 ownership 的关系，再以非 `DETACH` 方式删除 `ThreatGraphProjection` 节点。存在外部关系时整笔事务失败回滚。
+3. `sync` 读取 `(watermark, latest_change]` 的变更批次，使用稳定 ID 幂等 upsert/delete；只有 Neo4j 事务成功后才推进 SQLite 水位。首次增量同步前必须先全量重建，返回 HTTP 409。
+4. 同步输入只能来自 SQLite canonical graph，不允许从 LLM 原始输出同步到 Neo4j。
+5. Pipeline 成功写入 SQLite 后会尽力触发一次增量同步；投影失败不改变 Pipeline 的 SQLite 成功状态。
+6. 重建或同步连接失败返回 HTTP 503 和稳定原因码，不返回驱动异常、连接串或凭据。
+7. 路径查询接口只遍历本项目节点和带 ownership 的关系；未配置、未重建、同步失败、水位落后或查询失败时降级到 SQLite BFS。
+
+状态响应示例：
+
+```json
+{
+  "success": true,
+  "data": {
+    "available": true,
+    "connection": "connected",
+    "status": "succeeded",
+    "watermark": 42,
+    "latest_change": 42,
+    "pending_changes": 0,
+    "requires_rebuild": false,
+    "last_attempt_at": "2026-07-16T08:00:00+00:00",
+    "last_success_at": "2026-07-16T08:00:00+00:00",
+    "last_full_sync_at": "2026-07-16T08:00:00+00:00",
+    "error": null
+  }
+}
+```

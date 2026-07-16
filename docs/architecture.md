@@ -844,6 +844,7 @@ POST /api/v1/evaluation/run
 ### 8.10 Neo4j 同步接口
 
 ```text
+POST /api/v1/neo4j/rebuild
 POST /api/v1/neo4j/sync
 GET  /api/v1/neo4j/status
 ```
@@ -852,8 +853,9 @@ GET  /api/v1/neo4j/status
 
 1. Neo4j 同步接口只读取 canonical graph。
 2. 不允许 LLM 结果直接写入 Neo4j。
-3. 增强阶段 / 优先级 P1 实现 Neo4j 同步和路径查询。
-4. 如果 Neo4j 不可用，基础图谱展示和报告生成仍然通过 SQLite 工作。
+3. 全量重建在同一 SQLite 读快照中固定图数据和水位，并在单个 Neo4j 写事务中替换本项目投影；项目节点存在外部关系时安全失败，不使用 `DETACH` 破坏同库其他图。
+4. 增量同步以 `graph_changes.change_id` 为水位，Neo4j 写事务成功后才推进 `sync_state`。
+5. 如果 Neo4j 不可用、同步失败或水位落后，路径查询降级到 SQLite，基础图谱展示、Pipeline 和报告生成仍然工作。
 
 ---
 
@@ -957,8 +959,8 @@ threatgraph-osint/
     export_graph_json.py
 ```
 
-上述目录中的 Neo4j 同步服务与路由是目标架构，当前尚未落地；当前仓库只提供
-Neo4j 容器。后端启动时只初始化 SQLite 表结构，不写入演示种子数据。
+当前 Neo4j 同步服务集中在 `backend/app/services/neo4j_service.py`，路由由
+`backend/app/main.py` 暴露；后端启动时只初始化 SQLite 表结构，不写入演示种子数据。
 
 ---
 
