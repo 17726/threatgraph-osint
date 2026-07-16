@@ -204,6 +204,26 @@ def test_offline_pipeline_graph_export_uses_real_sample_without_demo_seed(tmp_pa
     assert len(graph["analysis"]["inferred_relations"]) == 2
 
 
+def test_offline_pipeline_does_not_infer_attack_paths_without_tool_use(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    extraction_path = tmp_path / "targets_only_extraction.json"
+    payload = json.loads(EXTRACTION_PATH.read_text(encoding="utf-8"))
+    payload["chunks"][0]["relations"] = [
+        relation
+        for relation in payload["chunks"][0]["relations"]
+        if relation["relation_type"] != "USES"
+    ]
+    extraction_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, extraction_path)
+
+    with connect(db_path) as connection:
+        inferred_count = connection.execute(
+            "SELECT count(*) FROM inferred_relations"
+        ).fetchone()[0]
+    assert inferred_count == 0
+
+
 def test_offline_pipeline_updates_api_graph_store(tmp_path):
     db_path = tmp_path / "threatgraph_osint.db"
     OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, EXTRACTION_PATH)

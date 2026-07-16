@@ -1129,6 +1129,8 @@ class OfflineExtractionPipeline:
             """,
             (target_entity_id,),
         ).fetchall()
+        if not tools or not target_rows:
+            return
 
         # 按目标去重：一个目标只生成一条推断关系
         for target_row in target_rows:
