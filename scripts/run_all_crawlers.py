@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from scripts.crawler_proxy import configure_environment
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = PROJECT_ROOT / "scripts"
@@ -152,6 +154,7 @@ def build_commands(args: argparse.Namespace) -> list[list[str]]:
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+    configure_environment()
     try:
         commands = build_commands(args)
     except ValueError as exc:

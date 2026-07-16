@@ -46,6 +46,8 @@ services:
       LLM_MODEL: ${LLM_MODEL:-}
       LLM_BASE_URL: ${LLM_BASE_URL:-}
       LLM_API_KEY: ${LLM_API_KEY:-}
+      CRAWLER_PROXY_HOST: ${CRAWLER_PROXY_HOST:-}
+      CRAWLER_PROXY_PORT: ${CRAWLER_PROXY_PORT:-}
     expose:
       - "8100"
     volumes:

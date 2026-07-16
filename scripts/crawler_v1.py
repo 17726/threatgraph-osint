@@ -25,6 +25,7 @@ from scripts.convert_raw_documents import (
     sha256_text,
     source_reliability,
 )
+from scripts.crawler_proxy import playwright_proxy
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
@@ -904,7 +905,7 @@ class Unit42Crawler:
         async_playwright, Stealth = get_playwright_runtime()
         stealth = Stealth()
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            browser = await p.chromium.launch(headless=True, proxy=playwright_proxy())
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={"width": 1920, "height": 1080},
@@ -1065,7 +1066,7 @@ class FreebufCrawler:
         async_playwright, Stealth = get_playwright_runtime()
         stealth = Stealth()
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            browser = await p.chromium.launch(headless=True, proxy=playwright_proxy())
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={"width": 1920, "height": 1080},

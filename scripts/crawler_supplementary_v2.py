@@ -25,6 +25,8 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from urllib.parse import quote, urljoin
 
+from scripts.crawler_proxy import playwright_proxy
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
@@ -203,7 +205,10 @@ def get_playwright_browser():
     if _playwright_instance is None:
         from playwright.sync_api import sync_playwright
         _playwright_instance = sync_playwright().start()
-        _browser = _playwright_instance.chromium.launch(headless=True)
+        _browser = _playwright_instance.chromium.launch(
+            headless=True,
+            proxy=playwright_proxy(),
+        )
     return _browser
 
 def close_playwright():
