@@ -25,6 +25,7 @@ from scripts.convert_raw_documents import (
     sha256_text,
     source_reliability,
 )
+from scripts.crawler_proxy import playwright_proxy
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
@@ -72,13 +73,33 @@ def project_root() -> Path:
     return REPO_ROOT
 
 
+def data_root() -> Path:
+    return Path(os.getenv("CRAWLER_DATA_ROOT", str(REPO_ROOT / "data")))
+
+
 def safe_slug(value: str) -> str:
     slug = re.sub(r"[^0-9A-Za-z._-]+", "_", value.strip().lower()).strip("._-")
     return slug or "keyword"
 
 
 def output_dir_for(target_group: str) -> Path:
-    return project_root() / "data" / "documents" / safe_slug(target_group)
+    return data_root() / "cleaned" / safe_slug(target_group)
+
+
+SOURCE_NAMES = ("qianxin", "thehackernews", "unit42", "freebuf")
+SOURCE_MASK = (1 << len(SOURCE_NAMES)) - 1
+
+
+def sources_from_mask(source_mask: int) -> List[str]:
+    if source_mask <= 0:
+        raise ValueError("source mask must be greater than zero")
+    if source_mask & ~SOURCE_MASK:
+        raise ValueError(f"source mask exceeds {len(SOURCE_NAMES)} bits")
+    return [
+        source_name
+        for index, source_name in enumerate(SOURCE_NAMES)
+        if source_mask & (1 << index)
+    ]
 
 
 def next_doc_number(output_dir: Path, target_group: str) -> int:
@@ -464,15 +485,12 @@ class QianxinCrawler:
     def run(cls, keyword: str, limit: Optional[int] = None) -> None:
         target_group = safe_slug(keyword)
         output_dir = output_dir_for(target_group)
-        failed_log = project_root() / "data" / f"failed_qianxin_ti_{target_group}.log"
+        failed_log = data_root() / f"failed_qianxin_ti_{target_group}.log"
         output_dir.mkdir(parents=True, exist_ok=True)
         seen_urls = existing_source_urls(output_dir)
         next_number = next_doc_number(output_dir, target_group)
 
         articles = cls.collect_articles(keyword)
-        if limit is not None:
-            articles = articles[:limit]
-
         success_count = 0
         skip_count = 0
         fail_count = 0
@@ -496,6 +514,8 @@ class QianxinCrawler:
                 seen_urls.add(article_url)
                 success_count += 1
                 log.info("  Saved: %s", path.name)
+                if limit is not None and success_count >= limit:
+                    break
             except Exception as exc:
                 fail_count += 1
                 log.error("  Failed: %s", exc)
@@ -685,7 +705,7 @@ class TheHackerNewsCrawler:
     def run(cls, keyword: str, limit: Optional[int] = None):
         target_group = safe_slug(keyword)
         output_dir = output_dir_for(target_group)
-        failed_log = project_root() / "data" / f"failed_thehackernews_{target_group}.log"
+        failed_log = data_root() / f"failed_thehackernews_{target_group}.log"
         output_dir.mkdir(parents=True, exist_ok=True)
         seen_urls = existing_source_urls(output_dir)
         next_number = next_doc_number(output_dir, target_group)
@@ -693,7 +713,7 @@ class TheHackerNewsCrawler:
         label_url = f"https://thehackernews.com/search/label/{quote(keyword)}"
 
         session = get_requests_module().Session()
-        articles = cls.collect_all_articles(session, label_url, limit)
+        articles = cls.collect_all_articles(session, label_url, None)
 
         success_count = 0
         skip_count = 0
@@ -720,6 +740,8 @@ class TheHackerNewsCrawler:
                 seen_urls.add(url)
                 success_count += 1
                 log.info("  Saved: %s", path.name)
+                if limit is not None and success_count >= limit:
+                    break
             except Exception as exc:
                 fail_count += 1
                 log.error("  Failed: %s", exc)
@@ -883,7 +905,7 @@ class Unit42Crawler:
         async_playwright, Stealth = get_playwright_runtime()
         stealth = Stealth()
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)
+            browser = await p.chromium.launch(headless=True, proxy=playwright_proxy())
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={"width": 1920, "height": 1080},
@@ -892,9 +914,6 @@ class Unit42Crawler:
             await stealth.apply_stealth_async(context)
             page = await context.new_page()
             articles = await cls.collect_articles(page, keyword)
-            if limit is not None:
-                articles = articles[:limit]
-
             success_count = 0
             skip_count = 0
             fail_count = 0
@@ -931,6 +950,8 @@ class Unit42Crawler:
                     seen_urls.add(article_url)
                     success_count += 1
                     log.info("  Saved: %s", path.name)
+                    if limit is not None and success_count >= limit:
+                        break
                 except Exception as exc:
                     fail_count += 1
                     log.error("  Failed: %s", exc)
@@ -1045,7 +1066,7 @@ class FreebufCrawler:
         async_playwright, Stealth = get_playwright_runtime()
         stealth = Stealth()
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)
+            browser = await p.chromium.launch(headless=True, proxy=playwright_proxy())
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={"width": 1920, "height": 1080},
@@ -1054,9 +1075,6 @@ class FreebufCrawler:
             await stealth.apply_stealth_async(context)
             page = await context.new_page()
             articles = await cls.collect_articles(page, keyword)
-            if limit is not None:
-                articles = articles[:limit]
-
             success_count = 0
             skip_count = 0
             fail_count = 0
@@ -1093,6 +1111,8 @@ class FreebufCrawler:
                     seen_urls.add(article_url)
                     success_count += 1
                     log.info("  Saved: %s", path.name)
+                    if limit is not None and success_count >= limit:
+                        break
                 except Exception as exc:
                     fail_count += 1
                     log.error("  Failed: %s", exc)
@@ -1111,41 +1131,53 @@ async def main():
     parser = argparse.ArgumentParser(description="Unified Web Crawler for Threat Intel Sources")
     parser.add_argument("--keyword", required=True, help="Keyword to search (e.g., APT28, Kimsuky)")
     parser.add_argument("--limit", type=int, default=None, help="Maximum number of items to crawl per source")
+    parser.add_argument("--sources", type=int, required=True, help="Local source bitmask")
 
     args = parser.parse_args()
     keyword = args.keyword
     limit = args.limit
+    sources = set(sources_from_mask(args.sources))
 
     log.info(f"Starting unified crawl for '{keyword}' with limit {limit}")
+    failed = False
 
     # Synchronous crawlers
-    log.info("--- Running Qianxin TI Crawler ---")
-    try:
-        QianxinCrawler.run(keyword, limit)
-    except Exception as e:
-        log.exception(f"Qianxin TI crawler failed: {e}")
+    if "qianxin" in sources:
+        log.info("--- Running Qianxin TI Crawler ---")
+        try:
+            QianxinCrawler.run(keyword, limit)
+        except Exception as e:
+            failed = True
+            log.exception(f"Qianxin TI crawler failed: {e}")
 
-    log.info("--- Running The Hacker News Crawler ---")
-    try:
-        TheHackerNewsCrawler.run(keyword, limit)
-    except Exception as e:
-        log.exception(f"The Hacker News crawler failed: {e}")
+    if "thehackernews" in sources:
+        log.info("--- Running The Hacker News Crawler ---")
+        try:
+            TheHackerNewsCrawler.run(keyword, limit)
+        except Exception as e:
+            failed = True
+            log.exception(f"The Hacker News crawler failed: {e}")
 
     # Asynchronous crawlers
-    log.info("--- Running Unit42 Crawler ---")
-    try:
-        await Unit42Crawler.run(keyword, limit)
-    except Exception as e:
-        log.exception(f"Unit42 crawler failed: {e}")
+    if "unit42" in sources:
+        log.info("--- Running Unit42 Crawler ---")
+        try:
+            await Unit42Crawler.run(keyword, limit)
+        except Exception as e:
+            failed = True
+            log.exception(f"Unit42 crawler failed: {e}")
 
-    log.info("--- Running Freebuf Crawler ---")
-    try:
-        await FreebufCrawler.run(keyword, limit)
-    except Exception as e:
-        log.exception(f"Freebuf crawler failed: {e}")
+    if "freebuf" in sources:
+        log.info("--- Running Freebuf Crawler ---")
+        try:
+            await FreebufCrawler.run(keyword, limit)
+        except Exception as e:
+            failed = True
+            log.exception(f"Freebuf crawler failed: {e}")
 
     log.info("--- All crawlers finished. ---")
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    raise SystemExit(asyncio.run(main()))

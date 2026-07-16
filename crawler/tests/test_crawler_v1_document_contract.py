@@ -1,12 +1,13 @@
 import hashlib
+import importlib.util
 
 from scripts import crawler_v1
 
 
-def test_crawler_v1_defaults_to_document_output_dir() -> None:
+def test_crawler_v1_defaults_to_cleaned_output_dir() -> None:
     output_dir = crawler_v1.output_dir_for("APT28")
 
-    assert output_dir.as_posix().endswith("data/documents/apt28")
+    assert output_dir.as_posix().endswith("data/cleaned/apt28")
 
 
 def test_crawler_v1_builds_document_contract_record() -> None:
@@ -40,3 +41,15 @@ def test_crawler_v1_builds_document_contract_record() -> None:
     assert document["retrieved_at"] == "2026-07-07T16:43:23Z"
     assert document["tlp"] == "TLP:CLEAR"
     assert document["metadata"]["crawler"] == "scripts/crawler_v1.py"
+
+
+def test_playwright_crawlers_use_headless_mode_in_containers() -> None:
+    import inspect
+
+    source = inspect.getsource(crawler_v1)
+
+    assert "launch(headless=False)" not in source
+
+
+def test_crawler_supplementary_v2_dependency_is_available() -> None:
+    assert importlib.util.find_spec("cloudscraper") is not None

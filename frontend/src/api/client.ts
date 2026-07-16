@@ -8,6 +8,11 @@ import type {
 } from "../types";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 
+export type HealthPayload = {
+  status: string;
+  components: { llm: string };
+};
+
 type PathResult = { nodes: GraphNode[]; edges: GraphEdge[] };
 
 type PathApiPayload =
@@ -33,6 +38,10 @@ export function fetchGraph(
   const url = `/graph?target=${encodeURIComponent(target)}&depth=${depth}`;
 
   return getJson<GraphPayload>(url, { signal: options.signal });
+}
+
+export function fetchHealth(): Promise<HealthPayload> {
+  return getJson<HealthPayload>("/health");
 }
 
 export function fetchReport(target: string): Promise<ReportPayload> {
@@ -241,10 +250,6 @@ export async function runPipeline(
     doc_id: string;
     status: string;
   }>(importResponse, "文档导入失败");
-
-  if (imported.status === "skipped") {
-    return { skipped: true, doc_id: imported.doc_id };
-  }
 
   const pipelineResponse = await fetch(`${API_BASE_URL}/pipeline/run`, {
     method: "POST",

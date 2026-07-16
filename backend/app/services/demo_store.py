@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from backend.app.core.document_contract import require_valid_document
+from backend.app.core.llm_config import get_llm_config_status
 from backend.app.db.schema import (
     ensure_graph_sync_schema,
     ensure_import_compatible_columns,
@@ -691,7 +692,7 @@ class DemoStore:
     def health(self) -> dict[str, str]:
         with self.connect() as connection:
             connection.execute("SELECT 1").fetchone()
-        return {"sqlite": "ok", "neo4j": "disconnected", "llm": "not_configured"}
+        return {"sqlite": "ok", "neo4j": "disconnected", "llm": get_llm_config_status()}
 
     def get_entity(self, entity_id: str) -> dict[str, Any] | None:
         with self.connect() as connection:

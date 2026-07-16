@@ -70,6 +70,38 @@ GET  /api/v1/collection-runs/{collection_run_id}
 
 第一阶段可以先跳过网络采集，通过本地文本或 `data/documents/<target_group>/*.json` 导入文档。课程验收增强阶段再实现三类来源的最小自动采集闭环，并写入 SQLite。复杂定时调度、增量 checkpoint、复杂去重和新情报自动入图属于后续增强。
 
+三容器自动采集使用以下接口：
+
+```text
+POST /api/v1/crawl/runs
+GET  /api/v1/crawl/runs/{crawl_run_id}
+```
+
+开发阶段浏览器可以直接访问宿主机暴露的 backend API，但 crawler 只在 Docker Compose 内部网络提供服务，浏览器不能直接访问 crawler。backend 生成 `crawl_run_id`，查询当前目标组织最大文档编号后计算 `start_number`，再通过 HTTP 调用内部 crawler。任务状态当前只保存在 backend 进程内存中；同一时间已有 `pending` 或 `running` 任务时返回 HTTP 409。
+
+任务状态包括 `pending`、`running`、`succeeded` 和 `failed`。至少成功导入一篇文档时任务为 `succeeded`，单篇失败会继续处理并计入 `items_failed`；没有成功导入文档时任务为 `failed`。
+
+采集固定使用 live Pipeline，因此启动采集前必须配置非空的 `LLM_MODEL`、`LLM_BASE_URL` 和 `LLM_API_KEY`。三项配置任一缺失时，health 的 `components.llm` 为 `not_configured`，`POST /api/v1/crawl/runs` 返回 HTTP 503、错误码 `ERR_LLM_NOT_CONFIGURED` 和消息 `无有效 LLM 配置`；backend 不创建任务，也不调用 crawler。frontend 仍显示“采集情报”按钮，但将其置为 disabled。
+
+采集任务的每篇 promote 文档在调用 `/documents/import` 后，都会继续复用已有的 live Pipeline 接口：先调用 `/pipeline/run` 并固定传入 `extraction_mode=live`，再轮询 `/pipeline/status/{job_id}`。即使文档因 `doc_id` 或 `content_hash` 已存在而返回 `skipped`，也会使用 backend 返回的既有 `doc_id` 继续执行 live Pipeline。crawler 不实现第二套抽取、校验或建图逻辑。
+
+采集状态响应还包含 `source_results`。该字段以文档的 `source_name` 为键，记录每个来源的 `items_promoted`、`items_imported`、`items_skipped`、`items_failed` 和 `items_pipeline_succeeded`。来源未达到 `limit` 时仍保留来源级统计，不单独导致整次任务失败。
+
+采集状态响应还可包含 `progress`：
+
+```json
+{
+  "phase": "collecting",
+  "current": 3,
+  "total": 10,
+  "target": "APT28",
+  "source": "FreeBuf",
+  "message": "正在采集"
+}
+```
+
+`phase` 可为 `collecting`、`validating`、`importing`、`completed` 或 `failed`。采集阶段的 `total` 为选中来源数乘以 `limit`；验证和导入阶段的 `total` 为实际进入对应阶段的文档数。旧客户端未收到 `progress` 时应显示通用任务执行状态。任务终态沿用宽松语义：至少一篇文档完成 live Pipeline 且 crawler 主流程未退出失败时返回 `succeeded`；没有任何成功 Pipeline 或 crawler 主流程失败时返回 `failed`。
+
 `POST /sources` 请求：
 
 ```json
