@@ -246,7 +246,7 @@ export default function PipelineModal({ open, onClose, onSuccess }: PipelineModa
               onChange={() => setExtractionMode("reviewed")}
             />
             <span style={{ fontSize: 12, color: "#374151", lineHeight: 1.45 }}>
-              <strong>已审核结果（演示推荐）</strong>
+              <strong>已审核结果</strong>
               <br />
               复用仓库中的已审核 extraction_result，不调用外部模型，结果稳定。
             </span>
@@ -268,7 +268,7 @@ export default function PipelineModal({ open, onClose, onSuccess }: PipelineModa
               onChange={() => setExtractionMode("live")}
             />
             <span style={{ fontSize: 12, color: "#374151", lineHeight: 1.45 }}>
-              <strong>现场 LLM 抽取</strong>
+              <strong>LLM 抽取</strong>
               <br />
               显式调用后端配置的模型，耗时、费用和输出会受外部服务影响。
             </span>

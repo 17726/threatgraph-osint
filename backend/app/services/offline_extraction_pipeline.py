@@ -666,6 +666,21 @@ class OfflineExtractionPipeline:
 
     def normalize_candidates(self, connection: sqlite3.Connection, run_id: str) -> None:
         entity_map: dict[tuple[str, str], str] = {}
+
+        # 预加载已存在的实体：建立 (normalized_name, type) → entity_id 的映射，
+        # 用于别名级别的归并 —— 如果新抽取的实体名称或别名匹配已有实体，则复用其 ID。
+        existing_lookup: dict[tuple[str, str], str] = {}
+        for er in connection.execute(
+            "SELECT entity_id, name, aliases_json FROM entities"
+        ).fetchall():
+            entity_id_parts = er["entity_id"].split(":", 1)
+            if len(entity_id_parts) != 2 or not entity_id_parts[1]:
+                continue  # 跳过 ID 残缺的旧实体（如 organization:）
+            existing_aliases = json.loads(er["aliases_json"]) if er["aliases_json"] else []
+            for name_or_alias in [er["name"], *existing_aliases]:
+                key = (normalize_lookup(name_or_alias), entity_id_parts[0])
+                existing_lookup[key] = er["entity_id"]
+
         rows = connection.execute(
             """
             SELECT ee.*, d.target_group, d.published_at, d.retrieved_at, d.source_url,
@@ -682,7 +697,17 @@ class OfflineExtractionPipeline:
 
         for row in rows:
             aliases = json.loads(row["aliases_json"])
-            entity_id = canonical_entity_id(row["type"], row["name"])
+            # 先查 existing_lookup 看是否有同类型且名称/别名匹配的已有实体
+            type_prefix = ENTITY_PREFIXES.get(row["type"])
+            entity_id = None
+            if type_prefix:
+                for name_or_alias in [row["name"], *aliases]:
+                    key = (normalize_lookup(name_or_alias), type_prefix)
+                    if key in existing_lookup:
+                        entity_id = existing_lookup[key]
+                        break
+            if entity_id is None:
+                entity_id = canonical_entity_id(row["type"], row["name"])
             merged_aliases = merge_aliases(connection, entity_id, aliases)
             tags = merge_tags(connection, entity_id, json.loads(row["tags_json"]))
             first_seen = row["published_at"] or row["retrieved_at"]
@@ -1158,15 +1183,23 @@ def stable_evidence_id(
 
 
 def slugify(value: str) -> str:
+    original = value
     value = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1-\2", value)
     value = re.sub(r"([a-z0-9])([A-Z])", r"\1-\2", value)
     value = value.lower()
     value = re.sub(r"[^a-z0-9]+", "-", value)
-    return value.strip("-")
+    result = value.strip("-")
+    if not result:
+        # 纯中文/非 ASCII 名称等产生空 slug 时的 fallback
+        result = "id-" + hashlib.sha256(original.encode("utf-8")).hexdigest()[:12]
+    return result
 
 
 def normalize_lookup(value: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "", value.lower())
+    result = re.sub(r"[^a-z0-9]+", "", value.lower())
+    if not result:
+        result = "id-" + hashlib.sha256(value.encode("utf-8")).hexdigest()[:12]
+    return result
 
 
 def short_hash(*parts: str) -> str:

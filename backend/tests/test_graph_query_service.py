@@ -144,7 +144,7 @@ def test_limit_one_keeps_target_even_when_sorted_after_neighbor(tmp_path):
 
 
 def test_neighbors_returns_center_direct_neighbors_and_connecting_edges(tmp_path):
-    result = seeded_service(tmp_path).get_neighbors("technique:t1566")
+    result = seeded_service(tmp_path).get_neighbors("technique:t1566", depth=1)
 
     assert {node["id"] for node in result["nodes"]} == {
         "technique:t1566",
