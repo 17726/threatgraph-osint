@@ -12,7 +12,7 @@
 
 - 对外统一入口只暴露 `--keyword`、`--limit`、`--filter`、`--sources`。
 - 三个爬虫的中间输出目录统一为 `data/cleaned/<target_group>/`。
-- `--sources` 使用逗号分隔来源名或 `all`；未知来源必须报错。
+- `--sources` 使用十进制整数 bitmask；必须大于 0 且不能超出 12 位布局。
 - 没有匹配来源的爬虫不得启动。
 - `promote_cleaned_documents.py` 不修改输入中间文件。
 - 正式 `doc_id` 按 `data/documents/<target_group>/` 当前最大序号递增。
@@ -30,13 +30,13 @@
 - Create: `backend/tests/test_crawler_source_selection.py`
 
 **Interfaces:**
-- Each crawler exposes `--source` accepting `all` or comma-separated source keys.
+- Each crawler exposes local integer `--sources`; bit 0 selects its first hard-coded source.
 - `crawler_v1.output_dir_for()` returns `data/cleaned/<target_group>`.
 - Supplementary source registries remain the source of truth for valid keys.
 
 - [ ] **Step 1: Write failing tests**
 
-Add tests for `crawler_v1.output_dir_for`, comma-separated source parsing, and source registry filtering without making network requests.
+Add tests for `crawler_v1.output_dir_for`, local integer mask selection, and invalid masks without making network requests.
 
 ```python
 from scripts import crawler_v1, crawler_supplementary, crawler_supplementary_v2
@@ -73,7 +73,7 @@ Expected: FAIL because `parse_sources` is not defined and `crawler_v1` still poi
 
 - [ ] **Step 3: Implement minimal source selection**
 
-Add a small `parse_sources(value, available_sources)` helper to each crawler, change `crawler_v1.output_dir_for()` to `data/cleaned`, and update each `main()` to pass the selected source list to only the matching crawler classes. Preserve the existing per-source parsing logic and make each crawler's `run` method accept its existing keyword and limit arguments.
+Add a `sources_from_mask(source_mask)` helper to each crawler, change `crawler_v1.output_dir_for()` to `data/cleaned`, and update each `main()` to pass the selected local integer mask to only the matching crawler classes. Preserve the existing per-source parsing logic and make each crawler's `run` method accept its existing keyword and limit arguments.
 
 - [ ] **Step 4: Run tests and syntax checks**
 
@@ -200,13 +200,13 @@ Expected: PASS.
 
 **Interfaces:**
 - `build_parser()` exposes only `--keyword`, `--limit`, `--filter`, and `--sources`.
-- `SOURCE_OWNERS` maps every valid source to exactly one crawler.
-- `group_sources(source_value: str) -> dict[str, list[str]]` returns grouped source lists and skips empty owners.
+- `CRAWLER_WIDTHS` defines the fixed bit width of each crawler.
+- `group_source_masks(sources: int) -> dict[str, int]` returns nonzero local masks and skips empty owners.
 - `build_commands(args) -> list[list[str]]` creates crawler, optional filter, and promote subprocess commands.
 
 - [ ] **Step 1: Write failing tests**
 
-Cover `all`, selected source grouping, no command for an owner with no selected source, filter input selection, and parser rejection of unknown sources.
+Cover full-mask selection, selected bit grouping, no command for an owner with a zero local mask, filter input selection, and parser rejection of invalid integers.
 
 - [ ] **Step 2: Run tests and verify RED**
 
@@ -218,7 +218,7 @@ Expected: FAIL against the current interactive implementation.
 
 - [ ] **Step 3: Implement dispatcher**
 
-Use `argparse`, normalize and validate source keys, group them by owner, run each selected crawler once with a comma-separated `--source` value, then run `filter_by_relevance.py --folder <normalized target>` only when `--filter` is present, and finally run `promote_cleaned_documents.py` with either `data/cleaned` or `data/cleaned_filtered`. Stop on the first nonzero child process and propagate its exit code.
+Use `argparse`, validate the decimal global bitmask, split it into fixed 4-bit local masks, run each selected crawler once with its local `--sources` integer, then run `filter_by_relevance.py --folder <normalized target>` only when `--filter` is present, and finally run `promote_cleaned_documents.py` with either `data/cleaned` or `data/cleaned_filtered`. Stop on the first nonzero child process and propagate its exit code.
 
 - [ ] **Step 4: Run dispatcher tests**
 

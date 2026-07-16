@@ -8,19 +8,22 @@ def test_crawler_v1_writes_cleaned_documents() -> None:
 
 
 def test_source_selection_accepts_comma_separated_values() -> None:
-    assert crawler_v1.parse_sources("qianxin,freebuf") == ["qianxin", "freebuf"]
-    assert crawler_supplementary.parse_sources("microsoft,securelist") == [
-        "microsoft",
-        "securelist",
-    ]
-    assert crawler_supplementary_v2.parse_sources("ofac,groupib") == ["ofac", "groupib"]
+    assert crawler_v1.sources_from_mask(0b1001) == ["qianxin", "freebuf"]
+    assert crawler_supplementary.sources_from_mask(0b1010) == ["trmlabs", "securelist"]
+    assert crawler_supplementary_v2.sources_from_mask(0b0110) == ["groupib", "ofac"]
 
 
-def test_source_selection_rejects_unknown_values() -> None:
+def test_local_source_mask_selects_sources_by_lowest_bit() -> None:
+    assert crawler_v1.sources_from_mask(0b0101) == ["qianxin", "unit42"]
+    assert crawler_supplementary.sources_from_mask(0b1010) == ["trmlabs", "securelist"]
+    assert crawler_supplementary_v2.sources_from_mask(0b0101) == ["crowdstrike", "ofac"]
+
+
+def test_source_selection_rejects_invalid_masks() -> None:
     try:
-        crawler_v1.parse_sources("missing")
+        crawler_v1.sources_from_mask(0)
     except ValueError as exc:
-        assert "missing" in str(exc)
+        assert "greater than zero" in str(exc)
     else:
         raise AssertionError("unknown source should fail")
 
@@ -42,7 +45,7 @@ def test_crawler_v1_returns_failure_when_selected_crawler_fails(monkeypatch) -> 
     monkeypatch.setattr(crawler_v1, "QianxinCrawler", FailingCrawler)
     monkeypatch.setattr(
         "sys.argv",
-        ["crawler_v1.py", "--keyword", "APT28", "--source", "qianxin"],
+        ["crawler_v1.py", "--keyword", "APT28", "--sources", "1"],
     )
 
     assert asyncio.run(crawler_v1.main()) == 1

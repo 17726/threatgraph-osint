@@ -25,17 +25,17 @@ crawler_supplementary_v2.py
 --keyword   必填，目标组织或搜索关键词
 --limit     每个来源最多采集条数，必须为正整数
 --filter    可选开关，启用 LLM 相关性过滤和末尾清洗
---sources   必填，逗号分隔的来源名或 all
+--sources   必填，全局来源整数掩码，必须大于 0
 ```
 
 示例：
 
 ```bash
-python scripts/run_all_crawlers.py --keyword APT28 --limit 2 --sources all
-python scripts/run_all_crawlers.py --keyword Lazarus --limit 5 --sources chainalysis,ofac --filter
+python scripts/run_all_crawlers.py --keyword APT28 --limit 2 --sources 4095
+python scripts/run_all_crawlers.py --keyword Lazarus --limit 5 --sources 1152 --filter
 ```
 
-来源名统一转为小写，未知来源直接报错，不静默忽略。
+`--sources` 是十进制整数，在代码内部作为 bitmask 处理。当前三个爬虫各占 4 位，低位到高位依次为 `crawler_v1`、`crawler_supplementary`、`crawler_supplementary_v2`。来源顺序由各子爬虫内置表固定，最低位对应第一个来源。掩码为 0 或超出 12 位直接报错。
 
 ## 来源归属
 
@@ -52,7 +52,7 @@ crawler_supplementary_v2:
   crowdstrike, groupib, ofac, fbi
 ```
 
-调度器根据 `--sources` 将来源分组传给对应脚本。某个脚本没有任何匹配来源时不调用。每个脚本一次调用可接收逗号分隔的多个来源；`all` 只在该脚本获得其完整来源集合时使用。
+调度器按位段拆分 `--sources`，将每个非零局部整数掩码传给对应脚本。某个脚本局部掩码为 0 时不调用。
 
 三个爬虫均输出到：
 
@@ -60,7 +60,7 @@ crawler_supplementary_v2:
 data/cleaned/<target_group>/
 ```
 
-其中 `crawler_v1.py` 增加 `--source`，并将原有固定调用改为来源注册表选择；其他两个补充脚本将 `--source` 从单个来源扩展为逗号分隔列表。
+三个爬虫均接收局部整数 `--sources`，并按最低位匹配自身内置来源顺序。
 
 ## 过滤流程
 
@@ -102,7 +102,7 @@ data/cleaned_filtered -> promote_cleaned_documents.py -> data/documents
 
 ## 错误处理
 
-- `--sources` 为空、来源未知、`--limit` 非正整数：调度器启动前失败。
+- `--sources` 非法、为 0、超出布局位宽或 `--limit` 非正整数：调度器启动前失败。
 - 单个爬虫子进程返回非零：停止后续爬虫、过滤和 promote，并返回相同错误码。
 - 没有匹配来源的爬虫：跳过，不视为错误。
 - 过滤器未配置 API Key：过滤模式失败，不进入 promote。
@@ -113,7 +113,7 @@ data/cleaned_filtered -> promote_cleaned_documents.py -> data/documents
 新增或调整测试覆盖：
 
 - `crawler_v1.py` 的来源选择、`all` 和 `data/cleaned` 输出目录。
-- 两个 supplementary 脚本的逗号分隔来源选择。
+- 三个爬虫的局部整数掩码来源选择。
 - 调度器来源归属分组、无匹配脚本跳过和四个 CLI 参数。
 - 过滤开关对应的输入目录选择。
 - promote 的最大序号递增、正式 `doc_id` 重写、URL/内容哈希去重和契约校验。

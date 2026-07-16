@@ -15,6 +15,9 @@ CRAWLER_SOURCES = {
     "crawler_supplementary": ("chainalysis", "trmlabs", "microsoft", "securelist"),
     "crawler_supplementary_v2": ("crowdstrike", "groupib", "ofac", "fbi"),
 }
+CRAWLER_WIDTHS = {crawler: len(sources) for crawler, sources in CRAWLER_SOURCES.items()}
+TOTAL_SOURCE_BITS = sum(CRAWLER_WIDTHS.values())
+MAX_SOURCE_MASK = (1 << TOTAL_SOURCE_BITS) - 1
 SOURCE_OWNERS = {
     source: crawler
     for crawler, sources in CRAWLER_SOURCES.items()
@@ -46,26 +49,34 @@ def positive_limit(value: str) -> int:
     return limit
 
 
-def normalize_sources(value: str) -> list[str]:
-    requested = [item.strip().lower() for item in value.split(",") if item.strip()]
-    if not requested:
-        raise ValueError("sources cannot be empty")
-    if "all" in requested:
-        if len(requested) != 1:
-            raise ValueError("sources=all cannot be combined with individual sources")
-        return [source for sources in CRAWLER_SOURCES.values() for source in sources]
-    unknown = [source for source in requested if source not in SOURCE_OWNERS]
-    if unknown:
-        raise ValueError(f"unknown source(s): {', '.join(unknown)}")
-    return list(dict.fromkeys(requested))
+def parse_sources_mask(value: str) -> int:
+    try:
+        sources = int(value, 10)
+    except ValueError as exc:
+        raise ValueError("sources must be a decimal integer") from exc
+    if sources <= 0:
+        raise ValueError("sources must be greater than zero")
+    if sources > MAX_SOURCE_MASK:
+        raise ValueError(f"sources exceeds the {TOTAL_SOURCE_BITS}-bit layout")
+    return sources
 
 
-def group_sources(source_value: str) -> dict[str, list[str]]:
-    selected = normalize_sources(source_value)
-    grouped = {crawler: [] for crawler in CRAWLER_SOURCES}
-    for source in selected:
-        grouped[SOURCE_OWNERS[source]].append(source)
-    return {crawler: sources for crawler, sources in grouped.items() if sources}
+def group_source_masks(sources: int) -> dict[str, int]:
+    if sources <= 0:
+        raise ValueError("sources must be greater than zero")
+    if sources > MAX_SOURCE_MASK:
+        raise ValueError(f"sources exceeds the {TOTAL_SOURCE_BITS}-bit layout")
+
+    remaining = sources
+    grouped: dict[str, int] = {}
+    for crawler, width in CRAWLER_WIDTHS.items():
+        local_mask = remaining & ((1 << width) - 1)
+        remaining >>= width
+        if local_mask:
+            grouped[crawler] = local_mask
+    if remaining:
+        raise ValueError("sources contains undefined high bits")
+    return grouped
 
 
 def target_folder(keyword: str) -> str:
@@ -78,14 +89,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--keyword", required=True, help="目标组织或搜索关键词")
     parser.add_argument("--limit", required=True, type=positive_limit, help="每个来源的最大文章数")
     parser.add_argument("--filter", action="store_true", help="启用相关性过滤和末尾清洗")
-    parser.add_argument("--sources", required=True, help="逗号分隔来源名或 all")
+    parser.add_argument("--sources", required=True, type=parse_sources_mask, help="全局来源整数掩码")
     return parser
 
 
 def build_commands(args: argparse.Namespace) -> list[list[str]]:
-    grouped = group_sources(args.sources)
+    grouped = group_source_masks(args.sources)
     commands: list[list[str]] = []
-    for crawler, sources in grouped.items():
+    for crawler, local_mask in grouped.items():
         commands.append(
             [
                 PYTHON_EXE,
@@ -94,8 +105,8 @@ def build_commands(args: argparse.Namespace) -> list[list[str]]:
                 args.keyword,
                 "--limit",
                 str(args.limit),
-                "--source",
-                ",".join(sources),
+                "--sources",
+                str(local_mask),
             ]
         )
 

@@ -64,20 +64,19 @@ def output_dir_for(target_group: str) -> Path:
 
 
 SOURCE_NAMES = ("crowdstrike", "groupib", "ofac", "fbi")
+SOURCE_MASK = (1 << len(SOURCE_NAMES)) - 1
 
 
-def parse_sources(value: str) -> List[str]:
-    requested = [item.strip().lower() for item in value.split(",") if item.strip()]
-    if not requested:
-        raise ValueError("source cannot be empty")
-    if "all" in requested:
-        if len(requested) != 1:
-            raise ValueError("source=all cannot be combined with individual sources")
-        return list(SOURCE_NAMES)
-    unknown = [item for item in requested if item not in SOURCE_NAMES]
-    if unknown:
-        raise ValueError(f"unknown source(s): {', '.join(unknown)}")
-    return list(dict.fromkeys(requested))
+def sources_from_mask(source_mask: int) -> List[str]:
+    if source_mask <= 0:
+        raise ValueError("source mask must be greater than zero")
+    if source_mask & ~SOURCE_MASK:
+        raise ValueError(f"source mask exceeds {len(SOURCE_NAMES)} bits")
+    return [
+        source_name
+        for index, source_name in enumerate(SOURCE_NAMES)
+        if source_mask & (1 << index)
+    ]
 
 def next_doc_number(output_dir: Path, target_group: str) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -797,7 +796,7 @@ SOURCES = {
 
 def main():
     parser = argparse.ArgumentParser(description="补充数据爬虫 v2 - Playwright版本")
-    parser.add_argument("--source", required=True, help="Comma-separated sources or all")
+    parser.add_argument("--sources", type=int, required=True, help="Local source bitmask")
     parser.add_argument("--keyword", required=True, help="搜索关键词")
     parser.add_argument("--limit", type=int, default=20, help="最大文章数")
     
@@ -806,7 +805,7 @@ def main():
     log.info(f"开始爬取: source={args.source}, keyword={args.keyword}, limit={args.limit}")
     
     try:
-        for source_name in parse_sources(args.source):
+        for source_name in sources_from_mask(args.sources):
             crawler_class = SOURCES[source_name]
             log.info(f"\n--- 运行 {source_name} 爬虫 ---")
             try:
