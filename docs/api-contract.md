@@ -70,6 +70,17 @@ GET  /api/v1/collection-runs/{collection_run_id}
 
 第一阶段可以先跳过网络采集，通过本地文本或 `data/documents/<target_group>/*.json` 导入文档。课程验收增强阶段再实现三类来源的最小自动采集闭环，并写入 SQLite。复杂定时调度、增量 checkpoint、复杂去重和新情报自动入图属于后续增强。
 
+三容器自动采集使用以下接口：
+
+```text
+POST /api/v1/crawl/runs
+GET  /api/v1/crawl/runs/{crawl_run_id}
+```
+
+开发阶段浏览器可以直接访问宿主机暴露的 backend API，但 crawler 只在 Docker Compose 内部网络提供服务，浏览器不能直接访问 crawler。backend 生成 `crawl_run_id`，查询当前目标组织最大文档编号后计算 `start_number`，再通过 HTTP 调用内部 crawler。任务状态当前只保存在 backend 进程内存中；同一时间已有 `pending` 或 `running` 任务时返回 HTTP 409。
+
+任务状态包括 `pending`、`running`、`succeeded` 和 `failed`。至少成功导入一篇文档时任务为 `succeeded`，单篇失败会继续处理并计入 `items_failed`；没有成功导入文档时任务为 `failed`。
+
 `POST /sources` 请求：
 
 ```json

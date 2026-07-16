@@ -48,6 +48,24 @@ def test_build_commands_uses_filtered_input_only_when_enabled() -> None:
     )
 
 
+def test_build_commands_passes_start_number_to_promote() -> None:
+    parser = run_all_crawlers.build_parser()
+    args = parser.parse_args(
+        ["--keyword", "APT28", "--limit", "2", "--sources", "1", "--start-number", "108"]
+    )
+
+    promote_command = run_all_crawlers.build_commands(args)[-1]
+
+    assert promote_command[-2:] == ["--start-number", "108"]
+
+
+def test_start_number_defaults_to_one() -> None:
+    parser = run_all_crawlers.build_parser()
+    args = parser.parse_args(["--keyword", "APT28", "--limit", "2", "--sources", "1"])
+
+    assert args.start_number == 1
+
+
 def test_global_source_integer_is_split_into_local_masks() -> None:
     grouped = run_all_crawlers.group_source_masks(1033)
 

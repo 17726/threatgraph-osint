@@ -23,11 +23,20 @@ def document(doc_id: str, url: str, text: str) -> dict:
         "source_reliability": "B",
         "tlp": "TLP:CLEAR",
         "tags": ["news"],
-        "metadata": {},
+        "crawl_run_id": "crawl_test_001",
+        "metadata": {
+            "doc_id": doc_id,
+            "document_id": doc_id,
+            "legacy_doc_id": doc_id,
+            "source_path": f"data/cleaned/apt28/{doc_id}.json",
+            "cleaned_path": f"data/cleaned/apt28/{doc_id}.json",
+            "document_path": f"data/documents/apt28/{doc_id}.json",
+            "note": f"来自 {doc_id} 的采集",
+        },
     }
 
 
-def test_promote_assigns_next_id_and_deduplicates(tmp_path: Path) -> None:
+def test_promote_assigns_explicit_ids_and_rewrites_metadata(tmp_path: Path) -> None:
     source = tmp_path / "cleaned" / "apt28"
     target = tmp_path / "documents" / "apt28"
     source.mkdir(parents=True)
@@ -42,9 +51,18 @@ def test_promote_assigns_next_id_and_deduplicates(tmp_path: Path) -> None:
         json.dumps(document("tmp2", "https://old", "old")), encoding="utf-8"
     )
 
-    stats = promote_documents(tmp_path / "cleaned", tmp_path / "documents")
+    stats = promote_documents(tmp_path / "cleaned", tmp_path / "documents", start_number=108)
 
-    assert stats.promoted == 1
-    assert stats.skipped == 1
-    promoted = json.loads((target / "apt28_008.json").read_text(encoding="utf-8"))
-    assert promoted["doc_id"] == "apt28_008"
+    assert stats.promoted == 2
+    assert stats.skipped == 0
+    promoted = json.loads((target / "apt28_108.json").read_text(encoding="utf-8"))
+    assert promoted["doc_id"] == "apt28_108"
+    assert promoted["crawl_run_id"] == "crawl_test_001"
+    assert promoted["metadata"]["doc_id"] == "apt28_108"
+    assert promoted["metadata"]["document_id"] == "apt28_108"
+    assert promoted["metadata"]["legacy_doc_id"] == "apt28_108"
+    assert promoted["metadata"]["source_path"].endswith("data/documents/apt28/apt28_108.json")
+    assert promoted["metadata"]["cleaned_path"].endswith("data/cleaned/apt28/apt28_108.json")
+    assert promoted["metadata"]["document_path"].endswith("data/documents/apt28/apt28_108.json")
+    assert promoted["metadata"]["note"] == "来自 tmp2 的采集"
+    assert (target / "apt28_109.json").exists()

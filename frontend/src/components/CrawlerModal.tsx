@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { createCrawlRun, fetchCrawlRun, type CrawlRunStats } from "../api/crawler";
+
 type CrawlerModalProps = {
   open: boolean;
   target: string;
@@ -15,7 +17,7 @@ type CrawlerModalProps = {
   onSuccess: () => void;
 };
 
-type DemoStatus = "idle" | "running" | "success";
+type ModalStatus = "idle" | "submitting" | "running" | "success" | "failed";
 
 const TARGETS = ["APT28", "Kimsuky", "Lazarus"];
 const SOURCES = [
@@ -33,7 +35,7 @@ const SOURCES = [
   ["FBI", "fbi"],
 ] as const;
 
-const STAGES = ["正在发现来源", "正在清洗文档", "正在导入图谱"];
+const POLL_INTERVAL_MS = 1000;
 
 export default function CrawlerModal({
   open,
@@ -45,25 +47,35 @@ export default function CrawlerModal({
   const [limit, setLimit] = useState(5);
   const [selectedSources, setSelectedSources] = useState<number[]>([0]);
   const [filter, setFilter] = useState(false);
-  const [status, setStatus] = useState<DemoStatus>("idle");
-  const [stage, setStage] = useState(0);
-  const timersRef = useRef<number[]>([]);
+  const [status, setStatus] = useState<ModalStatus>("idle");
+  const [run, setRun] = useState<CrawlRunStats | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const pollTimerRef = useRef<number | null>(null);
+  const requestControllerRef = useRef<AbortController | null>(null);
+  const requestGenerationRef = useRef(0);
 
   const sources = useMemo(
     () => selectedSources.reduce((mask, index) => mask | (1 << index), 0),
     [selectedSources],
   );
   const isRunning = status === "running";
+  const isBusy = isRunning || status === "submitting";
 
   useEffect(() => {
     if (open) {
       setSelectedTarget(target);
       setStatus("idle");
-      setStage(0);
+      setRun(null);
+      setError(null);
     }
     return () => {
-      timersRef.current.forEach((timer) => window.clearTimeout(timer));
-      timersRef.current = [];
+      requestGenerationRef.current += 1;
+      requestControllerRef.current?.abort();
+      requestControllerRef.current = null;
+      if (pollTimerRef.current !== null) {
+        window.clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
     };
   }, [open, target]);
 
@@ -77,22 +89,62 @@ export default function CrawlerModal({
     );
   };
 
-  const handleRun = () => {
-    if (isRunning || sources === 0 || limit < 1) return;
-    setStatus("running");
-    setStage(0);
-    timersRef.current = [
-      window.setTimeout(() => setStage(1), 1200),
-      window.setTimeout(() => setStage(2), 2400),
-      window.setTimeout(() => {
-        setStatus("success");
-        onSuccess();
-      }, 3600),
-    ];
+  const handleRun = async () => {
+    if (isBusy || sources === 0 || limit < 1) return;
+    setStatus("submitting");
+    setRun(null);
+    setError(null);
+    requestControllerRef.current?.abort();
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
+    const generation = requestGenerationRef.current + 1;
+    requestGenerationRef.current = generation;
+    const isCurrent = () => requestGenerationRef.current === generation && !controller.signal.aborted;
+    try {
+      const created = await createCrawlRun(
+        {
+          keyword: selectedTarget,
+          limit,
+          sources,
+          filter,
+        },
+        { signal: controller.signal },
+      );
+      const runId = created.crawl_run_id;
+      const poll = async () => {
+        try {
+          const current = await fetchCrawlRun(runId, { signal: controller.signal });
+          if (!isCurrent()) return;
+          setRun(current);
+          if (current.status === "succeeded") {
+            setStatus("success");
+            onSuccess();
+            return;
+          }
+          if (current.status === "failed") {
+            setStatus("failed");
+            setError(current.error_message ?? "采集任务失败");
+            return;
+          }
+          setStatus("running");
+          pollTimerRef.current = window.setTimeout(poll, POLL_INTERVAL_MS);
+        } catch (cause: unknown) {
+          if (!isCurrent()) return;
+          setStatus("failed");
+          setError(cause instanceof Error ? cause.message : "查询采集任务失败");
+        }
+      };
+      setStatus("running");
+      await poll();
+    } catch (cause: unknown) {
+      if (!isCurrent()) return;
+      setStatus("failed");
+      setError(cause instanceof Error ? cause.message : "创建采集任务失败");
+    }
   };
 
   const handleClose = () => {
-    if (isRunning) return;
+    if (isBusy) return;
     onClose();
   };
 
@@ -127,7 +179,7 @@ export default function CrawlerModal({
             <select
               aria-label="目标组织"
               value={selectedTarget}
-              disabled={isRunning}
+              disabled={isBusy}
               onChange={(event) => setSelectedTarget(event.target.value)}
             >
               {TARGETS.map((item) => (
@@ -142,7 +194,7 @@ export default function CrawlerModal({
               min={1}
               max={50}
               value={limit}
-              disabled={isRunning}
+              disabled={isBusy}
               onChange={(event) => setLimit(Number(event.target.value))}
             />
           </label>
@@ -157,7 +209,7 @@ export default function CrawlerModal({
                   type="checkbox"
                   aria-label={label}
                   checked={selectedSources.includes(index)}
-                  disabled={isRunning}
+                  disabled={isBusy}
                   onChange={() => toggleSource(index)}
                 />
                 <span>{label}</span>
@@ -171,7 +223,7 @@ export default function CrawlerModal({
             type="checkbox"
             aria-label="启用 LLM 相关性过滤"
             checked={filter}
-            disabled={isRunning}
+            disabled={isBusy}
             onChange={(event) => setFilter(event.target.checked)}
           />
           <Filter size={16} />
@@ -180,17 +232,17 @@ export default function CrawlerModal({
           </span>
         </label>
 
-        {isRunning ? (
+        {status === "submitting" || isRunning ? (
           <div className="crawler-progress" role="status">
             <div className="crawler-progress-title">
               <Loader2 size={16} className="loader-spin" />
-              <strong>{STAGES[stage]}</strong>
-              <span>{stage + 1}/3</span>
+              <strong>{status === "submitting" ? "正在提交采集任务" : "正在导入图谱"}</strong>
+              <span>{status === "submitting" ? "1/3" : "3/3"}</span>
             </div>
             <div className="crawler-progress-track">
-              <div style={{ width: `${((stage + 1) / 3) * 100}%` }} />
+              <div style={{ width: status === "submitting" ? "33%" : "100%" }} />
             </div>
-            <p>任务正在本地模拟，暂不调用后端采集接口。</p>
+            <p>任务正在执行，页面会自动同步 backend 状态。</p>
           </div>
         ) : null}
 
@@ -199,8 +251,17 @@ export default function CrawlerModal({
             <CheckCircle2 size={18} />
             <div>
               <strong>采集任务完成</strong>
-              <span>发现 12 篇 · 清洗 10 篇 · 导入 8 篇</span>
+              <span>
+                发现 {run?.items_found ?? 0} 篇 · 清洗 {run?.items_promoted ?? 0} 篇 · 导入 {run?.items_imported ?? 0} 篇
+              </span>
             </div>
+          </div>
+        ) : null}
+
+        {status === "failed" ? (
+          <div className="crawler-result crawler-result-warning" role="alert">
+            <AlertCircle size={16} />
+            <span>{error ?? "采集任务失败"}</span>
           </div>
         ) : null}
 
@@ -215,7 +276,7 @@ export default function CrawlerModal({
             <button
               className="crawler-secondary"
               type="button"
-              disabled={isRunning}
+              disabled={isRunning || status === "submitting"}
               onClick={handleClose}
             >
               关闭
@@ -223,11 +284,11 @@ export default function CrawlerModal({
             <button
               className="crawler-primary"
               type="button"
-              disabled={isRunning || sources === 0 || limit < 1}
+              disabled={isRunning || status === "submitting" || sources === 0 || limit < 1}
               onClick={handleRun}
             >
               <Search size={15} />
-              {status === "success" ? "再次演示" : "开始采集"}
+              {status === "success" || status === "failed" ? "再次采集" : "开始采集"}
             </button>
           </div>
         </div>

@@ -146,6 +146,8 @@ docker compose up
 | 健康检查 | <http://localhost:8000/api/v1/health> |
 | Neo4j Browser | <http://localhost:7474> |
 
+爬虫服务 `crawler:8100` 只在 Docker Compose 内部网络提供 HTTP API，不映射宿主机端口。开发阶段浏览器可以直接请求 backend 的 `8000` 端口，但不能直接请求 crawler。前端“采集情报”操作的链路为：frontend 请求 backend 创建任务，backend 通过 HTTP 调用 crawler 并轮询状态，crawler 逐篇请求 backend 的 `/api/v1/documents/import`。
+
 ### 3. 导入真实抽取结果
 
 启动后数据库默认为空。要调用 LLM 抽取、导入 SQLite 并导出图谱快照，执行：
@@ -233,6 +235,8 @@ GET /api/v1/neo4j/status
 POST /api/v1/neo4j/rebuild
 POST /api/v1/neo4j/sync
 GET /api/v1/reports/{target_group}
+POST /api/v1/crawl/runs
+GET /api/v1/crawl/runs/{crawl_run_id}
 ```
 
 成功响应统一使用以下结构：

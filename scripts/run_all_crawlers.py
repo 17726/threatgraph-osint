@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -49,6 +50,13 @@ def positive_limit(value: str) -> int:
     return limit
 
 
+def positive_start_number(value: str) -> int:
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError("start-number must be greater than zero")
+    return number
+
+
 def parse_sources_mask(value: str) -> int:
     try:
         sources = int(value, 10)
@@ -84,12 +92,17 @@ def target_folder(keyword: str) -> str:
     return TARGET_GROUPS.get(normalized, normalized.replace(" ", "_"))
 
 
+def data_root() -> Path:
+    return Path(os.getenv("CRAWLER_DATA_ROOT", str(PROJECT_ROOT / "data")))
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="统一运行 ThreatGraph-OSINT 爬虫流水线")
     parser.add_argument("--keyword", required=True, help="目标组织或搜索关键词")
     parser.add_argument("--limit", required=True, type=positive_limit, help="每个来源的最大文章数")
     parser.add_argument("--filter", action="store_true", help="启用相关性过滤和末尾清洗")
     parser.add_argument("--sources", required=True, type=parse_sources_mask, help="全局来源整数掩码")
+    parser.add_argument("--start-number", type=positive_start_number, default=1)
     return parser
 
 
@@ -120,7 +133,7 @@ def build_commands(args: argparse.Namespace) -> list[list[str]]:
             ]
         )
 
-    input_dir = PROJECT_ROOT / "data" / ("cleaned_filtered" if args.filter else "cleaned")
+    input_dir = data_root() / ("cleaned_filtered" if args.filter else "cleaned")
     commands.append(
         [
             PYTHON_EXE,
@@ -128,9 +141,9 @@ def build_commands(args: argparse.Namespace) -> list[list[str]]:
             "--input",
             str(input_dir),
             "--output",
-            str(PROJECT_ROOT / "data" / "documents"),
-            "--target-group",
-            target_folder(args.keyword),
+            str(data_root() / "documents"),
+            "--start-number",
+            str(args.start_number),
         ]
     )
     return commands
@@ -144,15 +157,16 @@ def main() -> int:
     except ValueError as exc:
         parser.error(str(exc))
 
+    failed = False
     for index, command in enumerate(commands, start=1):
         print(f"[{index}/{len(commands)}] {' '.join(command)}")
         completed = subprocess.run(command, check=False, cwd=PROJECT_ROOT)
         if completed.returncode:
             print(f"命令失败，返回码：{completed.returncode}", file=sys.stderr)
-            return completed.returncode
+            failed = True
 
     print("爬虫流水线执行完成。")
-    return 0
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

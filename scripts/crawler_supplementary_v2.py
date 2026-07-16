@@ -60,7 +60,7 @@ def safe_slug(value: str) -> str:
     return re.sub(r"[^0-9A-Za-z._-]+", "_", value.strip().lower()).strip("._-") or "unknown"
 
 def output_dir_for(target_group: str) -> Path:
-    return REPO_ROOT / "data" / "cleaned" / safe_slug(target_group)
+    return Path(os.getenv("CRAWLER_DATA_ROOT", str(REPO_ROOT / "data"))) / "cleaned" / safe_slug(target_group)
 
 
 SOURCE_NAMES = ("crowdstrike", "groupib", "ofac", "fbi")

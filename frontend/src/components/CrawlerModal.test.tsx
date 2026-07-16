@@ -14,11 +14,46 @@ import CrawlerModal from "./CrawlerModal";
 describe("CrawlerModal", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              success: true,
+              data: { crawl_run_id: "crawl_test_001", status: "pending" },
+            }),
+            { status: 202 },
+          ),
+        )
+        .mockResolvedValue(
+          new Response(
+            JSON.stringify({
+              success: true,
+              data: {
+                crawl_run_id: "crawl_test_001",
+                keyword: "Lazarus",
+                status: "succeeded",
+                items_found: 12,
+                items_promoted: 10,
+                items_imported: 8,
+                items_skipped: 2,
+                items_failed: 0,
+                document_ids: ["lazarus_001"],
+                workspace_cleaned: true,
+                error_message: null,
+              },
+            }),
+            { status: 200 },
+          ),
+        ),
+    );
   });
 
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it("renders the organization, sources, and filter controls", () => {
@@ -71,27 +106,30 @@ describe("CrawlerModal", () => {
     ).toBe(true);
   });
 
-  it("shows simulated progress and completion statistics", () => {
+  it("creates a task, polls backend, and shows real completion statistics", async () => {
+    const onSuccess = vi.fn();
     render(
       <CrawlerModal
         open
         target="Lazarus"
         onClose={vi.fn()}
-        onSuccess={vi.fn()}
+        onSuccess={onSuccess}
       />,
     );
 
     fireEvent.click(screen.getAllByRole("button", { name: "开始采集" })[0]);
-    expect(screen.getByText("正在发现来源")).toBeTruthy();
+    expect(screen.getByText("正在提交采集任务")).toBeTruthy();
 
-    act(() => vi.advanceTimersByTime(1400));
-    expect(screen.getByText("正在清洗文档")).toBeTruthy();
-
-    act(() => vi.advanceTimersByTime(1400));
-    expect(screen.getByText("正在导入图谱")).toBeTruthy();
-
-    act(() => vi.advanceTimersByTime(1400));
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(screen.getByText("采集任务完成")).toBeTruthy();
+    expect(screen.getByText("发现 12 篇 · 清洗 10 篇 · 导入 8 篇")).toBeTruthy();
+    expect(onSuccess).toHaveBeenCalledOnce();
     expect(screen.queryByText("演示任务未调用后端接口")).toBeNull();
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/crawl/runs"),
+      expect.objectContaining({ method: "POST" }),
+    );
   });
 });

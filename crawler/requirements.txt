@@ -1,6 +1,9 @@
 beautifulsoup4
+fastapi
+httpx
 lxml
 playwright
 playwright-stealth
 pytest
 requests
+uvicorn[standard]

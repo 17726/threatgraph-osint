@@ -471,8 +471,9 @@ def main():
     model, _, _ = require_llm_config()
 
     project_root = Path(__file__).resolve().parent.parent
-    input_dir = project_root / "data" / "cleaned"
-    output_dir = project_root / "data" / "cleaned_filtered"
+    data_root = Path(os.getenv("CRAWLER_DATA_ROOT", str(project_root / "data")))
+    input_dir = data_root / "cleaned"
+    output_dir = data_root / "cleaned_filtered"
 
     folders = [args.folder] if args.folder else ["apt28", "kimsuky", "lazarus"]
 

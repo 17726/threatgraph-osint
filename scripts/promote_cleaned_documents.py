@@ -52,6 +52,13 @@ class PromotionStats:
     errors: int = 0
 
 
+def positive_start_number(value: str) -> int:
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError("start-number must be greater than zero")
+    return number
+
+
 def safe_slug(value: str) -> str:
     return re.sub(r"[^0-9A-Za-z._-]+", "_", value.strip().lower()).strip("._-") or "unknown"
 
@@ -110,34 +117,63 @@ def load_documents(directory: Path) -> list[tuple[Path, dict[str, Any]]]:
     return documents
 
 
-def promote_documents(input_dir: Path, output_dir: Path) -> PromotionStats:
-    stats = PromotionStats()
-    existing_urls: set[str] = set()
-    existing_hashes: set[str] = set()
-    next_numbers: dict[str, int] = {}
+def _rewrite_metadata_paths(
+    metadata: dict[str, Any],
+    old_doc_id: str,
+    new_doc_id: str,
+    group_slug: str,
+    input_root: Path,
+    output_root: Path,
+) -> None:
+    old_input_path = f"data/cleaned/{group_slug}/{old_doc_id}.json"
+    new_input_path = f"data/cleaned/{group_slug}/{new_doc_id}.json"
+    new_output_path = f"data/documents/{group_slug}/{new_doc_id}.json"
+    for key in ("doc_id", "document_id", "legacy_doc_id"):
+        if metadata.get(key) == old_doc_id:
+            metadata[key] = new_doc_id
+    for key in ("source_path", "cleaned_path", "document_path"):
+        value = metadata.get(key)
+        if not isinstance(value, str):
+            continue
+        if value == old_input_path or value.endswith(f"/{old_doc_id}.json") or value.endswith(
+            f"\\{old_doc_id}.json"
+        ):
+            metadata[key] = new_output_path if key != "cleaned_path" else new_input_path
 
-    for path, document in load_documents(output_dir):
-        validate_document(document, path)
-        existing_urls.add(document["source_url"])
-        existing_hashes.add(document["content_hash"])
+
+def promote_documents(
+    input_dir: Path,
+    output_dir: Path,
+    start_number: int = 1,
+) -> PromotionStats:
+    if start_number < 1:
+        raise ValueError("start_number must be greater than zero")
+    stats = PromotionStats()
+    next_numbers: dict[str, int] = {}
 
     for path, document in load_documents(input_dir):
         try:
             validate_document(document, path)
             target_group = document["target_group"]
             group_slug = safe_slug(target_group)
-            if document["source_url"] in existing_urls or document["content_hash"] in existing_hashes:
-                stats.skipped += 1
-                continue
 
             target_group_dir = output_dir / group_slug
             target_group_dir.mkdir(parents=True, exist_ok=True)
             next_number = next_numbers.setdefault(
                 group_slug,
-                next_document_number(target_group_dir, target_group),
+                max(start_number, next_document_number(target_group_dir, target_group)),
             )
+            old_doc_id = document["doc_id"]
             document_id = f"{group_slug}_{next_number:03d}"
             document["doc_id"] = document_id
+            _rewrite_metadata_paths(
+                document["metadata"],
+                old_doc_id,
+                document_id,
+                group_slug,
+                input_dir,
+                output_dir,
+            )
             target_path = target_group_dir / f"{document_id}.json"
             with NamedTemporaryFile(
                 "w",
@@ -153,8 +189,6 @@ def promote_documents(input_dir: Path, output_dir: Path) -> PromotionStats:
                 temporary_path = Path(handle.name)
             temporary_path.replace(target_path)
 
-            existing_urls.add(document["source_url"])
-            existing_hashes.add(document["content_hash"])
             next_numbers[group_slug] = next_number + 1
             stats.promoted += 1
         except (OSError, ValueError, json.JSONDecodeError) as exc:
@@ -169,13 +203,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input", type=Path, default=REPO_ROOT / "data" / "cleaned")
     parser.add_argument("--output", type=Path, default=REPO_ROOT / "data" / "documents")
     parser.add_argument("--target-group", help="只提升指定目标组织")
+    parser.add_argument("--start-number", type=positive_start_number, default=1)
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
     input_dir = args.input / safe_slug(args.target_group) if args.target_group else args.input
-    stats = promote_documents(input_dir, args.output)
+    stats = promote_documents(input_dir, args.output, start_number=args.start_number)
     print(
         f"提升完成: promoted={stats.promoted}, skipped={stats.skipped}, errors={stats.errors}"
     )

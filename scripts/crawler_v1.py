@@ -72,13 +72,17 @@ def project_root() -> Path:
     return REPO_ROOT
 
 
+def data_root() -> Path:
+    return Path(os.getenv("CRAWLER_DATA_ROOT", str(REPO_ROOT / "data")))
+
+
 def safe_slug(value: str) -> str:
     slug = re.sub(r"[^0-9A-Za-z._-]+", "_", value.strip().lower()).strip("._-")
     return slug or "keyword"
 
 
 def output_dir_for(target_group: str) -> Path:
-    return project_root() / "data" / "cleaned" / safe_slug(target_group)
+    return data_root() / "cleaned" / safe_slug(target_group)
 
 
 SOURCE_NAMES = ("qianxin", "thehackernews", "unit42", "freebuf")
@@ -480,7 +484,7 @@ class QianxinCrawler:
     def run(cls, keyword: str, limit: Optional[int] = None) -> None:
         target_group = safe_slug(keyword)
         output_dir = output_dir_for(target_group)
-        failed_log = project_root() / "data" / f"failed_qianxin_ti_{target_group}.log"
+        failed_log = data_root() / f"failed_qianxin_ti_{target_group}.log"
         output_dir.mkdir(parents=True, exist_ok=True)
         seen_urls = existing_source_urls(output_dir)
         next_number = next_doc_number(output_dir, target_group)
@@ -701,7 +705,7 @@ class TheHackerNewsCrawler:
     def run(cls, keyword: str, limit: Optional[int] = None):
         target_group = safe_slug(keyword)
         output_dir = output_dir_for(target_group)
-        failed_log = project_root() / "data" / f"failed_thehackernews_{target_group}.log"
+        failed_log = data_root() / f"failed_thehackernews_{target_group}.log"
         output_dir.mkdir(parents=True, exist_ok=True)
         seen_urls = existing_source_urls(output_dir)
         next_number = next_doc_number(output_dir, target_group)

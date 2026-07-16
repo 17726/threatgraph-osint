@@ -9,8 +9,9 @@ WORKDIR /app
 
 COPY crawler/requirements.txt /app/crawler/requirements.txt
 RUN pip install --no-cache-dir --retries 5 -r /app/crawler/requirements.txt
+RUN python -m playwright install --with-deps chromium
 
 COPY crawler /app/crawler
 COPY scripts /app/scripts
 
-CMD ["python", "-m", "pytest", "crawler/tests", "-v"]
+CMD ["uvicorn", "crawler.app.main:app", "--host", "0.0.0.0", "--port", "8100"]

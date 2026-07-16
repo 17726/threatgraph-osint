@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from backend.app.core.document_contract import require_valid_document
 from backend.app.core.response import error_response, success_response
 from backend.app.services.demo_store import DemoStore
+from backend.app.services.crawl_service import CrawlService
 from backend.app.services.graph_query_service import GraphQueryService
 from backend.app.services.neo4j_service import MAX_PATH_DEPTH, Neo4jService
 from backend.app.services.pipeline_service import (
@@ -54,6 +55,7 @@ pipeline_service = PipelineService(
     store.db_path,
     projection_sync=neo4j_service.sync_incremental,
 )
+crawl_service = CrawlService(store=store)
 
 
 def _split_query_values(values: list[str]) -> list[str]:
@@ -283,6 +285,34 @@ def import_document(payload: dict = Body(...)):
             content=error_response("ERR_VALIDATION", str(exc)),
         )
     result = store.import_document(payload)
+    return success_response(result)
+
+
+@app.post("/api/v1/crawl/runs")
+def create_crawl_run(payload: dict = Body(default={} )):
+    try:
+        unknown_fields = sorted(set(payload) - {"keyword", "limit", "sources", "filter"})
+        if unknown_fields:
+            raise ValueError(f"采集请求包含未知字段: {', '.join(unknown_fields)}")
+        result = crawl_service.submit(
+            keyword=payload.get("keyword"),
+            limit=payload.get("limit"),
+            sources=payload.get("sources"),
+            filter_enabled=payload.get("filter", False),
+        )
+    except RuntimeError as exc:
+        return JSONResponse(status_code=409, content=error_response("ERR_CONFLICT", str(exc)))
+    except (TypeError, ValueError) as exc:
+        return JSONResponse(status_code=400, content=error_response("ERR_VALIDATION", str(exc)))
+    return JSONResponse(status_code=202, content=success_response(result))
+
+
+@app.get("/api/v1/crawl/runs/{crawl_run_id}")
+def get_crawl_run(crawl_run_id: str):
+    try:
+        result = crawl_service.status(crawl_run_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="采集任务不存在") from exc
     return success_response(result)
 
 

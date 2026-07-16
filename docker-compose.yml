@@ -22,6 +22,7 @@ services:
       NEO4J_USER: ${NEO4J_USER:-neo4j}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-change_me_for_local_dev}
       NEO4J_DATABASE: ${NEO4J_DATABASE:-neo4j}
+      CRAWLER_BASE_URL: ${CRAWLER_BASE_URL:-http://crawler:8100}
     ports:
       - "8000:8000"
     volumes:
@@ -40,13 +41,19 @@ services:
         PYTHON_IMAGE: ${CRAWLER_PYTHON_IMAGE:-public.ecr.aws/docker/library/python:3.13-slim}
     environment:
       PYTHONPATH: /app
+      BACKEND_BASE_URL: ${BACKEND_BASE_URL:-http://backend:8000}
+      CRAWLER_DATA_ROOT: /tmp/threatgraph-crawler-data
       LLM_MODEL: ${LLM_MODEL:-}
       LLM_BASE_URL: ${LLM_BASE_URL:-}
       LLM_API_KEY: ${LLM_API_KEY:-}
+    expose:
+      - "8100"
     volumes:
       - ./crawler:/app/crawler
       - ./scripts:/app/scripts
-    command: python -m pytest crawler/tests -v
+    depends_on:
+      - backend
+    command: uvicorn crawler.app.main:app --host 0.0.0.0 --port 8100
 
   frontend:
     build:
