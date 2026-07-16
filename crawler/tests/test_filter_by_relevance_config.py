@@ -93,3 +93,16 @@ def test_filter_parser_accepts_folder() -> None:
     args = parser.parse_args(["--folder", "apt28"])
 
     assert args.folder == "apt28"
+
+
+def test_filter_main_returns_nonzero_when_processing_errors(monkeypatch) -> None:
+    monkeypatch.setattr("sys.argv", ["filter_by_relevance.py"])
+    monkeypatch.setattr(filter_by_relevance, "require_llm_config", lambda: ("model", "url", "key"))
+    monkeypatch.setattr(filter_by_relevance.Path, "is_dir", lambda self: True)
+    monkeypatch.setattr(filter_by_relevance, "process_folder", lambda *args, **kwargs: {
+        "total": 1,
+        "kept": 0,
+        "discarded": 0,
+        "errors": 1,
+    })
+    assert filter_by_relevance.main() == 1

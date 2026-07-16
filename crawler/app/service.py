@@ -55,6 +55,7 @@ class CrawlerService:
                 "items_pipeline_failed": 0,
                 "pipeline_error": None,
                 "document_ids": [],
+            "source_results": self._initial_source_results(payload["sources"]),
                 "progress": {
                     "phase": "pending",
                     "current": 0,
@@ -81,6 +82,24 @@ class CrawlerService:
         with self._lock:
             if run_id in self._runs:
                 self._runs[run_id]["progress"] = dict(progress)
+
+    @staticmethod
+    def _empty_source_result() -> dict[str, int]:
+        return {
+            "items_promoted": 0,
+            "items_imported": 0,
+            "items_skipped": 0,
+            "items_failed": 0,
+            "items_pipeline_succeeded": 0,
+        }
+
+    @classmethod
+    def _initial_source_results(cls, sources: int) -> dict[str, dict[str, int]]:
+        return {
+            SOURCE_NAMES[index]: cls._empty_source_result()
+            for index in range(len(SOURCE_NAMES))
+            if sources & (1 << index)
+        }
 
     def _set_import_progress(
         self,
@@ -134,7 +153,7 @@ class CrawlerService:
                 "source": None,
                 "message": "任务正在执行",
             },
-            "source_results": {},
+            "source_results": self._initial_source_results(payload["sources"]),
             "workspace_cleaned": False,
             "error_message": None,
         }
@@ -204,6 +223,8 @@ class CrawlerService:
         except Exception as exc:
             result["status"] = "failed"
             result["error_message"] = str(exc)
+            result["progress"]["phase"] = "failed"
+            result["progress"]["message"] = "采集任务失败"
         finally:
             result["workspace_cleaned"] = self._cleanup_workspace(workspace)
         return result
@@ -217,8 +238,8 @@ class CrawlerService:
         progress = payload.get("progress")
         return progress if isinstance(progress, dict) else None
 
-    @staticmethod
-    def _failed_result(payload: dict[str, Any], message: str) -> dict[str, Any]:
+    @classmethod
+    def _failed_result(cls, payload: dict[str, Any], message: str) -> dict[str, Any]:
         return {
             "crawl_run_id": payload["crawl_run_id"],
             "keyword": payload.get("keyword", ""),
@@ -231,7 +252,7 @@ class CrawlerService:
             "items_pipeline_succeeded": 0,
             "items_pipeline_failed": 0,
             "document_ids": [],
-            "source_results": {},
+            "source_results": cls._initial_source_results(payload.get("sources", 0)),
             "progress": {
                 "phase": "failed",
                 "current": 0,
@@ -255,7 +276,7 @@ class CrawlerService:
             "items_pipeline_succeeded": 0,
             "items_pipeline_failed": 0,
             "document_ids": [],
-            "source_results": {},
+            "source_results": self._initial_source_results(payload.get("sources", 0)),
             "progress": {
                 "phase": "importing",
                 "current": 0,
@@ -272,8 +293,15 @@ class CrawlerService:
             payload["crawl_run_id"], payload["keyword"], 0, len(paths), None
         )
         for path in paths:
+            source = None
             try:
                 document = json.loads(path.read_text(encoding="utf-8-sig"))
+                summary["items_found"] += 1
+                source_name = str(document.get("source_name", "unknown")).strip() or "unknown"
+                source = summary["source_results"].setdefault(
+                    source_name, self._empty_source_result()
+                )
+                source["items_promoted"] += 1
                 response = httpx.post(
                     f"{self.backend_base_url}/api/v1/documents/import",
                     json=document,
@@ -281,9 +309,7 @@ class CrawlerService:
                 )
                 response.raise_for_status()
                 data = response.json().get("data", response.json())
-                summary["items_found"] += 1
                 document_id = data.get("doc_id", document.get("doc_id"))
-                source_name = str(document.get("source_name", "unknown")).strip() or "unknown"
                 summary["progress"]["source"] = source_name
                 self._set_import_progress(
                     payload["crawl_run_id"],
@@ -292,17 +318,6 @@ class CrawlerService:
                     len(paths),
                     source_name,
                 )
-                source = summary["source_results"].setdefault(
-                    source_name,
-                    {
-                        "items_promoted": 0,
-                        "items_imported": 0,
-                        "items_skipped": 0,
-                        "items_failed": 0,
-                        "items_pipeline_succeeded": 0,
-                    },
-                )
-                source["items_promoted"] += 1
                 if data.get("status") == "skipped":
                     summary["items_skipped"] += 1
                     source["items_skipped"] += 1
@@ -327,6 +342,8 @@ class CrawlerService:
             except Exception as exc:
                 summary["items_failed"] += 1
                 summary["pipeline_error"] = str(exc)
+                if source is not None:
+                    source["items_failed"] += 1
             summary["progress"]["current"] += 1
             self._set_import_progress(
                 payload["crawl_run_id"],

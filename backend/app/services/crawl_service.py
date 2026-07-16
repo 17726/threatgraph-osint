@@ -15,6 +15,35 @@ from backend.app.core.llm_config import has_valid_llm_config
 
 ALLOWED_KEYWORDS = {"APT28", "Kimsuky", "Lazarus"}
 MAX_SOURCE_MASK = 4095
+SOURCE_NAMES = (
+    "奇安信威胁情报中心",
+    "The Hacker News",
+    "Palo Alto Unit 42",
+    "FreeBuf",
+    "Chainalysis",
+    "TRM Labs",
+    "Microsoft",
+    "SecureList",
+    "CrowdStrike",
+    "Group-IB",
+    "OFAC",
+    "FBI",
+)
+
+
+def initial_source_results(sources: int) -> dict[str, dict[str, int]]:
+    empty = {
+        "items_promoted": 0,
+        "items_imported": 0,
+        "items_skipped": 0,
+        "items_failed": 0,
+        "items_pipeline_succeeded": 0,
+    }
+    return {
+        SOURCE_NAMES[index]: dict(empty)
+        for index in range(len(SOURCE_NAMES))
+        if sources & (1 << index)
+    }
 
 
 class CrawlService:
@@ -176,7 +205,7 @@ class CrawlService:
             "items_pipeline_succeeded": 0,
             "items_pipeline_failed": 0,
             "document_ids": [],
-            "source_results": {},
+            "source_results": initial_source_results(sources),
             "progress": None,
             "workspace_cleaned": False,
             "error_message": None,

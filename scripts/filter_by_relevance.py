@@ -37,6 +37,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import tempfile
 import sys
 import time
@@ -457,28 +458,74 @@ def renumber_folder(output_dir: Path, folder: str):
     """重新编号：doc_id → {folder}_001, ..."""
     output_subdir = output_dir / folder
     if not output_subdir.exists():
+        leftovers = sorted(
+            path.name
+            for path in output_dir.glob(f".{folder}.renumber-backup-*")
+        ) + sorted(
+            path.name
+            for path in output_dir.glob(f".renumber_{folder}_*")
+        )
+        if leftovers:
+            raise RuntimeError(f"重编号残留目录：{', '.join(leftovers)}")
         return
 
     json_files = sorted(output_subdir.glob("*.json"))
     json_files.sort(key=lambda p: p.stem)
+    json_names = {path.name for path in json_files}
 
-    for idx, fpath in enumerate(json_files, start=1):
-        new_doc_id = f"{folder}_{idx:03d}"
+    staged_dir = Path(tempfile.mkdtemp(prefix=f".renumber_{folder}_", dir=output_dir))
+    backup_dir = Path(tempfile.mkdtemp(prefix=f".{folder}.renumber-backup-", dir=output_dir))
+    backup_dir.rmdir()
+    staged_paths: list[tuple[Path, Path]] = []
+    try:
+        for idx, fpath in enumerate(json_files, start=1):
+            new_doc_id = f"{folder}_{idx:03d}"
 
-        with open(fpath, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            with open(fpath, "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-        old_doc_id = data.get("doc_id", fpath.stem)
-        data["doc_id"] = new_doc_id
+            old_doc_id = data.get("doc_id", fpath.stem)
+            data["doc_id"] = new_doc_id
+            metadata = data.get("metadata")
+            if isinstance(metadata, dict):
+                for key in ("doc_id", "document_id", "legacy_doc_id"):
+                    if metadata.get(key) == old_doc_id:
+                        metadata[key] = new_doc_id
+                metadata["source_path"] = f"data/cleaned/{folder}/{new_doc_id}.json"
+                metadata["cleaned_path"] = f"data/cleaned_filtered/{folder}/{new_doc_id}.json"
+                metadata["document_path"] = f"data/documents/{folder}/{new_doc_id}.json"
 
-        new_path = output_subdir / f"{new_doc_id}.json"
-        with open(new_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+            staged_path = staged_dir / f"{new_doc_id}.json"
+            with open(staged_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            staged_paths.append((fpath, staged_path))
+            print(f"    {old_doc_id} → {new_doc_id}.json")
 
-        if fpath != new_path and fpath.stem != new_doc_id:
-            fpath.unlink()
+        for source_path in output_subdir.rglob("*"):
+            is_numbered_json = source_path.parent == output_subdir and source_path.name in json_names
+            if source_path.is_file() and not is_numbered_json:
+                target_path = staged_dir / source_path.relative_to(output_subdir)
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source_path, target_path)
 
-        print(f"    {old_doc_id} → {new_doc_id}.json")
+        output_subdir.rename(backup_dir)
+        try:
+            staged_dir.rename(output_subdir)
+        except Exception:
+            try:
+                backup_dir.rename(output_subdir)
+            except OSError as restore_error:
+                raise RuntimeError(
+                    f"重编号恢复失败，原目录保留在 {backup_dir}，临时目录为 {staged_dir}"
+                ) from restore_error
+            raise
+        try:
+            shutil.rmtree(backup_dir)
+        except OSError as exc:
+            print(f"    旧目录清理失败，已保留备份 {backup_dir}: {exc}", file=sys.stderr)
+    except Exception:
+        print(f"    重编号失败，保留原目录和临时目录：{staged_dir}", file=sys.stderr)
+        raise
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -578,6 +625,8 @@ def main():
     if args.sample > 0:
         print(f"\n💡 抽样验证完毕。确认无误后去掉 --sample 参数全量运行。")
 
+    return 1 if grand_errors > 0 else 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
