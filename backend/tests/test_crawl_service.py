@@ -15,6 +15,19 @@ def test_next_start_number_uses_highest_document_id(tmp_path: Path) -> None:
     assert service.next_start_number("APT28") == 13
 
 
+def test_new_run_initializes_selected_source_results() -> None:
+    run = CrawlService._new_run("crawl_test", "APT28", 1, 1 | (1 << 7), False)
+
+    assert set(run["source_results"]) == {"奇安信威胁情报中心", "SecureList"}
+    assert run["source_results"]["SecureList"] == {
+        "items_promoted": 0,
+        "items_imported": 0,
+        "items_skipped": 0,
+        "items_failed": 0,
+        "items_pipeline_succeeded": 0,
+    }
+
+
 def test_submit_sends_start_number_to_crawler(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setenv("LLM_MODEL", "model")
     monkeypatch.setenv("LLM_BASE_URL", "https://example.test/v1/chat/completions")

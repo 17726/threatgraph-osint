@@ -461,32 +461,50 @@ def renumber_folder(output_dir: Path, folder: str):
 
     json_files = sorted(output_subdir.glob("*.json"))
     json_files.sort(key=lambda p: p.stem)
+    json_names = {path.name for path in json_files}
 
-    for idx, fpath in enumerate(json_files, start=1):
-        new_doc_id = f"{folder}_{idx:03d}"
+    staged_dir = Path(tempfile.mkdtemp(prefix=f".renumber_{folder}_", dir=output_dir))
+    backup_dir = output_dir / f".{folder}.renumber-backup"
+    staged_paths: list[tuple[Path, Path]] = []
+    try:
+        for idx, fpath in enumerate(json_files, start=1):
+            new_doc_id = f"{folder}_{idx:03d}"
 
-        with open(fpath, "r", encoding="utf-8") as f:
-            data = json.load(f)
+            with open(fpath, "r", encoding="utf-8") as f:
+                data = json.load(f)
 
-        old_doc_id = data.get("doc_id", fpath.stem)
-        data["doc_id"] = new_doc_id
-        metadata = data.get("metadata")
-        if isinstance(metadata, dict):
-            for key in ("doc_id", "document_id", "legacy_doc_id"):
-                if metadata.get(key) == old_doc_id:
-                    metadata[key] = new_doc_id
-            metadata["source_path"] = f"data/cleaned/{folder}/{new_doc_id}.json"
-            metadata["cleaned_path"] = f"data/cleaned_filtered/{folder}/{new_doc_id}.json"
-            metadata["document_path"] = f"data/documents/{folder}/{new_doc_id}.json"
+            old_doc_id = data.get("doc_id", fpath.stem)
+            data["doc_id"] = new_doc_id
+            metadata = data.get("metadata")
+            if isinstance(metadata, dict):
+                for key in ("doc_id", "document_id", "legacy_doc_id"):
+                    if metadata.get(key) == old_doc_id:
+                        metadata[key] = new_doc_id
+                metadata["source_path"] = f"data/cleaned/{folder}/{new_doc_id}.json"
+                metadata["cleaned_path"] = f"data/cleaned_filtered/{folder}/{new_doc_id}.json"
+                metadata["document_path"] = f"data/documents/{folder}/{new_doc_id}.json"
 
-        new_path = output_subdir / f"{new_doc_id}.json"
-        with open(new_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+            staged_path = staged_dir / f"{new_doc_id}.json"
+            with open(staged_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            staged_paths.append((fpath, staged_path))
+            print(f"    {old_doc_id} → {new_doc_id}.json")
 
-        if fpath != new_path and fpath.stem != new_doc_id:
-            fpath.unlink()
-
-        print(f"    {old_doc_id} → {new_doc_id}.json")
+        output_subdir.rename(backup_dir)
+        try:
+            staged_dir.rename(output_subdir)
+        except Exception:
+            backup_dir.rename(output_subdir)
+            raise
+        for path in backup_dir.iterdir():
+            if path.name not in json_names:
+                path.rename(output_subdir / path.name)
+        for name in json_names:
+            (backup_dir / name).unlink()
+        backup_dir.rmdir()
+    except Exception:
+        print(f"    重编号失败，保留原目录和临时目录：{staged_dir}", file=sys.stderr)
+        raise
 
 
 def build_parser() -> argparse.ArgumentParser:

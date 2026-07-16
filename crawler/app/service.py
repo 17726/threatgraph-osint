@@ -153,7 +153,7 @@ class CrawlerService:
                 "source": None,
                 "message": "任务正在执行",
             },
-                "source_results": self._initial_source_results(payload["sources"]),
+            "source_results": self._initial_source_results(payload["sources"]),
             "workspace_cleaned": False,
             "error_message": None,
         }

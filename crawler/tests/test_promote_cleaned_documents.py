@@ -96,3 +96,46 @@ def test_filter_renumber_rewrites_metadata_identity_and_paths(tmp_path: Path) ->
     assert result["metadata"]["legacy_doc_id"] == "apt28_001"
     assert result["metadata"]["cleaned_path"].endswith("data/cleaned_filtered/apt28/apt28_001.json")
     assert result["metadata"]["document_path"].endswith("data/documents/apt28/apt28_001.json")
+
+
+def test_filter_renumber_preserves_files_when_target_name_already_exists(tmp_path: Path) -> None:
+    output = tmp_path / "cleaned_filtered" / "apt28"
+    output.mkdir(parents=True)
+    first = document("apt28_000", "https://example.test/first", "first")
+    second = document("apt28_001", "https://example.test/second", "second")
+    (output / "apt28_000.json").write_text(json.dumps(first), encoding="utf-8")
+    (output / "apt28_001.json").write_text(json.dumps(second), encoding="utf-8")
+
+    filter_by_relevance.renumber_folder(tmp_path / "cleaned_filtered", "apt28")
+
+    result_001 = json.loads((output / "apt28_001.json").read_text(encoding="utf-8"))
+    result_002 = json.loads((output / "apt28_002.json").read_text(encoding="utf-8"))
+    assert result_001["source_url"] == "https://example.test/first"
+    assert result_002["source_url"] == "https://example.test/second"
+
+
+def test_filter_renumber_keeps_originals_when_directory_swap_fails(
+    monkeypatch, tmp_path: Path
+) -> None:
+    output = tmp_path / "cleaned_filtered" / "apt28"
+    output.mkdir(parents=True)
+    original = document("apt28_000", "https://example.test/original", "original")
+    (output / "apt28_000.json").write_text(json.dumps(original), encoding="utf-8")
+    real_rename = Path.rename
+
+    def fail_new_directory_rename(self: Path, target: Path):
+        if self.parent == output.parent and self.name.startswith(".renumber_"):
+            raise OSError("directory swap failed")
+        return real_rename(self, target)
+
+    monkeypatch.setattr(Path, "rename", fail_new_directory_rename)
+
+    try:
+        filter_by_relevance.renumber_folder(tmp_path / "cleaned_filtered", "apt28")
+    except OSError as exc:
+        assert str(exc) == "directory swap failed"
+    else:
+        raise AssertionError("renumber_folder should propagate directory swap failure")
+
+    result = json.loads((output / "apt28_000.json").read_text(encoding="utf-8"))
+    assert result["source_url"] == "https://example.test/original"
