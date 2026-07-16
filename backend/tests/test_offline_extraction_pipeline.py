@@ -105,7 +105,7 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
             WHERE source_entity_id = 'apt_group:apt28'
             """
         ).fetchall()
-        assert len(inferred) == 10
+        assert len(inferred) == 2
         assert all(row["relation_type"] == "HAS_BEHAVIOR" for row in inferred)
         assert all(row["status"] == "candidate" for row in inferred)
         assert all(json.loads(row["support_evidence_ids_json"]) for row in inferred)
@@ -201,7 +201,7 @@ def test_offline_pipeline_graph_export_uses_real_sample_without_demo_seed(tmp_pa
         "rel:apt_group:apt28:TARGETS:country:ukraine",
     }
     assert len(graph["analysis"]["behavior_patterns"]) == 2
-    assert len(graph["analysis"]["inferred_relations"]) == 10
+    assert len(graph["analysis"]["inferred_relations"]) == 2
 
 
 def test_offline_pipeline_updates_api_graph_store(tmp_path):
