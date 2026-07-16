@@ -11,7 +11,7 @@
     },
     "run_id": {
       "type": "string",
-      "pattern": "^extract-[A-Za-z0-9._-]+-[A-Za-z0-9._-]+-\\d+\\.\\d+-\\d+\\.\\d+-\\d{20}-[0-9a-f]{8}$"
+      "pattern": "^extract-[A-Za-z0-9._-]+-[A-Za-z0-9._-]+-(?:\\d+\\.\\d+|extract-v\\d+)-\\d+\\.\\d+-\\d{20}-[0-9a-f]{8}$"
     },
     "doc_id": {
       "type": "string",
@@ -23,7 +23,7 @@
     },
     "prompt_version": {
       "type": "string",
-      "pattern": "^\\d+\\.\\d+$"
+      "pattern": "^(?:\\d+\\.\\d+|extract-v\\d+)$"
     },
     "generated_at": {
       "type": "string",

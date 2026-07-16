@@ -10,9 +10,9 @@ from uuid import uuid4
 
 
 SCHEMA_VERSION = "1.0"
-DEFAULT_PROMPT_VERSION = "1.0"
+DEFAULT_PROMPT_VERSION = "extract-v7"
 DEFAULT_GOLDEN_VERSION = "1.0"
-VERSION_PATTERN = re.compile(r"^\d+\.\d+$")
+VERSION_PATTERN = re.compile(r"^(?:\d+\.\d+|extract-v\d+)$")
 
 
 def ensure_version(value: str, *, field_name: str) -> str:
