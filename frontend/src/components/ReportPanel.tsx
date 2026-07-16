@@ -412,8 +412,8 @@ export default function ReportPanel({
 /** 简单的 Markdown 转 HTML 渲染 */
 function renderMarkdown(md: string): string {
   let html = md
-    // 表格
-    .replace(/\|(.+)\|\n\|[-| ]+\|\n((?:\|.+\|\n)*)/g, (_match, header: string, body: string) => {
+    // 表格（处理前后空白、对齐标记 `:---`）
+    .replace(/\s*\|(.+)\|\s*\n\s*\|[-:| ]+\|\s*\n((?:\s*\|.+\|\s*\n)*)/g, (_match, header: string, body: string) => {
       const headers = header
         .split("|")
         .map((h: string) => `<th>${h.trim()}</th>`)
