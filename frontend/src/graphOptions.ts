@@ -1,6 +1,6 @@
 import type { EChartsOption } from "echarts";
 
-import type { GraphPayload } from "./types";
+import type { GraphEdge, GraphNode, GraphPayload } from "./types";
 
 const TYPE_COLORS: Record<string, string> = {
   APT_GROUP: "#0f766e",
@@ -18,6 +18,66 @@ const TYPE_COLORS: Record<string, string> = {
 export interface BuildOptions {
   highlightNodeIds?: string[];
   searchNodeId?: string | null;
+}
+
+export type Graph3DNode = GraphNode & {
+  color: string;
+  val: number;
+  _raw: GraphNode;
+};
+
+export type Graph3DLink = {
+  id: string;
+  source: string;
+  target: string;
+  name: string;
+  color: string;
+  width: number;
+  particles: number;
+  _raw: GraphEdge;
+};
+
+export function buildGraph3DData(payload: GraphPayload, opts?: BuildOptions) {
+  const highlightSet = new Set(opts?.highlightNodeIds ?? []);
+  const searchNodeId = opts?.searchNodeId;
+  const hasFocus = highlightSet.size > 0 || Boolean(searchNodeId);
+
+  const nodes: Graph3DNode[] = payload.nodes.map((node) => {
+    const isHighlighted = highlightSet.has(node.id);
+    const isSearched = searchNodeId === node.id;
+    const baseColor = TYPE_COLORS[node.type] ?? "#64748b";
+    const baseValue = node.type === "APT_GROUP" ? 12 : node.type === "COUNTRY" ? 9 : 6;
+    return {
+      ...node,
+      color: isSearched ? "#f59e0b" : hasFocus && !isHighlighted ? "#cbd5e1" : baseColor,
+      val: isSearched ? baseValue * 1.5 : baseValue,
+      _raw: node,
+    };
+  });
+
+  const links: Graph3DLink[] = payload.edges.map((edge) => {
+    const isFocusLink =
+      (highlightSet.has(edge.source) && highlightSet.has(edge.target)) ||
+      Boolean(searchNodeId && (edge.source === searchNodeId || edge.target === searchNodeId));
+    return {
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      name: edge.label,
+      color: isFocusLink
+        ? "#f59e0b"
+        : hasFocus
+          ? "#e2e8f0"
+          : edge.validation_status === "invalid"
+            ? "rgba(156, 163, 175, 0.45)"
+            : "#94a3b8",
+      width: isFocusLink ? 3 : 1.2,
+      particles: isFocusLink ? 3 : 0,
+      _raw: edge,
+    };
+  });
+
+  return { nodes, links };
 }
 
 export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EChartsOption {
