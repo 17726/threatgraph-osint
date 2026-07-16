@@ -133,7 +133,7 @@ def generate_report(target_group: str):
 @app.get("/api/v1/graph/neighbors")
 def graph_neighbors(
     entity_id: str = Query(...),
-    depth: int = Query(default=20, ge=1, le=20),
+    depth: int = Query(default=2, ge=1, le=20),
     relation_types: list[str] = Query(default=[]),
     source_types: list[str] = Query(default=[]),
     languages: list[str] = Query(default=[]),

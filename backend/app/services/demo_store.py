@@ -923,7 +923,20 @@ class DemoStore:
                 (target_entity_id,),
             ).fetchone()
             if entity is None:
+                # 直接 ID 未命中 → 按名称/别名兜底搜索（应对实体合并后 ID 变更）
+                entity = connection.execute(
+                    "SELECT entity_id FROM entities WHERE name = ? AND type = 'APT_GROUP'",
+                    (target_group,),
+                ).fetchone()
+            if entity is None:
+                like_pattern = f"%{target_group}%"
+                entity = connection.execute(
+                    "SELECT entity_id FROM entities WHERE aliases_json LIKE ? AND type = 'APT_GROUP'",
+                    (like_pattern,),
+                ).fetchone()
+            if entity is None:
                 return None
+            target_entity_id = entity["entity_id"]
 
             now_iso = datetime.now(UTC).isoformat()
             result = generate_intelligent_report(
@@ -939,7 +952,13 @@ class DemoStore:
                     (target_group,),
                 ).fetchone()
                 if existing:
-                    return self.get_report(target_group)
+                    # 仅当已有报告包含有效章节时才复用（避免返回无内容的旧离线报告）
+                    existing_sections = connection.execute(
+                        "SELECT count(*) AS cnt FROM report_sections WHERE report_id = ?",
+                        (existing["report_id"],),
+                    ).fetchone()["cnt"]
+                    if existing_sections > 0:
+                        return self.get_report(target_group)
 
             connection.execute(
                 """

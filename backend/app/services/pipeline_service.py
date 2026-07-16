@@ -652,6 +652,17 @@ class PipelineService:
                 }
         return result
 
+    def _has_existing_extraction(self, doc_id: str) -> bool:
+        try:
+            with self.connect() as connection:
+                row = connection.execute(
+                    "SELECT 1 FROM evidence WHERE doc_id = ? LIMIT 1",
+                    (doc_id,),
+                ).fetchone()
+                return row is not None
+        except Exception:
+            return False
+
     def _run_document(
         self,
         job_id: str,
@@ -681,6 +692,12 @@ class PipelineService:
                     "source": "reviewed_artifact",
                 }
             else:
+                if self._has_existing_extraction(doc_id):
+                    return {
+                        "doc_id": doc_id,
+                        "skipped": True,
+                        "reason": "文档已抽取，跳过重复 LLM 调用",
+                    }
                 extraction_service = self.extraction_service or LLMExtractionService()
                 try:
                     extraction_result = extraction_service.extract(document)
