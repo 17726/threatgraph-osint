@@ -93,7 +93,7 @@ def graph(
     first_seen_from: str | None = Query(default=None),
     last_seen_to: str | None = Query(default=None),
     min_confidence: float | None = Query(default=None, ge=0, le=1),
-    depth: int = Query(default=20, ge=0, le=20),
+    depth: int = Query(default=2, ge=0, le=20),
     limit: int | None = Query(default=None, ge=1),
 ):
     return success_response(
