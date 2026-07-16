@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -98,6 +100,24 @@ def data_root() -> Path:
     return Path(os.getenv("CRAWLER_DATA_ROOT", str(PROJECT_ROOT / "data")))
 
 
+def merge_cleaned_documents(source_root: Path, target_root: Path) -> int:
+    """Merge isolated crawler output without allowing legacy IDs to collide."""
+    merged = 0
+    target_root.mkdir(parents=True, exist_ok=True)
+    for crawler in CRAWLER_SOURCES:
+        source_dir = source_root / crawler / "cleaned"
+        if not source_dir.exists():
+            continue
+        for path in sorted(source_dir.rglob("*.json")):
+            relative = path.relative_to(source_dir)
+            target_dir = target_root / relative.parent
+            target_dir.mkdir(parents=True, exist_ok=True)
+            target_path = target_dir / f"{crawler}__{path.name}"
+            shutil.copy2(path, target_path)
+            merged += 1
+    return merged
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="统一运行 ThreatGraph-OSINT 爬虫流水线")
     parser.add_argument("--keyword", required=True, help="目标组织或搜索关键词")
@@ -161,9 +181,43 @@ def main() -> int:
         parser.error(str(exc))
 
     failed = False
-    for index, command in enumerate(commands, start=1):
+    crawler_count = len(group_source_masks(args.sources))
+    root = data_root()
+    for index, command in enumerate(commands[:crawler_count], start=1):
         print(f"[{index}/{len(commands)}] {' '.join(command)}")
-        completed = subprocess.run(command, check=False, cwd=PROJECT_ROOT)
+        crawler_name = Path(command[1]).stem
+        crawler_root = root / crawler_name
+        crawler_root.mkdir(parents=True, exist_ok=True)
+        environment = {**os.environ, "CRAWLER_DATA_ROOT": str(crawler_root)}
+        completed = subprocess.run(
+            command,
+            check=False,
+            cwd=PROJECT_ROOT,
+            env=environment,
+        )
+        if completed.returncode:
+            print(f"命令失败，返回码：{completed.returncode}", file=sys.stderr)
+            failed = True
+
+    if not failed:
+        merged_root = root / "cleaned"
+        if merged_root.exists():
+            shutil.rmtree(merged_root)
+        merge_cleaned_documents(root, merged_root)
+
+    if failed:
+        print("crawler 阶段失败，跳过过滤和 promote。", file=sys.stderr)
+        print("爬虫流水线执行完成。")
+        return 1
+
+    for index, command in enumerate(commands[crawler_count:], start=crawler_count + 1):
+        print(f"[{index}/{len(commands)}] {' '.join(command)}")
+        completed = subprocess.run(
+            command,
+            check=False,
+            cwd=PROJECT_ROOT,
+            env={**os.environ, "CRAWLER_DATA_ROOT": str(root)},
+        )
         if completed.returncode:
             print(f"命令失败，返回码：{completed.returncode}", file=sys.stderr)
             failed = True

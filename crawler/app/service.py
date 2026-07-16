@@ -14,6 +14,20 @@ import httpx
 
 
 TERMINAL_STATUSES = {"succeeded", "failed"}
+SOURCE_NAMES = (
+    "奇安信威胁情报中心",
+    "The Hacker News",
+    "Palo Alto Unit 42",
+    "FreeBuf",
+    "Chainalysis",
+    "TRM Labs",
+    "Microsoft",
+    "SecureList",
+    "CrowdStrike",
+    "Group-IB",
+    "OFAC",
+    "FBI",
+)
 
 
 class CrawlerService:
@@ -79,6 +93,7 @@ class CrawlerService:
             "items_pipeline_failed": 0,
             "pipeline_error": None,
             "document_ids": [],
+            "source_results": {},
             "workspace_cleaned": False,
             "error_message": None,
         }
@@ -111,14 +126,15 @@ class CrawlerService:
                 else None
             )
             result.update(self._import_documents(payload))
-            result["status"] = (
-                "failed"
-                if pipeline_error
-                else (
-                    "succeeded"
-                    if result["items_pipeline_succeeded"] > 0
-                    else "failed"
-                )
+            selected_sources = [
+                SOURCE_NAMES[index]
+                for index in range(len(SOURCE_NAMES))
+                if payload["sources"] & (1 << index)
+            ]
+            result = self._finalize_result(
+                {**payload, "selected_sources": selected_sources},
+                result,
+                pipeline_error,
             )
             if result["status"] == "failed":
                 result["error_message"] = (
@@ -149,6 +165,7 @@ class CrawlerService:
             "items_pipeline_succeeded": 0,
             "items_pipeline_failed": 0,
             "document_ids": [],
+            "source_results": {},
             "workspace_cleaned": False,
             "error_message": message,
         }
@@ -164,6 +181,7 @@ class CrawlerService:
             "items_pipeline_succeeded": 0,
             "items_pipeline_failed": 0,
             "document_ids": [],
+            "source_results": {},
         }
         paths = sorted(documents_dir.rglob("*.json")) if documents_dir.exists() else []
         summary["items_promoted"] = len(paths)
@@ -179,30 +197,81 @@ class CrawlerService:
                 data = response.json().get("data", response.json())
                 summary["items_found"] += 1
                 document_id = data.get("doc_id", document.get("doc_id"))
+                source_name = str(document.get("source_name", "unknown")).strip() or "unknown"
+                source = summary["source_results"].setdefault(
+                    source_name,
+                    {
+                        "items_promoted": 0,
+                        "items_imported": 0,
+                        "items_skipped": 0,
+                        "items_failed": 0,
+                        "items_pipeline_succeeded": 0,
+                    },
+                )
+                source["items_promoted"] += 1
                 if data.get("status") == "skipped":
                     summary["items_skipped"] += 1
+                    source["items_skipped"] += 1
                 else:
                     summary["items_imported"] += 1
+                    source["items_imported"] += 1
                 summary["document_ids"].append(document_id)
                 try:
                     pipeline = self._run_live_pipeline(document_id)
                     if pipeline["status"] == "succeeded":
                         summary["items_pipeline_succeeded"] += 1
+                        source["items_pipeline_succeeded"] += 1
                     else:
                         summary["items_pipeline_failed"] += 1
                         summary["items_failed"] += 1
+                        source["items_failed"] += 1
                 except Exception as exc:
-                    if data.get("status") == "skipped":
-                        summary["items_pipeline_failed"] += 1
-                        summary["items_failed"] += 1
-                    else:
-                        summary["items_pipeline_failed"] += 1
-                        summary["items_failed"] += 1
+                    summary["items_pipeline_failed"] += 1
+                    summary["items_failed"] += 1
+                    source["items_failed"] += 1
                     summary["pipeline_error"] = str(exc)
             except Exception as exc:
                 summary["items_failed"] += 1
                 summary["pipeline_error"] = str(exc)
         return summary
+
+    def _finalize_result(
+        self,
+        payload: dict[str, Any],
+        result: dict[str, Any],
+        pipeline_error: str | None,
+    ) -> dict[str, Any]:
+        if pipeline_error:
+            result["status"] = "failed"
+            result["error_message"] = pipeline_error
+            return result
+
+        selected_sources = payload.get("selected_sources")
+        if selected_sources:
+            required = int(payload.get("limit", 1))
+            missing = [
+                source
+                for source in selected_sources
+                if result.get("source_results", {}).get(source, {}).get(
+                    "items_pipeline_succeeded", 0
+                )
+                < required
+            ]
+            if missing:
+                result["status"] = "failed"
+                result["error_message"] = (
+                    "以下来源未达到目标数量: "
+                    + ", ".join(missing)
+                    + f"（每来源目标 {required} 篇）"
+                )
+                return result
+
+        result["status"] = (
+            "succeeded" if result.get("items_pipeline_succeeded", 0) > 0 else "failed"
+        )
+        if result["status"] == "failed":
+            result["error_message"] = "没有成功完成任何文档的 live Pipeline"
+        return result
 
     def _run_live_pipeline(self, doc_id: str) -> dict[str, Any]:
         response = httpx.post(

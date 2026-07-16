@@ -4,6 +4,25 @@ from types import SimpleNamespace
 from crawler.app.service import CrawlerService
 
 
+def test_finalize_fails_when_selected_source_has_no_successful_pipeline() -> None:
+    service = CrawlerService()
+
+    result = service._finalize_result(
+        {"limit": 1, "selected_sources": ["Qianxin", "SecureList"]},
+        {
+            "items_pipeline_succeeded": 1,
+            "source_results": {
+                "Qianxin": {"items_pipeline_succeeded": 1},
+                "SecureList": {"items_pipeline_succeeded": 0},
+            },
+        },
+        None,
+    )
+
+    assert result["status"] == "failed"
+    assert "SecureList" in result["error_message"]
+
+
 def test_service_passes_start_number_to_runner(monkeypatch, tmp_path: Path) -> None:
     service = CrawlerService(
         workspace_root=tmp_path,
@@ -31,7 +50,7 @@ def test_service_passes_start_number_to_runner(monkeypatch, tmp_path: Path) -> N
     assert captured[0][captured[0].index("--start-number") + 1] == "108"
 
 
-def test_service_marks_partial_import_as_succeeded(monkeypatch, tmp_path: Path) -> None:
+def test_service_marks_missing_selected_source_as_failed(monkeypatch, tmp_path: Path) -> None:
     service = CrawlerService(
         workspace_root=tmp_path,
         backend_base_url="http://backend:8000",
@@ -49,6 +68,15 @@ def test_service_marks_partial_import_as_succeeded(monkeypatch, tmp_path: Path) 
         "items_pipeline_succeeded": 1,
         "items_pipeline_failed": 0,
         "document_ids": ["apt28_108"],
+        "source_results": {
+            "奇安信威胁情报中心": {
+                "items_promoted": 2,
+                "items_imported": 1,
+                "items_skipped": 1,
+                "items_failed": 0,
+                "items_pipeline_succeeded": 1,
+            }
+        },
     })
 
     result = service._execute({
@@ -60,7 +88,7 @@ def test_service_marks_partial_import_as_succeeded(monkeypatch, tmp_path: Path) 
         "start_number": 108,
     })
 
-    assert result["status"] == "succeeded"
+    assert result["status"] == "failed"
     assert result["items_imported"] == 1
 
 
@@ -157,6 +185,15 @@ def test_service_runs_live_pipeline_after_document_import(monkeypatch, tmp_path:
         "result": result,
         "calls": calls,
         "error": result["error_message"],
+    }
+    assert result["source_results"] == {
+        "unknown": {
+            "items_promoted": 1,
+            "items_imported": 1,
+            "items_skipped": 0,
+            "items_failed": 0,
+            "items_pipeline_succeeded": 1,
+        }
     }
     assert calls[1] == (
         "http://backend:8000/api/v1/pipeline/run",

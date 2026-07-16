@@ -85,6 +85,8 @@ GET  /api/v1/crawl/runs/{crawl_run_id}
 
 采集任务的每篇 promote 文档在调用 `/documents/import` 后，都会继续复用已有的 live Pipeline 接口：先调用 `/pipeline/run` 并固定传入 `extraction_mode=live`，再轮询 `/pipeline/status/{job_id}`。即使文档因 `doc_id` 或 `content_hash` 已存在而返回 `skipped`，也会使用 backend 返回的既有 `doc_id` 继续执行 live Pipeline。crawler 不实现第二套抽取、校验或建图逻辑。
 
+采集状态响应还包含 `source_results`。该字段以文档的 `source_name` 为键，记录每个来源的 `items_promoted`、`items_imported`、`items_skipped`、`items_failed` 和 `items_pipeline_succeeded`。当请求选择多个来源时，只有所有选中来源都达到 `limit` 篇成功完成 live Pipeline，任务才返回 `status=succeeded`；未达标时返回 `failed`，并在 `error_message` 中列出缺失来源。
+
 `POST /sources` 请求：
 
 ```json

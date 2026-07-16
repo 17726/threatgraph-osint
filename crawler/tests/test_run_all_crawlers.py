@@ -1,6 +1,17 @@
+import json
+from pathlib import Path
+
 import pytest
 
 from scripts import run_all_crawlers
+
+
+def _write_cleaned_document(path: Path, source_name: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps({"doc_id": "apt28_001", "source_name": source_name}),
+        encoding="utf-8",
+    )
 
 
 def test_group_source_masks_skips_unselected_crawlers() -> None:
@@ -116,3 +127,26 @@ def test_global_source_integer_must_be_positive_and_in_range() -> None:
         run_all_crawlers.parse_sources_mask("0")
     with pytest.raises(ValueError):
         run_all_crawlers.parse_sources_mask(str(1 << 12))
+
+
+def test_merge_cleaned_documents_keeps_same_legacy_filename_from_each_crawler(
+    tmp_path: Path,
+) -> None:
+    _write_cleaned_document(
+        tmp_path / "crawler_v1" / "cleaned" / "apt28" / "apt28_001.json",
+        "Qianxin",
+    )
+    _write_cleaned_document(
+        tmp_path / "crawler_supplementary" / "cleaned" / "apt28" / "apt28_001.json",
+        "SecureList",
+    )
+
+    count = run_all_crawlers.merge_cleaned_documents(tmp_path, tmp_path / "merged")
+
+    assert count == 2
+    merged = list((tmp_path / "merged" / "apt28").glob("*.json"))
+    assert len(merged) == 2
+    assert {json.loads(path.read_text(encoding="utf-8"))["source_name"] for path in merged} == {
+        "Qianxin",
+        "SecureList",
+    }

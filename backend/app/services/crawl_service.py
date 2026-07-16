@@ -143,6 +143,7 @@ class CrawlService:
                 "items_pipeline_succeeded",
                 "items_pipeline_failed",
                 "document_ids",
+                "source_results",
                 "workspace_cleaned",
                 "error_message",
             ):
@@ -174,6 +175,7 @@ class CrawlService:
             "items_pipeline_succeeded": 0,
             "items_pipeline_failed": 0,
             "document_ids": [],
+            "source_results": {},
             "workspace_cleaned": False,
             "error_message": None,
         }
@@ -193,6 +195,7 @@ class CrawlService:
                 "items_pipeline_succeeded",
                 "items_pipeline_failed",
                 "document_ids",
+                "source_results",
                 "workspace_cleaned",
                 "error_message",
             )
