@@ -1,0 +1,302 @@
+{
+  "_meta": {
+    "description": "TECHNIQUE 实体名 → MITRE ATT&CK 技术映射表（用于后处理规则自动补全）",
+    "version": "1.0",
+    "source": "https://attack.mitre.org/techniques/enterprise/",
+    "match_rule": "实体名称（小写）包含 mapping key 即视为匹配"
+  },
+  "phishing": {
+    "technique_id": "T1566",
+    "technique_name": "Phishing",
+    "tactic": "Initial Access",
+    "attack_stage": "initial-access"
+  },
+  "spear-phishing": {
+    "technique_id": "T1566.001",
+    "technique_name": "Spearphishing Attachment",
+    "tactic": "Initial Access",
+    "attack_stage": "initial-access"
+  },
+  "command and scripting interpreter": {
+    "technique_id": "T1059",
+    "technique_name": "Command and Scripting Interpreter",
+    "tactic": "Execution",
+    "attack_stage": "execution"
+  },
+  "powershell": {
+    "technique_id": "T1059.001",
+    "technique_name": "PowerShell",
+    "tactic": "Execution",
+    "attack_stage": "execution"
+  },
+  "windows command shell": {
+    "technique_id": "T1059.003",
+    "technique_name": "Windows Command Shell",
+    "tactic": "Execution",
+    "attack_stage": "execution"
+  },
+  "macro": {
+    "technique_id": "T1059.005",
+    "technique_name": "Visual Basic",
+    "tactic": "Execution",
+    "attack_stage": "execution"
+  },
+  "visual basic": {
+    "technique_id": "T1059.005",
+    "technique_name": "Visual Basic",
+    "tactic": "Execution",
+    "attack_stage": "execution"
+  },
+  "application layer protocol": {
+    "technique_id": "T1071",
+    "technique_name": "Application Layer Protocol",
+    "tactic": "Command and Control",
+    "attack_stage": "command-and-control"
+  },
+  "dns": {
+    "technique_id": "T1071.004",
+    "technique_name": "DNS",
+    "tactic": "Command and Control",
+    "attack_stage": "command-and-control"
+  },
+  "signed binary proxy execution": {
+    "technique_id": "T1218",
+    "technique_name": "Signed Binary Proxy Execution",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "certutil": {
+    "technique_id": "T1218.003",
+    "technique_name": "Signed Binary Proxy Execution: Certutil",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "boot or logon autostart execution": {
+    "technique_id": "T1547",
+    "technique_name": "Boot or Logon Autostart Execution",
+    "tactic": "Persistence",
+    "attack_stage": "persistence"
+  },
+  "registry run keys": {
+    "technique_id": "T1547.001",
+    "technique_name": "Registry Run Keys / Startup Folder",
+    "tactic": "Persistence",
+    "attack_stage": "persistence"
+  },
+  "userinitmprlogonscript": {
+    "technique_id": "T1547.001",
+    "technique_name": "Registry Run Keys / Startup Folder",
+    "tactic": "Persistence",
+    "attack_stage": "persistence"
+  },
+  "exfiltration over c2 channel": {
+    "technique_id": "T1041",
+    "technique_name": "Exfiltration Over C2 Channel",
+    "tactic": "Exfiltration",
+    "attack_stage": "exfiltration"
+  },
+  "data from local system": {
+    "technique_id": "T1005",
+    "technique_name": "Data from Local System",
+    "tactic": "Collection",
+    "attack_stage": "collection"
+  },
+  "automated exfiltration": {
+    "technique_id": "T1020",
+    "technique_name": "Automated Exfiltration",
+    "tactic": "Exfiltration",
+    "attack_stage": "exfiltration"
+  },
+  "ingress tool transfer": {
+    "technique_id": "T1105",
+    "technique_name": "Ingress Tool Transfer",
+    "tactic": "Command and Control",
+    "attack_stage": "command-and-control"
+  },
+  "exploit": {
+    "technique_id": "T1203",
+    "technique_name": "Exploitation for Client Execution",
+    "tactic": "Execution",
+    "attack_stage": "execution"
+  },
+  "lateral tool transfer": {
+    "technique_id": "T1570",
+    "technique_name": "Lateral Tool Transfer",
+    "tactic": "Lateral Movement",
+    "attack_stage": "lateral-movement"
+  },
+  "obfuscated files or information": {
+    "technique_id": "T1027",
+    "technique_name": "Obfuscated Files or Information",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "base64 decoding": {
+    "technique_id": "T1027.010",
+    "technique_name": "Command Obfuscation",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "process injection": {
+    "technique_id": "T1055",
+    "technique_name": "Process Injection",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "windows management instrumentation": {
+    "technique_id": "T1047",
+    "technique_name": "Windows Management Instrumentation",
+    "tactic": "Execution",
+    "attack_stage": "execution"
+  },
+  "wmi": {
+    "technique_id": "T1047",
+    "technique_name": "Windows Management Instrumentation",
+    "tactic": "Execution",
+    "attack_stage": "execution"
+  },
+  "scheduled task": {
+    "technique_id": "T1053.005",
+    "technique_name": "Scheduled Task",
+    "tactic": "Persistence",
+    "attack_stage": "persistence"
+  },
+  "credential dumping": {
+    "technique_id": "T1003",
+    "technique_name": "OS Credential Dumping",
+    "tactic": "Credential Access",
+    "attack_stage": "credential-access"
+  },
+  "password spraying": {
+    "technique_id": "T1110.003",
+    "technique_name": "Password Spraying",
+    "tactic": "Credential Access",
+    "attack_stage": "credential-access"
+  },
+  "system information discovery": {
+    "technique_id": "T1082",
+    "technique_name": "System Information Discovery",
+    "tactic": "Discovery",
+    "attack_stage": "discovery"
+  },
+  "process discovery": {
+    "technique_id": "T1057",
+    "technique_name": "Process Discovery",
+    "tactic": "Discovery",
+    "attack_stage": "discovery"
+  },
+  "file and directory discovery": {
+    "technique_id": "T1083",
+    "technique_name": "File and Directory Discovery",
+    "tactic": "Discovery",
+    "attack_stage": "discovery"
+  },
+  "bootkit": {
+    "technique_id": "T1542.003",
+    "technique_name": "Bootkit",
+    "tactic": "Persistence",
+    "attack_stage": "persistence"
+  },
+  "rootkit": {
+    "technique_id": "T1014",
+    "technique_name": "Rootkit",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "data exfiltration": {
+    "technique_id": "T1048",
+    "technique_name": "Exfiltration Over Alternative Protocol",
+    "tactic": "Exfiltration",
+    "attack_stage": "exfiltration"
+  },
+  "dynamic-link library hijacking": {
+    "technique_id": "T1574.002",
+    "technique_name": "DLL Side-Loading",
+    "tactic": "Persistence",
+    "attack_stage": "persistence"
+  },
+  "dll side-loading": {
+    "technique_id": "T1574.002",
+    "technique_name": "DLL Side-Loading",
+    "tactic": "Persistence",
+    "attack_stage": "persistence"
+  },
+  "rundll32": {
+    "technique_id": "T1218.011",
+    "technique_name": "Rundll32",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "mshta": {
+    "technique_id": "T1218.005",
+    "technique_name": "Mshta",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "regsvr32": {
+    "technique_id": "T1218.010",
+    "technique_name": "Regsvr32",
+    "tactic": "Defense Evasion",
+    "attack_stage": "defense-evasion"
+  },
+  "remote desktop protocol": {
+    "technique_id": "T1021.001",
+    "technique_name": "Remote Desktop Protocol",
+    "tactic": "Lateral Movement",
+    "attack_stage": "lateral-movement"
+  },
+  "rdp": {
+    "technique_id": "T1021.001",
+    "technique_name": "Remote Desktop Protocol",
+    "tactic": "Lateral Movement",
+    "attack_stage": "lateral-movement"
+  },
+  "social engineering": {
+    "technique_id": "T1598",
+    "technique_name": "Phishing for Information",
+    "tactic": "Reconnaissance",
+    "attack_stage": "reconnaissance"
+  },
+  "watering hole": {
+    "technique_id": "T1566.002",
+    "technique_name": "Spearphishing Link",
+    "tactic": "Initial Access",
+    "attack_stage": "initial-access"
+  },
+  "drive-by compromise": {
+    "technique_id": "T1189",
+    "technique_name": "Drive-by Compromise",
+    "tactic": "Initial Access",
+    "attack_stage": "initial-access"
+  },
+  "spearphishing link": {
+    "technique_id": "T1566.002",
+    "technique_name": "Spearphishing Link",
+    "tactic": "Initial Access",
+    "attack_stage": "initial-access"
+  },
+  "spearphishing attachment": {
+    "technique_id": "T1566.001",
+    "technique_name": "Spearphishing Attachment",
+    "tactic": "Initial Access",
+    "attack_stage": "initial-access"
+  },
+  "supply chain compromise": {
+    "technique_id": "T1195",
+    "technique_name": "Supply Chain Compromise",
+    "tactic": "Initial Access",
+    "attack_stage": "initial-access"
+  },
+  "data manipulation": {
+    "technique_id": "T1565",
+    "technique_name": "Data Manipulation",
+    "tactic": "Impact",
+    "attack_stage": "impact"
+  },
+  "service stop": {
+    "technique_id": "T1489",
+    "technique_name": "Service Stop",
+    "tactic": "Impact",
+    "attack_stage": "impact"
+  }
+}
