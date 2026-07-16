@@ -458,6 +458,15 @@ def renumber_folder(output_dir: Path, folder: str):
     """重新编号：doc_id → {folder}_001, ..."""
     output_subdir = output_dir / folder
     if not output_subdir.exists():
+        leftovers = sorted(
+            path.name
+            for path in output_dir.glob(f".{folder}.renumber-backup-*")
+        ) + sorted(
+            path.name
+            for path in output_dir.glob(f".renumber_{folder}_*")
+        )
+        if leftovers:
+            raise RuntimeError(f"重编号残留目录：{', '.join(leftovers)}")
         return
 
     json_files = sorted(output_subdir.glob("*.json"))
@@ -503,7 +512,12 @@ def renumber_folder(output_dir: Path, folder: str):
         try:
             staged_dir.rename(output_subdir)
         except Exception:
-            backup_dir.rename(output_subdir)
+            try:
+                backup_dir.rename(output_subdir)
+            except OSError as restore_error:
+                raise RuntimeError(
+                    f"重编号恢复失败，原目录保留在 {backup_dir}，临时目录为 {staged_dir}"
+                ) from restore_error
             raise
         try:
             shutil.rmtree(backup_dir)
