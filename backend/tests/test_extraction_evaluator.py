@@ -288,6 +288,91 @@ def test_normalize_name_preserves_file_extension():
     assert normalize_name("archive.tar.gz") != normalize_name("archive")
 
 
+def test_file_extension_matching_is_type_aware_for_malware_and_tools():
+    extraction = {
+        "doc_id": "doc",
+        "chunks": [
+            {
+                "chunk_id": "doc_c001",
+                "entities": [
+                    {"name": "ElectronGold-1.1.1.exe", "type": "MALWARE", "aliases": []},
+                    {"name": "helper.tar.gz", "type": "TOOL", "aliases": []},
+                ],
+                "relations": [
+                    {
+                        "head_name": "ElectronGold-1.1.1.exe",
+                        "head_type": "MALWARE",
+                        "relation_type": "USES",
+                        "tail_name": "helper.tar.gz",
+                        "tail_type": "TOOL",
+                    }
+                ],
+            }
+        ],
+    }
+    golden = {
+        "doc_ids": ["doc"],
+        "chunks": [
+            {
+                "chunk_id": "doc_c001",
+                "doc_id": "doc",
+                "entities": [
+                    {"name": "ElectronGold-1.1.1", "type": "MALWARE", "aliases": []},
+                    {"name": "helper", "type": "TOOL", "aliases": []},
+                ],
+                "relations": [
+                    {
+                        "head_name": "ElectronGold-1.1.1",
+                        "head_type": "MALWARE",
+                        "relation_type": "USES",
+                        "tail_name": "helper",
+                        "tail_type": "TOOL",
+                    }
+                ],
+            }
+        ],
+    }
+
+    result = evaluate_extraction(extraction, golden)
+
+    assert result["entity_metrics"]["f1"] == 1.0
+    assert result["relation_metrics"]["f1"] == 1.0
+
+
+def test_file_extension_matching_does_not_apply_to_infrastructure():
+    extraction = {
+        "doc_id": "doc",
+        "chunks": [
+            {
+                "chunk_id": "doc_c001",
+                "entities": [
+                    {"name": "update.zip", "type": "INFRASTRUCTURE", "aliases": []},
+                ],
+                "relations": [],
+            }
+        ],
+    }
+    golden = {
+        "doc_ids": ["doc"],
+        "chunks": [
+            {
+                "chunk_id": "doc_c001",
+                "doc_id": "doc",
+                "entities": [
+                    {"name": "update", "type": "INFRASTRUCTURE", "aliases": []},
+                ],
+                "relations": [],
+            }
+        ],
+    }
+
+    result = evaluate_extraction(extraction, golden)
+
+    assert result["entity_metrics"]["true_positive"] == 0
+    assert result["entity_metrics"]["false_positive"] == 1
+    assert result["entity_metrics"]["false_negative"] == 1
+
+
 def test_evaluation_cli_validates_inputs_and_writes_report(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "backend.app.services.extraction_evaluator.now_utc",
