@@ -54,6 +54,26 @@ def test_call_api_uses_runtime_llm_configuration(monkeypatch: pytest.MonkeyPatch
     assert b'"model": "runtime-model"' in captured["payload"]
 
 
+def test_provider_root_url_is_normalized_to_chat_completions(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("LLM_MODEL", "runtime-model")
+    monkeypatch.setenv("LLM_BASE_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("LLM_API_KEY", "runtime-key")
+
+    captured = {}
+
+    def fake_urlopen(request, timeout):
+        captured["url"] = request.full_url
+        return _FakeResponse(
+            b'{"choices":[{"message":{"content":"{\\"is_relevant\\":true,\\"cleaned_text\\":\\"text\\"}"}}]}'
+        )
+
+    monkeypatch.setattr(filter_by_relevance.urllib.request, "urlopen", fake_urlopen)
+
+    filter_by_relevance.call_api("system", "user")
+
+    assert captured["url"] == "https://api.deepseek.com/chat/completions"
+
+
 class _FakeResponse:
     def __init__(self, body: bytes) -> None:
         self.body = body

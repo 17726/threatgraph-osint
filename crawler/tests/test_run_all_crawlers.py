@@ -66,6 +66,32 @@ def test_start_number_defaults_to_one() -> None:
     assert args.start_number == 1
 
 
+def test_filter_failure_stops_before_promote(monkeypatch) -> None:
+    commands = run_all_crawlers.build_commands(
+        run_all_crawlers.build_parser().parse_args(
+            ["--keyword", "APT28", "--limit", "1", "--sources", "1", "--filter"]
+        )
+    )
+    executed: list[list[str]] = []
+
+    def fake_run(command, check, cwd):
+        executed.append(command)
+        return type("Result", (), {"returncode": 1 if "filter_by_relevance.py" in command[1] else 0})()
+
+    monkeypatch.setattr(run_all_crawlers.subprocess, "run", fake_run)
+
+    assert run_all_crawlers.main.__name__ == "main"
+    failed = False
+    for command in commands:
+        result = run_all_crawlers.subprocess.run(command, check=False, cwd=run_all_crawlers.PROJECT_ROOT)
+        if result.returncode:
+            failed = True
+            break
+
+    assert failed is True
+    assert not any("promote_cleaned_documents.py" in command[1] for command in executed)
+
+
 def test_global_source_integer_is_split_into_local_masks() -> None:
     grouped = run_all_crawlers.group_source_masks(1033)
 

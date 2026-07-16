@@ -164,6 +164,9 @@ def main() -> int:
         if completed.returncode:
             print(f"命令失败，返回码：{completed.returncode}", file=sys.stderr)
             failed = True
+            if "filter_by_relevance.py" in command[1]:
+                print("过滤失败，跳过 promote，避免将不完整输出导入。", file=sys.stderr)
+                break
 
     print("爬虫流水线执行完成。")
     return 1 if failed else 0

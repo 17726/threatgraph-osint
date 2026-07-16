@@ -66,3 +66,15 @@ def test_promote_assigns_explicit_ids_and_rewrites_metadata(tmp_path: Path) -> N
     assert promoted["metadata"]["document_path"].endswith("data/documents/apt28/apt28_108.json")
     assert promoted["metadata"]["note"] == "来自 tmp2 的采集"
     assert (target / "apt28_109.json").exists()
+
+
+def test_promote_ignores_hidden_checkpoint_json(tmp_path: Path) -> None:
+    source = tmp_path / "cleaned" / "apt28"
+    target = tmp_path / "documents"
+    source.mkdir(parents=True)
+    (source / ".checkpoint_apt28.json").write_text("{}", encoding="utf-8")
+
+    stats = promote_documents(tmp_path / "cleaned", target)
+
+    assert stats.promoted == 0
+    assert stats.errors == 0

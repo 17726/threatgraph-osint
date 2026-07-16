@@ -109,6 +109,8 @@ def load_documents(directory: Path) -> list[tuple[Path, dict[str, Any]]]:
     if not directory.exists():
         return documents
     for path in sorted(directory.rglob("*.json")):
+        if path.name.startswith("."):
+            continue
         with path.open("r", encoding="utf-8-sig") as handle:
             payload = json.load(handle)
         if not isinstance(payload, dict):

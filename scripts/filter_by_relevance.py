@@ -176,9 +176,16 @@ def require_llm_config() -> tuple[str, str, str]:
     ]
     if missing:
         raise RuntimeError(f"未设置必需的 LLM 配置: {', '.join(missing)}")
+    api_base = os.environ["LLM_BASE_URL"].strip().rstrip("/")
+    if api_base.endswith("/chat/completions"):
+        normalized_url = api_base
+    elif api_base.endswith("/v1"):
+        normalized_url = f"{api_base}/chat/completions"
+    else:
+        normalized_url = f"{api_base}/chat/completions"
     return (
         os.environ["LLM_MODEL"].strip(),
-        os.environ["LLM_BASE_URL"].strip(),
+        normalized_url,
         os.environ["LLM_API_KEY"].strip(),
     )
 
