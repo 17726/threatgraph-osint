@@ -3,13 +3,13 @@
 日期：2026-07-15
 版本：1.0
 状态：LLM 组负责人已确认；跨组契约和实现改动按后续 PR 评审
-实现状态：未实现，当前评测器仍使用旧口径
+实现状态：未实现完整新口径；当前评测器已有名称归一化和类型限定扩展名匹配改进，但仍使用旧的 chunk 级聚合和 rejected 计数口径
 
 本文冻结 LLM 组对抽取评测对象、匹配方法、公式和异常情况的阶段口径。实现前必须先以固定真值表补测试；本文不修改历史结果，不设置 CI 性能门槛，也不表示当前系统已经产出这些指标。
 
 ## 1. 为什么要重写指标口径
 
-当前 `backend/app/services/extraction_evaluator.py` 有三个明显限制：
+当前 `backend/app/services/extraction_evaluator.py` 已补入 http/defang 归一化、alias 匹配和 `MALWARE`/`TOOL` 文件扩展名匹配。它仍有三个会影响新指标口径的限制：
 
 1. 实体和关系必须在相同 `chunk_id` 下匹配，无法公平比较不同切块策略。
 2. Candidate Audit 中所有 rejected 项都直接增加预测数量并视为 FP，没有先和 Golden 匹配。

@@ -1,6 +1,6 @@
 # LLM 标注、实验与评测目标证据文档 Implementation Plan
 
-状态：已完成。PR #42 已将候选问题收敛为 LLM 组阶段决策；跨组契约和代码实现留给后续独立 PR。
+状态：已完成。PR #42 已将候选问题收敛为 LLM 组阶段决策；2026-07-16 已按最新 `main` 复核 #45/#54/#62/#64 后补充当前事实，跨组契约和完整指标实现仍留给后续独立 PR。
 
 **Goal:** 把 2026-07-15 一审提出的 Golden、Experiment、切块和评测方案按“目标—证据—替代方案—最终取舍”整理成可单独评审的文档 PR。
 
@@ -20,7 +20,7 @@
 2. 记录当前 6 篇 Golden 的真实结构：每篇一份 Golden、一个覆盖全文的 v1 单 chunk 外壳。
 3. 比较“完整 Document 标注”和“显式范围标注”两个方案，说明它们依赖的目标、证据和成本。
 4. 区分“全文已审阅但按标注政策排除”和“存在未审阅范围”，但不在目标确认前修改正式标注规则。
-5. 说明当前仓库没有独立 Experiment 环境，也没有清理旧 `data/extracted/`、`data/evaluation/`。
+5. 说明当前仓库没有独立 Experiment 环境；v1-v7 历史材料已归档到 `docs/evaluation/llm-extraction-versions/`，但仍没有 Dataset/Experiment Manifest。
 6. 单独编写评测指标契约，给出 TP/FP/FN、Raw、Validated、Rejected、Duplicate、Parse Failure、Empty 和切块消融的计算例子。
 7. 说明版本号人工递增、Run ID 自动生成；Git Commit 不触发版本自增。
 8. 将可复现性暂时收窄为记录要求，不设置强一致性或性能门槛。
@@ -56,7 +56,7 @@ Expected：六份均为单文档、单 chunk、`[0, clean_text.length)`。
 
 检查目录、runner 和文档术语。
 
-Expected：当前 runner 仍将结果平铺到 `data/extracted/` 与 `data/evaluation/`；没有 Experiment 目录、Manifest、提升命令或 `Track/Treaty` 对象。
+Expected：当前 runner 仍将当前运行结果平铺到 `data/extracted/` 与 `data/evaluation/`；v1-v7 历史材料在 `docs/evaluation/llm-extraction-versions/`，但没有 Experiment 目录、Manifest、提升命令或 `Track/Treaty` 对象。
 
 **Step 3：核对 PR #27**
 
