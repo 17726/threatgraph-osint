@@ -37,6 +37,7 @@ import argparse
 import hashlib
 import json
 import os
+import tempfile
 import sys
 import time
 import urllib.request
@@ -299,6 +300,30 @@ def save_checkpoint(checkpoint_path: Path, checkpoint: dict):
         json.dump(checkpoint, f, ensure_ascii=False, indent=2)
 
 
+def write_progress(current: int, total: int, target: str) -> None:
+    progress_path = os.environ.get("CRAWLER_PROGRESS_FILE")
+    if not progress_path:
+        return
+    path = Path(progress_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "progress": {
+            "phase": "validating",
+            "current": current,
+            "total": total,
+            "target": target.upper(),
+            "source": None,
+            "message": "正在验证",
+        }
+    }
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", delete=False
+    ) as handle:
+        json.dump(payload, handle, ensure_ascii=False)
+        temporary = Path(handle.name)
+    temporary.replace(path)
+
+
 def process_folder(
     input_dir: Path, output_dir: Path, folder: str, sample: int = 0
 ) -> dict:
@@ -312,6 +337,7 @@ def process_folder(
 
     json_files = sorted(input_dir.glob("*.json"))
     pending_files = [f for f in json_files if f.stem not in processed_set]
+    write_progress(len(processed_set), len(json_files), folder)
 
     if not pending_files:
         print(f"  所有 {len(json_files)} 个文件已处理完毕，跳过")
@@ -329,6 +355,7 @@ def process_folder(
         doc_id = fpath.stem
         cur = len(processed_set) + i
         total = len(json_files)
+        write_progress(cur, total, folder)
         pbar = f"[{cur}/{total}]"
 
         try:

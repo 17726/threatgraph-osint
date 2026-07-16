@@ -85,7 +85,22 @@ GET  /api/v1/crawl/runs/{crawl_run_id}
 
 采集任务的每篇 promote 文档在调用 `/documents/import` 后，都会继续复用已有的 live Pipeline 接口：先调用 `/pipeline/run` 并固定传入 `extraction_mode=live`，再轮询 `/pipeline/status/{job_id}`。即使文档因 `doc_id` 或 `content_hash` 已存在而返回 `skipped`，也会使用 backend 返回的既有 `doc_id` 继续执行 live Pipeline。crawler 不实现第二套抽取、校验或建图逻辑。
 
-采集状态响应还包含 `source_results`。该字段以文档的 `source_name` 为键，记录每个来源的 `items_promoted`、`items_imported`、`items_skipped`、`items_failed` 和 `items_pipeline_succeeded`。当请求选择多个来源时，只有所有选中来源都达到 `limit` 篇成功完成 live Pipeline，任务才返回 `status=succeeded`；未达标时返回 `failed`，并在 `error_message` 中列出缺失来源。
+采集状态响应还包含 `source_results`。该字段以文档的 `source_name` 为键，记录每个来源的 `items_promoted`、`items_imported`、`items_skipped`、`items_failed` 和 `items_pipeline_succeeded`。来源未达到 `limit` 时仍保留来源级统计，不单独导致整次任务失败。
+
+采集状态响应还可包含 `progress`：
+
+```json
+{
+  "phase": "collecting",
+  "current": 3,
+  "total": 10,
+  "target": "APT28",
+  "source": "FreeBuf",
+  "message": "正在采集"
+}
+```
+
+`phase` 可为 `collecting`、`validating`、`importing`、`completed` 或 `failed`。采集阶段的 `total` 为选中来源数乘以 `limit`；验证和导入阶段的 `total` 为实际进入对应阶段的文档数。旧客户端未收到 `progress` 时应显示通用任务执行状态。任务终态沿用宽松语义：至少一篇文档完成 live Pipeline 且 crawler 主流程未退出失败时返回 `succeeded`；没有任何成功 Pipeline 或 crawler 主流程失败时返回 `failed`。
 
 `POST /sources` 请求：
 

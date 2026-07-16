@@ -6,6 +6,8 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import time
 from pathlib import Path
 
 from scripts.crawler_proxy import configure_environment
@@ -100,6 +102,78 @@ def data_root() -> Path:
     return Path(os.getenv("CRAWLER_DATA_ROOT", str(PROJECT_ROOT / "data")))
 
 
+def progress_total(source_count: int, limit: int) -> int:
+    return source_count * limit
+
+
+def write_progress(
+    path: Path,
+    *,
+    phase: str,
+    current: int,
+    total: int,
+    target: str,
+    source: str | None,
+    message: str,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "progress": {
+            "phase": phase,
+            "current": current,
+            "total": total,
+            "target": target,
+            "source": source,
+            "message": message,
+        }
+    }
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", delete=False
+    ) as handle:
+        json.dump(payload, handle, ensure_ascii=False)
+        temporary = Path(handle.name)
+    temporary.replace(path)
+
+
+def _latest_document(root: Path) -> tuple[int, str | None]:
+    paths = [
+        path
+        for path in sorted(root.rglob("*.json"))
+        if not path.name.startswith(".") and path.name != "progress.json"
+    ] if root.exists() else []
+    source = None
+    if paths:
+        try:
+            source = json.loads(paths[-1].read_text(encoding="utf-8-sig")).get("source_name")
+        except (OSError, json.JSONDecodeError):
+            source = None
+    return len(paths), source
+
+
+def run_with_progress(
+    command: list[str], *, cwd: Path, env: dict[str, str], progress_path: Path,
+    output_root: Path | None, target: str, total: int, phase: str, message: str,
+) -> int:
+    process = subprocess.Popen(command, cwd=cwd, env=env)
+    last_count = -1
+    while process.poll() is None:
+        if output_root is not None:
+            current, source = _latest_document(output_root)
+            if current != last_count:
+                write_progress(
+                    progress_path,
+                    phase=phase,
+                    current=min(current, total),
+                    total=total,
+                    target=target,
+                    source=source,
+                    message=message,
+                )
+                last_count = current
+        time.sleep(0.25)
+    return process.returncode or 0
+
+
 def merge_cleaned_documents(source_root: Path, target_root: Path) -> int:
     """Merge isolated crawler output without allowing legacy IDs to collide."""
     merged = 0
@@ -183,20 +257,40 @@ def main() -> int:
     failed = False
     crawler_count = len(group_source_masks(args.sources))
     root = data_root()
+    progress_path = Path(os.environ.get("CRAWLER_PROGRESS_FILE", root / "progress.json"))
+    selected_source_count = args.sources.bit_count()
+    write_progress(
+        progress_path,
+        phase="collecting",
+        current=0,
+        total=progress_total(selected_source_count, args.limit),
+        target=args.keyword,
+        source=None,
+        message="正在采集",
+    )
     for index, command in enumerate(commands[:crawler_count], start=1):
         print(f"[{index}/{len(commands)}] {' '.join(command)}")
         crawler_name = Path(command[1]).stem
         crawler_root = root / crawler_name
         crawler_root.mkdir(parents=True, exist_ok=True)
-        environment = {**os.environ, "CRAWLER_DATA_ROOT": str(crawler_root)}
-        completed = subprocess.run(
+        environment = {
+            **os.environ,
+            "CRAWLER_DATA_ROOT": str(crawler_root),
+            "CRAWLER_PROGRESS_FILE": str(progress_path),
+        }
+        completed = run_with_progress(
             command,
-            check=False,
             cwd=PROJECT_ROOT,
             env=environment,
+            progress_path=progress_path,
+            output_root=root,
+            target=args.keyword,
+            total=progress_total(selected_source_count, args.limit),
+            phase="collecting",
+            message="正在采集",
         )
-        if completed.returncode:
-            print(f"命令失败，返回码：{completed.returncode}", file=sys.stderr)
+        if completed:
+            print(f"命令失败，返回码：{completed}", file=sys.stderr)
             failed = True
 
     if not failed:
@@ -204,6 +298,16 @@ def main() -> int:
         if merged_root.exists():
             shutil.rmtree(merged_root)
         merge_cleaned_documents(root, merged_root)
+        merged_count = len(list(merged_root.rglob("*.json")))
+        write_progress(
+            progress_path,
+            phase="validating" if args.filter else "validating",
+            current=0 if args.filter else merged_count,
+            total=merged_count,
+            target=args.keyword,
+            source=None,
+            message="正在验证",
+        )
 
     if failed:
         print("crawler 阶段失败，跳过过滤和 promote。", file=sys.stderr)
@@ -212,14 +316,23 @@ def main() -> int:
 
     for index, command in enumerate(commands[crawler_count:], start=crawler_count + 1):
         print(f"[{index}/{len(commands)}] {' '.join(command)}")
-        completed = subprocess.run(
+        completed = run_with_progress(
             command,
-            check=False,
             cwd=PROJECT_ROOT,
-            env={**os.environ, "CRAWLER_DATA_ROOT": str(root)},
+            env={
+                **os.environ,
+                "CRAWLER_DATA_ROOT": str(root),
+                "CRAWLER_PROGRESS_FILE": str(progress_path),
+            },
+            progress_path=progress_path,
+            output_root=(root / "cleaned_filtered" if "filter_by_relevance.py" in command[1] else root / "documents"),
+            target=args.keyword,
+            total=len(list((root / ("cleaned" if not args.filter else "cleaned_filtered")).rglob("*.json"))),
+            phase="validating" if "filter_by_relevance.py" in command[1] else "importing",
+            message="正在验证" if "filter_by_relevance.py" in command[1] else "正在导入",
         )
-        if completed.returncode:
-            print(f"命令失败，返回码：{completed.returncode}", file=sys.stderr)
+        if completed:
+            print(f"命令失败，返回码：{completed}", file=sys.stderr)
             failed = True
             if "filter_by_relevance.py" in command[1]:
                 print("过滤失败，跳过 promote，避免将不完整输出导入。", file=sys.stderr)

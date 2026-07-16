@@ -23,6 +23,14 @@ export type CrawlRunStats = {
   document_ids: string[];
   workspace_cleaned: boolean;
   error_message: string | null;
+  progress?: {
+    phase: "pending" | "collecting" | "validating" | "importing" | "completed" | "failed";
+    current: number;
+    total: number;
+    target: string;
+    source: string | null;
+    message: string;
+  };
 };
 
 async function parseResponse<T>(response: Response, message: string): Promise<T> {

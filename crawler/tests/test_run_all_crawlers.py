@@ -129,6 +129,28 @@ def test_global_source_integer_must_be_positive_and_in_range() -> None:
         run_all_crawlers.parse_sources_mask(str(1 << 12))
 
 
+def test_progress_total_is_selected_sources_times_limit() -> None:
+    assert run_all_crawlers.progress_total(5, 2) == 10
+
+
+def test_write_progress_records_phase(tmp_path: Path) -> None:
+    path = tmp_path / "progress.json"
+
+    run_all_crawlers.write_progress(
+        path,
+        phase="collecting",
+        current=3,
+        total=10,
+        target="APT28",
+        source="FreeBuf",
+        message="正在采集",
+    )
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["progress"]["current"] == 3
+    assert payload["progress"]["source"] == "FreeBuf"
+
+
 def test_merge_cleaned_documents_keeps_same_legacy_filename_from_each_crawler(
     tmp_path: Path,
 ) -> None:

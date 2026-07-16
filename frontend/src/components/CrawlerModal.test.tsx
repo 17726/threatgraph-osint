@@ -136,6 +136,60 @@ describe("CrawlerModal", () => {
     );
   });
 
+  it("renders collecting progress from backend", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              success: true,
+              data: { crawl_run_id: "crawl_test_002", status: "pending" },
+            }),
+            { status: 202 },
+          ),
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              success: true,
+              data: {
+                crawl_run_id: "crawl_test_002",
+                keyword: "APT28",
+                status: "running",
+                progress: {
+                  phase: "collecting",
+                  current: 3,
+                  total: 10,
+                  target: "APT28",
+                  source: "FreeBuf",
+                  message: "正在采集",
+                },
+              },
+            }),
+            { status: 200 },
+          ),
+        ),
+    );
+
+    render(
+      <CrawlerModal
+        open
+        target="APT28"
+        llmConfigured
+        onClose={vi.fn()}
+        onSuccess={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "开始采集" }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText("3/10 正在采集 目标：APT28 来源：FreeBuf")).toBeTruthy();
+  });
+
   it("keeps the modal action disabled when LLM is not configured", () => {
     render(
       <CrawlerModal

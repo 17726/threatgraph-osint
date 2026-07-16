@@ -62,6 +62,10 @@ export default function CrawlerModal({
   );
   const isRunning = status === "running";
   const isBusy = isRunning || status === "submitting";
+  const progress = run?.progress;
+  const progressPercent = progress && progress.total > 0
+    ? Math.min(100, Math.round((progress.current / progress.total) * 100))
+    : 0;
 
   useEffect(() => {
     if (open) {
@@ -244,11 +248,20 @@ export default function CrawlerModal({
           <div className="crawler-progress" role="status">
             <div className="crawler-progress-title">
               <Loader2 size={16} className="loader-spin" />
-              <strong>{status === "submitting" ? "正在提交采集任务" : "正在导入图谱"}</strong>
-              <span>{status === "submitting" ? "1/3" : "3/3"}</span>
+              <strong>
+                {status === "submitting" ? "正在提交采集任务" : progress?.message ?? "任务正在执行"}
+              </strong>
+              {progress ? (
+                <span>
+                  {progress.current}/{progress.total} {progress.message} 目标：{progress.target}
+                  {progress.source ? ` 来源：${progress.source}` : ""}
+                </span>
+              ) : (
+                <span>任务正在执行</span>
+              )}
             </div>
             <div className="crawler-progress-track">
-              <div style={{ width: status === "submitting" ? "33%" : "100%" }} />
+              <div style={{ width: status === "submitting" ? "33%" : `${progressPercent}%` }} />
             </div>
             <p>任务正在执行，页面会自动同步 backend 状态。</p>
           </div>

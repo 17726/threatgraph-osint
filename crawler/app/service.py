@@ -55,6 +55,14 @@ class CrawlerService:
                 "items_pipeline_failed": 0,
                 "pipeline_error": None,
                 "document_ids": [],
+                "progress": {
+                    "phase": "pending",
+                    "current": 0,
+                    "total": 0,
+                    "target": payload["keyword"],
+                    "source": None,
+                    "message": "任务排队中",
+                },
                 "workspace_cleaned": False,
                 "error_message": None,
             }
@@ -68,6 +76,31 @@ class CrawlerService:
             if run_id not in self._runs:
                 raise KeyError(run_id)
             return dict(self._runs[run_id])
+
+    def _update_progress(self, run_id: str, progress: dict[str, Any]) -> None:
+        with self._lock:
+            if run_id in self._runs:
+                self._runs[run_id]["progress"] = dict(progress)
+
+    def _set_import_progress(
+        self,
+        run_id: str,
+        target: str,
+        current: int,
+        total: int,
+        source: str | None,
+    ) -> None:
+        self._update_progress(
+            run_id,
+            {
+                "phase": "importing",
+                "current": current,
+                "total": total,
+                "target": target,
+                "source": source,
+                "message": "正在导入",
+            },
+        )
 
     def _run_and_store(self, payload: dict[str, Any]) -> None:
         try:
@@ -93,6 +126,14 @@ class CrawlerService:
             "items_pipeline_failed": 0,
             "pipeline_error": None,
             "document_ids": [],
+            "progress": {
+                "phase": "running",
+                "current": 0,
+                "total": 0,
+                "target": payload["keyword"],
+                "source": None,
+                "message": "任务正在执行",
+            },
             "source_results": {},
             "workspace_cleaned": False,
             "error_message": None,
@@ -114,15 +155,31 @@ class CrawlerService:
             ]
             if payload.get("filter"):
                 command.append("--filter")
-            completed = subprocess.run(
+            progress_path = workspace / "data" / "progress.json"
+            process = subprocess.Popen(
                 command,
                 cwd="/app",
-                env={**os.environ, "CRAWLER_DATA_ROOT": str(workspace / "data")},
-                check=False,
+                env={
+                    **os.environ,
+                    "CRAWLER_DATA_ROOT": str(workspace / "data"),
+                    "CRAWLER_PROGRESS_FILE": str(progress_path),
+                },
             )
+            while process.poll() is None:
+                progress = self._read_progress(progress_path)
+                if progress:
+                    with self._lock:
+                        result["progress"] = progress
+                    self._update_progress(run_id, progress)
+                time.sleep(0.25)
+            return_code = process.returncode or 0
+            progress_path = workspace / "data" / "progress.json"
+            progress = self._read_progress(progress_path)
+            if progress:
+                result["progress"] = progress
             pipeline_error = (
-                f"crawler pipeline exited with {completed.returncode}"
-                if completed.returncode
+                f"crawler pipeline exited with {return_code}"
+                if return_code
                 else None
             )
             result.update(self._import_documents(payload))
@@ -152,6 +209,15 @@ class CrawlerService:
         return result
 
     @staticmethod
+    def _read_progress(path: Path) -> dict[str, Any] | None:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        progress = payload.get("progress")
+        return progress if isinstance(progress, dict) else None
+
+    @staticmethod
     def _failed_result(payload: dict[str, Any], message: str) -> dict[str, Any]:
         return {
             "crawl_run_id": payload["crawl_run_id"],
@@ -166,6 +232,14 @@ class CrawlerService:
             "items_pipeline_failed": 0,
             "document_ids": [],
             "source_results": {},
+            "progress": {
+                "phase": "failed",
+                "current": 0,
+                "total": 0,
+                "target": payload.get("keyword", ""),
+                "source": None,
+                "message": "采集任务失败",
+            },
             "workspace_cleaned": False,
             "error_message": message,
         }
@@ -182,9 +256,21 @@ class CrawlerService:
             "items_pipeline_failed": 0,
             "document_ids": [],
             "source_results": {},
+            "progress": {
+                "phase": "importing",
+                "current": 0,
+                "total": 0,
+                "target": payload["keyword"],
+                "source": None,
+                "message": "正在导入",
+            },
         }
         paths = sorted(documents_dir.rglob("*.json")) if documents_dir.exists() else []
         summary["items_promoted"] = len(paths)
+        summary["progress"]["total"] = len(paths)
+        self._set_import_progress(
+            payload["crawl_run_id"], payload["keyword"], 0, len(paths), None
+        )
         for path in paths:
             try:
                 document = json.loads(path.read_text(encoding="utf-8-sig"))
@@ -198,6 +284,14 @@ class CrawlerService:
                 summary["items_found"] += 1
                 document_id = data.get("doc_id", document.get("doc_id"))
                 source_name = str(document.get("source_name", "unknown")).strip() or "unknown"
+                summary["progress"]["source"] = source_name
+                self._set_import_progress(
+                    payload["crawl_run_id"],
+                    payload["keyword"],
+                    summary["progress"]["current"],
+                    len(paths),
+                    source_name,
+                )
                 source = summary["source_results"].setdefault(
                     source_name,
                     {
@@ -233,6 +327,15 @@ class CrawlerService:
             except Exception as exc:
                 summary["items_failed"] += 1
                 summary["pipeline_error"] = str(exc)
+            summary["progress"]["current"] += 1
+            self._set_import_progress(
+                payload["crawl_run_id"],
+                payload["keyword"],
+                summary["progress"]["current"],
+                len(paths),
+                None,
+            )
+        summary["progress"]["source"] = None
         return summary
 
     def _finalize_result(
@@ -241,36 +344,32 @@ class CrawlerService:
         result: dict[str, Any],
         pipeline_error: str | None,
     ) -> dict[str, Any]:
+        if "progress" not in result:
+            result["progress"] = {
+                "phase": "running",
+                "current": 0,
+                "total": 0,
+                "target": payload.get("keyword", ""),
+                "source": None,
+                "message": "任务正在执行",
+            }
         if pipeline_error:
             result["status"] = "failed"
             result["error_message"] = pipeline_error
+            result["progress"]["phase"] = "failed"
+            result["progress"]["message"] = "采集任务失败"
             return result
-
-        selected_sources = payload.get("selected_sources")
-        if selected_sources:
-            required = int(payload.get("limit", 1))
-            missing = [
-                source
-                for source in selected_sources
-                if result.get("source_results", {}).get(source, {}).get(
-                    "items_pipeline_succeeded", 0
-                )
-                < required
-            ]
-            if missing:
-                result["status"] = "failed"
-                result["error_message"] = (
-                    "以下来源未达到目标数量: "
-                    + ", ".join(missing)
-                    + f"（每来源目标 {required} 篇）"
-                )
-                return result
 
         result["status"] = (
             "succeeded" if result.get("items_pipeline_succeeded", 0) > 0 else "failed"
         )
         if result["status"] == "failed":
             result["error_message"] = "没有成功完成任何文档的 live Pipeline"
+            result["progress"]["phase"] = "failed"
+            result["progress"]["message"] = "采集任务失败"
+        else:
+            result["progress"]["phase"] = "completed"
+            result["progress"]["message"] = "采集任务完成"
         return result
 
     def _run_live_pipeline(self, doc_id: str) -> dict[str, Any]:

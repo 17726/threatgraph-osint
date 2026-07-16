@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from crawler.app.service import CrawlerService
 
 
-def test_finalize_fails_when_selected_source_has_no_successful_pipeline() -> None:
+def test_finalize_succeeds_when_any_source_has_successful_pipeline() -> None:
     service = CrawlerService()
 
     result = service._finalize_result(
@@ -19,8 +19,30 @@ def test_finalize_fails_when_selected_source_has_no_successful_pipeline() -> Non
         None,
     )
 
-    assert result["status"] == "failed"
-    assert "SecureList" in result["error_message"]
+    assert result["status"] == "succeeded"
+
+
+def test_partial_source_success_is_succeeded_again() -> None:
+    service = CrawlerService()
+
+    result = service._finalize_result(
+        {"limit": 1, "selected_sources": ["奇安信威胁情报中心", "Microsoft"]},
+        {
+            "items_pipeline_succeeded": 1,
+            "source_results": {"Microsoft": {"items_pipeline_succeeded": 1}},
+        },
+        None,
+    )
+
+    assert result["status"] == "succeeded"
+
+
+def test_failed_result_exposes_failed_progress() -> None:
+    result = CrawlerService._failed_result(
+        {"crawl_run_id": "crawl_test", "keyword": "APT28"}, "failed"
+    )
+
+    assert result["progress"]["phase"] == "failed"
 
 
 def test_service_passes_start_number_to_runner(monkeypatch, tmp_path: Path) -> None:
@@ -30,12 +52,21 @@ def test_service_passes_start_number_to_runner(monkeypatch, tmp_path: Path) -> N
     )
     captured: list[list[str]] = []
 
-    def fake_run(command, **kwargs):
-        captured.append(command)
-        return 0
+    class FakeProcess:
+        returncode = 0
 
-    monkeypatch.setattr("crawler.app.service.subprocess.run", fake_run)
-    monkeypatch.setattr(service, "_import_documents", lambda run: None)
+        def poll(self):
+            return self.returncode
+
+    def fake_popen(command, **kwargs):
+        captured.append(command)
+        return FakeProcess()
+
+    monkeypatch.setattr("crawler.app.service.subprocess.Popen", fake_popen)
+    monkeypatch.setattr(service, "_import_documents", lambda run: {
+        "items_pipeline_succeeded": 0,
+        "source_results": {},
+    })
 
     service._execute({
         "crawl_run_id": "crawl_test",
@@ -50,14 +81,14 @@ def test_service_passes_start_number_to_runner(monkeypatch, tmp_path: Path) -> N
     assert captured[0][captured[0].index("--start-number") + 1] == "108"
 
 
-def test_service_marks_missing_selected_source_as_failed(monkeypatch, tmp_path: Path) -> None:
+def test_service_marks_partial_source_success_as_succeeded(monkeypatch, tmp_path: Path) -> None:
     service = CrawlerService(
         workspace_root=tmp_path,
         backend_base_url="http://backend:8000",
     )
     monkeypatch.setattr(
-        "crawler.app.service.subprocess.run",
-        lambda *args, **kwargs: SimpleNamespace(returncode=0),
+        "crawler.app.service.subprocess.Popen",
+        lambda *args, **kwargs: SimpleNamespace(returncode=0, poll=lambda: 0),
     )
     monkeypatch.setattr(service, "_import_documents", lambda run: {
         "items_found": 2,
@@ -88,7 +119,7 @@ def test_service_marks_missing_selected_source_as_failed(monkeypatch, tmp_path: 
         "start_number": 108,
     })
 
-    assert result["status"] == "failed"
+    assert result["status"] == "succeeded"
     assert result["items_imported"] == 1
 
 
@@ -98,8 +129,8 @@ def test_service_marks_crawler_script_failure_as_failed(monkeypatch, tmp_path: P
         backend_base_url="http://backend:8000",
     )
     monkeypatch.setattr(
-        "crawler.app.service.subprocess.run",
-        lambda *args, **kwargs: SimpleNamespace(returncode=1),
+        "crawler.app.service.subprocess.Popen",
+        lambda *args, **kwargs: SimpleNamespace(returncode=1, poll=lambda: 1),
     )
     monkeypatch.setattr(service, "_import_documents", lambda run: {
         "items_found": 1,
@@ -137,8 +168,8 @@ def test_service_runs_live_pipeline_after_document_import(monkeypatch, tmp_path:
         encoding="utf-8",
     )
     monkeypatch.setattr(
-        "crawler.app.service.subprocess.run",
-        lambda *args, **kwargs: SimpleNamespace(returncode=0),
+        "crawler.app.service.subprocess.Popen",
+        lambda *args, **kwargs: SimpleNamespace(returncode=0, poll=lambda: 0),
     )
     calls: list[tuple[str, dict | None]] = []
 
@@ -214,7 +245,7 @@ def test_service_cleans_workspace_on_failure(monkeypatch, tmp_path: Path) -> Non
     def fail_run(*args, **kwargs):
         raise RuntimeError("crawler failed")
 
-    monkeypatch.setattr("crawler.app.service.subprocess.run", fail_run)
+    monkeypatch.setattr("crawler.app.service.subprocess.Popen", fail_run)
 
     result = service._execute({
         "crawl_run_id": "crawl_failed",
