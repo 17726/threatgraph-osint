@@ -359,7 +359,9 @@ def test_analysis_inferences_filters_target_group(monkeypatch):
                     {
                         "inferred_relation_id": "inferred_apt28_tool_target",
                         "source": "apt_group:apt28",
+                        "source_name": "APT28",
                         "target": "country:ukraine",
+                        "target_name": "乌克兰",
                         "type": "HAS_BEHAVIOR",
                         "rationale": "APT28 rule inference",
                         "confidence": 0.8,
@@ -369,7 +371,9 @@ def test_analysis_inferences_filters_target_group(monkeypatch):
                     {
                         "inferred_relation_id": "inferred_lazarus_tool_target",
                         "source": "apt_group:lazarus",
+                        "source_name": "Lazarus",
                         "target": "country:south-korea",
+                        "target_name": "韩国",
                         "type": "HAS_BEHAVIOR",
                         "rationale": "Lazarus rule inference",
                         "confidence": 0.7,
@@ -391,7 +395,9 @@ def test_analysis_inferences_filters_target_group(monkeypatch):
         {
             "inferred_relation_id": "inferred_apt28_tool_target",
             "source": "apt_group:apt28",
+            "source_name": "APT28",
             "target": "country:ukraine",
+            "target_name": "乌克兰",
             "type": "HAS_BEHAVIOR",
             "rationale": "APT28 rule inference",
             "confidence": 0.8,
