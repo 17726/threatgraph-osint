@@ -1,6 +1,6 @@
 # LLM 标注、实验与评测目标证据文档 Implementation Plan
 
-状态：已完成。PR #42 已将候选问题收敛为 LLM 组阶段决策；2026-07-16 已按最新 `main` 复核 #45/#54/#62/#64 后补充当前事实，跨组契约和完整指标实现仍留给后续独立 PR。
+状态：已完成。PR #42 已将候选问题收敛为 LLM 组阶段决策；2026-07-16 已按最新 `main` 复核 #45/#54/#62/#64/#66/#67 后补充当前事实，跨组契约和完整指标实现仍留给后续独立 PR。
 
 **Goal:** 把 2026-07-15 一审提出的 Golden、Experiment、切块和评测方案按“目标—证据—替代方案—最终取舍”整理成可单独评审的文档 PR。
 
@@ -56,7 +56,7 @@ Expected：六份均为单文档、单 chunk、`[0, clean_text.length)`。
 
 检查目录、runner 和文档术语。
 
-Expected：当前 runner 仍将当前运行结果平铺到 `data/extracted/` 与 `data/evaluation/`；v1-v7 历史材料在 `docs/evaluation/llm-extraction-versions/`，但没有 Experiment 目录、Manifest、提升命令或 `Track/Treaty` 对象。
+Expected：当前 runner 仍将当前运行结果平铺到 `data/extracted/` 与 `data/evaluation/`；live pipeline 会跳过已有证据的 Document 以避免重复 LLM 调用；v1-v7 历史材料在 `docs/evaluation/llm-extraction-versions/`，但没有 Experiment 目录、Manifest、提升命令或 `Track/Treaty` 对象。
 
 **Step 3：核对 PR #27**
 

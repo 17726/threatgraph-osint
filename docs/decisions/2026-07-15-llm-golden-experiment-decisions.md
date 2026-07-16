@@ -113,13 +113,15 @@ data/evaluation/evaluation_result-<doc_id>-<model>-<prompt_version>-<schema_vers
 data/golden/golden-<language>-<doc_id>-<schema_version>-<golden_version>.json
 ```
 
-截至 2026-07-16 的 `main`，PR #49、#51、#53、#54、#62、#63、#64 和 #45 还带来以下 LLM 相关现状：
+截至 2026-07-16 的 `main`，PR #49、#51、#53、#54、#62、#63、#64、#45、#66 和 #67 还带来以下 LLM 相关现状：
 
 - `scripts/run_llm_extraction.py` 默认写出 `data/run_logs/run-log-<run_id>.json`，记录阶段耗时、API 调用次数、Token 和重试摘要；该目录是本地运行产物，不是 Git 归档的 Experiment Manifest。
-- P0 Pipeline 已收敛为手动 `extract_and_build` 复合任务，状态落 SQLite，默认只消费已有审核抽取结果，不把 `use_cache=false` 当作调用外部模型授权。
+- P0 Pipeline 已收敛为手动 `extract_and_build` 复合任务，状态落 SQLite；reviewed 模式默认只消费已有审核抽取结果，live 模式在 SQLite 中已有该 Document 证据时会跳过重复外部 LLM 调用。
 - `DEFAULT_PROMPT_VERSION` 已升级为 `extract-v7`，默认提示词来自 `docs/prompts/extract-v7.md`；Extraction Schema 和工件命名校验已允许 `extract-v<N>` 形式的 prompt 版本。
 - LLM 服务已收敛长输出重试策略、支持 URL/defang 证据匹配回退，并把单轮输出上限提高到最多 80 个实体和 80 个关系。
+- 离线导入后处理已能基于 `docs/mappings/mitre-techniques.json`，把 `USES` 指向的 `TECHNIQUE` 实体补全到 `mitre_mappings`；这是图谱分析层规则补全，不表示 Golden、Candidate Audit 或评测指标口径发生变化。
 - 当前评测器已合入 http/defang 归一化和仅限 `MALWARE`/`TOOL` 的文件扩展名匹配；这属于旧评测器的局部匹配改进，不等于本文定义的 Raw Semantic/Validated 双作用域指标已经实现。
+- PR #67 恢复图查询邻居默认深度为 2，并修复 PipelineResult 类型边界；它不改变 Prompt、Schema、Candidate Audit、Golden 或评测器。
 - `data/evaluation/` 当前只保留符合新命名的评测结果；旧式 `evaluation_result.*.extract-vN.json` 不再作为当前运行工件保留在该目录。
 - `docs/evaluation/llm-extraction-versions/` 已归档 v1 到 v7 的历史提示词、代码快照、抽取结果、候选审计、Golden 副本和评测结果。该目录是历史复盘材料，不是当前运行工件目录或 Experiment Manifest。
 
@@ -364,6 +366,7 @@ Provider Raw Response 若不含密钥、隐私和私有链接，可以随被选�
 - 当前 runner 仍把工件平铺到 `data/extracted/` 和 `data/evaluation/`；
 - 当前没有 Dataset/Experiment Manifest、promote 命令或独立 Experiment 环境；
 - 当前默认 Prompt 为 `extract-v7`，Schema/命名校验允许 `extract-v<N>`；
+- 当前离线导入会按映射表从 `TECHNIQUE` 实体补全 MITRE ATT&CK 映射；live pipeline 对已有证据的 Document 会跳过重复 LLM 调用；
 - 当前评测器已有 http/defang 和类型限定的扩展名匹配改进，但仍依赖相同 `chunk_id`，并把 Candidate Audit 中 rejected 项直接加入预测数量；
 - PR #35 已实现两段式版本、UTC 标签和随机后缀 Run ID；
 - v1 到 v7 的历史抽取评测材料已归档到 `docs/evaluation/llm-extraction-versions/`，不等同于 Manifest；
