@@ -269,7 +269,9 @@
       "required": [
         "inferred_relation_id",
         "source",
+        "source_name",
         "target",
+        "target_name",
         "type",
         "rationale",
         "confidence",
@@ -279,7 +281,9 @@
       "properties": {
         "inferred_relation_id": { "type": "string", "minLength": 1 },
         "source": { "type": "string", "minLength": 1 },
+        "source_name": { "type": "string", "minLength": 1 },
         "target": { "type": "string", "minLength": 1 },
+        "target_name": { "type": "string", "minLength": 1 },
         "type": { "$ref": "#/$defs/relation_type" },
         "rationale": { "type": "string", "minLength": 1 },
         "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
