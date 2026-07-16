@@ -11,23 +11,11 @@ import {
   Upload,
   Radar,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import {
-  fetchGraph,
-  fetchNeighbors,
-  fetchReport,
-  generateReport,
-  fetchHealth,
-} from "./api/client";
+import { fetchGraph, fetchNeighbors, fetchReport, generateReport, fetchHealth } from "./api/client";
 import { buildGraphOption } from "./graphOptions";
-import type {
-  Evidence,
-  GraphEdge,
-  GraphNode,
-  GraphPayload,
-  ReportPayload,
-} from "./types";
+import type { Evidence, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "./types";
 import NodeDetail from "./components/NodeDetail";
 import SearchBar from "./components/SearchBar";
 import TechniqueFilter from "./components/TechniqueFilter";
@@ -39,6 +27,8 @@ import AnalysisPage from "./pages/AnalysisPage";
 import PipelineModal from "./components/PipelineModal";
 import CrawlerModal from "./components/CrawlerModal";
 
+const Graph3D = lazy(() => import("./components/Graph3D"));
+
 const TARGETS = ["APT28", "Lazarus", "Kimsuky"];
 
 export function App() {
@@ -46,9 +36,7 @@ export function App() {
   const [graph, setGraph] = useState<GraphPayload | null>(null);
   const [searchGraph, setSearchGraph] = useState<GraphPayload | null>(null);
   const [report, setReport] = useState<ReportPayload | null>(null);
-  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(
-    null,
-  );
+  const [selectedEvidence, setSelectedEvidence] = useState<Evidence | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -66,6 +54,7 @@ export function App() {
   const [legendFilter, setLegendFilter] = useState<string | null>(null);
   const [regionFilter, setRegionFilter] = useState("");
   const [page, setPage] = useState<"graph" | "analysis">("graph");
+  const [graphDimension, setGraphDimension] = useState<"2d" | "3d">("2d");
   const [pipelineOpen, setPipelineOpen] = useState(false);
   const [graphDepth, setGraphDepth] = useState<number>(2);
   const [graphDepthInput, setGraphDepthInput] = useState<string>("2");
@@ -191,9 +180,7 @@ export function App() {
     }
     if (legendFilter) {
       const typeIds = new Set(
-        activeGraph.nodes
-          .filter((n) => n.type === legendFilter)
-          .map((n) => n.id),
+        activeGraph.nodes.filter((n) => n.type === legendFilter).map((n) => n.id),
       );
       const connectedIds = new Set(typeIds);
       activeGraph.edges.forEach((e) => {
@@ -214,9 +201,7 @@ export function App() {
     return {
       ...activeGraph,
       nodes: visible,
-      edges: activeGraph.edges.filter(
-        (e) => visibleIds.has(e.source) && visibleIds.has(e.target),
-      ),
+      edges: activeGraph.edges.filter((e) => visibleIds.has(e.source) && visibleIds.has(e.target)),
     };
   }, [
     graph,
@@ -229,57 +214,60 @@ export function App() {
   ]);
   const countries = useMemo(
     () =>
-      graph?.nodes
-        .filter((n) => n.type === "COUNTRY")
-        .map((n) => ({ id: n.id, name: n.name })) ?? [],
+      graph?.nodes.filter((n) => n.type === "COUNTRY").map((n) => ({ id: n.id, name: n.name })) ??
+      [],
     [graph],
   );
   const techniqueOptions = useMemo(
     () =>
-      graph?.nodes
-        .filter((n) => n.type === "TECHNIQUE")
-        .map((n) => ({ id: n.id, name: n.name })) ?? [],
+      graph?.nodes.filter((n) => n.type === "TECHNIQUE").map((n) => ({ id: n.id, name: n.name })) ??
+      [],
     [graph],
   );
   const graphOption = useMemo(
     () =>
-      filteredGraph
-        ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId })
-        : null,
+      filteredGraph ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId }) : null,
     [filteredGraph, highlightNodeIds, searchNodeId],
   );
 
-  const handleChartReady = useCallback((instance: any) => {
-    chartInstanceRef.current = instance;
-    instance.on("click", (params: any) => {
-      if (params.dataType === "node") {
-        const raw = params.data._raw as GraphNode | undefined;
-        if (raw) setSelectedNode(raw);
-        setSearchNodeId(null);
-        setSelectedEdge(null);
-      } else if (params.dataType === "edge") {
-        const raw = params.data._raw as GraphEdge | undefined;
-        if (raw) {
-          setSelectedEdge(raw);
-          setSelectedNode(null);
-        }
-      }
-    });
-    instance.on("legendselectchanged", (params: any) => {
-      setLegendFilter((prev: string | null) =>
-        prev === params.name ? null : params.name,
-      );
-      setTimeout(() => {
-        const cats = instance.getOption().legend?.[0]?.data || [];
-        cats.forEach((cat: any) => {
-          instance.dispatchAction({
-            type: "legendSelect",
-            name: typeof cat === "string" ? cat : cat.name,
-          });
-        });
-      }, 0);
-    });
+  const handleNodeClick = useCallback((node: GraphNode) => {
+    setSelectedNode(node);
+    setSearchNodeId(null);
+    setSelectedEdge(null);
   }, []);
+
+  const handleEdgeClick = useCallback((edge: GraphEdge) => {
+    setSelectedEdge(edge);
+    setSelectedNode(null);
+  }, []);
+
+  const handleChartReady = useCallback(
+    (instance: any) => {
+      chartInstanceRef.current = instance;
+      instance.on("click", (params: any) => {
+        if (params.dataType === "node") {
+          const raw = params.data._raw as GraphNode | undefined;
+          if (raw) handleNodeClick(raw);
+        } else if (params.dataType === "edge") {
+          const raw = params.data._raw as GraphEdge | undefined;
+          if (raw) handleEdgeClick(raw);
+        }
+      });
+      instance.on("legendselectchanged", (params: any) => {
+        setLegendFilter((prev: string | null) => (prev === params.name ? null : params.name));
+        setTimeout(() => {
+          const cats = instance.getOption().legend?.[0]?.data || [];
+          cats.forEach((cat: any) => {
+            instance.dispatchAction({
+              type: "legendSelect",
+              name: typeof cat === "string" ? cat : cat.name,
+            });
+          });
+        }, 0);
+      });
+    },
+    [handleEdgeClick, handleNodeClick],
+  );
 
   const handleSearchSelect = useCallback(
     (nodeId: string, depth = graphDepth) => {
@@ -406,21 +394,13 @@ export function App() {
             </button>
           ))}
         </div>
-        <SearchBar
-          key={target}
-          onSelect={handleSearchSelect}
-          onClear={handleSearchClear}
-        />
+        <SearchBar key={target} onSelect={handleSearchSelect} onClear={handleSearchClear} />
         <TechniqueFilter
           techniques={techniqueOptions}
           value={techniqueFilter}
           onChange={setTechniqueFilter}
         />
-        <RegionFilter
-          countries={countries}
-          value={regionFilter}
-          onChange={setRegionFilter}
-        />
+        <RegionFilter countries={countries} value={regionFilter} onChange={setRegionFilter} />
         <div className="toolbar-actions">
           <button
             type="button"
@@ -526,6 +506,26 @@ export function App() {
                       <span style={{ color: "#dc2626" }}>{graphDepthError}</span>
                     ) : null}
                   </label>
+                  <div className="graph-dimension-toggle" role="group" aria-label="图谱维度">
+                    <button
+                      className={graphDimension === "2d" ? "active" : ""}
+                      aria-pressed={graphDimension === "2d"}
+                      aria-label="2D 视图"
+                      type="button"
+                      onClick={() => setGraphDimension("2d")}
+                    >
+                      2D
+                    </button>
+                    <button
+                      className={graphDimension === "3d" ? "active" : ""}
+                      aria-pressed={graphDimension === "3d"}
+                      aria-label="3D 视图"
+                      type="button"
+                      onClick={() => setGraphDimension("3d")}
+                    >
+                      3D
+                    </button>
+                  </div>
                   <button
                     aria-label={isGraphFullscreen ? "退出图谱全屏" : "全屏显示图谱"}
                     aria-pressed={isGraphFullscreen}
@@ -543,7 +543,23 @@ export function App() {
                 </div>
               </div>
               <div className="graph-canvas">
-                {graphOption ? (
+                {graphDimension === "3d" && filteredGraph ? (
+                  <Suspense
+                    fallback={
+                      <div className="graph-loading" role="status">
+                        正在加载 3D 图谱…
+                      </div>
+                    }
+                  >
+                    <Graph3D
+                      graph={filteredGraph}
+                      highlightNodeIds={highlightNodeIds}
+                      searchNodeId={searchNodeId}
+                      onNodeClick={handleNodeClick}
+                      onEdgeClick={handleEdgeClick}
+                    />
+                  </Suspense>
+                ) : graphOption ? (
                   <ReactECharts
                     ref={chartRef}
                     className="chart"
@@ -646,13 +662,10 @@ export function App() {
                     </div>
                     <p>
                       置信度:{" "}
-                      <strong style={{ color: "#172026" }}>
-                        {selectedEdge.confidence}
-                      </strong>
+                      <strong style={{ color: "#172026" }}>{selectedEdge.confidence}</strong>
                     </p>
                     <p>
-                      来源数: {selectedEdge.source_count} · 证据:{" "}
-                      {selectedEdge.evidence_count} 条
+                      来源数: {selectedEdge.source_count} · 证据: {selectedEdge.evidence_count} 条
                     </p>
                     <hr
                       style={{
@@ -666,9 +679,7 @@ export function App() {
                     </p>
                     <div style={{ marginTop: 12 }}>
                       {(selectedEdge.evidence_ids ?? []).map((evId, evIdx) => {
-                        const e = filteredGraph?.evidence.find(
-                          (ev) => ev.id === evId,
-                        );
+                        const e = filteredGraph?.evidence.find((ev) => ev.id === evId);
                         if (!e) return null;
                         return (
                           <div
@@ -681,9 +692,7 @@ export function App() {
                               background: "#f8faf9",
                             }}
                           >
-                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>
-                              {e.text}
-                            </p>
+                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>{e.text}</p>
                             <a
                               href={e.source_url}
                               target="_blank"
@@ -719,11 +728,7 @@ export function App() {
                         key={item.id}
                         onClick={() => setSelectedEvidence(item)}
                       >
-                        <a
-                          href={item.source_url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
+                        <a href={item.source_url} target="_blank" rel="noreferrer">
                           {item.id}
                         </a>
                         <span>{firstSentence(item.text)}</span>

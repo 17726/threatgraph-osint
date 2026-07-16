@@ -7,8 +7,58 @@ import { fetchEntitySearch, fetchGraph, fetchNeighbors, fetchReport } from "./ap
 import { App } from "./App";
 import type { GraphNode, GraphPayload, ReportPayload } from "./types";
 
+const forceGraphMocks = vi.hoisted(() => ({
+  cameraPosition: vi.fn(),
+  zoomToFit: vi.fn(),
+}));
+
 vi.mock("echarts-for-react", () => ({
   default: () => <div data-testid="graph-canvas" />,
+}));
+
+vi.mock("react-force-graph-3d", async () => {
+  const React = await vi.importActual<typeof import("react")>("react");
+  return {
+    default: React.forwardRef(function MockForceGraph(
+      props: {
+        graphData: { nodes: unknown[]; links: unknown[] };
+        onNodeClick: (node: unknown) => void;
+        onLinkClick: (link: unknown) => void;
+        onEngineStop?: () => void;
+        backgroundColor?: string;
+        nodeRelSize?: number;
+      },
+      ref,
+    ) {
+      React.useImperativeHandle(ref, () => ({
+        cameraPosition: forceGraphMocks.cameraPosition,
+        zoomToFit: forceGraphMocks.zoomToFit,
+      }));
+      return (
+        <div
+          data-testid="graph-3d-canvas"
+          data-background-color={props.backgroundColor}
+          data-node-rel-size={props.nodeRelSize}
+        >
+          <button type="button" onClick={() => props.onNodeClick(props.graphData.nodes[0])}>
+            模拟选择 3D 节点
+          </button>
+          <button type="button" onClick={() => props.onLinkClick(props.graphData.links[0])}>
+            模拟选择 3D 关系
+          </button>
+          <button type="button" onClick={() => props.onEngineStop?.()}>
+            模拟 3D 布局完成
+          </button>
+        </div>
+      );
+    }),
+  };
+});
+
+vi.mock("./components/NodeDetail", () => ({
+  default: ({ entityId }: { entityId: string | null }) => (
+    <div data-testid="node-detail">{entityId}</div>
+  ),
 }));
 
 vi.mock("./api/client", () => ({
@@ -48,6 +98,26 @@ const graph = (...ids: string[]): GraphPayload => ({
   nodes: ids.map(node),
   edges: [],
   evidence: [],
+});
+
+const graphWithRelation = (): GraphPayload => ({
+  ...graph("apt_group:apt28", "malware:x-agent"),
+  edges: [
+    {
+      id: "rel:apt28:uses:x-agent",
+      source: "apt_group:apt28",
+      target: "malware:x-agent",
+      type: "USES",
+      label: "使用",
+      confidence: 0.91,
+      source_count: 1,
+      evidence_count: 0,
+      first_seen: null,
+      last_seen: null,
+      validation_status: "valid",
+      evidence_ids: [],
+    },
+  ],
 });
 
 const report: ReportPayload = {
@@ -197,5 +267,55 @@ describe("实体一跳筛选", () => {
     await waitFor(() => expect(entityMetric().textContent).toContain("3"));
 
     expect(screen.queryByText(/^(加载中|已加载)$/)).toBeNull();
+  });
+
+  it("默认显示 2D 图谱并支持切换 3D 后再切回", async () => {
+    render(<App />);
+    await waitFor(() => expect(entityMetric().textContent).toContain("3"));
+
+    const twoDimensionalButton = screen.getByRole("button", { name: "2D 视图" });
+    const threeDimensionalButton = screen.getByRole("button", { name: "3D 视图" });
+
+    expect(twoDimensionalButton.getAttribute("aria-pressed")).toBe("true");
+    expect(threeDimensionalButton.getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByTestId("graph-canvas")).toBeTruthy();
+
+    fireEvent.click(threeDimensionalButton);
+    expect(threeDimensionalButton.getAttribute("aria-pressed")).toBe("true");
+    const graph3DCanvas = await screen.findByTestId("graph-3d-canvas");
+    expect(graph3DCanvas.getAttribute("data-background-color")).toBe("#ffffff");
+    expect(graph3DCanvas.getAttribute("data-node-rel-size")).toBe("3.5");
+    expect(screen.getByRole("button", { name: "模拟选择 3D 节点" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "模拟 3D 布局完成" }));
+    expect(forceGraphMocks.cameraPosition).toHaveBeenCalledWith(
+      { x: 0, y: 0, z: 360 },
+      { x: 0, y: 0, z: 0 },
+      600,
+    );
+    fireEvent.click(twoDimensionalButton);
+    expect(twoDimensionalButton.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByTestId("graph-canvas")).toBeTruthy();
+  });
+
+  it("在 3D 视图选择节点时复用实体详情", async () => {
+    render(<App />);
+    await waitFor(() => expect(entityMetric().textContent).toContain("3"));
+
+    fireEvent.click(screen.getByRole("button", { name: "3D 视图" }));
+    fireEvent.click(await screen.findByRole("button", { name: "模拟选择 3D 节点" }));
+
+    expect(screen.getByTestId("node-detail").textContent).toBe("base-1");
+  });
+
+  it("在 3D 视图选择关系时复用关系详情", async () => {
+    vi.mocked(fetchGraph).mockResolvedValue(graphWithRelation());
+    render(<App />);
+    await waitFor(() => expect(entityMetric().textContent).toContain("2"));
+
+    fireEvent.click(screen.getByRole("button", { name: "3D 视图" }));
+    fireEvent.click(await screen.findByRole("button", { name: "模拟选择 3D 关系" }));
+
+    expect(screen.getByRole("heading", { name: "关系详情" })).toBeTruthy();
+    expect(screen.getByText("使用")).toBeTruthy();
   });
 });
