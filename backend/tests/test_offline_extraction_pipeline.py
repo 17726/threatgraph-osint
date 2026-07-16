@@ -97,6 +97,20 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
     assert summary.behavior_patterns == 2
 
     with connect(db_path) as connection:
+        inferred = connection.execute(
+            """
+            SELECT source_entity_id, target_entity_id, relation_type,
+                   rationale, support_evidence_ids_json, confidence, status
+            FROM inferred_relations
+            WHERE source_entity_id = 'apt_group:apt28'
+            """
+        ).fetchall()
+        assert len(inferred) == 10
+        assert all(row["relation_type"] == "HAS_BEHAVIOR" for row in inferred)
+        assert all(row["status"] == "candidate" for row in inferred)
+        assert all(json.loads(row["support_evidence_ids_json"]) for row in inferred)
+
+    with connect(db_path) as connection:
         run = connection.execute("SELECT * FROM extraction_runs").fetchone()
         assert run["validation_status"] == "valid"
 
@@ -187,7 +201,7 @@ def test_offline_pipeline_graph_export_uses_real_sample_without_demo_seed(tmp_pa
         "rel:apt_group:apt28:TARGETS:country:ukraine",
     }
     assert len(graph["analysis"]["behavior_patterns"]) == 2
-    assert graph["analysis"]["inferred_relations"] == []
+    assert len(graph["analysis"]["inferred_relations"]) == 10
 
 
 def test_offline_pipeline_updates_api_graph_store(tmp_path):

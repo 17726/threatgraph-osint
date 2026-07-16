@@ -1033,10 +1033,10 @@ class DemoStore:
             if self._table_exists(connection, "inferred_relations"):
                 inference_rows = connection.execute(
                     """
-                    SELECT inferred_relation_id, source_entity_id, target_entity_id, relation_type,
-                           rationale, support_evidence_ids_json, confidence, status
-                    FROM inferred_relations
-                    ORDER BY inferred_relation_id
+                    SELECT i.inferred_relation_id, i.source_entity_id, i.target_entity_id, i.relation_type,
+                           i.rationale, i.support_evidence_ids_json, i.confidence, i.status
+                    FROM inferred_relations i
+                    ORDER BY i.inferred_relation_id
                     """
                 ).fetchall()
 

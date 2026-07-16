@@ -67,9 +67,10 @@ def _split_query_values(values: list[str]) -> list[str]:
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(_request, exc: HTTPException):
+    code = "ERR_NOT_FOUND" if exc.status_code == 404 else "ERR_HTTP"
     return JSONResponse(
         status_code=exc.status_code,
-        content=error_response("ERR_HTTP", str(exc.detail)),
+        content=error_response(code, str(exc.detail)),
     )
 
 
@@ -216,7 +217,16 @@ def analysis_mitre(target_group: str):
 @app.get("/api/v1/analysis/{target_group}/inferences")
 def analysis_inferences(target_group: str):
     result = store.get_analysis()
-    return success_response({"target_group": target_group, "inferences": result["inferred_relations"]})
+    inferences = [
+        inference
+        for inference in result["inferred_relations"]
+        if inference.get(
+            "target_group",
+            inference.get("source", "").split(":", 1)[-1],
+        ).lower()
+        == target_group.lower()
+    ]
+    return success_response({"target_group": target_group, "inferences": inferences})
 
 
 @app.get("/api/v1/analysis/{target_group}/threat-assessment")

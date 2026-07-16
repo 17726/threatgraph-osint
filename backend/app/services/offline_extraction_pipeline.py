@@ -117,6 +117,7 @@ class OfflineExtractionPipeline:
             self.normalize_candidates(connection, extraction_result["run_id"])
             self.build_rule_analysis(connection, document["target_group"])
             self.build_mitre_mappings(connection, document["target_group"])
+            self.build_inferred_relations(connection, document["target_group"])
             self.upsert_report(connection, document["target_group"])
             connection.commit()
 
@@ -919,7 +920,7 @@ class OfflineExtractionPipeline:
 
     def build_rule_analysis(self, connection: sqlite3.Connection, target_group: str) -> None:
         now = now_iso()
-        target_entity_id = canonical_entity_id("APT_GROUP", target_group)
+        target_entity_id = self._resolve_target_entity_id(connection, target_group)
         connection.execute("DELETE FROM behavior_patterns WHERE target_group = ?", (target_group,))
 
         uses_rows = connection.execute(
@@ -1004,7 +1005,7 @@ class OfflineExtractionPipeline:
 
         mitre_map = load_json(mitre_map_path)
         mapping_keys = {k.lower(): v for k, v in mitre_map.items() if not k.startswith("_")}
-        target_entity_id = canonical_entity_id("APT_GROUP", target_group)
+        target_entity_id = self._resolve_target_entity_id(connection, target_group)
         now_iso_str = now_iso()
 
         techniques = connection.execute(
@@ -1068,6 +1069,102 @@ class OfflineExtractionPipeline:
                     now_iso_str,
                 ),
             )
+
+    def _resolve_target_entity_id(
+        self, connection: sqlite3.Connection, target_group: str
+    ) -> str:
+        target_key = normalize_lookup(target_group)
+        row = connection.execute(
+            """
+            SELECT entity_id
+            FROM entities
+            WHERE type = 'APT_GROUP'
+              AND (
+                lower(name) = ?
+                OR lower(aliases_json) LIKE ?
+              )
+            ORDER BY entity_id
+            LIMIT 1
+            """,
+            (target_key, f'%"{target_key}"%'),
+        ).fetchone()
+        return row["entity_id"] if row else canonical_entity_id("APT_GROUP", target_group)
+
+    def build_inferred_relations(
+        self, connection: sqlite3.Connection, target_group: str
+    ) -> None:
+        """基于同一目标组织的 USES/TARGETS 关系生成候选攻击路径。"""
+        target_entity_id = self._resolve_target_entity_id(connection, target_group)
+        now = now_iso()
+        connection.execute(
+            """
+            DELETE FROM inferred_relations
+            WHERE source_entity_id = ? AND relation_type = 'HAS_BEHAVIOR'
+            """,
+            (target_entity_id,),
+        )
+
+        uses_rows = connection.execute(
+            """
+            SELECT r.relation_id, r.confidence, e.entity_id AS target_entity_id,
+                   e.name AS target_name
+            FROM relations r
+            JOIN entities e ON e.entity_id = r.target_entity_id
+            WHERE r.source_entity_id = ?
+              AND r.relation_type = 'USES'
+              AND e.type IN ('MALWARE', 'TOOL', 'TECHNIQUE')
+            ORDER BY e.entity_id
+            """,
+            (target_entity_id,),
+        ).fetchall()
+        target_rows = connection.execute(
+            """
+            SELECT r.relation_id, r.confidence, e.entity_id AS target_entity_id,
+                   e.name AS target_name
+            FROM relations r
+            JOIN entities e ON e.entity_id = r.target_entity_id
+            WHERE r.source_entity_id = ?
+              AND r.relation_type = 'TARGETS'
+            ORDER BY e.entity_id
+            """,
+            (target_entity_id,),
+        ).fetchall()
+
+        for uses_row in uses_rows:
+            for target_row in target_rows:
+                relation_ids = [uses_row["relation_id"], target_row["relation_id"]]
+                confidence = min(uses_row["confidence"], target_row["confidence"])
+                inferred_id = (
+                    f"inferred_{slugify(target_group)}_"
+                    f"{slugify(uses_row['target_entity_id'])}_"
+                    f"{slugify(target_row['target_entity_id'])}"
+                )
+                connection.execute(
+                    """
+                    INSERT OR REPLACE INTO inferred_relations (
+                      inferred_relation_id, source_entity_id, target_entity_id,
+                      relation_type, rationale, support_evidence_ids_json,
+                      confidence, status, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        inferred_id,
+                        target_entity_id,
+                        target_row["target_entity_id"],
+                        "HAS_BEHAVIOR",
+                        (
+                            f"基于 {target_group} 使用 {uses_row['target_name']} 的关系，"
+                            f"以及其针对 {target_row['target_name']} 的关系推断攻击路径。"
+                        ),
+                        json.dumps(
+                            evidence_ids_for_relations(connection, relation_ids),
+                            ensure_ascii=False,
+                        ),
+                        confidence,
+                        "candidate",
+                        now,
+                    ),
+                )
 
     def upsert_report(self, connection: sqlite3.Connection, target_group: str) -> None:
         target_entity_id = canonical_entity_id("APT_GROUP", target_group)
