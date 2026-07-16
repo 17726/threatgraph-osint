@@ -116,6 +116,7 @@ class OfflineExtractionPipeline:
             self.import_extraction_result(connection, document, extraction_result)
             self.normalize_candidates(connection, extraction_result["run_id"])
             self.build_rule_analysis(connection, document["target_group"])
+            self.build_mitre_mappings(connection, document["target_group"])
             self.upsert_report(connection, document["target_group"])
             connection.commit()
 
@@ -987,6 +988,84 @@ class OfflineExtractionPipeline:
                     json.dumps(evidence_ids, ensure_ascii=False),
                     average(row["confidence"] for row in target_rows),
                     now,
+                ),
+            )
+
+    def build_mitre_mappings(
+        self, connection: sqlite3.Connection, target_group: str
+    ) -> None:
+        """从映射表自动补全 TECHNIQUE 实体到 MITRE ATT&CK 的映射关系。"""
+        mitre_map_path = (
+            Path(__file__).resolve().parents[3]
+            / "docs/mappings/mitre-techniques.json"
+        )
+        if not mitre_map_path.exists():
+            return
+
+        mitre_map = load_json(mitre_map_path)
+        mapping_keys = {k.lower(): v for k, v in mitre_map.items() if not k.startswith("_")}
+        target_entity_id = canonical_entity_id("APT_GROUP", target_group)
+        now_iso_str = now_iso()
+
+        techniques = connection.execute(
+            """
+            SELECT e.entity_id, e.name, e.aliases_json, r.relation_id, r.confidence
+            FROM entities e
+            JOIN relations r ON r.target_entity_id = e.entity_id
+            WHERE r.source_entity_id = ?
+              AND r.relation_type = 'USES'
+              AND e.type = 'TECHNIQUE'
+            ORDER BY e.name
+            """,
+            (target_entity_id,),
+        ).fetchall()
+
+        for tech in techniques:
+            name_lower = tech["name"].lower()
+            aliases = json.loads(tech["aliases_json"]) if tech["aliases_json"] else []
+            aliases_lower = [a.lower() for a in aliases]
+            matched_key = None
+
+            # 匹配规则：实体名（或别名）包含 mapping key
+            for key in mapping_keys:
+                if key in name_lower:
+                    matched_key = key
+                    break
+                for alias_lower in aliases_lower:
+                    if key in alias_lower:
+                        matched_key = key
+                        break
+                if matched_key:
+                    break
+
+            if matched_key is None:
+                continue
+
+            mapping = mapping_keys[matched_key]
+            technique_id = mapping["technique_id"]
+            mapping_id = f"mitre_{target_group.lower()}_{technique_id.lower().replace('.', '_')}"
+
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO mitre_mappings (
+                  mapping_id, target_group, technique_id, technique_name,
+                  tactic, attack_stage, entity_id, relation_id,
+                  evidence_ids_json, confidence, source, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    mapping_id,
+                    target_group,
+                    technique_id,
+                    mapping["technique_name"],
+                    mapping["tactic"],
+                    mapping["attack_stage"],
+                    tech["entity_id"],
+                    tech["relation_id"],
+                    "[]",
+                    tech["confidence"],
+                    "rule",
+                    now_iso_str,
                 ),
             )
 

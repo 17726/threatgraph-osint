@@ -9,9 +9,9 @@ interface PipelineModalProps {
   onSuccess: () => void;
 }
 
-type Status = "idle" | "importing" | "pending" | "running" | "success" | "error";
+type Status = "idle" | "importing" | "pending" | "running" | "success" | "error" | "skipped";
 
-const STATUS_LABELS: Record<Exclude<Status, "idle" | "success" | "error">, string> = {
+const STATUS_LABELS: Record<Exclude<Status, "idle" | "success" | "error" | "skipped">, string> = {
   importing: "正在校验并导入标准文档...",
   pending: "任务已提交，等待后台执行...",
   running: "正在抽取实体关系并更新图谱...",
@@ -45,7 +45,11 @@ export default function PipelineModal({ open, onClose, onSuccess }: PipelineModa
         onStatus: setStatus,
       });
       setResult(res);
-      setStatus("success");
+      if (res.skipped) {
+        setStatus("skipped");
+      } else {
+        setStatus("success");
+      }
       onSuccess();
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
@@ -292,6 +296,26 @@ export default function PipelineModal({ open, onClose, onSuccess }: PipelineModa
           >
             <Loader2 size={15} className="loader-spin" />
             {STATUS_LABELS[status as "importing" | "pending" | "running"]}
+          </div>
+        )}
+
+        {/* 跳过提示 */}
+        {status === "skipped" && (
+          <div
+            style={{
+              padding: 14,
+              borderRadius: 8,
+              background: "#fefce8",
+              border: "1px solid #fde68a",
+              marginBottom: 16,
+              fontSize: 12,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              color: "#92400e",
+            }}
+          >
+            <CheckCircle2 size={16} /> 文档已导入过，跳过重复抽取
           </div>
         )}
 

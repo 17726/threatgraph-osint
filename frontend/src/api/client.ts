@@ -97,6 +97,18 @@ export interface PipelineResult {
   behavior_patterns?: number;
 }
 
+export interface PipelineResult {
+  skipped?: boolean;
+  doc_id?: string;
+  summaries?: Array<{
+    extracted_entities: number;
+    extracted_relations: number;
+    canonical_entities: number;
+    canonical_relations: number;
+    evidence: number;
+  }>;
+}
+
 export type ExtractionMode = "reviewed" | "live";
 
 export interface PipelineStatus {
@@ -225,6 +237,10 @@ export async function runPipeline(
     doc_id: string;
     status: string;
   }>(importResponse, "文档导入失败");
+
+  if (imported.status === "skipped") {
+    return { skipped: true, doc_id: imported.doc_id };
+  }
 
   const pipelineResponse = await fetch(`${API_BASE_URL}/pipeline/run`, {
     method: "POST",
