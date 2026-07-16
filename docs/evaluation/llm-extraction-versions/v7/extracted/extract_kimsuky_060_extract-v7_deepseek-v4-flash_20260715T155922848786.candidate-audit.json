@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_kimsuky_060_extract-v7_deepseek-v4-flash_20260715T155922848786",
+  "doc_id": "kimsuky_060",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v7",
+  "chunks": [
+    {
+      "chunk_id": "kimsuky_060_c001",
+      "rejected_entities": [],
+      "rejected_relations": [
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "North Korea",
+          "tail_type": "COUNTRY",
+          "evidence_text": "North Korea-linked threat actor known as the\nLazarus Group",
+          "char_start": 14,
+          "char_end": 72,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (North Korea, COUNTRY) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "Telegram",
+          "tail_type": "TOOL",
+          "evidence_text": "uses Telegram for command-and-control (C2)",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Kimsuky",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "North Korea",
+          "tail_type": "COUNTRY",
+          "evidence_text": "Kimsuky ... is an element operating under North Korea's Reconnaissance General Bureau",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (North Korea, COUNTRY) 不在候选实体中",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Kimsuky",
+          "head_type": "APT_GROUP",
+          "relation_type": "PART_OF",
+          "tail_name": "Reconnaissance General Bureau",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "Kimsuky ... is an element operating under North Korea's Reconnaissance General Bureau",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Kimsuky",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "spear-phishing",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "distributing them via spear-phishing attacks",
+          "char_start": 4101,
+          "char_end": 4145,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (spear-phishing, TECHNIQUE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Konni",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "phishing",
+          "tail_type": "TECHNIQUE",
+          "evidence_text": "Konni-linked phishing campaign",
+          "char_start": 4925,
+          "char_end": 4955,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (phishing, TECHNIQUE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

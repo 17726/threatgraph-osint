@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_apt28_001_extract-v7_deepseek-v4-flash_20260715T155916009209",
+  "doc_id": "apt28_001",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v7",
+  "chunks": [
+    {
+      "chunk_id": "apt28_001_c001",
+      "rejected_entities": [
+        {
+          "name": "google.com",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "第一个C2域名，用于隐藏真实C2",
+          "mention_text": "google.com",
+          "evidence_text": "google.com",
+          "char_start": 1672,
+          "char_end": 1682,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "良性连通性检测域名不能作为 INFRASTRUCTURE"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "Fancy Bear",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "C3E4U3B1.exe",
+          "tail_type": "MALWARE",
+          "evidence_text": "解密得到木马exe",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Fancy Bear",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "google.com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "第一个c2的域名为”google.com”",
+          "char_start": 1662,
+          "char_end": 1683,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (google.com, INFRASTRUCTURE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

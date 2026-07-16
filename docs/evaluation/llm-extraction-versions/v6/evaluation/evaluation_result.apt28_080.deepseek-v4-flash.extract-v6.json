@@ -1,0 +1,910 @@
+{
+  "schema_version": "1.0",
+  "evaluated_at": "2026-07-15T16:10:31.708218+00:00",
+  "extraction": {
+    "run_id": "extract_apt28_080_extract-v6_deepseek-v4-flash_20260715T151809363661",
+    "doc_id": "apt28_080",
+    "model_name": "deepseek-v4-flash",
+    "prompt_version": "extract-v6"
+  },
+  "golden": {
+    "target_group": "APT28",
+    "doc_ids": [
+      "apt28_080"
+    ]
+  },
+  "matching_policy": {
+    "entity": "same chunk + same type + normalized name or alias overlap; maximum cardinality then maximum score",
+    "relation": "same chunk + matched typed endpoints + exact relation type",
+    "evidence": "validated separately against document.clean_text; not part of F1 matching",
+    "rejected_candidates": "candidate_audit rejected items count as false positives"
+  },
+  "candidate_audit": {
+    "provided": false,
+    "rejected_entities": 0,
+    "rejected_relations": 0
+  },
+  "entity_metrics": {
+    "predicted": 85,
+    "golden": 32,
+    "true_positive": 31,
+    "false_positive": 54,
+    "false_negative": 1,
+    "precision": 0.364706,
+    "recall": 0.96875,
+    "f1": 0.529915
+  },
+  "relation_metrics": {
+    "predicted": 63,
+    "golden": 24,
+    "true_positive": 23,
+    "false_positive": 40,
+    "false_negative": 1,
+    "precision": 0.365079,
+    "recall": 0.958333,
+    "f1": 0.528736
+  },
+  "entity_metrics_by_type": {
+    "APT_GROUP": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "CAMPAIGN": {
+      "predicted": 1,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "EVENT": {
+      "predicted": 1,
+      "golden": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "INFRASTRUCTURE": {
+      "predicted": 6,
+      "golden": 2,
+      "true_positive": 2,
+      "false_positive": 4,
+      "false_negative": 0,
+      "precision": 0.333333,
+      "recall": 1.0,
+      "f1": 0.5
+    },
+    "LOCATION": {
+      "predicted": 2,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 2,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "MALWARE": {
+      "predicted": 4,
+      "golden": 3,
+      "true_positive": 3,
+      "false_positive": 1,
+      "false_negative": 0,
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1": 0.857143
+    },
+    "ORGANIZATION": {
+      "predicted": 8,
+      "golden": 6,
+      "true_positive": 5,
+      "false_positive": 3,
+      "false_negative": 1,
+      "precision": 0.625,
+      "recall": 0.833333,
+      "f1": 0.714286
+    },
+    "PERSON": {
+      "predicted": 3,
+      "golden": 0,
+      "true_positive": 0,
+      "false_positive": 3,
+      "false_negative": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "REGION": {
+      "predicted": 2,
+      "golden": 2,
+      "true_positive": 2,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "TECHNIQUE": {
+      "predicted": 18,
+      "golden": 5,
+      "true_positive": 5,
+      "false_positive": 13,
+      "false_negative": 0,
+      "precision": 0.277778,
+      "recall": 1.0,
+      "f1": 0.434783
+    },
+    "TIME": {
+      "predicted": 7,
+      "golden": 3,
+      "true_positive": 3,
+      "false_positive": 4,
+      "false_negative": 0,
+      "precision": 0.428571,
+      "recall": 1.0,
+      "f1": 0.6
+    },
+    "TOOL": {
+      "predicted": 32,
+      "golden": 9,
+      "true_positive": 9,
+      "false_positive": 23,
+      "false_negative": 0,
+      "precision": 0.28125,
+      "recall": 1.0,
+      "f1": 0.439024
+    }
+  },
+  "relation_metrics_by_type": {
+    "RELATED_TO": {
+      "predicted": 2,
+      "golden": 2,
+      "true_positive": 2,
+      "false_positive": 0,
+      "false_negative": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "TARGETS": {
+      "predicted": 3,
+      "golden": 4,
+      "true_positive": 3,
+      "false_positive": 0,
+      "false_negative": 1,
+      "precision": 1.0,
+      "recall": 0.75,
+      "f1": 0.857143
+    },
+    "USES": {
+      "predicted": 58,
+      "golden": 18,
+      "true_positive": 18,
+      "false_positive": 40,
+      "false_negative": 0,
+      "precision": 0.310345,
+      "recall": 1.0,
+      "f1": 0.473684
+    }
+  },
+  "errors": {
+    "missing_entities": [
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "government institutions",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_entities": [
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "cdnver.dll",
+        "type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ThreatConnect",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "September 2017",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Microsoft",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "WildFire",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "AutoFocus",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Traps",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ESET",
+        "type": "ORGANIZATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Logon Scripts",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "late 2016",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Upcoming Defense events February 2018",
+        "type": "EVENT",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "C:\\Programdata",
+        "type": "LOCATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "%LOCALAPPDATA%",
+        "type": "LOCATION",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "HKCU\\Environment\\UserInitMprLogonScript",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "SNFIRNW",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ZwQuerySystemInformation",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ZwWriteVirtualMemory",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ZwProtectVirtualMemory",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ZwFreeVirtualMemory",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ZwOpenProcess",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ZwClose",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "VK_SCREENSHOT",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "HTTPS",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "SECURITY_FLAG_IGNORE_CERT_DATE_INVALID",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "SECURITY_FLAG_IGNORE_CERT_CN_INVALID",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "SECURITY_FLAG_IGNORE_UNKNOWN_CA",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "SECURITY_FLAG_IGNORE_REVOCATION",
+        "type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Bryan Lee",
+        "type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Mike Harbison",
+        "type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Robert Falcone",
+        "type": "PERSON",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "February 28, 2018",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "2018",
+        "type": "TIME",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "Upcoming Events February 2018.xls",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "ff808d0a12676bfac88fd26f955154f8884f2bb7c534b9936510fd6296c543e8",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "12e6642cf6413bdf5388bee663080fa299591b2ba023d069286f3be9647547c8",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "cb85072e6ca66a29cb0b73659a0fe5ba2456d9ba0b52e3a4c89e86549bc6e2c7",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "23411bb30042c9357ac4928dc6fca6955390361e660fec7ac238bbdcc8b83701",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "866-593-54352",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "403-965-2341",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "522 Clematis. Suite 3000",
+        "type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "api-ms-win-core-synch-l1-2-0.dll",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "WindowsApp.lib",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "0x3950BE2CD37B2C7CCBF8",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "0x9104f000",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "UihklEpz4V",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "WrLqG1kMJXpgID1rODM=",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": "vnd.wmc",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": ".3gpp2",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": ".ktx",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": ".rfc822",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": ".vnd.flatland.3dml",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": ".report",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": ".vnd.radisys.msml-basic-layout",
+        "type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "name": ".3gpp",
+        "type": "TOOL",
+        "source": "extraction_result"
+      }
+    ],
+    "missing_relations": [
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "TARGETS",
+        "tail_name": "government institutions",
+        "tail_type": "ORGANIZATION",
+        "source": "extraction_result"
+      }
+    ],
+    "extra_relations": [
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "cdnver.dll",
+        "tail_type": "MALWARE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Logon Scripts",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "HTTPS",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "SECURITY_FLAG_IGNORE_CERT_DATE_INVALID",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "SECURITY_FLAG_IGNORE_CERT_CN_INVALID",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "SECURITY_FLAG_IGNORE_UNKNOWN_CA",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "SECURITY_FLAG_IGNORE_REVOCATION",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "VK_SCREENSHOT",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ZwQuerySystemInformation",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ZwWriteVirtualMemory",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ZwProtectVirtualMemory",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ZwFreeVirtualMemory",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ZwOpenProcess",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ZwClose",
+        "tail_type": "TECHNIQUE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "SNFIRNW",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "api-ms-win-core-synch-l1-2-0.dll",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "0x3950BE2CD37B2C7CCBF8",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "0x9104f000",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "UihklEpz4V",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "WrLqG1kMJXpgID1rODM=",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "vnd.wmc",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": ".3gpp2",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": ".ktx",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": ".rfc822",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": ".vnd.flatland.3dml",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": ".report",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": ".vnd.radisys.msml-basic-layout",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": ".3gpp",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "ff808d0a12676bfac88fd26f955154f8884f2bb7c534b9936510fd6296c543e8",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "12e6642cf6413bdf5388bee663080fa299591b2ba023d069286f3be9647547c8",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "cb85072e6ca66a29cb0b73659a0fe5ba2456d9ba0b52e3a4c89e86549bc6e2c7",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "23411bb30042c9357ac4928dc6fca6955390361e660fec7ac238bbdcc8b83701",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "866-593-54352",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "403-965-2341",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "522 Clematis. Suite 3000",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "HKCU\\Environment\\UserInitMprLogonScript",
+        "tail_type": "INFRASTRUCTURE",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "WindowsApp.lib",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "WildFire",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "AutoFocus",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      },
+      {
+        "chunk_id": "apt28_080_c001",
+        "head_name": "Sofacy",
+        "head_type": "APT_GROUP",
+        "relation_type": "USES",
+        "tail_name": "Traps",
+        "tail_type": "TOOL",
+        "source": "extraction_result"
+      }
+    ]
+  }
+}

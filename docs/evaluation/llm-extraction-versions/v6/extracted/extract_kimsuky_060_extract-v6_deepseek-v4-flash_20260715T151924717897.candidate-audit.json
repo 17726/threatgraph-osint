@@ -1,0 +1,135 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_kimsuky_060_extract-v6_deepseek-v4-flash_20260715T151924717897",
+  "doc_id": "kimsuky_060",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v6",
+  "chunks": [
+    {
+      "chunk_id": "kimsuky_060_c001",
+      "rejected_entities": [],
+      "rejected_relations": [
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "North Korea",
+          "tail_type": "COUNTRY",
+          "evidence_text": "North Korea-linked threat actor known as the\nLazarus Group",
+          "char_start": 14,
+          "char_end": 72,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (North Korea, COUNTRY) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Operation Blacksmith",
+          "head_type": "CAMPAIGN",
+          "relation_type": "USES",
+          "tail_name": "DLRAT",
+          "tail_type": "MALWARE",
+          "evidence_text": "use of three DLang-based malware families, including ... DLRAT",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Operation Blacksmith",
+          "head_type": "CAMPAIGN",
+          "relation_type": "USES",
+          "tail_name": "BottomLoader",
+          "tail_type": "MALWARE",
+          "evidence_text": "use of three DLang-based malware families, including ... a downloader dubbed BottomLoader",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Kimsuky",
+          "head_type": "APT_GROUP",
+          "relation_type": "PART_OF",
+          "tail_name": "Reconnaissance General Bureau",
+          "tail_type": "ORGANIZATION",
+          "evidence_text": "Kimusky ... is an element operating under North Korea's Reconnaissance General Bureau (RGB)",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Kimsuky",
+          "head_type": "APT_GROUP",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "North Korea",
+          "tail_type": "COUNTRY",
+          "evidence_text": "Kimusky ... is an element operating under North Korea's Reconnaissance General Bureau",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.95,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (North Korea, COUNTRY) 不在候选实体中",
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "U.S. Treasury Department",
+          "head_type": "ORGANIZATION",
+          "relation_type": "ATTRIBUTED_TO",
+          "tail_name": "Kimsuky",
+          "tail_type": "APT_GROUP",
+          "evidence_text": "It was\nsanctioned\nby the U.S. Treasury Department on November 30, 2023",
+          "char_start": 4494,
+          "char_end": 4564,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "不允许组合 (ORGANIZATION,ATTRIBUTED_TO,APT_GROUP)"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Konni",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "backdoor",
+          "tail_type": "MALWARE",
+          "evidence_text": "new\nKonni-linked phishing campaign\nthat uses a malicious executable file disguised as a Microsoft Word file to\ndeliver a backdoor",
+          "char_start": 4921,
+          "char_end": 5050,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "tail (backdoor, MALWARE) 不在候选实体中"
+          ],
+          "audit_reason": "validation_failed"
+        }
+      ]
+    }
+  ]
+}

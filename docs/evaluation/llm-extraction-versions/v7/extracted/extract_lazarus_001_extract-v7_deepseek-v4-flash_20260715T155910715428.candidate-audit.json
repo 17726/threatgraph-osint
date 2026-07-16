@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "run_id": "extract_lazarus_001_extract-v7_deepseek-v4-flash_20260715T155910715428",
+  "doc_id": "lazarus_001",
+  "model_name": "deepseek-v4-flash",
+  "prompt_version": "extract-v7",
+  "chunks": [
+    {
+      "chunk_id": "lazarus_001_c001",
+      "rejected_entities": [
+        {
+          "name": "hxxp://122.248.34[.]23/lndex.php?t=SkypeSetup&r=mail_new",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "攻击载荷服务器",
+          "mention_text": "hxxp://122.248.34[.]23/lndex.php?t=SkypeSetup&r=mail_new",
+          "evidence_text": "hxxp://122.248.34[.]23/lndex.php?t=SkypeSetup&r=mail_new",
+          "char_start": 1860,
+          "char_end": 1916,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "hxxp://51.255.219[.]82/files/download/falconcoin.pdf",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "PDF诱饵文档下载链接",
+          "mention_text": "hxxp://51.255.219[.]82/files/download/falconcoin.pdf",
+          "evidence_text": "hxxp://51.255.219[.]82/files/download/falconcoin.pdf",
+          "char_start": 3373,
+          "char_end": 3425,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "hxxp://198.100.157[.]239/theme.gif",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "远程地址",
+          "mention_text": "hxxp://198.100.157[.]239/theme.gif",
+          "evidence_text": "hxxp://198.100.157[.]239/theme.gif",
+          "char_start": 3711,
+          "char_end": 3745,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "hxxp://www.energydonate[.]com/images/character.gif",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "远程地址",
+          "mention_text": "hxxp://www.energydonate[.]com/images/character.gif",
+          "evidence_text": "hxxp://www.energydonate[.]com/images/character.gif",
+          "char_start": 3948,
+          "char_end": 3998,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        },
+        {
+          "name": "hxxps://bitcoingöld[.]org/bitcoingold.exe",
+          "type": "INFRASTRUCTURE",
+          "aliases": [],
+          "description": "恶意Payload下载链接",
+          "mention_text": "hxxps://bitcoingöld[.]org/bitcoingold.exe",
+          "evidence_text": "hxxps://bitcoingöld[.]org/bitcoingold.exe",
+          "char_start": 4544,
+          "char_end": 4585,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "infrastructure_url_merged"
+        }
+      ],
+      "rejected_relations": [
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "PowerRatankba",
+          "tail_type": "MALWARE",
+          "evidence_text": "PowerRatankba被Lazarus Group广泛用于全球加密货币组织、个人和相关机构的入侵攻击",
+          "char_start": null,
+          "char_end": null,
+          "confidence": 0.9,
+          "candidate_status": "rejected",
+          "validation_status": "invalid",
+          "validation_errors": [
+            "evidence_text 未出现在 document.clean_text 中"
+          ],
+          "audit_reason": "validation_failed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "hxxp://122.248.34[.]23/lndex.php?t=Telegram&r=1.1.9",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://122.248.34[.]23/lndex.php?t=SkypeSetup&r=mail_new",
+          "char_start": 1860,
+          "char_end": 1916,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "hxxp://51.255.219[.]82/ theme.gif",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://51.255.219[.]82/files/download/falconcoin.pdf",
+          "char_start": 3373,
+          "char_end": 3425,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "hxxp://198.100.157[.]239/hide.gif",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxp://198.100.157[.]239/theme.gif",
+          "char_start": 3711,
+          "char_end": 3745,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "hxxps://bitcoingöld[.]org",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "hxxps://bitcoingöld[.]org/bitcoingold.exe",
+          "char_start": 4544,
+          "char_end": 4585,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        },
+        {
+          "head_name": "Lazarus Group",
+          "head_type": "APT_GROUP",
+          "relation_type": "USES",
+          "tail_name": "www.energydonate[.]com",
+          "tail_type": "INFRASTRUCTURE",
+          "evidence_text": "www.energydonate[.]com",
+          "char_start": 3955,
+          "char_end": 3977,
+          "confidence": 0.9,
+          "candidate_status": "merged",
+          "validation_status": "valid",
+          "validation_errors": [],
+          "audit_reason": "duplicate_relation_removed"
+        }
+      ]
+    }
+  ]
+}

@@ -111,6 +111,16 @@ def _schema_enum(name: str) -> tuple[str, ...]:
 ENTITY_TYPES = _schema_enum("entity_type")
 RELATION_TYPES = _schema_enum("relation_type")
 
+BENIGN_CONNECTIVITY_DOMAINS = {
+    "google.com", "amazon.com", "apple.com", "bing.com",
+    "facebook.com", "microsoft.com", "yahoo.com", "twitter.com",
+    "join.me", "youtube.com", "instagram.com", "linkedin.com",
+    "github.com", "dropbox.com", "office.com", "live.com",
+    "outlook.com", "azure.com", "cloudflare.com", "akamai.net",
+}
+
+_HASH_PATTERN = re.compile(r"^[A-Fa-f0-9]{32,64}$")
+
 
 def now_iso() -> str:
     return iso_timestamp(now_utc())
@@ -171,9 +181,18 @@ def _find_text_span(clean_text: str, evidence: str) -> tuple[int | None, int | N
     if not evidence:
         return None, None
     start = clean_text.find(evidence)
-    if start < 0:
-        return None, None
-    return start, start + len(evidence)
+    if start >= 0:
+        return start, start + len(evidence)
+    pattern = r"\s*".join(
+        r"\s+" if ch.isspace() else re.escape(ch) for ch in evidence
+    )
+    try:
+        match = re.search(pattern, clean_text, re.IGNORECASE)
+        if match:
+            return match.start(), match.end()
+    except re.error:
+        pass
+    return None, None
 
 
 def _normalize_candidate_name(value: str) -> str:
@@ -335,6 +354,8 @@ def parse_llm_response_with_audit(
             raise ValueError(f"entities[{index}] 必须是对象")
         evidence = entity.get("evidence_text", "")
         char_start, char_end = _find_text_span(clean_text, evidence)
+        if char_start is not None and clean_text[char_start:char_end] != evidence:
+            evidence = clean_text[char_start:char_end]
         aliases = entity.get("aliases", [])
         if isinstance(aliases, list) and all(isinstance(alias, str) for alias in aliases):
             aliases = list(dict.fromkeys(alias for alias in aliases if alias))
@@ -355,6 +376,15 @@ def parse_llm_response_with_audit(
         errors = validate_entity(candidate)
         if evidence and char_start is None:
             errors.append("evidence_text 未出现在 document.clean_text 中")
+        name = candidate.get("name", "")
+        if _HASH_PATTERN.match(name) and candidate["type"] == "MALWARE":
+            errors.append("SHA256/MD5/SHA1 哈希值不能作为 MALWARE 实体")
+        if candidate["type"] == "INFRASTRUCTURE":
+            name_lower = name.lower().rstrip(".")
+            for domain in BENIGN_CONNECTIVITY_DOMAINS:
+                if name_lower == domain or name_lower.endswith("." + domain):
+                    errors.append("良性连通性检测域名不能作为 INFRASTRUCTURE")
+                    break
         candidate["validation_status"] = "valid" if not errors else "invalid"
         candidate["validation_errors"] = errors
         processed_entities.append(candidate)
@@ -397,6 +427,8 @@ def parse_llm_response_with_audit(
             raise ValueError(f"relations[{index}] 必须是对象")
         evidence = relation.get("evidence_text", "")
         char_start, char_end = _find_text_span(clean_text, evidence)
+        if char_start is not None and clean_text[char_start:char_end] != evidence:
+            evidence = clean_text[char_start:char_end]
         head_name = relation.get("head_name", "")
         tail_name = relation.get("tail_name", "")
         head_type = relation.get("head_type", "")
@@ -515,6 +547,15 @@ candidate_status、validation_status 和 validation_errors，再校验最终 ext
 单轮最多输出 48 个实体和 48 个关系。description 最多 160 个字符，mention_text 最多
 120 个字符，evidence_text 最多 400 个字符且必须是最短连续原文证据。不要复制整段原文，
 不要为了追求数量降低证据标准。
+
+重要提醒：
+- evidence_text 必须逐字复制自 <chunk_text>，禁止任何改写、概括、缩写或调整大小写。
+- 安全厂商发现、监测或报告威胁活动时，不要生成 DISCOVERED_BY、ATTRIBUTED_TO 或 AFFILIATED_WITH 关系。
+- 安全公司拥有或运营自己的产品、工具时，不要生成 CONTROLS 关系。
+- 工具、技术、基础设施的使用关系必须以 APT_GROUP 或 CAMPAIGN 为主体，MALWARE 不能作为 USES 关系主体。
+- 全文扫描所有可执行文件、命令行工具、攻击技术和网络基础设施，不要只关注文章前半部分。
+- 不要忘记抽取日期、月份、年份等 TIME 类型实体。
+- 实体名称使用原文措辞，保持单复数一致。
 
 <chunk_text>
 {clean_text}
