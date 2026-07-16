@@ -37,6 +37,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import tempfile
 import sys
 import time
@@ -464,7 +465,8 @@ def renumber_folder(output_dir: Path, folder: str):
     json_names = {path.name for path in json_files}
 
     staged_dir = Path(tempfile.mkdtemp(prefix=f".renumber_{folder}_", dir=output_dir))
-    backup_dir = output_dir / f".{folder}.renumber-backup"
+    backup_dir = Path(tempfile.mkdtemp(prefix=f".{folder}.renumber-backup-", dir=output_dir))
+    backup_dir.rmdir()
     staged_paths: list[tuple[Path, Path]] = []
     try:
         for idx, fpath in enumerate(json_files, start=1):
@@ -490,18 +492,23 @@ def renumber_folder(output_dir: Path, folder: str):
             staged_paths.append((fpath, staged_path))
             print(f"    {old_doc_id} → {new_doc_id}.json")
 
+        for source_path in output_subdir.rglob("*"):
+            is_numbered_json = source_path.parent == output_subdir and source_path.name in json_names
+            if source_path.is_file() and not is_numbered_json:
+                target_path = staged_dir / source_path.relative_to(output_subdir)
+                target_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source_path, target_path)
+
         output_subdir.rename(backup_dir)
         try:
             staged_dir.rename(output_subdir)
         except Exception:
             backup_dir.rename(output_subdir)
             raise
-        for path in backup_dir.iterdir():
-            if path.name not in json_names:
-                path.rename(output_subdir / path.name)
-        for name in json_names:
-            (backup_dir / name).unlink()
-        backup_dir.rmdir()
+        try:
+            shutil.rmtree(backup_dir)
+        except OSError as exc:
+            print(f"    旧目录清理失败，已保留备份 {backup_dir}: {exc}", file=sys.stderr)
     except Exception:
         print(f"    重编号失败，保留原目录和临时目录：{staged_dir}", file=sys.stderr)
         raise
