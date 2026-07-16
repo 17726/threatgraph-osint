@@ -1033,10 +1033,10 @@ class DemoStore:
             if self._table_exists(connection, "inferred_relations"):
                 inference_rows = connection.execute(
                     """
-                    SELECT inferred_relation_id, source_entity_id, target_entity_id, relation_type,
-                           rationale, support_evidence_ids_json, confidence, status
-                    FROM inferred_relations
-                    ORDER BY inferred_relation_id
+                    SELECT i.inferred_relation_id, i.source_entity_id, i.target_entity_id, i.relation_type,
+                           i.rationale, i.support_evidence_ids_json, i.confidence, i.status
+                    FROM inferred_relations i
+                    ORDER BY i.inferred_relation_id
                     """
                 ).fetchall()
 
@@ -1084,6 +1084,20 @@ class DemoStore:
                 for row in inference_rows
             ],
         }
+
+    def resolve_entity_id_for_group(self, group_name: str) -> str | None:
+        with self.connect() as conn:
+            row = conn.execute(
+                """
+                SELECT entity_id FROM entities
+                WHERE type = 'APT_GROUP' AND (
+                    lower(name) = ? OR lower(aliases_json) LIKE ?
+                )
+                LIMIT 1
+                """,
+                (group_name.lower(), f'%"{group_name.lower()}"%'),
+            ).fetchone()
+            return row["entity_id"] if row else None
 
     def import_document(self, document: dict) -> dict:
         """导入文档，去重后写入 documents 表，自动切 chunks。"""

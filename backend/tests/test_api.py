@@ -156,7 +156,7 @@ def test_graph_passes_filters_and_keeps_default_depth(monkeypatch):
     }
 
 
-def test_graph_neighbors_uses_explicit_one_hop_service(monkeypatch):
+def test_graph_neighbors_uses_explicit_two_hop_service(monkeypatch):
     calls = {}
 
     def get_neighbors(entity_id, **kwargs):
@@ -349,7 +349,60 @@ def test_pipeline_run_rejects_missing_scope_before_execution():
     assert response.json()["error"]["code"] == "ERR_VALIDATION"
 
 
+def test_analysis_inferences_filters_target_group(monkeypatch):
+    class AnalysisStore:
+        def get_analysis(self):
+            return {
+                "mitre_mappings": [],
+                "behavior_patterns": [],
+                "inferred_relations": [
+                    {
+                        "inferred_relation_id": "inferred_apt28_tool_target",
+                        "source": "apt_group:apt28",
+                        "target": "country:ukraine",
+                        "type": "HAS_BEHAVIOR",
+                        "rationale": "APT28 rule inference",
+                        "confidence": 0.8,
+                        "status": "candidate",
+                        "evidence_ids": ["ev-1"],
+                    },
+                    {
+                        "inferred_relation_id": "inferred_lazarus_tool_target",
+                        "source": "apt_group:lazarus",
+                        "target": "country:south-korea",
+                        "type": "HAS_BEHAVIOR",
+                        "rationale": "Lazarus rule inference",
+                        "confidence": 0.7,
+                        "status": "candidate",
+                        "evidence_ids": ["ev-2"],
+                    },
+                ],
+            }
+
+        def resolve_entity_id_for_group(self, group_name: str) -> str | None:
+            mapping = {"APT28": "apt_group:apt28", "Lazarus": "apt_group:lazarus"}
+            return mapping.get(group_name)
+
+    monkeypatch.setattr(main_module, "store", AnalysisStore())
+    response = client.get("/api/v1/analysis/APT28/inferences")
+
+    assert response.status_code == 200
+    assert response.json()["data"]["inferences"] == [
+        {
+            "inferred_relation_id": "inferred_apt28_tool_target",
+            "source": "apt_group:apt28",
+            "target": "country:ukraine",
+            "type": "HAS_BEHAVIOR",
+            "rationale": "APT28 rule inference",
+            "confidence": 0.8,
+            "status": "candidate",
+            "evidence_ids": ["ev-1"],
+        }
+    ]
+
+
 def test_pipeline_status_returns_not_found_for_unknown_job():
     response = client.get("/api/v1/pipeline/status/missing-job")
 
     assert response.status_code == 404
+    assert response.json()["error"]["code"] == "ERR_NOT_FOUND"

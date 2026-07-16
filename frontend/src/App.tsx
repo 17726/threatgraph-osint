@@ -21,7 +21,6 @@ import TimelineBar from "./components/TimelineBar";
 import PathTracking from "./components/PathTracking";
 import ReportPanel from "./components/ReportPanel";
 import AnalysisPage from "./pages/AnalysisPage";
-import EvaluationPage from "./pages/EvaluationPage";
 import PipelineModal from "./components/PipelineModal";
 
 const TARGETS = ["APT28", "Lazarus", "Kimsuky"];
@@ -46,7 +45,7 @@ export function App() {
   const [techniqueFilter, setTechniqueFilter] = useState("");
   const [legendFilter, setLegendFilter] = useState<string | null>(null);
   const [regionFilter, setRegionFilter] = useState("");
-  const [page, setPage] = useState<"graph" | "analysis" | "evaluation">("graph");
+  const [page, setPage] = useState<"graph" | "analysis">("graph");
   const [pipelineOpen, setPipelineOpen] = useState(false);
   const neighborRequestRef = useRef<AbortController | null>(null);
   const firstSentence = (text: string): string => {
@@ -325,7 +324,7 @@ export function App() {
       </section>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-        {(["graph", "analysis", "evaluation"] as const).map((p) => (
+        {(["graph", "analysis"] as const).map((p) => (
           <button
             key={p}
             type="button"
@@ -341,7 +340,7 @@ export function App() {
               fontWeight: page === p ? 600 : 400,
             }}
           >
-            {p === "graph" ? "知识图谱" : p === "analysis" ? "行为分析" : "评测结果"}
+            {p === "graph" ? "知识图谱" : "行为分析"}
           </button>
         ))}
       </div>
@@ -350,8 +349,6 @@ export function App() {
 
       {page === "analysis" ? (
         <AnalysisPage target={target} />
-      ) : page === "evaluation" ? (
-        <EvaluationPage />
       ) : (
         <>
           <section className="metrics-grid">
