@@ -64,6 +64,39 @@ def test_service_marks_partial_import_as_succeeded(monkeypatch, tmp_path: Path) 
     assert result["items_imported"] == 1
 
 
+def test_service_marks_crawler_script_failure_as_failed(monkeypatch, tmp_path: Path) -> None:
+    service = CrawlerService(
+        workspace_root=tmp_path,
+        backend_base_url="http://backend:8000",
+    )
+    monkeypatch.setattr(
+        "crawler.app.service.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(returncode=1),
+    )
+    monkeypatch.setattr(service, "_import_documents", lambda run: {
+        "items_found": 1,
+        "items_promoted": 1,
+        "items_imported": 1,
+        "items_skipped": 0,
+        "items_failed": 0,
+        "items_pipeline_succeeded": 1,
+        "items_pipeline_failed": 0,
+        "document_ids": ["apt28_001"],
+    })
+
+    result = service._execute({
+        "crawl_run_id": "crawl_script_failed",
+        "keyword": "APT28",
+        "limit": 1,
+        "sources": 4095,
+        "filter": False,
+        "start_number": 1,
+    })
+
+    assert result["status"] == "failed"
+    assert result["error_message"] == "crawler pipeline exited with 1"
+
+
 def test_service_runs_live_pipeline_after_document_import(monkeypatch, tmp_path: Path) -> None:
     service = CrawlerService(
         workspace_root=tmp_path,

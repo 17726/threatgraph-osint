@@ -800,7 +800,7 @@ def main():
     
     args = parser.parse_args()
     
-    log.info(f"开始爬取: source={args.source}, keyword={args.keyword}, limit={args.limit}")
+    log.info(f"开始爬取: sources={args.sources}, keyword={args.keyword}, limit={args.limit}")
     
     for source_name in sources_from_mask(args.sources):
         crawler_factory = SOURCES[source_name]

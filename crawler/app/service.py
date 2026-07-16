@@ -37,6 +37,9 @@ class CrawlerService:
                 "items_imported": 0,
                 "items_skipped": 0,
                 "items_failed": 0,
+                "items_pipeline_succeeded": 0,
+                "items_pipeline_failed": 0,
+                "pipeline_error": None,
                 "document_ids": [],
                 "workspace_cleaned": False,
                 "error_message": None,
@@ -109,7 +112,13 @@ class CrawlerService:
             )
             result.update(self._import_documents(payload))
             result["status"] = (
-                "succeeded" if result["items_pipeline_succeeded"] > 0 else "failed"
+                "failed"
+                if pipeline_error
+                else (
+                    "succeeded"
+                    if result["items_pipeline_succeeded"] > 0
+                    else "failed"
+                )
             )
             if result["status"] == "failed":
                 result["error_message"] = (
@@ -190,8 +199,9 @@ class CrawlerService:
                         summary["items_pipeline_failed"] += 1
                         summary["items_failed"] += 1
                     summary["pipeline_error"] = str(exc)
-            except Exception:
+            except Exception as exc:
                 summary["items_failed"] += 1
+                summary["pipeline_error"] = str(exc)
         return summary
 
     def _run_live_pipeline(self, doc_id: str) -> dict[str, Any]:

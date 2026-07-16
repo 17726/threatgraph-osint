@@ -23,6 +23,16 @@ def test_group_source_masks_all_selects_every_source() -> None:
     assert grouped["crawler_v1"] == 15
 
 
+def test_all_sources_mask_dispatches_all_twelve_sources() -> None:
+    grouped = run_all_crawlers.group_source_masks(4095)
+
+    assert grouped == {
+        "crawler_v1": 15,
+        "crawler_supplementary": 15,
+        "crawler_supplementary_v2": 15,
+    }
+
+
 def test_group_source_masks_rejects_out_of_range() -> None:
     with pytest.raises(ValueError, match="exceeds"):
         run_all_crawlers.group_source_masks(1 << 12)
