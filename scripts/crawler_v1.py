@@ -490,9 +490,6 @@ class QianxinCrawler:
         next_number = next_doc_number(output_dir, target_group)
 
         articles = cls.collect_articles(keyword)
-        if limit is not None:
-            articles = articles[:limit]
-
         success_count = 0
         skip_count = 0
         fail_count = 0
@@ -516,6 +513,8 @@ class QianxinCrawler:
                 seen_urls.add(article_url)
                 success_count += 1
                 log.info("  Saved: %s", path.name)
+                if limit is not None and success_count >= limit:
+                    break
             except Exception as exc:
                 fail_count += 1
                 log.error("  Failed: %s", exc)
@@ -713,7 +712,7 @@ class TheHackerNewsCrawler:
         label_url = f"https://thehackernews.com/search/label/{quote(keyword)}"
 
         session = get_requests_module().Session()
-        articles = cls.collect_all_articles(session, label_url, limit)
+        articles = cls.collect_all_articles(session, label_url, None)
 
         success_count = 0
         skip_count = 0
@@ -740,6 +739,8 @@ class TheHackerNewsCrawler:
                 seen_urls.add(url)
                 success_count += 1
                 log.info("  Saved: %s", path.name)
+                if limit is not None and success_count >= limit:
+                    break
             except Exception as exc:
                 fail_count += 1
                 log.error("  Failed: %s", exc)
@@ -903,7 +904,7 @@ class Unit42Crawler:
         async_playwright, Stealth = get_playwright_runtime()
         stealth = Stealth()
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)
+            browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={"width": 1920, "height": 1080},
@@ -912,9 +913,6 @@ class Unit42Crawler:
             await stealth.apply_stealth_async(context)
             page = await context.new_page()
             articles = await cls.collect_articles(page, keyword)
-            if limit is not None:
-                articles = articles[:limit]
-
             success_count = 0
             skip_count = 0
             fail_count = 0
@@ -951,6 +949,8 @@ class Unit42Crawler:
                     seen_urls.add(article_url)
                     success_count += 1
                     log.info("  Saved: %s", path.name)
+                    if limit is not None and success_count >= limit:
+                        break
                 except Exception as exc:
                     fail_count += 1
                     log.error("  Failed: %s", exc)
@@ -1065,7 +1065,7 @@ class FreebufCrawler:
         async_playwright, Stealth = get_playwright_runtime()
         stealth = Stealth()
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=False)
+            browser = await p.chromium.launch(headless=True)
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={"width": 1920, "height": 1080},
@@ -1074,9 +1074,6 @@ class FreebufCrawler:
             await stealth.apply_stealth_async(context)
             page = await context.new_page()
             articles = await cls.collect_articles(page, keyword)
-            if limit is not None:
-                articles = articles[:limit]
-
             success_count = 0
             skip_count = 0
             fail_count = 0
@@ -1113,6 +1110,8 @@ class FreebufCrawler:
                     seen_urls.add(article_url)
                     success_count += 1
                     log.info("  Saved: %s", path.name)
+                    if limit is not None and success_count >= limit:
+                        break
                 except Exception as exc:
                     fail_count += 1
                     log.error("  Failed: %s", exc)

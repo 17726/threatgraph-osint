@@ -40,3 +40,11 @@ def test_crawler_v1_builds_document_contract_record() -> None:
     assert document["retrieved_at"] == "2026-07-07T16:43:23Z"
     assert document["tlp"] == "TLP:CLEAR"
     assert document["metadata"]["crawler"] == "scripts/crawler_v1.py"
+
+
+def test_playwright_crawlers_use_headless_mode_in_containers() -> None:
+    import inspect
+
+    source = inspect.getsource(crawler_v1)
+
+    assert "launch(headless=False)" not in source
