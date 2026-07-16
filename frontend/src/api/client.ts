@@ -25,10 +25,14 @@ async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
   return payload.data;
 }
 
-export function fetchGraph(target: string): Promise<GraphPayload> {
-  const url = `/graph?target=${encodeURIComponent(target)}`;
+export function fetchGraph(
+  target: string,
+  depth: number,
+  options: { signal?: AbortSignal } = {},
+): Promise<GraphPayload> {
+  const url = `/graph?target=${encodeURIComponent(target)}&depth=${depth}`;
 
-  return getJson<GraphPayload>(url);
+  return getJson<GraphPayload>(url, { signal: options.signal });
 }
 
 export function fetchReport(target: string): Promise<ReportPayload> {
@@ -68,11 +72,15 @@ export async function fetchAnalysis<T = unknown>(
 
 export function fetchNeighbors(
   entityId: string,
+  depth: number,
   options: { signal?: AbortSignal } = {},
 ): Promise<GraphPayload> {
-  return getJson<GraphPayload>(`/graph/neighbors?entity_id=${encodeURIComponent(entityId)}`, {
-    signal: options.signal,
-  });
+  return getJson<GraphPayload>(
+    `/graph/neighbors?entity_id=${encodeURIComponent(entityId)}&depth=${depth}`,
+    {
+      signal: options.signal,
+    },
+  );
 }
 
 export function fetchEntitySearch(query: string): Promise<GraphNode[]> {
