@@ -470,6 +470,14 @@ def renumber_folder(output_dir: Path, folder: str):
 
         old_doc_id = data.get("doc_id", fpath.stem)
         data["doc_id"] = new_doc_id
+        metadata = data.get("metadata")
+        if isinstance(metadata, dict):
+            for key in ("doc_id", "document_id", "legacy_doc_id"):
+                if metadata.get(key) == old_doc_id:
+                    metadata[key] = new_doc_id
+            metadata["source_path"] = f"data/cleaned/{folder}/{new_doc_id}.json"
+            metadata["cleaned_path"] = f"data/cleaned_filtered/{folder}/{new_doc_id}.json"
+            metadata["document_path"] = f"data/documents/{folder}/{new_doc_id}.json"
 
         new_path = output_subdir / f"{new_doc_id}.json"
         with open(new_path, "w", encoding="utf-8") as f:
@@ -578,6 +586,8 @@ def main():
     if args.sample > 0:
         print(f"\n💡 抽样验证完毕。确认无误后去掉 --sample 参数全量运行。")
 
+    return 1 if grand_errors > 0 else 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

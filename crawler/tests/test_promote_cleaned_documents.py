@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from scripts.promote_cleaned_documents import promote_documents
+from scripts import filter_by_relevance
 
 
 def document(doc_id: str, url: str, text: str) -> dict:
@@ -78,3 +79,20 @@ def test_promote_ignores_hidden_checkpoint_json(tmp_path: Path) -> None:
 
     assert stats.promoted == 0
     assert stats.errors == 0
+
+
+def test_filter_renumber_rewrites_metadata_identity_and_paths(tmp_path: Path) -> None:
+    output = tmp_path / "cleaned_filtered" / "apt28"
+    output.mkdir(parents=True)
+    payload = document("apt28_009", "https://example.test", "text")
+    (output / "apt28_009.json").write_text(json.dumps(payload), encoding="utf-8")
+
+    filter_by_relevance.renumber_folder(tmp_path / "cleaned_filtered", "apt28")
+
+    result = json.loads((output / "apt28_001.json").read_text(encoding="utf-8"))
+    assert result["doc_id"] == "apt28_001"
+    assert result["metadata"]["doc_id"] == "apt28_001"
+    assert result["metadata"]["document_id"] == "apt28_001"
+    assert result["metadata"]["legacy_doc_id"] == "apt28_001"
+    assert result["metadata"]["cleaned_path"].endswith("data/cleaned_filtered/apt28/apt28_001.json")
+    assert result["metadata"]["document_path"].endswith("data/documents/apt28/apt28_001.json")

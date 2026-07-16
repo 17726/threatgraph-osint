@@ -226,22 +226,22 @@ def close_playwright():
 
 class GenericCrawler:
     """通用爬虫基类"""
-    
+
     def __init__(self, source_name: str, source_type: str):
         self.source_name = source_name
         self.source_type = source_type
-    
+
     def search(self, keyword: str, limit: int = 20) -> List[Dict]:
         """搜索文章 - 子类必须覆盖"""
         raise NotImplementedError
-    
+
     def fetch_article(self, url: str) -> Dict:
         """获取文章全文"""
         content = fetch_page_content(url)
         title_match = re.search(r'^(.+?)\n', content)
         title = title_match.group(1).strip() if title_match else ""
         return {"title": title, "raw_text": content, "date": "", "tags": []}
-    
+
     def run(self, keyword: str, limit: int = 20) -> List[Dict]:
         """运行爬虫"""
         target_group = normalize_target_group(keyword)
@@ -249,22 +249,22 @@ class GenericCrawler:
         output_dir.mkdir(parents=True, exist_ok=True)
         seen_urls = existing_source_urls(output_dir)
         next_number = next_doc_number(output_dir, target_group)
-        
+
         articles = self.search(keyword, limit)
-        
+
         success_count = 0
         for idx, article in enumerate(articles, 1):
             url = article["url"]
             if url in seen_urls:
                 log.info(f"  [{idx}/{len(articles)}] 跳过(重复URL)")
                 continue
-            
+
             log.info(f"  [{idx}/{len(articles)}] 获取: {article['title'][:50]}...")
-            
+
             try:
                 time.sleep(random.uniform(2.0, 4.0))
                 detail = self.fetch_article(url)
-                
+
                 if not detail["raw_text"] or len(detail["raw_text"]) < MIN_CONTENT_LENGTH:
                     log.warning(f"    跳过: 内容过短 ({len(detail['raw_text'])} chars)")
                     continue
@@ -290,7 +290,7 @@ class GenericCrawler:
                 log.info(f"    保存: {path.name}")
             except Exception as e:
                 log.error(f"    失败: {e}")
-        
+
         log.info(f"{self.source_name} 完成! 成功: {success_count}/{len(articles)}")
         return []
 
@@ -304,13 +304,13 @@ def fetch_page_content(url: str, timeout: int = 60000) -> str:
     try:
         page.goto(url, wait_until="domcontentloaded", timeout=timeout)
         page.wait_for_timeout(3000)
-        
+
         content = page.evaluate("""() => {
-            const noise = ['nav', 'footer', 'header', '.nav', '.footer', '.header', 
+            const noise = ['nav', 'footer', 'header', '.nav', '.footer', '.header',
                           '.sidebar', '.menu', '.cookie', '.banner', '.ad', '.comment',
                           '.related', '.recommend', '.share', '.social'];
             noise.forEach(sel => document.querySelectorAll(sel).forEach(el => el.remove()));
-            
+
             const article = document.querySelector('article, .article, .content, .post-content, main, .main, .entry-content');
             if (article) return article.innerText;
             return document.body.innerText;
@@ -329,21 +329,21 @@ class CrowdStrikeCrawler(GenericCrawler):
     SOURCE_NAME = "CrowdStrike"
     SOURCE_TYPE = "vendor_report"
     BASE_URL = "https://www.crowdstrike.com"
-    
+
     def __init__(self):
         super().__init__(self.SOURCE_NAME, self.SOURCE_TYPE)
-    
+
     def search(self, keyword: str, limit: int = 20) -> List[Dict]:
         aliases = get_keyword_aliases(keyword)
         log.info(f"CrowdStrike: 搜索关键词 {aliases}")
-        
+
         all_articles = []
         seen_urls = set()
-        
+
         for alias in aliases:
             search_url = f"{self.BASE_URL}/en-us/blog/?search={quote(alias)}"
             log.info(f"  搜索 '{alias}' at {search_url}")
-            
+
             try:
                 articles = self._search_with_cloudscraper(search_url)
                 for art in articles:
@@ -353,16 +353,16 @@ class CrowdStrikeCrawler(GenericCrawler):
                 time.sleep(1)
             except Exception as e:
                 log.warning(f"  搜索 '{alias}' 失败: {e}")
-        
+
         log.info(f"CrowdStrike: 找到 {len(all_articles)} 篇文章")
         return all_articles[:limit]
-    
+
     def _search_with_cloudscraper(self, url: str) -> List[Dict]:
         """使用cloudscraper绕过Cloudflare保护"""
         try:
             import cloudscraper
             from bs4 import BeautifulSoup
-            
+
             scraper = cloudscraper.create_scraper(
                 browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True},
                 interpreter='native'
@@ -372,46 +372,46 @@ class CrowdStrikeCrawler(GenericCrawler):
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.9',
             })
-            
+
             response = scraper.get(url, timeout=30)
             response.raise_for_status()
-            
+
             soup = BeautifulSoup(response.text, 'html.parser')
             articles = []
             seen = set()
-            
+
             # CrowdStrike文章链接在 a.search-results__link[href] 中
             for link in soup.select('a.search-results__link[href]'):
                 href = link.get('href', '')
                 title_el = link.select_one('.search-results__title')
                 text = title_el.get_text(strip=True) if title_el else link.get_text(strip=True)
-                
+
                 # 构建完整URL
                 if href and not href.startswith('http'):
                     href = self.BASE_URL + href
-                
+
                 if href and text and '/blog/' in href:
                     if href not in seen:
                         seen.add(href)
                         articles.append({"url": href, "title": text[:200], "date": ""})
-            
+
             # 如果精确选择器没找到，回退到通用选择器
             if not articles:
                 for link in soup.select('a[href*="/blog/"]'):
                     href = link.get('href', '')
                     text = link.get_text(strip=True)
-                    
+
                     # 构建完整URL
                     if href and not href.startswith('http'):
                         href = self.BASE_URL + href
-                    
+
                     if href and text and len(text) > 20 and not href.endswith('/blog/') and '/category/' not in href:
                         if href not in seen:
                             seen.add(href)
                             articles.append({"url": href, "title": text[:200], "date": ""})
-            
+
             return articles
-            
+
         except ImportError:
             log.error("cloudscraper未安装，请运行: pip install cloudscraper")
             return []
@@ -730,14 +730,14 @@ class FBICrawler(GenericCrawler):
     SOURCE_NAME = "FBI"
     SOURCE_TYPE = "government_notice"
     BASE_URL = "https://www.fbi.gov"
-    
+
     def __init__(self):
         super().__init__(self.SOURCE_NAME, self.SOURCE_TYPE)
-    
+
     def search(self, keyword: str, limit: int = 20) -> List[Dict]:
         search_url = f"{self.BASE_URL}/@@search?SearchableText={quote(keyword)}"
         log.info(f"FBI: 搜索 '{keyword}' at {search_url}")
-        
+
         try:
             articles = self._search_with_playwright(search_url)
             log.info(f"FBI: 找到 {len(articles)} 篇文章")
@@ -745,7 +745,7 @@ class FBICrawler(GenericCrawler):
         except Exception as e:
             log.error(f"FBI: 搜索失败: {e}")
             return []
-    
+
     def _search_with_playwright(self, url: str) -> List[Dict]:
         browser = get_playwright_browser()
         context = browser.new_context(
@@ -753,11 +753,11 @@ class FBICrawler(GenericCrawler):
         )
         page = context.new_page()
         articles = []
-        
+
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=30000)
             page.wait_for_timeout(10000)
-            
+
             js_code = """() => {
                 const results = [];
                 const anchors = document.querySelectorAll('a[href]');
@@ -770,21 +770,21 @@ class FBICrawler(GenericCrawler):
                 }
                 return results;
             }"""
-            
+
             links = page.evaluate(js_code)
-            
+
             seen = set()
             for link in links:
                 if link['url'] not in seen:
                     seen.add(link['url'])
                     articles.append(link)
-            
+
         except Exception as e:
             log.error(f"Playwright获取失败: {e}")
         finally:
             page.close()
             context.close()
-        
+
         return articles
 
 # ==============================================================================
@@ -804,11 +804,11 @@ def main():
     parser.add_argument("--sources", type=int, required=True, help="Local source bitmask")
     parser.add_argument("--keyword", required=True, help="搜索关键词")
     parser.add_argument("--limit", type=int, default=20, help="最大文章数")
-    
+
     args = parser.parse_args()
-    
+
     log.info(f"开始爬取: sources={args.sources}, keyword={args.keyword}, limit={args.limit}")
-    
+
     try:
         for source_name in sources_from_mask(args.sources):
             crawler_class = SOURCES[source_name]
@@ -820,7 +820,7 @@ def main():
                 log.error(f"{source_name} 爬虫失败: {e}")
     finally:
         close_playwright()
-    
+
     log.info("\n--- 爬虫完成 ---")
 
 

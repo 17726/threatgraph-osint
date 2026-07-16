@@ -243,10 +243,6 @@ export async function runPipeline(
     status: string;
   }>(importResponse, "文档导入失败");
 
-  if (imported.status === "skipped") {
-    return { skipped: true, doc_id: imported.doc_id };
-  }
-
   const pipelineResponse = await fetch(`${API_BASE_URL}/pipeline/run`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

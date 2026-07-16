@@ -217,69 +217,69 @@ def write_contract_record(output_dir: Path, target_group: str, doc_number: int, 
 
 class GenericCrawler:
     """通用爬虫基类 - 使用HTTP请求"""
-    
+
     def __init__(self, source_name: str, source_type: str, base_url: str = ""):
         self.source_name = source_name
         self.source_type = source_type
         self.base_url = base_url
-    
+
     def search(self, keyword: str, limit: int = 20) -> List[Dict]:
         """搜索文章 - 子类可覆盖"""
         aliases = get_keyword_aliases(keyword)
         log.info(f"{self.source_name}: 搜索关键词 {aliases}")
-        
+
         all_articles = []
         seen_urls = set()
-        
+
         for alias in aliases:
             search_url = self.base_url.format(keyword=quote(alias))
             log.info(f"  搜索 '{alias}' at {search_url}")
-            
+
             try:
                 html = fetch_url(search_url)
                 from bs4 import BeautifulSoup
                 soup = BeautifulSoup(html, "html.parser")
-                
+
                 articles = self.extract_article_links(soup, search_url)
                 for art in articles:
                     if art['url'] not in seen_urls:
                         seen_urls.add(art['url'])
                         all_articles.append(art)
-                
+
                 time.sleep(1)
             except Exception as e:
                 log.warning(f"  搜索 '{alias}' 失败: {e}")
-        
+
         log.info(f"{self.source_name}: 找到 {len(all_articles)} 篇文章")
         return all_articles[:limit]
-    
+
     def extract_article_links(self, soup, base_url: str) -> List[Dict]:
         """提取文章链接 - 子类可覆盖"""
         articles = []
         seen = set()
-        
+
         for link in soup.find_all('a', href=True):
             href = link.get('href', '')
             text = link.get_text(strip=True)
-            
+
             if not href or href.startswith('#') or href.startswith('javascript:'):
                 continue
             if len(text) < 20:
                 continue
-            
+
             if not href.startswith('http'):
                 href = urljoin(base_url, href)
-            
+
             if href in seen:
                 continue
-            
+
             # 过滤掉导航链接
             if any(x in href.lower() for x in ['/tag/', '/category/', '/page/', '/author/']):
                 continue
-            
+
             seen.add(href)
             articles.append({"url": href, "title": text[:200], "date": ""})
-        
+
         return articles
 
     def fetch_article(self, url: str) -> Dict:
@@ -319,7 +319,7 @@ class GenericCrawler:
             "date": published_date,
             "tags": []  # 页面无显式标签
         }
-    
+
     def run(self, keyword: str, limit: int = 20) -> List[Dict]:
         """运行爬虫"""
         target_group = normalize_target_group(keyword)
@@ -327,22 +327,22 @@ class GenericCrawler:
         output_dir.mkdir(parents=True, exist_ok=True)
         seen_urls = existing_source_urls(output_dir)
         next_number = next_doc_number(output_dir, target_group)
-        
+
         articles = self.search(keyword, limit)
-        
+
         success_count = 0
         for idx, article in enumerate(articles, 1):
             url = article["url"]
             if url in seen_urls:
                 log.info(f"  [{idx}/{len(articles)}] 跳过(重复URL)")
                 continue
-            
+
             log.info(f"  [{idx}/{len(articles)}] 获取: {article['title'][:50]}...")
-            
+
             try:
                 time.sleep(random.uniform(2.0, 4.0))
                 detail = self.fetch_article(url)
-                
+
                 if not detail["raw_text"] or len(detail["raw_text"]) < MIN_CONTENT_LENGTH:
                     log.warning(f"    跳过: 内容过短 ({len(detail['raw_text'])} chars)")
                     continue
@@ -368,7 +368,7 @@ class GenericCrawler:
                 log.info(f"    保存: {path.name}")
             except Exception as e:
                 log.error(f"    失败: {e}")
-        
+
         log.info(f"{self.source_name} 完成! 成功: {success_count}/{len(articles)}")
         return []
 
@@ -797,11 +797,11 @@ def main():
     parser.add_argument("--sources", type=int, required=True, help="Local source bitmask")
     parser.add_argument("--keyword", required=True, help="搜索关键词")
     parser.add_argument("--limit", type=int, default=20, help="最大文章数")
-    
+
     args = parser.parse_args()
-    
+
     log.info(f"开始爬取: sources={args.sources}, keyword={args.keyword}, limit={args.limit}")
-    
+
     for source_name in sources_from_mask(args.sources):
         crawler_factory = SOURCES[source_name]
         log.info(f"\n--- 运行 {source_name} 爬虫 ---")
@@ -810,7 +810,7 @@ def main():
             crawler.run(args.keyword, args.limit)
         except Exception as e:
             log.error(f"{source_name} 爬虫失败: {e}")
-    
+
     log.info("\n--- 爬虫完成 ---")
 
 

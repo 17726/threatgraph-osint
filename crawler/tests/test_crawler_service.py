@@ -45,6 +45,56 @@ def test_failed_result_exposes_failed_progress() -> None:
     assert result["progress"]["phase"] == "failed"
 
 
+def test_new_run_initializes_selected_source_results() -> None:
+    service = CrawlerService()
+
+    selected = service._initial_source_results(1 | (1 << 7))
+
+    assert selected["奇安信威胁情报中心"] == {
+        "items_promoted": 0,
+        "items_imported": 0,
+        "items_skipped": 0,
+        "items_failed": 0,
+        "items_pipeline_succeeded": 0,
+    }
+    assert selected["SecureList"]["items_promoted"] == 0
+
+
+def test_pending_run_initializes_selected_source_results(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_MODEL", "model")
+    monkeypatch.setenv("LLM_BASE_URL", "https://example.test")
+    monkeypatch.setenv("LLM_API_KEY", "key")
+    service = CrawlerService()
+    monkeypatch.setattr(service, "_run_and_store", lambda payload: None)
+
+    result = service.submit(
+        {
+            "crawl_run_id": "crawl_pending",
+            "keyword": "APT28",
+            "limit": 1,
+            "sources": 1 | (1 << 7),
+            "filter": False,
+            "start_number": 1,
+        }
+    )
+
+    assert result["status"] == "accepted"
+    assert set(service.status("crawl_pending")["source_results"]) == {
+        "奇安信威胁情报中心",
+        "SecureList",
+    }
+
+
+def test_exception_result_has_failed_progress() -> None:
+    service = CrawlerService()
+    result = service._failed_result(
+        {"crawl_run_id": "crawl_test", "keyword": "APT28"}, "failed"
+    )
+
+    assert result["status"] == "failed"
+    assert result["progress"]["phase"] == "failed"
+
+
 def test_service_passes_start_number_to_runner(monkeypatch, tmp_path: Path) -> None:
     service = CrawlerService(
         workspace_root=tmp_path,
@@ -218,6 +268,13 @@ def test_service_runs_live_pipeline_after_document_import(monkeypatch, tmp_path:
         "error": result["error_message"],
     }
     assert result["source_results"] == {
+        "奇安信威胁情报中心": {
+            "items_promoted": 0,
+            "items_imported": 0,
+            "items_skipped": 0,
+            "items_failed": 0,
+            "items_pipeline_succeeded": 0,
+        },
         "unknown": {
             "items_promoted": 1,
             "items_imported": 1,
@@ -230,6 +287,37 @@ def test_service_runs_live_pipeline_after_document_import(monkeypatch, tmp_path:
         "http://backend:8000/api/v1/pipeline/run",
         {"doc_id": "apt28_108", "extraction_mode": "live"},
     )
+
+
+def test_import_failure_still_counts_document_as_found(monkeypatch, tmp_path: Path) -> None:
+    service = CrawlerService(
+        workspace_root=tmp_path,
+        backend_base_url="http://backend:8000",
+    )
+    document_dir = tmp_path / "crawl_import_failure" / "data" / "documents" / "apt28"
+    document_dir.mkdir(parents=True)
+    document_dir.joinpath("apt28_108.json").write_text(
+        '{"doc_id":"apt28_108","source_name":"Example"}',
+        encoding="utf-8",
+    )
+
+    class Response:
+        def raise_for_status(self):
+            raise RuntimeError("import failed")
+
+    monkeypatch.setattr(
+        "crawler.app.service.httpx.post", lambda *args, **kwargs: Response()
+    )
+
+    result = service._import_documents(
+        {
+            "crawl_run_id": "crawl_import_failure",
+            "keyword": "APT28",
+        }
+    )
+
+    assert result["items_found"] == 1
+    assert result["items_failed"] == 1
 
 
 def test_service_cleans_workspace_on_failure(monkeypatch, tmp_path: Path) -> None:
