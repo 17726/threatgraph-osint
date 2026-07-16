@@ -183,7 +183,7 @@ def test_graph_neighbors_uses_explicit_one_hop_service(monkeypatch):
     assert response.status_code == 200
     assert calls == {
         "entity_id": "technique:t1566",
-        "depth": 20,
+        "depth": 2,
         "relation_types": ["USES", "TARGETS"],
         "source_types": [],
         "languages": [],

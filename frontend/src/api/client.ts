@@ -84,8 +84,8 @@ export function fetchEntity(id: string): Promise<EntityDetail> {
 }
 
 export interface PipelineResult {
-  job_id: string;
-  status: string;
+  job_id?: string;
+  status?: string;
   doc_id?: string;
   run_id?: string;
   chunks?: number;
@@ -95,11 +95,7 @@ export interface PipelineResult {
   canonical_relations?: number;
   evidence?: number;
   behavior_patterns?: number;
-}
-
-export interface PipelineResult {
   skipped?: boolean;
-  doc_id?: string;
   summaries?: Array<{
     extracted_entities: number;
     extracted_relations: number;
