@@ -116,6 +116,8 @@ class OfflineExtractionPipeline:
             self.import_extraction_result(connection, document, extraction_result)
             self.normalize_candidates(connection, extraction_result["run_id"])
             self.build_rule_analysis(connection, document["target_group"])
+            self.build_mitre_mappings(connection, document["target_group"])
+            self.build_inferred_relations(connection, document["target_group"])
             self.upsert_report(connection, document["target_group"])
             connection.commit()
 
@@ -918,7 +920,7 @@ class OfflineExtractionPipeline:
 
     def build_rule_analysis(self, connection: sqlite3.Connection, target_group: str) -> None:
         now = now_iso()
-        target_entity_id = canonical_entity_id("APT_GROUP", target_group)
+        target_entity_id = self._resolve_target_entity_id(connection, target_group)
         connection.execute("DELETE FROM behavior_patterns WHERE target_group = ?", (target_group,))
 
         uses_rows = connection.execute(
@@ -986,6 +988,188 @@ class OfflineExtractionPipeline:
                     json.dumps(relation_ids, ensure_ascii=False),
                     json.dumps(evidence_ids, ensure_ascii=False),
                     average(row["confidence"] for row in target_rows),
+                    now,
+                ),
+            )
+
+    def build_mitre_mappings(
+        self, connection: sqlite3.Connection, target_group: str
+    ) -> None:
+        """从映射表自动补全 TECHNIQUE 实体到 MITRE ATT&CK 的映射关系。"""
+        mitre_map_path = (
+            Path(__file__).resolve().parents[3]
+            / "docs/mappings/mitre-techniques.json"
+        )
+        if not mitre_map_path.exists():
+            return
+
+        mitre_map = load_json(mitre_map_path)
+        mapping_keys = {k.lower(): v for k, v in mitre_map.items() if not k.startswith("_")}
+        target_entity_id = self._resolve_target_entity_id(connection, target_group)
+        now_iso_str = now_iso()
+
+        techniques = connection.execute(
+            """
+            SELECT e.entity_id, e.name, e.aliases_json, r.relation_id, r.confidence
+            FROM entities e
+            JOIN relations r ON r.target_entity_id = e.entity_id
+            WHERE r.source_entity_id = ?
+              AND r.relation_type = 'USES'
+              AND e.type = 'TECHNIQUE'
+            ORDER BY e.name
+            """,
+            (target_entity_id,),
+        ).fetchall()
+
+        for tech in techniques:
+            name_lower = tech["name"].lower()
+            aliases = json.loads(tech["aliases_json"]) if tech["aliases_json"] else []
+            aliases_lower = [a.lower() for a in aliases]
+            matched_key = None
+
+            # 匹配规则：实体名（或别名）包含 mapping key
+            for key in mapping_keys:
+                if key in name_lower:
+                    matched_key = key
+                    break
+                for alias_lower in aliases_lower:
+                    if key in alias_lower:
+                        matched_key = key
+                        break
+                if matched_key:
+                    break
+
+            if matched_key is None:
+                continue
+
+            mapping = mapping_keys[matched_key]
+            technique_id = mapping["technique_id"]
+            mapping_id = f"mitre_{target_group.lower()}_{technique_id.lower().replace('.', '_')}"
+
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO mitre_mappings (
+                  mapping_id, target_group, technique_id, technique_name,
+                  tactic, attack_stage, entity_id, relation_id,
+                  evidence_ids_json, confidence, source, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    mapping_id,
+                    target_group,
+                    technique_id,
+                    mapping["technique_name"],
+                    mapping["tactic"],
+                    mapping["attack_stage"],
+                    tech["entity_id"],
+                    tech["relation_id"],
+                    "[]",
+                    tech["confidence"],
+                    "rule",
+                    now_iso_str,
+                ),
+            )
+
+    def _resolve_target_entity_id(
+        self, connection: sqlite3.Connection, target_group: str
+    ) -> str:
+        target_key = normalize_lookup(target_group)
+        row = connection.execute(
+            """
+            SELECT entity_id
+            FROM entities
+            WHERE type = 'APT_GROUP'
+              AND (
+                lower(name) = ?
+                OR lower(aliases_json) LIKE ?
+              )
+            ORDER BY entity_id
+            LIMIT 1
+            """,
+            (target_key, f'%"{target_key}"%'),
+        ).fetchone()
+        return row["entity_id"] if row else canonical_entity_id("APT_GROUP", target_group)
+
+    def build_inferred_relations(
+        self, connection: sqlite3.Connection, target_group: str
+    ) -> None:
+        """基于同一目标组织的 USES/TARGETS 关系生成候选攻击路径（按目标去重）。"""
+        target_entity_id = self._resolve_target_entity_id(connection, target_group)
+        now = now_iso()
+        connection.execute(
+            """
+            DELETE FROM inferred_relations
+            WHERE source_entity_id = ? AND relation_type = 'HAS_BEHAVIOR'
+            """,
+            (target_entity_id,),
+        )
+
+        tools = connection.execute(
+            """
+            SELECT r.relation_id, r.confidence, e.entity_id AS tool_entity_id,
+                   e.name AS tool_name
+            FROM relations r
+            JOIN entities e ON e.entity_id = r.target_entity_id
+            WHERE r.source_entity_id = ?
+              AND r.relation_type = 'USES'
+              AND e.type IN ('MALWARE', 'TOOL', 'TECHNIQUE')
+            ORDER BY e.entity_id
+            """,
+            (target_entity_id,),
+        ).fetchall()
+        target_rows = connection.execute(
+            """
+            SELECT r.relation_id, r.confidence, e.entity_id AS target_entity_id,
+                   e.name AS target_name
+            FROM relations r
+            JOIN entities e ON e.entity_id = r.target_entity_id
+            WHERE r.source_entity_id = ?
+              AND r.relation_type = 'TARGETS'
+            ORDER BY e.entity_id
+            """,
+            (target_entity_id,),
+        ).fetchall()
+        if not tools or not target_rows:
+            return
+
+        # 按目标去重：一个目标只生成一条推断关系
+        for target_row in target_rows:
+            relation_ids = [target_row["relation_id"]]
+            tool_names = []
+            # 收集所有用于攻击该目标的工具/技术
+            for tool in tools:
+                relation_ids.append(tool["relation_id"])
+                tool_names.append(tool["tool_name"])
+            max_tool_conf = max(t["confidence"] for t in tools) if tools else 1.0
+            confidence = min(max_tool_conf, target_row["confidence"])
+            inferred_id = (
+                f"inferred_{slugify(target_group)}_"
+                f"to_{slugify(target_row['target_entity_id'])}"
+            )
+            tool_list = "、".join(tool_names) if tool_names else "多种工具"
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO inferred_relations (
+                  inferred_relation_id, source_entity_id, target_entity_id,
+                  relation_type, rationale, support_evidence_ids_json,
+                  confidence, status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    inferred_id,
+                    target_entity_id,
+                    target_row["target_entity_id"],
+                    "HAS_BEHAVIOR",
+                    (
+                        f"基于 {target_group} 使用 {tool_list} 的关系，"
+                        f"以及其针对 {target_row['target_name']} 的关系推断攻击路径。"
+                    ),
+                    json.dumps(
+                        evidence_ids_for_relations(connection, list(set(relation_ids))),
+                        ensure_ascii=False,
+                    ),
+                    confidence,
+                    "candidate",
                     now,
                 ),
             )

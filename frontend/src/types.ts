@@ -103,7 +103,9 @@ export type BehaviorPattern = {
 export type InferredRelation = {
   inferred_relation_id: string;
   source: string;
+  source_name?: string;
   target: string;
+  target_name?: string;
   type: string;
   rationale: string;
   confidence: number;

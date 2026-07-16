@@ -88,7 +88,7 @@ class GraphQueryService:
                 visible_ids = self._nodes_at_depth(
                     visible_target_ids,
                     edges,
-                    depth if depth is not None else 20,
+                    depth if depth is not None else 2,
                 )
                 nodes = [node for node in nodes if node["id"] in visible_ids]
                 edges = self._closed_edges(edges, visible_ids)
@@ -143,7 +143,7 @@ class GraphQueryService:
     def get_neighbors(
         self,
         entity_id: str,
-        depth: int = 20,
+        depth: int = 2,
         relation_types: Iterable[str] | None = None,
         source_types: Iterable[str] | None = None,
         languages: Iterable[str] | None = None,

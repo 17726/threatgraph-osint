@@ -924,7 +924,20 @@ class DemoStore:
                 (target_entity_id,),
             ).fetchone()
             if entity is None:
+                # 直接 ID 未命中 → 按名称/别名兜底搜索（应对实体合并后 ID 变更）
+                entity = connection.execute(
+                    "SELECT entity_id FROM entities WHERE name = ? AND type = 'APT_GROUP'",
+                    (target_group,),
+                ).fetchone()
+            if entity is None:
+                like_pattern = f"%{target_group}%"
+                entity = connection.execute(
+                    "SELECT entity_id FROM entities WHERE aliases_json LIKE ? AND type = 'APT_GROUP'",
+                    (like_pattern,),
+                ).fetchone()
+            if entity is None:
                 return None
+            target_entity_id = entity["entity_id"]
 
             now_iso = datetime.now(UTC).isoformat()
             result = generate_intelligent_report(
@@ -940,7 +953,13 @@ class DemoStore:
                     (target_group,),
                 ).fetchone()
                 if existing:
-                    return self.get_report(target_group)
+                    # 仅当已有报告包含有效章节时才复用（避免返回无内容的旧离线报告）
+                    existing_sections = connection.execute(
+                        "SELECT count(*) AS cnt FROM report_sections WHERE report_id = ?",
+                        (existing["report_id"],),
+                    ).fetchone()["cnt"]
+                    if existing_sections > 0:
+                        return self.get_report(target_group)
 
             connection.execute(
                 """
@@ -1015,10 +1034,14 @@ class DemoStore:
             if self._table_exists(connection, "inferred_relations"):
                 inference_rows = connection.execute(
                     """
-                    SELECT inferred_relation_id, source_entity_id, target_entity_id, relation_type,
-                           rationale, support_evidence_ids_json, confidence, status
-                    FROM inferred_relations
-                    ORDER BY inferred_relation_id
+                    SELECT i.inferred_relation_id, i.source_entity_id, i.target_entity_id, i.relation_type,
+                           COALESCE(source_entity.name, i.source_entity_id) AS source_name,
+                           COALESCE(target_entity.name, i.target_entity_id) AS target_name,
+                           i.rationale, i.support_evidence_ids_json, i.confidence, i.status
+                    FROM inferred_relations i
+                    LEFT JOIN entities source_entity ON source_entity.entity_id = i.source_entity_id
+                    LEFT JOIN entities target_entity ON target_entity.entity_id = i.target_entity_id
+                    ORDER BY i.inferred_relation_id
                     """
                 ).fetchall()
 
@@ -1056,7 +1079,9 @@ class DemoStore:
                 {
                     "inferred_relation_id": row["inferred_relation_id"],
                     "source": row["source_entity_id"],
+                    "source_name": row["source_name"],
                     "target": row["target_entity_id"],
+                    "target_name": row["target_name"],
                     "type": row["relation_type"],
                     "rationale": row["rationale"],
                     "confidence": row["confidence"],
@@ -1066,6 +1091,20 @@ class DemoStore:
                 for row in inference_rows
             ],
         }
+
+    def resolve_entity_id_for_group(self, group_name: str) -> str | None:
+        with self.connect() as conn:
+            row = conn.execute(
+                """
+                SELECT entity_id FROM entities
+                WHERE type = 'APT_GROUP' AND (
+                    lower(name) = ? OR lower(aliases_json) LIKE ?
+                )
+                LIMIT 1
+                """,
+                (group_name.lower(), f'%"{group_name.lower()}"%'),
+            ).fetchone()
+            return row["entity_id"] if row else None
 
     def import_document(self, document: dict) -> dict:
         """导入文档，去重后写入 documents 表，自动切 chunks。"""

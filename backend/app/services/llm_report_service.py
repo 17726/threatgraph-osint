@@ -175,6 +175,13 @@ class LLMReportService:
             ).fetchone()
 
         if target is None:
+            # 尝试按别名匹配（应对实体合并后 entity_id 变更）
+            target = conn.execute(
+                "SELECT * FROM entities WHERE aliases_json LIKE ? AND type = 'APT_GROUP'",
+                (f"%{target_group}%",),
+            ).fetchone()
+
+        if target is None:
             conn.close()
             raise ValueError(f"图谱中未找到目标组织: {target_group}")
 

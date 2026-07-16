@@ -97,6 +97,20 @@ def test_offline_pipeline_imports_candidates_and_normalizes_graph(tmp_path):
     assert summary.behavior_patterns == 2
 
     with connect(db_path) as connection:
+        inferred = connection.execute(
+            """
+            SELECT source_entity_id, target_entity_id, relation_type,
+                   rationale, support_evidence_ids_json, confidence, status
+            FROM inferred_relations
+            WHERE source_entity_id = 'apt_group:apt28'
+            """
+        ).fetchall()
+        assert len(inferred) == 2
+        assert all(row["relation_type"] == "HAS_BEHAVIOR" for row in inferred)
+        assert all(row["status"] == "candidate" for row in inferred)
+        assert all(json.loads(row["support_evidence_ids_json"]) for row in inferred)
+
+    with connect(db_path) as connection:
         run = connection.execute("SELECT * FROM extraction_runs").fetchone()
         assert run["validation_status"] == "valid"
 
@@ -187,7 +201,27 @@ def test_offline_pipeline_graph_export_uses_real_sample_without_demo_seed(tmp_pa
         "rel:apt_group:apt28:TARGETS:country:ukraine",
     }
     assert len(graph["analysis"]["behavior_patterns"]) == 2
-    assert graph["analysis"]["inferred_relations"] == []
+    assert len(graph["analysis"]["inferred_relations"]) == 2
+
+
+def test_offline_pipeline_does_not_infer_attack_paths_without_tool_use(tmp_path):
+    db_path = tmp_path / "threatgraph_osint.db"
+    extraction_path = tmp_path / "targets_only_extraction.json"
+    payload = json.loads(EXTRACTION_PATH.read_text(encoding="utf-8"))
+    payload["chunks"][0]["relations"] = [
+        relation
+        for relation in payload["chunks"][0]["relations"]
+        if relation["relation_type"] != "USES"
+    ]
+    extraction_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    OfflineExtractionPipeline(db_path).run(DOCUMENT_PATH, extraction_path)
+
+    with connect(db_path) as connection:
+        inferred_count = connection.execute(
+            "SELECT count(*) FROM inferred_relations"
+        ).fetchone()[0]
+    assert inferred_count == 0
 
 
 def test_offline_pipeline_updates_api_graph_store(tmp_path):
