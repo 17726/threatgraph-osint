@@ -1,4 +1,5 @@
 import hashlib
+import importlib.util
 
 from scripts import crawler_v1
 
@@ -48,3 +49,7 @@ def test_playwright_crawlers_use_headless_mode_in_containers() -> None:
     source = inspect.getsource(crawler_v1)
 
     assert "launch(headless=False)" not in source
+
+
+def test_crawler_supplementary_v2_dependency_is_available() -> None:
+    assert importlib.util.find_spec("cloudscraper") is not None
