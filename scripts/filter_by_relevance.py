@@ -45,7 +45,6 @@ from typing import Optional
 # ---------------------------------------------------------------------------
 # 配置 — API 密钥在此填写或通过环境变量设置
 # ---------------------------------------------------------------------------
-API_KEY = os.environ.get("LLM_API_KEY") or os.environ.get("DEEPSEEK_API_KEY")
 API_BASE = "https://api.deepseek.com/v1/chat/completions"
 MODEL = "deepseek-v4-pro"
 MAX_RETRIES = 3
@@ -170,7 +169,8 @@ def build_prompt(folder: str, clean_text: str) -> tuple[str, str]:
 
 def call_api(system: str, user: str) -> dict:
     """调用 DeepSeek API，返回解析后的 JSON dict（含自动重试）。"""
-    if not API_KEY:
+    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("DEEPSEEK_API_KEY")
+    if not api_key:
         raise RuntimeError("未设置 LLM_API_KEY 或 DEEPSEEK_API_KEY")
 
     payload = json.dumps({
@@ -190,7 +190,7 @@ def call_api(system: str, user: str) -> dict:
                 API_BASE,
                 data=payload,
                 headers={
-                    "Authorization": f"Bearer {API_KEY}",
+                    "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json; charset=utf-8",
                 },
                 method="POST",
@@ -433,7 +433,7 @@ def renumber_folder(output_dir: Path, folder: str):
         print(f"    {old_doc_id} → {new_doc_id}.json")
 
 
-def main():
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="基于 DeepSeek v4 Pro 的文档相关性过滤与文本清洗"
     )
@@ -449,7 +449,11 @@ def main():
         "--folder", choices=["apt28", "kimsuky", "lazarus"],
         help="仅处理指定文件夹（不指定则处理全部三个）"
     )
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = build_parser().parse_args()
 
     project_root = Path(__file__).resolve().parent.parent
     input_dir = project_root / "data" / "cleaned"

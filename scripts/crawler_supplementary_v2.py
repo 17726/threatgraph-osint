@@ -1,12 +1,11 @@
 """
 补充数据爬虫 v2 - Playwright版本
-处理需要JavaScript渲染的网站：Microsoft, SecureList, CrowdStrike, Group-IB, FBI
+处理需要JavaScript渲染的网站：CrowdStrike、Group-IB、OFAC、FBI
 
 使用方式：
-    python scripts/crawler_supplementary_v2.py --source microsoft --keyword Lazarus --limit 10
-    python scripts/crawler_supplementary_v2.py --source securelist --keyword Kimsuky --limit 10
     python scripts/crawler_supplementary_v2.py --source crowdstrike --keyword APT28 --limit 10
     python scripts/crawler_supplementary_v2.py --source groupib --keyword Lazarus --limit 10
+    python scripts/crawler_supplementary_v2.py --source ofac,fbi --keyword Lazarus --limit 10
     python scripts/crawler_supplementary_v2.py --source all --keyword Lazarus --limit 5
 """
 
@@ -62,6 +61,23 @@ def safe_slug(value: str) -> str:
 
 def output_dir_for(target_group: str) -> Path:
     return REPO_ROOT / "data" / "cleaned" / safe_slug(target_group)
+
+
+SOURCE_NAMES = ("crowdstrike", "groupib", "ofac", "fbi")
+
+
+def parse_sources(value: str) -> List[str]:
+    requested = [item.strip().lower() for item in value.split(",") if item.strip()]
+    if not requested:
+        raise ValueError("source cannot be empty")
+    if "all" in requested:
+        if len(requested) != 1:
+            raise ValueError("source=all cannot be combined with individual sources")
+        return list(SOURCE_NAMES)
+    unknown = [item for item in requested if item not in SOURCE_NAMES]
+    if unknown:
+        raise ValueError(f"unknown source(s): {', '.join(unknown)}")
+    return list(dict.fromkeys(requested))
 
 def next_doc_number(output_dir: Path, target_group: str) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -781,7 +797,7 @@ SOURCES = {
 
 def main():
     parser = argparse.ArgumentParser(description="补充数据爬虫 v2 - Playwright版本")
-    parser.add_argument("--source", required=True, choices=list(SOURCES.keys()) + ["all"])
+    parser.add_argument("--source", required=True, help="Comma-separated sources or all")
     parser.add_argument("--keyword", required=True, help="搜索关键词")
     parser.add_argument("--limit", type=int, default=20, help="最大文章数")
     
@@ -790,18 +806,14 @@ def main():
     log.info(f"开始爬取: source={args.source}, keyword={args.keyword}, limit={args.limit}")
     
     try:
-        if args.source == "all":
-            for source_name, crawler_class in SOURCES.items():
-                log.info(f"\n--- 运行 {source_name} 爬虫 ---")
-                try:
-                    crawler = crawler_class()
-                    crawler.run(args.keyword, args.limit)
-                except Exception as e:
-                    log.error(f"{source_name} 爬虫失败: {e}")
-        else:
-            crawler_class = SOURCES[args.source]
-            crawler = crawler_class()
-            crawler.run(args.keyword, args.limit)
+        for source_name in parse_sources(args.source):
+            crawler_class = SOURCES[source_name]
+            log.info(f"\n--- 运行 {source_name} 爬虫 ---")
+            try:
+                crawler = crawler_class()
+                crawler.run(args.keyword, args.limit)
+            except Exception as e:
+                log.error(f"{source_name} 爬虫失败: {e}")
     finally:
         close_playwright()
     

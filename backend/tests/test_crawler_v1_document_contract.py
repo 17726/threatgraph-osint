@@ -3,10 +3,10 @@ import hashlib
 from scripts import crawler_v1
 
 
-def test_crawler_v1_defaults_to_document_output_dir() -> None:
+def test_crawler_v1_defaults_to_cleaned_output_dir() -> None:
     output_dir = crawler_v1.output_dir_for("APT28")
 
-    assert output_dir.as_posix().endswith("data/documents/apt28")
+    assert output_dir.as_posix().endswith("data/cleaned/apt28")
 
 
 def test_crawler_v1_builds_document_contract_record() -> None:

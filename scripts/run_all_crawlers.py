@@ -1,76 +1,148 @@
-#!/usr/bin/env python3
-"""
-集成爬虫调度脚本 - 自动适配路径
-依次执行：
-  1. crawler_v1.py        --keyword <keyword> --limit 2
-  2. crawler_supplementary.py --source all --keyword <keyword> --limit 2
-  3. crawler_supplementary_v2.py --source groupib --keyword <keyword> --limit 2
-  4. crawler_supplementary_v2.py --source ofac --keyword <keyword> --limit 2
+from __future__ import annotations
 
-使用方法：
-    python run_all_crawlers.py
-    然后根据提示输入关键词（例如 APT28）
-"""
-
+import argparse
 import subprocess
 import sys
 from pathlib import Path
 
-# ---------- 路径自动适配 ----------
-# 获取当前脚本所在目录
-current_dir = Path(__file__).resolve().parent
 
-# 判断当前目录是否是项目根目录（即存在 scripts 子文件夹）
-if (current_dir / "scripts").exists():
-    PROJECT_ROOT = current_dir
-    SCRIPTS_DIR = current_dir / "scripts"
-else:
-    # 否则假设当前已经在 scripts 目录下
-    PROJECT_ROOT = current_dir.parent
-    SCRIPTS_DIR = current_dir
-
-# 若仍未找到 scripts，报错提示
-if not SCRIPTS_DIR.exists():
-    print("错误：找不到 scripts 目录，请将脚本放在项目根目录或 scripts/ 目录下。")
-    sys.exit(1)
-
-# 使用当前 Python 解释器路径（避免多版本问题）
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 PYTHON_EXE = sys.executable
 
-# 定义要执行的命令
-COMMANDS = [
-    [PYTHON_EXE, str(SCRIPTS_DIR / "crawler_v1.py"), "--keyword", "{keyword}", "--limit", "2"],
-    #[PYTHON_EXE, str(SCRIPTS_DIR / "crawler_supplementary.py"), "--source", "all", "--keyword", "{keyword}", "--limit", "2"],
-    #[PYTHON_EXE, str(SCRIPTS_DIR / "crawler_supplementary_v2.py"), "--source", "groupib", "--keyword", "{keyword}", "--limit", "2"],
-    #[PYTHON_EXE, str(SCRIPTS_DIR / "crawler_supplementary_v2.py"), "--source", "ofac", "--keyword", "{keyword}", "--limit", "2"],
-]
+CRAWLER_SOURCES = {
+    "crawler_v1": ("qianxin", "thehackernews", "unit42", "freebuf"),
+    "crawler_supplementary": ("chainalysis", "trmlabs", "microsoft", "securelist"),
+    "crawler_supplementary_v2": ("crowdstrike", "groupib", "ofac", "fbi"),
+}
+SOURCE_OWNERS = {
+    source: crawler
+    for crawler, sources in CRAWLER_SOURCES.items()
+    for source in sources
+}
+CRAWLER_PATHS = {
+    "crawler_v1": SCRIPTS_DIR / "crawler_v1.py",
+    "crawler_supplementary": SCRIPTS_DIR / "crawler_supplementary.py",
+    "crawler_supplementary_v2": SCRIPTS_DIR / "crawler_supplementary_v2.py",
+}
+TARGET_GROUPS = {
+    "apt28": "apt28",
+    "fancy bear": "apt28",
+    "sofacy": "apt28",
+    "kimsuky": "kimsuky",
+    "apt43": "kimsuky",
+    "velvet chollima": "kimsuky",
+    "lazarus": "lazarus",
+    "lazarus group": "lazarus",
+    "hidden cobra": "lazarus",
+    "apt38": "lazarus",
+}
 
-def main():
-    # 提示输入关键词
-    keyword = input("请输入要爬取的关键词（例如 APT28, Kimsuky, Lazarus）：").strip()
-    if not keyword:
-        print("错误：关键词不能为空！")
-        sys.exit(1)
 
-    print(f"\n准备开始爬取，关键词：{keyword}")
-    print("=" * 60)
+def positive_limit(value: str) -> int:
+    limit = int(value)
+    if limit <= 0:
+        raise argparse.ArgumentTypeError("limit must be greater than zero")
+    return limit
 
-    # 依次执行
-    for idx, cmd_template in enumerate(COMMANDS, start=1):
-        cmd = [arg.format(keyword=keyword) for arg in cmd_template]
-        print(f"\n[步骤 {idx}/{len(COMMANDS)}] 执行命令：{' '.join(cmd)}")
-        print("-" * 60)
 
-        try:
-            subprocess.run(cmd, check=True, cwd=str(PROJECT_ROOT))
-            print(f"[步骤 {idx}] 完成")
-        except subprocess.CalledProcessError as e:
-            print(f"[步骤 {idx}] 执行失败，返回码：{e.returncode}", file=sys.stderr)
-            print("终止后续爬虫执行。")
-            sys.exit(e.returncode)
+def normalize_sources(value: str) -> list[str]:
+    requested = [item.strip().lower() for item in value.split(",") if item.strip()]
+    if not requested:
+        raise ValueError("sources cannot be empty")
+    if "all" in requested:
+        if len(requested) != 1:
+            raise ValueError("sources=all cannot be combined with individual sources")
+        return [source for sources in CRAWLER_SOURCES.values() for source in sources]
+    unknown = [source for source in requested if source not in SOURCE_OWNERS]
+    if unknown:
+        raise ValueError(f"unknown source(s): {', '.join(unknown)}")
+    return list(dict.fromkeys(requested))
 
-    print("\n" + "=" * 60)
-    print("所有爬虫执行完毕！输出文件位于 data/documents/<关键词>/ 目录下。")
+
+def group_sources(source_value: str) -> dict[str, list[str]]:
+    selected = normalize_sources(source_value)
+    grouped = {crawler: [] for crawler in CRAWLER_SOURCES}
+    for source in selected:
+        grouped[SOURCE_OWNERS[source]].append(source)
+    return {crawler: sources for crawler, sources in grouped.items() if sources}
+
+
+def target_folder(keyword: str) -> str:
+    normalized = keyword.strip().lower()
+    return TARGET_GROUPS.get(normalized, normalized.replace(" ", "_"))
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="统一运行 ThreatGraph-OSINT 爬虫流水线")
+    parser.add_argument("--keyword", required=True, help="目标组织或搜索关键词")
+    parser.add_argument("--limit", required=True, type=positive_limit, help="每个来源的最大文章数")
+    parser.add_argument("--filter", action="store_true", help="启用相关性过滤和末尾清洗")
+    parser.add_argument("--sources", required=True, help="逗号分隔来源名或 all")
+    return parser
+
+
+def build_commands(args: argparse.Namespace) -> list[list[str]]:
+    grouped = group_sources(args.sources)
+    commands: list[list[str]] = []
+    for crawler, sources in grouped.items():
+        commands.append(
+            [
+                PYTHON_EXE,
+                str(CRAWLER_PATHS[crawler]),
+                "--keyword",
+                args.keyword,
+                "--limit",
+                str(args.limit),
+                "--source",
+                ",".join(sources),
+            ]
+        )
+
+    if args.filter:
+        commands.append(
+            [
+                PYTHON_EXE,
+                str(SCRIPTS_DIR / "filter_by_relevance.py"),
+                "--folder",
+                target_folder(args.keyword),
+            ]
+        )
+
+    input_dir = PROJECT_ROOT / "data" / ("cleaned_filtered" if args.filter else "cleaned")
+    commands.append(
+        [
+            PYTHON_EXE,
+            str(SCRIPTS_DIR / "promote_cleaned_documents.py"),
+            "--input",
+            str(input_dir),
+            "--output",
+            str(PROJECT_ROOT / "data" / "documents"),
+            "--target-group",
+            target_folder(args.keyword),
+        ]
+    )
+    return commands
+
+
+def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+    try:
+        commands = build_commands(args)
+    except ValueError as exc:
+        parser.error(str(exc))
+
+    for index, command in enumerate(commands, start=1):
+        print(f"[{index}/{len(commands)}] {' '.join(command)}")
+        completed = subprocess.run(command, check=False, cwd=PROJECT_ROOT)
+        if completed.returncode:
+            print(f"命令失败，返回码：{completed.returncode}", file=sys.stderr)
+            return completed.returncode
+
+    print("爬虫流水线执行完成。")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

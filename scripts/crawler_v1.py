@@ -78,7 +78,24 @@ def safe_slug(value: str) -> str:
 
 
 def output_dir_for(target_group: str) -> Path:
-    return project_root() / "data" / "documents" / safe_slug(target_group)
+    return project_root() / "data" / "cleaned" / safe_slug(target_group)
+
+
+SOURCE_NAMES = ("qianxin", "thehackernews", "unit42", "freebuf")
+
+
+def parse_sources(value: str) -> List[str]:
+    requested = [item.strip().lower() for item in value.split(",") if item.strip()]
+    if not requested:
+        raise ValueError("source cannot be empty")
+    if "all" in requested:
+        if len(requested) != 1:
+            raise ValueError("source=all cannot be combined with individual sources")
+        return list(SOURCE_NAMES)
+    unknown = [item for item in requested if item not in SOURCE_NAMES]
+    if unknown:
+        raise ValueError(f"unknown source(s): {', '.join(unknown)}")
+    return list(dict.fromkeys(requested))
 
 
 def next_doc_number(output_dir: Path, target_group: str) -> int:
@@ -1111,41 +1128,57 @@ async def main():
     parser = argparse.ArgumentParser(description="Unified Web Crawler for Threat Intel Sources")
     parser.add_argument("--keyword", required=True, help="Keyword to search (e.g., APT28, Kimsuky)")
     parser.add_argument("--limit", type=int, default=None, help="Maximum number of items to crawl per source")
+    parser.add_argument(
+        "--source",
+        default="all",
+        help="Comma-separated sources: qianxin,thehackernews,unit42,freebuf,all",
+    )
 
     args = parser.parse_args()
     keyword = args.keyword
     limit = args.limit
+    sources = set(parse_sources(args.source))
 
     log.info(f"Starting unified crawl for '{keyword}' with limit {limit}")
+    failed = False
 
     # Synchronous crawlers
-    log.info("--- Running Qianxin TI Crawler ---")
-    try:
-        QianxinCrawler.run(keyword, limit)
-    except Exception as e:
-        log.exception(f"Qianxin TI crawler failed: {e}")
+    if "qianxin" in sources:
+        log.info("--- Running Qianxin TI Crawler ---")
+        try:
+            QianxinCrawler.run(keyword, limit)
+        except Exception as e:
+            failed = True
+            log.exception(f"Qianxin TI crawler failed: {e}")
 
-    log.info("--- Running The Hacker News Crawler ---")
-    try:
-        TheHackerNewsCrawler.run(keyword, limit)
-    except Exception as e:
-        log.exception(f"The Hacker News crawler failed: {e}")
+    if "thehackernews" in sources:
+        log.info("--- Running The Hacker News Crawler ---")
+        try:
+            TheHackerNewsCrawler.run(keyword, limit)
+        except Exception as e:
+            failed = True
+            log.exception(f"The Hacker News crawler failed: {e}")
 
     # Asynchronous crawlers
-    log.info("--- Running Unit42 Crawler ---")
-    try:
-        await Unit42Crawler.run(keyword, limit)
-    except Exception as e:
-        log.exception(f"Unit42 crawler failed: {e}")
+    if "unit42" in sources:
+        log.info("--- Running Unit42 Crawler ---")
+        try:
+            await Unit42Crawler.run(keyword, limit)
+        except Exception as e:
+            failed = True
+            log.exception(f"Unit42 crawler failed: {e}")
 
-    log.info("--- Running Freebuf Crawler ---")
-    try:
-        await FreebufCrawler.run(keyword, limit)
-    except Exception as e:
-        log.exception(f"Freebuf crawler failed: {e}")
+    if "freebuf" in sources:
+        log.info("--- Running Freebuf Crawler ---")
+        try:
+            await FreebufCrawler.run(keyword, limit)
+        except Exception as e:
+            failed = True
+            log.exception(f"Freebuf crawler failed: {e}")
 
     log.info("--- All crawlers finished. ---")
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    raise SystemExit(asyncio.run(main()))
