@@ -10,7 +10,22 @@ describe("API 客户端", () => {
   it("图谱请求失败时向上抛出错误，不返回 Mock 数据", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("后端不可用")));
 
-    await expect(fetchGraph("APT28")).rejects.toThrow("后端不可用");
+    await expect(fetchGraph("APT28", 2)).rejects.toThrow("后端不可用");
+  });
+
+  it("图谱请求携带展示深度", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: { schema_version: "1.0", nodes: [], edges: [], evidence: [] },
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    await fetchGraph("APT28", 4);
+    expect(fetchMock).toHaveBeenCalledWith("/api/v1/graph?target=APT28&depth=4", {
+      signal: undefined,
+    });
   });
 
   it("报告请求失败时向上抛出错误，不返回 Mock 数据", async () => {
@@ -29,17 +44,21 @@ describe("API 客户端", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
     const client = (await import("./client")) as typeof import("./client") & {
-      fetchNeighbors?: (entityId: string, options?: { signal?: AbortSignal }) => Promise<unknown>;
+      fetchNeighbors?: (
+        entityId: string,
+        depth: number,
+        options?: { signal?: AbortSignal },
+      ) => Promise<unknown>;
     };
 
     expect(client.fetchNeighbors).toBeTypeOf("function");
     const controller = new AbortController();
-    await client.fetchNeighbors?.("technique:t1566", {
+    await client.fetchNeighbors?.("technique:t1566", 3, {
       signal: controller.signal,
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/api\/v1\/graph\/neighbors\?entity_id=technique%3At1566$/),
+      expect.stringMatching(/\/api\/v1\/graph\/neighbors\?entity_id=technique%3At1566&depth=3$/),
       { signal: controller.signal },
     );
   });

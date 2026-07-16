@@ -47,7 +47,12 @@ export function App() {
   const [regionFilter, setRegionFilter] = useState("");
   const [page, setPage] = useState<"graph" | "analysis">("graph");
   const [pipelineOpen, setPipelineOpen] = useState(false);
+  const [graphDepth, setGraphDepth] = useState<number>(2);
+  const [graphDepthInput, setGraphDepthInput] = useState<string>("2");
+  const [graphDepthError, setGraphDepthError] = useState<string | null>(null);
   const neighborRequestRef = useRef<AbortController | null>(null);
+  const graphRequestRef = useRef<AbortController | null>(null);
+  const selectedSearchNodeRef = useRef<string | null>(null);
   const firstSentence = (text: string): string => {
     const match = text.match(/^.*?[。！？.!?]/);
     return match ? match[0] : text;
@@ -57,6 +62,9 @@ export function App() {
     let cancelled = false;
     neighborRequestRef.current?.abort();
     neighborRequestRef.current = null;
+    graphRequestRef.current?.abort();
+    graphRequestRef.current = null;
+    selectedSearchNodeRef.current = null;
     setSearchGraph(null);
     setLoading(true);
     setError(null);
@@ -66,8 +74,11 @@ export function App() {
     setRegionFilter("");
     setTechniqueFilter("");
     setLegendFilter(null);
+    setGraphDepthError(null);
 
-    fetchGraph(target)
+    const graphController = new AbortController();
+    graphRequestRef.current = graphController;
+    fetchGraph(target, graphDepth, { signal: graphController.signal })
       .then((graphPayload) => {
         if (cancelled) {
           return;
@@ -205,33 +216,81 @@ export function App() {
     });
   }, []);
 
-  const handleSearchSelect = useCallback((nodeId: string) => {
-    neighborRequestRef.current?.abort();
-    const controller = new AbortController();
-    neighborRequestRef.current = controller;
-    setSearchNodeId(nodeId);
-    setSelectedNode(null);
-    setSelectedEdge(null);
-    setError(null);
-    fetchNeighbors(nodeId, { signal: controller.signal })
-      .then((payload) => {
-        if (controller.signal.aborted) return;
-        setSearchGraph(payload);
-        setSelectedEvidence(payload.evidence[0] ?? null);
-      })
-      .catch((cause: unknown) => {
-        if (controller.signal.aborted) return;
-        setError(cause instanceof Error ? cause.message : "实体筛选失败");
-      });
-  }, []);
+  const handleSearchSelect = useCallback(
+    (nodeId: string, depth = graphDepth) => {
+      selectedSearchNodeRef.current = nodeId;
+      neighborRequestRef.current?.abort();
+      const controller = new AbortController();
+      neighborRequestRef.current = controller;
+      setSearchNodeId(nodeId);
+      setSelectedNode(null);
+      setSelectedEdge(null);
+      setError(null);
+      fetchNeighbors(nodeId, depth, { signal: controller.signal })
+        .then((payload) => {
+          if (controller.signal.aborted || selectedSearchNodeRef.current !== nodeId) return;
+          setSearchGraph(payload);
+          setSelectedEvidence(payload.evidence[0] ?? null);
+        })
+        .catch((cause: unknown) => {
+          if (controller.signal.aborted || selectedSearchNodeRef.current !== nodeId) return;
+          setError(cause instanceof Error ? cause.message : "实体筛选失败");
+        });
+    },
+    [graphDepth],
+  );
   const handleSearchClear = useCallback(() => {
+    selectedSearchNodeRef.current = null;
     neighborRequestRef.current?.abort();
     neighborRequestRef.current = null;
     setSearchGraph(null);
     setSearchNodeId(null);
+    setSelectedNode(null);
+    setSelectedEdge(null);
     setSelectedEvidence(graph?.evidence[0] ?? null);
     setError(null);
   }, [graph]);
+  const handleGraphDepthChange = useCallback(
+    (value: string) => {
+      setGraphDepthInput(value);
+      if (value.trim() === "") {
+        setGraphDepthError("请输入 1–20 的整数");
+        return;
+      }
+      const parsed = Number(value);
+      if (!Number.isInteger(parsed)) {
+        setGraphDepthError("请输入 1–20 的整数");
+        return;
+      }
+      const nextDepth = Math.min(20, Math.max(1, parsed));
+      setGraphDepthInput(String(nextDepth));
+      setGraphDepthError(null);
+      setGraphDepth(nextDepth);
+      if (selectedSearchNodeRef.current) {
+        handleSearchSelect(selectedSearchNodeRef.current, nextDepth);
+      } else {
+        graphRequestRef.current?.abort();
+        const controller = new AbortController();
+        graphRequestRef.current = controller;
+        setLoading(true);
+        fetchGraph(target, nextDepth, { signal: controller.signal })
+          .then((payload) => {
+            if (controller.signal.aborted) return;
+            setGraph(payload);
+            setSelectedEvidence(payload.evidence[0] ?? null);
+          })
+          .catch((cause: unknown) => {
+            if (!controller.signal.aborted) {
+              setError(cause instanceof Error ? cause.message : "请求失败");
+            }
+          })
+          .finally(() => {
+            if (!controller.signal.aborted) setLoading(false);
+          });
+      }
+    },
+    [graphDepth, handleSearchSelect, target],
+  );
   const handlePathFound = useCallback((ids: string[]) => {
     setHighlightNodeIds(ids);
     setSelectedNode(null);
@@ -362,6 +421,27 @@ export function App() {
             <div className="graph-panel" style={{ position: "relative" }}>
               <div className="panel-heading">
                 <h2>关系图谱</h2>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+                  <span>展示深度</span>
+                  <input
+                    aria-label="图谱展示深度"
+                    type="number"
+                    min={1}
+                    max={20}
+                    step={1}
+                    value={graphDepthInput}
+                    onChange={(event) => handleGraphDepthChange(event.target.value)}
+                    style={{
+                      width: 64,
+                      padding: "4px 6px",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: 6,
+                    }}
+                  />
+                  {graphDepthError ? (
+                    <span style={{ color: "#dc2626" }}>{graphDepthError}</span>
+                  ) : null}
+                </label>
                 <span>{loading ? "加载中" : "已加载"}</span>
               </div>
               <div className="graph-canvas">

@@ -80,9 +80,11 @@ describe("实体一跳筛选", () => {
   it("快速连续选择时只接受最后一次邻居响应", async () => {
     const first = deferred<GraphPayload>();
     const second = deferred<GraphPayload>();
-    vi.mocked(fetchNeighbors).mockImplementation((entityId: string) =>
-      entityId === "entity:first" ? first.promise : second.promise,
-    );
+    vi.mocked(fetchNeighbors).mockImplementation((entityId: string) => {
+      if (entityId === "entity:first") return first.promise;
+      if (entityId === "entity:second") return second.promise;
+      throw new Error(`意外的实体请求: ${entityId}`);
+    });
     render(<App />);
     await waitFor(() => expect(entityMetric().textContent).toContain("3"));
 
@@ -135,7 +137,7 @@ describe("实体一跳筛选", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /entity:first/ }));
     await waitFor(() => expect(entityMetric().textContent).toContain("1"));
-    const requestOptions = vi.mocked(fetchNeighbors).mock.calls[0]?.[1];
+    const requestOptions = vi.mocked(fetchNeighbors).mock.calls[0]?.[2];
 
     fireEvent.click(screen.getByRole("button", { name: "Lazarus" }));
 
