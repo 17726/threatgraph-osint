@@ -90,3 +90,58 @@ describe("3D 图谱数据适配", () => {
     expect(payload.edges[0].source).toBe("apt_group:apt28");
   });
 });
+
+describe("2D 图谱漫游", () => {
+  it("允许在图谱平移后的整块画布继续拖拽和缩放", () => {
+    const option = graphOptions.buildGraphOption(payload);
+    const series = Array.isArray(option.series) ? option.series[0] : option.series;
+
+    expect(series).toMatchObject({
+      type: "graph",
+      roam: true,
+      roamTrigger: "global",
+    });
+  });
+});
+
+describe("3D 点击聚焦", () => {
+  it("强调点击主体和相邻关系并调暗无关节点", () => {
+    const focusPayload: GraphPayload = {
+      ...payload,
+      nodes: [
+        ...payload.nodes,
+        {
+          ...payload.nodes[1],
+          id: "country:ukraine",
+          name: "Ukraine",
+          type: "COUNTRY",
+        },
+        {
+          ...payload.nodes[1],
+          id: "campaign:unrelated",
+          name: "Unrelated",
+          type: "CAMPAIGN",
+        },
+      ],
+      edges: [
+        ...payload.edges,
+        {
+          ...payload.edges[0],
+          id: "rel:ukraine:unrelated",
+          source: "country:ukraine",
+          target: "campaign:unrelated",
+        },
+      ],
+    };
+
+    const result = graphOptions.buildGraph3DData(focusPayload, {
+      focusNodeId: "apt_group:apt28",
+    });
+
+    expect(result.nodes[0].color).toBe("#f59e0b");
+    expect(result.nodes[1].color).toBe("#be123c");
+    expect(result.nodes[2].color).toBe("#cbd5e1");
+    expect(result.links[0]).toMatchObject({ color: "#f59e0b", width: 3, particles: 3 });
+    expect(result.links[1]).toMatchObject({ color: "#e2e8f0", width: 1.2, particles: 0 });
+  });
+});

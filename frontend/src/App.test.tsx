@@ -12,9 +12,35 @@ const forceGraphMocks = vi.hoisted(() => ({
   zoomToFit: vi.fn(),
 }));
 
-vi.mock("echarts-for-react", () => ({
-  default: () => <div data-testid="graph-canvas" />,
-}));
+vi.mock("echarts-for-react", async () => {
+  const React = await vi.importActual<typeof import("react")>("react");
+  return {
+    default: function MockECharts({ option, onChartReady }: { option: any; onChartReady?: any }) {
+      const clickHandlerRef = React.useRef<((params: any) => void) | null>(null);
+      React.useEffect(() => {
+        onChartReady?.({
+          on: (event: string, handler: (params: any) => void) => {
+            if (event === "click") clickHandlerRef.current = handler;
+          },
+          resize: vi.fn(),
+        });
+      }, [onChartReady]);
+      const firstNode = option?.series?.[0]?.data?.[0];
+      return (
+        <div data-testid="graph-canvas">
+          <button
+            type="button"
+            onClick={() =>
+              clickHandlerRef.current?.({ dataType: "node", data: { _raw: firstNode?._raw } })
+            }
+          >
+            模拟选择 2D 节点
+          </button>
+        </div>
+      );
+    },
+  };
+});
 
 vi.mock("react-force-graph-3d", async () => {
   const React = await vi.importActual<typeof import("react")>("react");
@@ -24,6 +50,7 @@ vi.mock("react-force-graph-3d", async () => {
         graphData: { nodes: unknown[]; links: unknown[] };
         onNodeClick: (node: unknown) => void;
         onLinkClick: (link: unknown) => void;
+        onBackgroundClick?: () => void;
         onEngineStop?: () => void;
         backgroundColor?: string;
         nodeRelSize?: number;
@@ -39,6 +66,8 @@ vi.mock("react-force-graph-3d", async () => {
           data-testid="graph-3d-canvas"
           data-background-color={props.backgroundColor}
           data-node-rel-size={props.nodeRelSize}
+          data-first-node-color={(props.graphData.nodes[0] as { color?: string })?.color}
+          data-second-node-color={(props.graphData.nodes[1] as { color?: string })?.color}
         >
           <button type="button" onClick={() => props.onNodeClick(props.graphData.nodes[0])}>
             模拟选择 3D 节点
@@ -48,6 +77,9 @@ vi.mock("react-force-graph-3d", async () => {
           </button>
           <button type="button" onClick={() => props.onEngineStop?.()}>
             模拟 3D 布局完成
+          </button>
+          <button type="button" onClick={() => props.onBackgroundClick?.()}>
+            模拟点击 3D 空白
           </button>
         </div>
       );
@@ -79,10 +111,10 @@ vi.mock("./api/client", () => ({
   ),
 }));
 
-const node = (id: string): GraphNode => ({
+const node = (id: string, type = "MALWARE"): GraphNode => ({
   id,
   name: id,
-  type: "MALWARE",
+  type,
   aliases: [],
   description: "",
   confidence: 1,
@@ -95,13 +127,38 @@ const node = (id: string): GraphNode => ({
 
 const graph = (...ids: string[]): GraphPayload => ({
   schema_version: "1.0",
-  nodes: ids.map(node),
+  nodes: ids.map((id) => node(id)),
   edges: [],
   evidence: [],
 });
 
 const graphWithRelation = (): GraphPayload => ({
   ...graph("apt_group:apt28", "malware:x-agent"),
+  edges: [
+    {
+      id: "rel:apt28:uses:x-agent",
+      source: "apt_group:apt28",
+      target: "malware:x-agent",
+      type: "USES",
+      label: "使用",
+      confidence: 0.91,
+      source_count: 1,
+      evidence_count: 0,
+      first_seen: null,
+      last_seen: null,
+      validation_status: "valid",
+      evidence_ids: [],
+    },
+  ],
+});
+
+const graphWithTypes = (): GraphPayload => ({
+  ...graph("apt_group:apt28", "malware:x-agent", "country:ukraine"),
+  nodes: [
+    node("apt_group:apt28", "APT_GROUP"),
+    node("malware:x-agent", "MALWARE"),
+    node("country:ukraine", "COUNTRY"),
+  ],
   edges: [
     {
       id: "rel:apt28:uses:x-agent",
@@ -317,5 +374,62 @@ describe("实体一跳筛选", () => {
 
     expect(screen.getByRole("heading", { name: "关系详情" })).toBeTruthy();
     expect(screen.getByText("使用")).toBeTruthy();
+  });
+
+  it("2D 和 3D 共用类型标签筛选并可通过全部一次清除", async () => {
+    vi.mocked(fetchGraph).mockResolvedValue(graphWithTypes());
+    render(<App />);
+    await waitFor(() => expect(entityMetric().textContent).toContain("3"));
+
+    const allTypesButton = screen.getByRole("button", { name: "显示全部类型" });
+    const aptGroupButton = screen.getByRole("button", { name: "筛选类型 APT_GROUP" });
+    expect(allTypesButton.getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(aptGroupButton);
+    expect(aptGroupButton.getAttribute("aria-pressed")).toBe("true");
+    expect(entityMetric().textContent).toContain("2");
+
+    fireEvent.click(screen.getByRole("button", { name: "3D 视图" }));
+    expect(screen.getByRole("button", { name: "筛选类型 APT_GROUP" })).toBeTruthy();
+    expect(entityMetric().textContent).toContain("2");
+
+    fireEvent.click(allTypesButton);
+    expect(allTypesButton.getAttribute("aria-pressed")).toBe("true");
+    expect(entityMetric().textContent).toContain("3");
+  });
+
+  it("点击 3D 节点后聚焦主体并可通过空白画布清除", async () => {
+    render(<App />);
+    await waitFor(() => expect(entityMetric().textContent).toContain("3"));
+
+    fireEvent.click(screen.getByRole("button", { name: "3D 视图" }));
+    let graph3DCanvas = await screen.findByTestId("graph-3d-canvas");
+    expect(graph3DCanvas.getAttribute("data-first-node-color")).toBe("#be123c");
+
+    fireEvent.click(screen.getByRole("button", { name: "模拟选择 3D 节点" }));
+    await waitFor(() => {
+      graph3DCanvas = screen.getByTestId("graph-3d-canvas");
+      expect(graph3DCanvas.getAttribute("data-first-node-color")).toBe("#f59e0b");
+      expect(graph3DCanvas.getAttribute("data-second-node-color")).toBe("#cbd5e1");
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "模拟点击 3D 空白" }));
+    await waitFor(() =>
+      expect(screen.getByTestId("graph-3d-canvas").getAttribute("data-first-node-color")).toBe(
+        "#be123c",
+      ),
+    );
+  });
+
+  it("2D 节点选择不会在切换 3D 时自动触发聚焦", async () => {
+    render(<App />);
+    await waitFor(() => expect(entityMetric().textContent).toContain("3"));
+
+    fireEvent.click(screen.getByRole("button", { name: "模拟选择 2D 节点" }));
+    fireEvent.click(screen.getByRole("button", { name: "3D 视图" }));
+
+    expect(
+      (await screen.findByTestId("graph-3d-canvas")).getAttribute("data-first-node-color"),
+    ).toBe("#be123c");
   });
 });

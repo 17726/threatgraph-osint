@@ -8,8 +8,10 @@ interface Graph3DProps {
   graph: GraphPayload;
   highlightNodeIds?: string[];
   searchNodeId?: string | null;
+  focusNodeId?: string | null;
   onNodeClick: (node: GraphNode) => void;
   onEdgeClick: (edge: GraphEdge) => void;
+  onBackgroundClick?: () => void;
 }
 
 const MINIMUM_WIDTH = 320;
@@ -28,15 +30,17 @@ export default function Graph3D({
   graph,
   highlightNodeIds = [],
   searchNodeId = null,
+  focusNodeId = null,
   onNodeClick,
   onEdgeClick,
+  onBackgroundClick,
 }: Graph3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<ForceGraphMethods<Graph3DNode, Graph3DLink> | undefined>(undefined);
   const [size, setSize] = useState({ width: MINIMUM_WIDTH, height: MINIMUM_HEIGHT });
   const graphData = useMemo(
-    () => buildGraph3DData(graph, { highlightNodeIds, searchNodeId }),
-    [graph, highlightNodeIds, searchNodeId],
+    () => buildGraph3DData(graph, { highlightNodeIds, searchNodeId, focusNodeId }),
+    [graph, highlightNodeIds, searchNodeId, focusNodeId],
   );
   const cameraDistance = Math.max(360, Math.round(Math.cbrt(graphData.nodes.length) * 100));
 
@@ -100,6 +104,7 @@ export default function Graph3D({
         }
         onNodeClick={(node) => onNodeClick(node._raw)}
         onLinkClick={(link) => onEdgeClick(link._raw)}
+        onBackgroundClick={onBackgroundClick}
       />
       <div className="graph-3d-hint" aria-hidden="true">
         拖拽旋转 · 滚轮缩放 · 单击查看详情

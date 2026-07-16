@@ -600,6 +600,52 @@ h2 {
   outline-offset: 2px;
 }
 
+.graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8e6;
+  background: #ffffff;
+}
+
+.graph-legend button {
+  display: inline-flex;
+  min-height: 26px;
+  padding: 3px 8px;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #d7dfdd;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.graph-legend button:hover {
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.graph-legend button.active {
+  border-color: #0f766e;
+  background: #e8f5f2;
+  color: #0f766e;
+  font-weight: 700;
+}
+
+.graph-legend button:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.graph-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
 .graph-fullscreen-button {
   display: inline-flex;
   width: 32px;
