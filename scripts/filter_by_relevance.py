@@ -1,5 +1,5 @@
 """
-基于大模型（DeepSeek v4 Pro）对 data/cleaned 下的 JSON 文档进行语义相关性过滤
+基于统一 LLM 配置对 data/cleaned 下的 JSON 文档进行语义相关性过滤
 和末尾无关内容清洗，输出到 data/cleaned_filtered。
 
 功能：
@@ -16,6 +16,8 @@
 
 用法：
     # 设置 API 密钥
+    set LLM_MODEL=your-model
+    set LLM_BASE_URL=https://your-provider.example/v1/chat/completions
     set LLM_API_KEY=sk-xxx
 
     # 抽样验证：先跑 3 个文件看看效果（花几分钱）
@@ -43,10 +45,8 @@ from pathlib import Path
 from typing import Optional
 
 # ---------------------------------------------------------------------------
-# 配置 — API 密钥在此填写或通过环境变量设置
+# 配置 — 模型、接口地址和 API 密钥均通过环境变量设置
 # ---------------------------------------------------------------------------
-API_BASE = "https://api.deepseek.com/v1/chat/completions"
-MODEL = "deepseek-v4-pro"
 MAX_RETRIES = 3
 RETRY_DELAY_BASE = 2  # 秒
 MAX_TEXT_LENGTH = 80000  # 超过此长度的 clean_text 跳过
@@ -167,14 +167,28 @@ def build_prompt(folder: str, clean_text: str) -> tuple[str, str]:
     return system, user
 
 
+def require_llm_config() -> tuple[str, str, str]:
+    """读取并校验统一 LLM 配置，返回模型、接口地址和密钥。"""
+    missing = [
+        name
+        for name in ("LLM_MODEL", "LLM_BASE_URL", "LLM_API_KEY")
+        if not os.environ.get(name, "").strip()
+    ]
+    if missing:
+        raise RuntimeError(f"未设置必需的 LLM 配置: {', '.join(missing)}")
+    return (
+        os.environ["LLM_MODEL"].strip(),
+        os.environ["LLM_BASE_URL"].strip(),
+        os.environ["LLM_API_KEY"].strip(),
+    )
+
+
 def call_api(system: str, user: str) -> dict:
-    """调用 DeepSeek API，返回解析后的 JSON dict（含自动重试）。"""
-    api_key = os.environ.get("LLM_API_KEY") or os.environ.get("DEEPSEEK_API_KEY")
-    if not api_key:
-        raise RuntimeError("未设置 LLM_API_KEY 或 DEEPSEEK_API_KEY")
+    """调用统一 OpenAI-compatible API，返回解析后的 JSON dict。"""
+    model, api_base, api_key = require_llm_config()
 
     payload = json.dumps({
-        "model": MODEL,
+        "model": model,
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
@@ -187,7 +201,7 @@ def call_api(system: str, user: str) -> dict:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             req = urllib.request.Request(
-                API_BASE,
+                api_base,
                 data=payload,
                 headers={
                     "Authorization": f"Bearer {api_key}",
@@ -374,7 +388,7 @@ def process_folder(
         if "metadata" not in data:
             data["metadata"] = {}
         data["metadata"]["relevance_filter"] = {
-            "model": MODEL,
+            "model": require_llm_config()[0],
             "result": "kept",
             "chars_removed": chars_removed,
             "validation_warning": warning,
@@ -435,7 +449,7 @@ def renumber_folder(output_dir: Path, folder: str):
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="基于 DeepSeek v4 Pro 的文档相关性过滤与文本清洗"
+        description="基于统一 LLM 配置的文档相关性过滤与文本清洗"
     )
     parser.add_argument(
         "--sample", type=int, default=0, metavar="N",
@@ -454,6 +468,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main():
     args = build_parser().parse_args()
+    model, _, _ = require_llm_config()
 
     project_root = Path(__file__).resolve().parent.parent
     input_dir = project_root / "data" / "cleaned"
@@ -468,7 +483,7 @@ def main():
     else:
         print("=" * 60)
         print("相关性过滤 & 文本清洗")
-        print(f"模型: {MODEL}")
+        print(f"模型: {model}")
         print(f"输入: {input_dir}")
         print(f"输出: {output_dir}")
         print("=" * 60)

@@ -28,8 +28,8 @@ def test_source_selection_rejects_invalid_masks() -> None:
         raise AssertionError("unknown source should fail")
 
 
-def test_backend_requirements_include_http_crawler_dependencies() -> None:
-    requirements = Path("backend/requirements.txt").read_text(encoding="utf-8")
+def test_crawler_requirements_include_http_crawler_dependencies() -> None:
+    requirements = Path("crawler/requirements.txt").read_text(encoding="utf-8")
 
     assert "beautifulsoup4" in requirements
     assert "lxml" in requirements

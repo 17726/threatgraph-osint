@@ -170,7 +170,7 @@ Expected: PASS.
 
 **Interfaces:**
 - Filter CLI accepts optional `--folder` from the dispatcher.
-- API key is read at call time from `LLM_API_KEY` or `DEEPSEEK_API_KEY`; no fallback literal is allowed.
+- `filter_by_relevance.py` reads `LLM_MODEL`, `LLM_BASE_URL`, and `LLM_API_KEY` at runtime; any missing value rejects execution and no provider-specific fallback variable is allowed.
 
 - [ ] **Step 1: Write failing test**
 

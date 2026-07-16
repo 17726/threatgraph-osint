@@ -77,7 +77,7 @@ data/cleaned -> filter_by_relevance.py -> data/cleaned_filtered
 data/cleaned_filtered -> promote_cleaned_documents.py -> data/documents
 ```
 
-过滤器按当前 `--keyword` 推导目标组织目录，并继续从 `LLM_API_KEY` 或 `DEEPSEEK_API_KEY` 读取密钥。中间目录文档尚未进入正式链路，过滤器可以重新编号临时文件；正式 `doc_id` 由 promote 阶段重新分配。
+过滤器按当前 `--keyword` 推导目标组织目录，并统一从 `LLM_MODEL`、`LLM_BASE_URL` 和 `LLM_API_KEY` 读取模型、接口地址和密钥；三项配置任意缺失时拒绝执行。中间目录文档尚未进入正式链路，过滤器可以重新编号临时文件；正式 `doc_id` 由 promote 阶段重新分配。
 
 ## 文档提升
 

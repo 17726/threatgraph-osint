@@ -32,6 +32,22 @@ services:
       - ./data:/app/data
     command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  crawler:
+    build:
+      context: .
+      dockerfile: crawler/Dockerfile
+      args:
+        PYTHON_IMAGE: ${CRAWLER_PYTHON_IMAGE:-public.ecr.aws/docker/library/python:3.13-slim}
+    environment:
+      PYTHONPATH: /app
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+    volumes:
+      - ./crawler:/app/crawler
+      - ./scripts:/app/scripts
+    command: python -m pytest crawler/tests -v
+
   frontend:
     build:
       context: .
