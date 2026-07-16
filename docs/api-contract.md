@@ -492,7 +492,9 @@ MITRE 映射返回：
       {
         "inferred_relation_id": "infer_apt28_initial_access",
         "source": "apt_group:apt28",
+        "source_name": "APT28",
         "target": "technique:t1566",
+        "target_name": "钓鱼",
         "type": "HAS_BEHAVIOR",
         "rationale": "APT28 使用鱼叉式钓鱼技术，该技术属于初始访问阶段。",
         "confidence": 0.86,

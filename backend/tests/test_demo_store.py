@@ -177,3 +177,42 @@ def test_graph_target_matches_entity_alias(tmp_path):
     graph = DemoStore(db_path).get_graph(target="APT28")
 
     assert [node["id"] for node in graph["nodes"]] == ["apt_group:fancy-bear"]
+
+
+def test_analysis_inferences_returns_entity_names(tmp_path):
+    store = DemoStore(tmp_path / "db.sqlite")
+    with store.connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO entities (
+              entity_id, name, type, aliases_json, description, confidence,
+              source_count, tags_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ("apt_group:fancy-bear", "Fancy Bear", "APT_GROUP", '["APT28"]', "", 1.0, 1, "[]"),
+        )
+        connection.execute(
+            """
+            INSERT INTO entities (
+              entity_id, name, type, aliases_json, description, confidence,
+              source_count, tags_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            ("organization:id-08e0275c1147", "民主党全国委员会", "ORGANIZATION", "[]", "", 1.0, 1, "[]"),
+        )
+        connection.execute(
+            """
+            INSERT INTO inferred_relations (
+              inferred_relation_id, source_entity_id, target_entity_id, relation_type,
+              rationale, support_evidence_ids_json, confidence, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "inferred_apt28_dnc", "apt_group:fancy-bear", "organization:id-08e0275c1147",
+                "HAS_BEHAVIOR", "规则推断", "[]", 0.9, "candidate", "2026-07-16T00:00:00Z",
+            ),
+        )
+
+    inference = store.get_analysis()["inferred_relations"][0]
+    assert inference["source_name"] == "Fancy Bear"
+    assert inference["target_name"] == "民主党全国委员会"

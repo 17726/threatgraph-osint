@@ -1034,8 +1034,12 @@ class DemoStore:
                 inference_rows = connection.execute(
                     """
                     SELECT i.inferred_relation_id, i.source_entity_id, i.target_entity_id, i.relation_type,
+                           COALESCE(source_entity.name, i.source_entity_id) AS source_name,
+                           COALESCE(target_entity.name, i.target_entity_id) AS target_name,
                            i.rationale, i.support_evidence_ids_json, i.confidence, i.status
                     FROM inferred_relations i
+                    LEFT JOIN entities source_entity ON source_entity.entity_id = i.source_entity_id
+                    LEFT JOIN entities target_entity ON target_entity.entity_id = i.target_entity_id
                     ORDER BY i.inferred_relation_id
                     """
                 ).fetchall()
@@ -1074,7 +1078,9 @@ class DemoStore:
                 {
                     "inferred_relation_id": row["inferred_relation_id"],
                     "source": row["source_entity_id"],
+                    "source_name": row["source_name"],
                     "target": row["target_entity_id"],
+                    "target_name": row["target_name"],
                     "type": row["relation_type"],
                     "rationale": row["rationale"],
                     "confidence": row["confidence"],

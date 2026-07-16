@@ -127,7 +127,7 @@ export default function AnalysisPage({ target }: AnalysisPageProps) {
                 }}
               >
                 <p style={{ margin: 0, fontSize: 12 }}>
-                  <span style={{ color: "#64748b" }}>{r.type}</span> {r.source} → {r.target}{" "}
+                  <span style={{ color: "#64748b" }}>{r.type}</span> {r.source_name ?? r.source} → {r.target_name ?? r.target}{" "}
                   <span style={{ color: "#94a3b8", fontStyle: "italic" }}>({r.confidence})</span>
                 </p>
                 <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>{r.rationale}</p>
