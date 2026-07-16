@@ -149,4 +149,51 @@ describe("实体一跳筛选", () => {
     expect(requestOptions?.signal?.aborted).toBe(true);
     expect((screen.getByRole("textbox", { name: "搜索实体" }) as HTMLInputElement).value).toBe("");
   });
+
+  it("使用纯图标按钮进入和退出图谱全屏", async () => {
+    let fullscreenElement: Element | null = null;
+    const requestFullscreen = vi.fn(function (this: HTMLElement) {
+      fullscreenElement = this;
+      document.dispatchEvent(new Event("fullscreenchange"));
+      return Promise.resolve();
+    });
+    const exitFullscreen = vi.fn(() => {
+      fullscreenElement = null;
+      document.dispatchEvent(new Event("fullscreenchange"));
+      return Promise.resolve();
+    });
+    Object.defineProperty(document, "fullscreenElement", {
+      configurable: true,
+      get: () => fullscreenElement,
+    });
+    Object.defineProperty(HTMLElement.prototype, "requestFullscreen", {
+      configurable: true,
+      value: requestFullscreen,
+    });
+    Object.defineProperty(document, "exitFullscreen", {
+      configurable: true,
+      value: exitFullscreen,
+    });
+
+    render(<App />);
+    await waitFor(() => expect(entityMetric().textContent).toContain("3"));
+
+    const enterButton = screen.getByRole("button", { name: "全屏显示图谱" });
+    expect(enterButton.textContent).toBe("");
+
+    fireEvent.click(enterButton);
+    await waitFor(() => expect(requestFullscreen).toHaveBeenCalledTimes(1));
+    expect(requestFullscreen.mock.instances[0]).toBe(enterButton.closest(".graph-panel"));
+
+    const exitButton = screen.getByRole("button", { name: "退出图谱全屏" });
+    fireEvent.click(exitButton);
+    await waitFor(() => expect(exitFullscreen).toHaveBeenCalledTimes(1));
+  });
+
+  it("图谱标题栏不显示冗余加载状态", async () => {
+    render(<App />);
+    await waitFor(() => expect(entityMetric().textContent).toContain("3"));
+
+    expect(screen.queryByText(/^(加载中|已加载)$/)).toBeNull();
+  });
 });

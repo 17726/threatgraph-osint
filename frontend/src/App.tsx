@@ -3,6 +3,8 @@ import {
   Activity,
   Database,
   FileText,
+  Maximize2,
+  Minimize2,
   Network,
   RefreshCw,
   ShieldCheck,
@@ -55,6 +57,8 @@ export function App() {
   const [generating, setGenerating] = useState(false);
   const chartRef = useRef<any>(null);
   const chartInstanceRef = useRef<any>(null);
+  const graphPanelRef = useRef<HTMLDivElement>(null);
+  const [isGraphFullscreen, setIsGraphFullscreen] = useState(false);
   const [currentYear, setCurrentYear] = useState(2026);
   const [highlightNodeIds, setHighlightNodeIds] = useState<string[]>([]);
   const [searchNodeId, setSearchNodeId] = useState<string | null>(null);
@@ -76,6 +80,33 @@ export function App() {
     const match = text.match(/^.*?[。！？.!?]/);
     return match ? match[0] : text;
   };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsGraphFullscreen(document.fullscreenElement === graphPanelRef.current);
+      chartInstanceRef.current?.resize();
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const handleGraphFullscreen = useCallback(async () => {
+    const graphPanel = graphPanelRef.current;
+    if (!graphPanel) return;
+
+    try {
+      if (document.fullscreenElement === graphPanel) {
+        await document.exitFullscreen();
+      } else if (graphPanel.requestFullscreen) {
+        await graphPanel.requestFullscreen();
+      } else {
+        setError("当前浏览器不支持全屏展示");
+      }
+    } catch {
+      setError("无法切换图谱全屏，请检查浏览器权限");
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -411,10 +442,23 @@ export function App() {
           </section>
 
           <section className="workbench">
-            <div className="graph-panel" style={{ position: "relative" }}>
+            <div ref={graphPanelRef} className="graph-panel" style={{ position: "relative" }}>
               <div className="panel-heading">
                 <h2>关系图谱</h2>
-                <span>{loading ? "加载中" : "已加载"}</span>
+                <button
+                  aria-label={isGraphFullscreen ? "退出图谱全屏" : "全屏显示图谱"}
+                  aria-pressed={isGraphFullscreen}
+                  className="graph-fullscreen-button"
+                  title={isGraphFullscreen ? "退出全屏" : "全屏显示"}
+                  type="button"
+                  onClick={handleGraphFullscreen}
+                >
+                  {isGraphFullscreen ? (
+                    <Minimize2 aria-hidden="true" size={18} />
+                  ) : (
+                    <Maximize2 aria-hidden="true" size={18} />
+                  )}
+                </button>
               </div>
               <div className="graph-canvas">
                 {graphOption ? (

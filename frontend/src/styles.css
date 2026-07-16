@@ -559,6 +559,38 @@ h2 {
   font-size: 13px;
 }
 
+.graph-fullscreen-button {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5d4;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+}
+
+.graph-fullscreen-button:hover {
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.graph-fullscreen-button:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+.graph-panel:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+}
+
 .graph-canvas {
   flex: 1;
   min-height: 0;
