@@ -18,6 +18,8 @@ export type CrawlRunStats = {
   items_imported: number;
   items_skipped: number;
   items_failed: number;
+  items_pipeline_succeeded: number;
+  items_pipeline_failed: number;
   document_ids: string[];
   workspace_cleaned: boolean;
   error_message: string | null;

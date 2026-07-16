@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 from threading import Lock
 from typing import Any
@@ -71,6 +72,9 @@ class CrawlerService:
             "items_imported": 0,
             "items_skipped": 0,
             "items_failed": 0,
+            "items_pipeline_succeeded": 0,
+            "items_pipeline_failed": 0,
+            "pipeline_error": None,
             "document_ids": [],
             "workspace_cleaned": False,
             "error_message": None,
@@ -104,9 +108,15 @@ class CrawlerService:
                 else None
             )
             result.update(self._import_documents(payload))
-            result["status"] = "succeeded" if result["items_imported"] > 0 else "failed"
+            result["status"] = (
+                "succeeded" if result["items_pipeline_succeeded"] > 0 else "failed"
+            )
             if result["status"] == "failed":
-                result["error_message"] = pipeline_error or "没有成功导入任何文档"
+                result["error_message"] = (
+                    pipeline_error
+                    or result.get("pipeline_error")
+                    or "没有成功完成任何文档的 live Pipeline"
+                )
             elif pipeline_error:
                 result["error_message"] = pipeline_error
         except Exception as exc:
@@ -127,6 +137,8 @@ class CrawlerService:
             "items_imported": 0,
             "items_skipped": 0,
             "items_failed": 1,
+            "items_pipeline_succeeded": 0,
+            "items_pipeline_failed": 0,
             "document_ids": [],
             "workspace_cleaned": False,
             "error_message": message,
@@ -140,6 +152,8 @@ class CrawlerService:
             "items_imported": 0,
             "items_skipped": 0,
             "items_failed": 0,
+            "items_pipeline_succeeded": 0,
+            "items_pipeline_failed": 0,
             "document_ids": [],
         }
         paths = sorted(documents_dir.rglob("*.json")) if documents_dir.exists() else []
@@ -155,14 +169,54 @@ class CrawlerService:
                 response.raise_for_status()
                 data = response.json().get("data", response.json())
                 summary["items_found"] += 1
+                document_id = data.get("doc_id", document.get("doc_id"))
                 if data.get("status") == "skipped":
                     summary["items_skipped"] += 1
                 else:
                     summary["items_imported"] += 1
-                    summary["document_ids"].append(data.get("doc_id", document.get("doc_id")))
+                summary["document_ids"].append(document_id)
+                try:
+                    pipeline = self._run_live_pipeline(document_id)
+                    if pipeline["status"] == "succeeded":
+                        summary["items_pipeline_succeeded"] += 1
+                    else:
+                        summary["items_pipeline_failed"] += 1
+                        summary["items_failed"] += 1
+                except Exception as exc:
+                    if data.get("status") == "skipped":
+                        summary["items_pipeline_failed"] += 1
+                        summary["items_failed"] += 1
+                    else:
+                        summary["items_pipeline_failed"] += 1
+                        summary["items_failed"] += 1
+                    summary["pipeline_error"] = str(exc)
             except Exception:
                 summary["items_failed"] += 1
         return summary
+
+    def _run_live_pipeline(self, doc_id: str) -> dict[str, Any]:
+        response = httpx.post(
+            f"{self.backend_base_url}/api/v1/pipeline/run",
+            json={"doc_id": doc_id, "extraction_mode": "live"},
+            timeout=30,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        job = payload.get("data", payload)
+        job_id = job["job_id"]
+        deadline = time.monotonic() + 1800
+        while time.monotonic() < deadline:
+            response = httpx.get(
+                f"{self.backend_base_url}/api/v1/pipeline/status/{job_id}",
+                timeout=30,
+            )
+            response.raise_for_status()
+            current_payload = response.json()
+            current = current_payload.get("data", current_payload)
+            if current.get("status") in {"succeeded", "failed"}:
+                return current
+            time.sleep(0.5)
+        raise TimeoutError(f"live Pipeline 超时: {job_id}")
 
     @staticmethod
     def _cleanup_workspace(workspace: Path) -> bool:

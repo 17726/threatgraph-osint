@@ -146,7 +146,7 @@ docker compose up
 | 健康检查 | <http://localhost:8000/api/v1/health> |
 | Neo4j Browser | <http://localhost:7474> |
 
-爬虫服务 `crawler:8100` 只在 Docker Compose 内部网络提供 HTTP API，不映射宿主机端口。开发阶段浏览器可以直接请求 backend 的 `8000` 端口，但不能直接请求 crawler。前端“采集情报”操作的链路为：frontend 请求 backend 创建任务，backend 通过 HTTP 调用 crawler 并轮询状态，crawler 逐篇请求 backend 的 `/api/v1/documents/import`。
+爬虫服务 `crawler:8100` 只在 Docker Compose 内部网络提供 HTTP API，不映射宿主机端口。开发阶段浏览器可以直接请求 backend 的 `8000` 端口，但不能直接请求 crawler。前端“采集情报”操作的链路为：frontend 请求 backend 创建任务，backend 通过 HTTP 调用 crawler 并轮询状态，crawler 逐篇请求 backend 的 `/api/v1/documents/import`，随后固定复用 `/api/v1/pipeline/run` 的 `live` 模式和 `/api/v1/pipeline/status/{job_id}`，完成抽取、校验、归一化和建图。
 
 ### 3. 导入真实抽取结果
 

@@ -46,6 +46,8 @@ def test_service_marks_partial_import_as_succeeded(monkeypatch, tmp_path: Path) 
         "items_imported": 1,
         "items_skipped": 1,
         "items_failed": 0,
+        "items_pipeline_succeeded": 1,
+        "items_pipeline_failed": 0,
         "document_ids": ["apt28_108"],
     })
 
@@ -60,6 +62,73 @@ def test_service_marks_partial_import_as_succeeded(monkeypatch, tmp_path: Path) 
 
     assert result["status"] == "succeeded"
     assert result["items_imported"] == 1
+
+
+def test_service_runs_live_pipeline_after_document_import(monkeypatch, tmp_path: Path) -> None:
+    service = CrawlerService(
+        workspace_root=tmp_path,
+        backend_base_url="http://backend:8000",
+    )
+    document_dir = tmp_path / "crawl_pipeline" / "data" / "documents" / "apt28"
+    document_dir.mkdir(parents=True)
+    document_dir.joinpath("apt28_108.json").write_text(
+        '{"doc_id":"apt28_108","clean_text":"APT28"}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "crawler.app.service.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(returncode=0),
+    )
+    calls: list[tuple[str, dict | None]] = []
+
+    class Response:
+        def __init__(self, payload: dict):
+            self.payload = payload
+
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return self.payload
+
+    responses = iter(
+        [
+            Response({"success": True, "data": {"doc_id": "apt28_108", "status": "imported"}}),
+            Response({"success": True, "data": {"job_id": "job_001", "status": "running"}}),
+            Response({"success": True, "data": {"job_id": "job_001", "status": "running"}}),
+            Response({"success": True, "data": {"job_id": "job_001", "status": "succeeded"}}),
+        ]
+    )
+
+    def fake_post(url, json, timeout):
+        calls.append((url, json))
+        return next(responses)
+
+    monkeypatch.setattr("crawler.app.service.httpx.post", fake_post)
+    monkeypatch.setattr(
+        "crawler.app.service.httpx.get",
+        lambda url, timeout: next(responses),
+    )
+
+    result = service._execute({
+        "crawl_run_id": "crawl_pipeline",
+        "keyword": "APT28",
+        "limit": 1,
+        "sources": 1,
+        "filter": False,
+        "start_number": 108,
+    })
+
+    assert result["items_imported"] == 1
+    assert result["items_pipeline_succeeded"] == 1, {
+        "result": result,
+        "calls": calls,
+        "error": result["error_message"],
+    }
+    assert calls[1] == (
+        "http://backend:8000/api/v1/pipeline/run",
+        {"doc_id": "apt28_108", "extraction_mode": "live"},
+    )
 
 
 def test_service_cleans_workspace_on_failure(monkeypatch, tmp_path: Path) -> None:

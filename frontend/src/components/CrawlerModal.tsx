@@ -254,6 +254,9 @@ export default function CrawlerModal({
               <span>
                 发现 {run?.items_found ?? 0} 篇 · 清洗 {run?.items_promoted ?? 0} 篇 · 导入 {run?.items_imported ?? 0} 篇
               </span>
+              <span>
+                Live 建图成功 {run?.items_pipeline_succeeded ?? 0} 篇 · 失败 {run?.items_pipeline_failed ?? 0} 篇
+              </span>
             </div>
           </div>
         ) : null}
