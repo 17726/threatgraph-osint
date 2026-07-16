@@ -1085,6 +1085,20 @@ class DemoStore:
             ],
         }
 
+    def resolve_entity_id_for_group(self, group_name: str) -> str | None:
+        with self.connect() as conn:
+            row = conn.execute(
+                """
+                SELECT entity_id FROM entities
+                WHERE type = 'APT_GROUP' AND (
+                    lower(name) = ? OR lower(aliases_json) LIKE ?
+                )
+                LIMIT 1
+                """,
+                (group_name.lower(), f'%"{group_name.lower()}"%'),
+            ).fetchone()
+            return row["entity_id"] if row else None
+
     def import_document(self, document: dict) -> dict:
         """导入文档，去重后写入 documents 表，自动切 chunks。"""
         require_valid_document(document)

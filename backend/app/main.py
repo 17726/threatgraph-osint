@@ -217,15 +217,14 @@ def analysis_mitre(target_group: str):
 @app.get("/api/v1/analysis/{target_group}/inferences")
 def analysis_inferences(target_group: str):
     result = store.get_analysis()
-    inferences = [
-        inference
-        for inference in result["inferred_relations"]
-        if inference.get(
-            "target_group",
-            inference.get("source", "").split(":", 1)[-1],
-        ).lower()
-        == target_group.lower()
-    ]
+    entity_id = store.resolve_entity_id_for_group(target_group)
+    if entity_id:
+        inferences = [
+            inf for inf in result["inferred_relations"]
+            if inf.get("source") == entity_id
+        ]
+    else:
+        inferences = []
     return success_response({"target_group": target_group, "inferences": inferences})
 
 

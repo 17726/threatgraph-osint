@@ -358,7 +358,6 @@ def test_analysis_inferences_filters_target_group(monkeypatch):
                 "inferred_relations": [
                     {
                         "inferred_relation_id": "inferred_apt28_tool_target",
-                        "target_group": "APT28",
                         "source": "apt_group:apt28",
                         "target": "country:ukraine",
                         "type": "HAS_BEHAVIOR",
@@ -369,7 +368,6 @@ def test_analysis_inferences_filters_target_group(monkeypatch):
                     },
                     {
                         "inferred_relation_id": "inferred_lazarus_tool_target",
-                        "target_group": "Lazarus",
                         "source": "apt_group:lazarus",
                         "target": "country:south-korea",
                         "type": "HAS_BEHAVIOR",
@@ -381,6 +379,10 @@ def test_analysis_inferences_filters_target_group(monkeypatch):
                 ],
             }
 
+        def resolve_entity_id_for_group(self, group_name: str) -> str | None:
+            mapping = {"APT28": "apt_group:apt28", "Lazarus": "apt_group:lazarus"}
+            return mapping.get(group_name)
+
     monkeypatch.setattr(main_module, "store", AnalysisStore())
     response = client.get("/api/v1/analysis/APT28/inferences")
 
@@ -388,7 +390,6 @@ def test_analysis_inferences_filters_target_group(monkeypatch):
     assert response.json()["data"]["inferences"] == [
         {
             "inferred_relation_id": "inferred_apt28_tool_target",
-            "target_group": "APT28",
             "source": "apt_group:apt28",
             "target": "country:ukraine",
             "type": "HAS_BEHAVIOR",
