@@ -8,6 +8,11 @@ import type {
 } from "../types";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1";
 
+export type HealthPayload = {
+  status: string;
+  components: { llm: string };
+};
+
 type PathResult = { nodes: GraphNode[]; edges: GraphEdge[] };
 
 type PathApiPayload =
@@ -29,6 +34,10 @@ export function fetchGraph(target: string): Promise<GraphPayload> {
   const url = `/graph?target=${encodeURIComponent(target)}`;
 
   return getJson<GraphPayload>(url);
+}
+
+export function fetchHealth(): Promise<HealthPayload> {
+  return getJson<HealthPayload>("/health");
 }
 
 export function fetchReport(target: string): Promise<ReportPayload> {

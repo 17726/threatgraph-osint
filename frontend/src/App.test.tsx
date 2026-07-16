@@ -21,6 +21,12 @@ vi.mock("./api/client", () => ({
   fetchAnalysis: vi.fn(),
   fetchEntity: vi.fn(),
   runPipeline: vi.fn(),
+  fetchHealth: vi.fn(() =>
+    Promise.resolve({
+      status: "healthy",
+      components: { llm: "configured" },
+    }),
+  ),
 }));
 
 const node = (id: string): GraphNode => ({

@@ -10,6 +10,7 @@ from typing import Any
 import httpx
 
 from backend.app.services.demo_store import DemoStore
+from backend.app.core.llm_config import has_valid_llm_config
 
 
 ALLOWED_KEYWORDS = {"APT28", "Kimsuky", "Lazarus"}
@@ -35,6 +36,8 @@ class CrawlService:
 
     def submit(self, keyword: str, limit: int, sources: int, filter_enabled: bool) -> dict[str, Any]:
         self.validate_request(keyword, limit, sources, filter_enabled)
+        if not has_valid_llm_config():
+            raise LLMNotConfiguredError("无有效 LLM 配置")
         with self._lock:
             if any(run["status"] in {"pending", "running"} for run in self._runs.values()):
                 raise RuntimeError("已有采集任务正在运行")
@@ -174,7 +177,6 @@ class CrawlService:
             "workspace_cleaned": False,
             "error_message": None,
         }
-
     @staticmethod
     def public_status(run: dict[str, Any]) -> dict[str, Any]:
         return {
@@ -195,3 +197,7 @@ class CrawlService:
                 "error_message",
             )
         }
+
+
+class LLMNotConfiguredError(RuntimeError):
+    """Raised before a crawl task can start without live LLM configuration."""

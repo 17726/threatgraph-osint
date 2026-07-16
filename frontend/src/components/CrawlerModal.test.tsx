@@ -61,6 +61,7 @@ describe("CrawlerModal", () => {
       <CrawlerModal
         open
         target="APT28"
+        llmConfigured
         onClose={vi.fn()}
         onSuccess={vi.fn()}
       />,
@@ -94,6 +95,7 @@ describe("CrawlerModal", () => {
       <CrawlerModal
         open
         target="APT28"
+        llmConfigured
         onClose={vi.fn()}
         onSuccess={vi.fn()}
       />,
@@ -112,6 +114,7 @@ describe("CrawlerModal", () => {
       <CrawlerModal
         open
         target="Lazarus"
+        llmConfigured
         onClose={vi.fn()}
         onSuccess={onSuccess}
       />,
@@ -131,5 +134,20 @@ describe("CrawlerModal", () => {
       expect.stringContaining("/crawl/runs"),
       expect.objectContaining({ method: "POST" }),
     );
+  });
+
+  it("keeps the modal action disabled when LLM is not configured", () => {
+    render(
+      <CrawlerModal
+        open
+        target="APT28"
+        llmConfigured={false}
+        onClose={vi.fn()}
+        onSuccess={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("status").textContent).toContain("需要有效 LLM 配置");
+    expect((screen.getByRole("button", { name: "开始采集" }) as HTMLButtonElement).disabled).toBe(true);
   });
 });

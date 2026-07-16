@@ -16,6 +16,7 @@ import {
   fetchNeighbors,
   fetchReport,
   generateReport,
+  fetchHealth,
 } from "./api/client";
 import { buildGraphOption } from "./graphOptions";
 import type {
@@ -66,7 +67,14 @@ export function App() {
   );
   const [pipelineOpen, setPipelineOpen] = useState(false);
   const [crawlerOpen, setCrawlerOpen] = useState(false);
+  const [llmConfigured, setLlmConfigured] = useState(false);
   const neighborRequestRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    fetchHealth()
+      .then((health) => setLlmConfigured(health.components.llm === "configured"))
+      .catch(() => setLlmConfigured(false));
+  }, []);
   const firstSentence = (text: string): string => {
     const match = text.match(/^.*?[。！？.!?]/);
     return match ? match[0] : text;
@@ -644,6 +652,7 @@ export function App() {
       <CrawlerModal
         open={crawlerOpen}
         target={target}
+        llmConfigured={llmConfigured}
         onClose={() => setCrawlerOpen(false)}
         onSuccess={() => setReloadKey((value) => value + 1)}
       />

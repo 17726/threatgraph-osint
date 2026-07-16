@@ -81,6 +81,8 @@ GET  /api/v1/crawl/runs/{crawl_run_id}
 
 任务状态包括 `pending`、`running`、`succeeded` 和 `failed`。至少成功导入一篇文档时任务为 `succeeded`，单篇失败会继续处理并计入 `items_failed`；没有成功导入文档时任务为 `failed`。
 
+采集固定使用 live Pipeline，因此启动采集前必须配置非空的 `LLM_MODEL`、`LLM_BASE_URL` 和 `LLM_API_KEY`。三项配置任一缺失时，health 的 `components.llm` 为 `not_configured`，`POST /api/v1/crawl/runs` 返回 HTTP 503、错误码 `ERR_LLM_NOT_CONFIGURED` 和消息 `无有效 LLM 配置`；backend 不创建任务，也不调用 crawler。frontend 仍显示“采集情报”按钮，但将其置为 disabled。
+
 采集任务的每篇 promote 文档在调用 `/documents/import` 后，都会继续复用已有的 live Pipeline 接口：先调用 `/pipeline/run` 并固定传入 `extraction_mode=live`，再轮询 `/pipeline/status/{job_id}`。即使文档因 `doc_id` 或 `content_hash` 已存在而返回 `skipped`，也会使用 backend 返回的既有 `doc_id` 继续执行 live Pipeline。crawler 不实现第二套抽取、校验或建图逻辑。
 
 `POST /sources` 请求：

@@ -13,6 +13,7 @@ import { createCrawlRun, fetchCrawlRun, type CrawlRunStats } from "../api/crawle
 type CrawlerModalProps = {
   open: boolean;
   target: string;
+  llmConfigured: boolean;
   onClose: () => void;
   onSuccess: () => void;
 };
@@ -40,6 +41,7 @@ const POLL_INTERVAL_MS = 1000;
 export default function CrawlerModal({
   open,
   target,
+  llmConfigured,
   onClose,
   onSuccess,
 }: CrawlerModalProps) {
@@ -90,7 +92,7 @@ export default function CrawlerModal({
   };
 
   const handleRun = async () => {
-    if (isBusy || sources === 0 || limit < 1) return;
+    if (!llmConfigured || isBusy || sources === 0 || limit < 1) return;
     setStatus("submitting");
     setRun(null);
     setError(null);
@@ -172,6 +174,12 @@ export default function CrawlerModal({
         <p className="crawler-intro">
           选择目标组织、采集数量和公开来源，启动一次情报采集任务。
         </p>
+
+        {!llmConfigured ? (
+          <div className="crawler-result crawler-result-warning" role="status">
+            <AlertCircle size={16} /> 需要有效 LLM 配置后才能采集情报。
+          </div>
+        ) : null}
 
         <div className="crawler-form-grid">
           <label className="crawler-field">
@@ -287,7 +295,7 @@ export default function CrawlerModal({
             <button
               className="crawler-primary"
               type="button"
-              disabled={isRunning || status === "submitting" || sources === 0 || limit < 1}
+              disabled={!llmConfigured || isRunning || status === "submitting" || sources === 0 || limit < 1}
               onClick={handleRun}
             >
               <Search size={15} />

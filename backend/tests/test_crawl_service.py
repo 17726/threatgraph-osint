@@ -16,6 +16,9 @@ def test_next_start_number_uses_highest_document_id(tmp_path: Path) -> None:
 
 
 def test_submit_sends_start_number_to_crawler(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("LLM_MODEL", "model")
+    monkeypatch.setenv("LLM_BASE_URL", "https://example.test/v1/chat/completions")
+    monkeypatch.setenv("LLM_API_KEY", "key")
     service = CrawlService(
         db_path=tmp_path / "test.db",
         crawler_base_url="http://crawler:8100",

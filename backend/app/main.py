@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from backend.app.core.document_contract import require_valid_document
 from backend.app.core.response import error_response, success_response
 from backend.app.services.demo_store import DemoStore
-from backend.app.services.crawl_service import CrawlService
+from backend.app.services.crawl_service import CrawlService, LLMNotConfiguredError
 from backend.app.services.graph_query_service import GraphQueryService
 from backend.app.services.neo4j_service import MAX_PATH_DEPTH, Neo4jService
 from backend.app.services.pipeline_service import (
@@ -299,6 +299,11 @@ def create_crawl_run(payload: dict = Body(default={} )):
             limit=payload.get("limit"),
             sources=payload.get("sources"),
             filter_enabled=payload.get("filter", False),
+        )
+    except LLMNotConfiguredError:
+        return JSONResponse(
+            status_code=503,
+            content=error_response("ERR_LLM_NOT_CONFIGURED", "无有效 LLM 配置"),
         )
     except RuntimeError as exc:
         return JSONResponse(status_code=409, content=error_response("ERR_CONFLICT", str(exc)))
