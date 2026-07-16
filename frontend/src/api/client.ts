@@ -26,7 +26,7 @@ async function getJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export function fetchGraph(target: string): Promise<GraphPayload> {
-  const url = `/graph?target=${encodeURIComponent(target)}&depth=2`;
+  const url = `/graph?target=${encodeURIComponent(target)}`;
 
   return getJson<GraphPayload>(url);
 }

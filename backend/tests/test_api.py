@@ -151,7 +151,7 @@ def test_graph_passes_filters_and_keeps_default_depth(monkeypatch):
         "first_seen_from": "2015-01-01",
         "last_seen_to": "2026-01-01",
         "min_confidence": 0.8,
-        "depth": 2,
+        "depth": 20,
         "limit": 10,
     }
 
@@ -183,6 +183,7 @@ def test_graph_neighbors_uses_explicit_one_hop_service(monkeypatch):
     assert response.status_code == 200
     assert calls == {
         "entity_id": "technique:t1566",
+        "depth": 20,
         "relation_types": ["USES", "TARGETS"],
         "source_types": [],
         "languages": [],

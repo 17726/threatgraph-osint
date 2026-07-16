@@ -1,4 +1,4 @@
-﻿import json
+import json
 import os
 import sqlite3
 from collections import deque
@@ -727,7 +727,7 @@ class DemoStore:
             ).fetchall()
         return [
             {
-                "entity_id": row["entity_id"],
+                "id": row["entity_id"],
                 "name": row["name"],
                 "type": row["type"],
                 "description": row["description"],
