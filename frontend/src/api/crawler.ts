@@ -23,17 +23,58 @@ export type CrawlRunStats = {
   document_ids: string[];
   workspace_cleaned: boolean;
   error_message: string | null;
+  pipeline?: {
+    job_id: string;
+    status: "pending" | "running" | "succeeded" | "failed";
+    progress?: PipelineProgress;
+  } | null;
+  events?: CrawlRunEvent[];
   progress?: {
-    phase: "pending" | "collecting" | "validating" | "importing" | "completed" | "failed";
+    phase:
+      | "pending"
+      | "collecting"
+      | "validating"
+      | "importing"
+      | "pipeline"
+      | "completed"
+      | "failed";
     current: number;
     total: number;
     target: string;
     source: string | null;
     message: string;
+    doc_id?: string | null;
+    job_id?: string | null;
+    percent?: number;
   };
 };
 
-async function parseResponse<T>(response: Response, message: string): Promise<T> {
+export type PipelineProgress = {
+  phase: string;
+  current: number;
+  total: number;
+  percent: number;
+  message: string;
+  doc_id?: string | null;
+  updated_at?: string;
+};
+
+export type CrawlRunEvent = {
+  sequence: number;
+  level: "info" | "warning" | "error";
+  phase: string;
+  message: string;
+  doc_id?: string | null;
+  source?: string | null;
+  job_id?: string | null;
+  details?: Record<string, unknown>;
+  created_at: string;
+};
+
+async function parseResponse<T>(
+  response: Response,
+  message: string,
+): Promise<T> {
   const payload = (await response.json()) as ApiResponse<T> & {
     error?: { message?: string };
   };
@@ -60,8 +101,11 @@ export async function fetchCrawlRun(
   runId: string,
   options: { signal?: AbortSignal } = {},
 ): Promise<CrawlRunStats> {
-  const response = await fetch(`${API_BASE_URL}/crawl/runs/${encodeURIComponent(runId)}`, {
-    signal: options.signal,
-  });
+  const response = await fetch(
+    `${API_BASE_URL}/crawl/runs/${encodeURIComponent(runId)}`,
+    {
+      signal: options.signal,
+    },
+  );
   return parseResponse<CrawlRunStats>(response, "查询采集任务失败");
 }

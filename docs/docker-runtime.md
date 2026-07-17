@@ -149,8 +149,15 @@ docker compose ps
 
 # 查看日志
 docker compose logs -f backend
+docker compose logs -f crawler
 docker compose logs -f frontend
 docker compose logs -f neo4j
+
+# 按采集任务或 Pipeline 任务标识过滤跨容器日志（PowerShell）
+docker compose logs backend crawler | Select-String 'crawl_或_job_任务标识'
+
+# 只看结构化阶段事件（PowerShell）
+docker compose logs backend crawler | Select-String 'pipeline_event|crawl_event'
 
 # 进入后端容器
 docker compose exec backend bash
@@ -167,9 +174,9 @@ docker compose exec backend python scripts/export_graph_json.py
 docker compose down
 ```
 
-> [!NOTE]
-> 当前仓库只提供 Neo4j 容器，尚未实现 `sync_neo4j.py`、`/api/v1/neo4j/*`
-> 和 Cypher 路径查询；图谱与路径接口当前使用 SQLite。
+Pipeline 阶段日志统一包含 `pipeline_event job_id=... phase=...`，采集编排日志统一包含
+`crawl_event crawl_run_id=... phase=...`。排查跨容器问题时先从前端复制任务标识，再过滤 backend
+和 crawler 日志；不要只依赖 Uvicorn 的 HTTP 访问记录。
 
 ---
 

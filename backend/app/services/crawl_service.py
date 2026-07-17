@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import logging
 import os
 import secrets
 import threading
@@ -29,6 +31,8 @@ SOURCE_NAMES = (
     "OFAC",
     "FBI",
 )
+# 复用 Uvicorn 已配置的 logger，便于按 crawl_run_id 关联容器日志。
+LOGGER = logging.getLogger("uvicorn.error")
 
 
 def initial_source_results(sources: int) -> dict[str, dict[str, int]]:
@@ -161,8 +165,12 @@ class CrawlService:
             time.sleep(self.poll_interval)
 
     def _merge_crawler_status(self, run_id: str, crawler_run: dict[str, Any]) -> None:
+        new_events: list[dict[str, Any]] = []
         with self._lock:
             run = self._runs[run_id]
+            previous_sequences = {
+                event.get("sequence") for event in run.get("events", [])
+            }
             for key in (
                 "items_found",
                 "items_promoted",
@@ -174,13 +182,32 @@ class CrawlService:
                 "document_ids",
                 "source_results",
                 "progress",
+                "pipeline",
+                "events",
                 "workspace_cleaned",
                 "error_message",
             ):
                 if key in crawler_run:
                     run[key] = crawler_run[key]
+            new_events = [
+                event
+                for event in crawler_run.get("events", [])
+                if event.get("sequence") not in previous_sequences
+            ]
             if crawler_run.get("status") in {"succeeded", "failed"}:
                 run["status"] = crawler_run["status"]
+        for event in new_events:
+            log_method = LOGGER.error if event.get("level") == "error" else LOGGER.info
+            log_method(
+                "crawl_event crawl_run_id=%s phase=%s doc_id=%s source=%s job_id=%s message=%s details=%s",
+                run_id,
+                event.get("phase", "unknown"),
+                event.get("doc_id") or "-",
+                event.get("source") or "-",
+                event.get("job_id") or "-",
+                event.get("message", ""),
+                json.dumps(event.get("details", {}), ensure_ascii=False, default=str),
+            )
 
     def _finish(self, run_id: str, status: str, error_message: str) -> None:
         with self._lock:
@@ -207,6 +234,8 @@ class CrawlService:
             "document_ids": [],
             "source_results": initial_source_results(sources),
             "progress": None,
+            "pipeline": None,
+            "events": [],
             "workspace_cleaned": False,
             "error_message": None,
         }
@@ -228,6 +257,8 @@ class CrawlService:
                 "document_ids",
                 "source_results",
                 "progress",
+                "pipeline",
+                "events",
                 "workspace_cleaned",
                 "error_message",
             )

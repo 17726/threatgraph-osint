@@ -106,3 +106,11 @@ flowchart LR
 ```
 
 通过相关性判断的 `documents` 继续调用现有文档导入与 Pipeline API；`discarded` 只用于演示过滤效果和审计，不进入 canonical graph。
+
+## 7. 现场调试与验收观察点
+
+1. 前端“流水线”弹窗先显示 `crawl_run_id`；进入单篇抽取后同时显示子 Pipeline `job_id`。两个标识都可直接选中复制。
+2. 当前进度展示来源、文档、阶段、数量和百分比；最近事件时间线展示阶段切换与真实错误，不把内部边界讲成多个独立成功步骤。
+3. Docker 日志使用同一标识关联：`docker compose logs backend crawler | Select-String '<任务 ID>'`（PowerShell）或 `docker compose logs backend crawler | grep '<任务 ID>'`（Bash）。
+4. 稳定验收使用 `config/course-demo.json` 的 `apt28_080`、`kimsuky_001` 或 `lazarus_001`，选择 `reviewed`；外部网络与模型均正常时，另跑一篇 `live` 作为增强演示。
+5. 失败验收应保留 `phase=failed` 事件、异常类型和失败步骤；不得把失败任务描述成成功，也不得为了演示隐藏真实错误。

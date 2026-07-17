@@ -16,7 +16,8 @@ describe("CrawlerModal", () => {
     vi.useFakeTimers();
     vi.stubGlobal(
       "fetch",
-      vi.fn()
+      vi
+        .fn()
         .mockResolvedValueOnce(
           new Response(
             JSON.stringify({
@@ -127,7 +128,9 @@ describe("CrawlerModal", () => {
       await Promise.resolve();
     });
     expect(screen.getByText("采集任务完成")).toBeTruthy();
-    expect(screen.getByText("发现 12 篇 · 清洗 10 篇 · 导入 8 篇")).toBeTruthy();
+    expect(
+      screen.getByText("发现 12 篇 · 清洗 10 篇 · 导入 8 篇"),
+    ).toBeTruthy();
     expect(onSuccess).toHaveBeenCalledOnce();
     expect(screen.queryByText("演示任务未调用后端接口")).toBeNull();
     expect(fetch).toHaveBeenCalledWith(
@@ -139,7 +142,8 @@ describe("CrawlerModal", () => {
   it("renders collecting progress from backend", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn()
+      vi
+        .fn()
         .mockResolvedValueOnce(
           new Response(
             JSON.stringify({
@@ -165,6 +169,31 @@ describe("CrawlerModal", () => {
                   source: "FreeBuf",
                   message: "正在采集",
                 },
+                pipeline: {
+                  job_id: "job_pipe_002",
+                  status: "running",
+                  progress: {
+                    phase: "building_graph",
+                    current: 0,
+                    total: 1,
+                    percent: 40,
+                    message: "正在写入 SQLite",
+                    doc_id: "apt28_108",
+                  },
+                },
+                events: [
+                  {
+                    sequence: 1,
+                    level: "info",
+                    phase: "pipeline_building_graph",
+                    message: "正在写入 SQLite",
+                    doc_id: "apt28_108",
+                    source: "FreeBuf",
+                    job_id: "job_pipe_002",
+                    details: {},
+                    created_at: "2026-07-17T12:00:00+08:00",
+                  },
+                ],
               },
             }),
             { status: 200 },
@@ -187,7 +216,12 @@ describe("CrawlerModal", () => {
       await Promise.resolve();
     });
 
-    expect(screen.getByText("3/10 正在采集 目标：APT28 来源：FreeBuf")).toBeTruthy();
+    expect(
+      screen.getByText("3/10 正在采集 目标：APT28 来源：FreeBuf"),
+    ).toBeTruthy();
+    expect(screen.getByText(/采集任务.*crawl_test_002/)).toBeTruthy();
+    expect(screen.getByText(/子 Pipeline.*job_pipe_002/)).toBeTruthy();
+    expect(screen.getByText("正在写入 SQLite")).toBeTruthy();
   });
 
   it("keeps the modal action disabled when LLM is not configured", () => {
@@ -201,7 +235,12 @@ describe("CrawlerModal", () => {
       />,
     );
 
-    expect(screen.getByRole("status").textContent).toContain("需要有效 LLM 配置");
-    expect((screen.getByRole("button", { name: "开始采集" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByRole("status").textContent).toContain(
+      "需要有效 LLM 配置",
+    );
+    expect(
+      (screen.getByRole("button", { name: "开始采集" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
   });
 });

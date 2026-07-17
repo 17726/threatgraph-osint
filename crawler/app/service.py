@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import shutil
 import subprocess
 import sys
 import time
+from datetime import UTC, datetime
 from pathlib import Path
 from threading import Lock
 from typing import Any
@@ -28,6 +30,9 @@ SOURCE_NAMES = (
     "OFAC",
     "FBI",
 )
+# 复用 Uvicorn 已配置的 logger，确保 crawler 子进程事件输出到容器日志。
+LOGGER = logging.getLogger("uvicorn.error")
+MAX_EVENTS = 100
 
 
 class CrawlerService:
@@ -54,6 +59,20 @@ class CrawlerService:
                 "items_pipeline_succeeded": 0,
                 "items_pipeline_failed": 0,
                 "pipeline_error": None,
+                "pipeline": None,
+                "events": [
+                    {
+                        "sequence": 1,
+                        "level": "info",
+                        "phase": "pending",
+                        "message": "采集任务已创建",
+                        "doc_id": None,
+                        "source": None,
+                        "job_id": None,
+                        "details": {},
+                        "created_at": datetime.now(UTC).isoformat(),
+                    }
+                ],
                 "document_ids": [],
             "source_results": self._initial_source_results(payload["sources"]),
                 "progress": {
@@ -79,9 +98,126 @@ class CrawlerService:
             return dict(self._runs[run_id])
 
     def _update_progress(self, run_id: str, progress: dict[str, Any]) -> None:
+        event = None
         with self._lock:
             if run_id in self._runs:
-                self._runs[run_id]["progress"] = dict(progress)
+                run = self._runs[run_id]
+                previous = run.get("progress") or {}
+                changed = any(
+                    previous.get(key) != progress.get(key)
+                    for key in ("phase", "source", "message")
+                )
+                run["progress"] = dict(progress)
+                if changed:
+                    event = self._append_event_locked(
+                        run,
+                        phase=str(progress.get("phase") or "running"),
+                        message=str(progress.get("message") or "任务正在执行"),
+                        source=progress.get("source"),
+                        details={
+                            "current": progress.get("current", 0),
+                            "total": progress.get("total", 0),
+                        },
+                    )
+        if event is not None:
+            LOGGER.info(
+                "crawl_event crawl_run_id=%s phase=%s progress=%s/%s source=%s message=%s",
+                run_id,
+                event["phase"],
+                progress.get("current", 0),
+                progress.get("total", 0),
+                event.get("source") or "-",
+                event["message"],
+            )
+
+    @staticmethod
+    def _append_event_locked(
+        run: dict[str, Any],
+        *,
+        phase: str,
+        message: str,
+        level: str = "info",
+        doc_id: str | None = None,
+        source: str | None = None,
+        job_id: str | None = None,
+        details: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        events = run.setdefault("events", [])
+        event = {
+            "sequence": (events[-1]["sequence"] + 1) if events else 1,
+            "level": level,
+            "phase": phase,
+            "message": message,
+            "doc_id": doc_id,
+            "source": source,
+            "job_id": job_id,
+            "details": details or {},
+            "created_at": datetime.now(UTC).isoformat(),
+        }
+        events.append(event)
+        if len(events) > MAX_EVENTS:
+            del events[:-MAX_EVENTS]
+        return event
+
+    def _publish_pipeline_status(
+        self,
+        run_id: str,
+        *,
+        target: str,
+        doc_id: str,
+        source: str | None,
+        current: int,
+        total: int,
+        pipeline: dict[str, Any],
+        phase: str,
+        message: str,
+        level: str = "info",
+    ) -> None:
+        with self._lock:
+            run = self._runs.get(run_id)
+            if run is None:
+                return
+            previous = run.get("pipeline") or {}
+            previous_progress = previous.get("progress") or {}
+            changed = (
+                previous.get("status") != pipeline.get("status")
+                or previous_progress.get("phase") != (pipeline.get("progress") or {}).get("phase")
+            )
+            run["pipeline"] = dict(pipeline)
+            run["progress"] = {
+                "phase": "pipeline",
+                "current": current,
+                "total": total,
+                "target": target,
+                "source": source,
+                "message": message,
+                "doc_id": doc_id,
+                "job_id": pipeline.get("job_id"),
+                "percent": (pipeline.get("progress") or {}).get("percent", 0),
+            }
+            event = None
+            if changed:
+                event = self._append_event_locked(
+                    run,
+                    phase=phase,
+                    message=message,
+                    level=level,
+                    doc_id=doc_id,
+                    source=source,
+                    job_id=pipeline.get("job_id"),
+                    details={"pipeline_status": pipeline.get("status")},
+                )
+        if event is not None:
+            log_method = LOGGER.error if level == "error" else LOGGER.info
+            log_method(
+                "crawl_event crawl_run_id=%s phase=%s doc_id=%s source=%s job_id=%s message=%s",
+                run_id,
+                phase,
+                doc_id,
+                source or "-",
+                pipeline.get("job_id") or "-",
+                message,
+            )
 
     @staticmethod
     def _empty_source_result() -> dict[str, int]:
@@ -127,6 +263,9 @@ class CrawlerService:
         except Exception as exc:
             result = self._failed_result(payload, str(exc))
         with self._lock:
+            previous = self._runs.get(payload["crawl_run_id"], {})
+            result.setdefault("events", previous.get("events", []))
+            result.setdefault("pipeline", previous.get("pipeline"))
             self._runs[payload["crawl_run_id"]] = result
 
     def _execute(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -144,6 +283,8 @@ class CrawlerService:
             "items_pipeline_succeeded": 0,
             "items_pipeline_failed": 0,
             "pipeline_error": None,
+            "pipeline": None,
+            "events": [],
             "document_ids": [],
             "progress": {
                 "phase": "running",
@@ -326,7 +467,14 @@ class CrawlerService:
                     source["items_imported"] += 1
                 summary["document_ids"].append(document_id)
                 try:
-                    pipeline = self._run_live_pipeline(document_id)
+                    pipeline = self._run_live_pipeline(
+                        document_id,
+                        crawl_run_id=payload["crawl_run_id"],
+                        target=payload["keyword"],
+                        current=summary["progress"]["current"],
+                        total=len(paths),
+                        source=source_name,
+                    )
                     if pipeline["status"] == "succeeded":
                         summary["items_pipeline_succeeded"] += 1
                         source["items_pipeline_succeeded"] += 1
@@ -353,6 +501,10 @@ class CrawlerService:
                 None,
             )
         summary["progress"]["source"] = None
+        with self._lock:
+            current_run = self._runs.get(payload["crawl_run_id"], {})
+            summary["events"] = list(current_run.get("events", []))
+            summary["pipeline"] = current_run.get("pipeline")
         return summary
 
     def _finalize_result(
@@ -389,7 +541,16 @@ class CrawlerService:
             result["progress"]["message"] = "采集任务完成"
         return result
 
-    def _run_live_pipeline(self, doc_id: str) -> dict[str, Any]:
+    def _run_live_pipeline(
+        self,
+        doc_id: str,
+        *,
+        crawl_run_id: str | None = None,
+        target: str = "",
+        current: int = 0,
+        total: int = 1,
+        source: str | None = None,
+    ) -> dict[str, Any]:
         response = httpx.post(
             f"{self.backend_base_url}/api/v1/pipeline/run",
             json={"doc_id": doc_id, "extraction_mode": "live"},
@@ -399,6 +560,18 @@ class CrawlerService:
         payload = response.json()
         job = payload.get("data", payload)
         job_id = job["job_id"]
+        if crawl_run_id is not None:
+            self._publish_pipeline_status(
+                crawl_run_id,
+                target=target,
+                doc_id=doc_id,
+                source=source,
+                current=current,
+                total=total,
+                pipeline=job,
+                phase="pipeline_submitted",
+                message=f"已提交文档 Pipeline：{doc_id}",
+            )
         deadline = time.monotonic() + 1800
         while time.monotonic() < deadline:
             response = httpx.get(
@@ -407,9 +580,34 @@ class CrawlerService:
             )
             response.raise_for_status()
             current_payload = response.json()
-            current = current_payload.get("data", current_payload)
-            if current.get("status") in {"succeeded", "failed"}:
-                return current
+            pipeline_status = current_payload.get("data", current_payload)
+            pipeline_progress = pipeline_status.get("progress") or {}
+            status = pipeline_status.get("status")
+            child_phase = pipeline_progress.get("phase") or status or "running"
+            message = pipeline_progress.get("message") or f"文档 Pipeline {status}"
+            if crawl_run_id is not None:
+                terminal = status in {"succeeded", "failed"}
+                event_phase = (
+                    "pipeline_completed"
+                    if status == "succeeded"
+                    else "pipeline_failed"
+                    if status == "failed"
+                    else f"pipeline_{child_phase}"
+                )
+                self._publish_pipeline_status(
+                    crawl_run_id,
+                    target=target,
+                    doc_id=doc_id,
+                    source=source,
+                    current=current + (1 if terminal and status == "succeeded" else 0),
+                    total=total,
+                    pipeline=pipeline_status,
+                    phase=event_phase,
+                    message=message,
+                    level="error" if status == "failed" else "info",
+                )
+            if status in {"succeeded", "failed"}:
+                return pipeline_status
             time.sleep(0.5)
         raise TimeoutError(f"live Pipeline 超时: {job_id}")
 

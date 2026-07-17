@@ -1,6 +1,19 @@
-import { FileText, Upload, X, Loader2, CheckCircle2, AlertCircle, BookOpen } from "lucide-react";
+import {
+  FileText,
+  Upload,
+  X,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  BookOpen,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { runPipeline, type ExtractionMode, type PipelineResult } from "../api/client";
+import {
+  runPipeline,
+  type ExtractionMode,
+  type PipelineResult,
+  type PipelineStatus,
+} from "../api/client";
 
 interface PipelineModalProps {
   open: boolean;
@@ -9,20 +22,38 @@ interface PipelineModalProps {
   onSuccess: () => void;
 }
 
-type Status = "idle" | "importing" | "pending" | "running" | "success" | "error" | "skipped";
+type Status =
+  | "idle"
+  | "importing"
+  | "pending"
+  | "running"
+  | "success"
+  | "error"
+  | "skipped";
 
-const STATUS_LABELS: Record<Exclude<Status, "idle" | "success" | "error" | "skipped">, string> = {
+const STATUS_LABELS: Record<
+  Exclude<Status, "idle" | "success" | "error" | "skipped">,
+  string
+> = {
   importing: "正在校验并导入标准文档...",
   pending: "任务已提交，等待后台执行...",
   running: "正在抽取实体关系并更新图谱...",
 };
 
-export default function PipelineModal({ open, onClose, onSuccess }: PipelineModalProps) {
+export default function PipelineModal({
+  open,
+  onClose,
+  onSuccess,
+}: PipelineModalProps) {
   const [documentFile, setDocumentFile] = useState<File | null>(null);
-  const [extractionMode, setExtractionMode] = useState<ExtractionMode>("reviewed");
+  const [extractionMode, setExtractionMode] =
+    useState<ExtractionMode>("reviewed");
   const [status, setStatus] = useState<Status>("idle");
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus | null>(
+    null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -37,12 +68,14 @@ export default function PipelineModal({ open, onClose, onSuccess }: PipelineModa
     abortRef.current = controller;
     setStatus("importing");
     setErrorMsg("");
+    setPipelineStatus(null);
 
     try {
       const res = await runPipeline(documentFile, {
         extractionMode,
         signal: controller.signal,
         onStatus: setStatus,
+        onProgress: setPipelineStatus,
       });
       setResult(res);
       if (res.skipped) {
@@ -65,6 +98,7 @@ export default function PipelineModal({ open, onClose, onSuccess }: PipelineModa
     setStatus("idle");
     setResult(null);
     setErrorMsg("");
+    setPipelineStatus(null);
   };
 
   const handleClose = () => {
@@ -190,7 +224,9 @@ export default function PipelineModal({ open, onClose, onSuccess }: PipelineModa
                 }}
               >
                 <FileText size={16} color="#0f766e" />
-                <span style={{ color: "#166534", fontWeight: 500 }}>{documentFile.name}</span>
+                <span style={{ color: "#166534", fontWeight: 500 }}>
+                  {documentFile.name}
+                </span>
                 <span style={{ color: "#9ca3af", fontSize: 11 }}>
                   ({(documentFile.size / 1024).toFixed(1)} KB)
                 </span>
@@ -298,6 +334,53 @@ export default function PipelineModal({ open, onClose, onSuccess }: PipelineModa
             {STATUS_LABELS[status as "importing" | "pending" | "running"]}
           </div>
         )}
+
+        {pipelineStatus ? (
+          <div className="crawler-debug" aria-label="Pipeline 调试信息">
+            <div className="crawler-debug-ids">
+              <span>
+                任务 <code>{pipelineStatus.job_id}</code>
+              </span>
+              <span>
+                阶段{" "}
+                <code>
+                  {pipelineStatus.progress?.phase ?? pipelineStatus.status}
+                </code>
+              </span>
+            </div>
+            {pipelineStatus.progress ? (
+              <>
+                <div className="crawler-progress-track">
+                  <div
+                    style={{ width: `${pipelineStatus.progress.percent}%` }}
+                  />
+                </div>
+                <p>{pipelineStatus.progress.message}</p>
+              </>
+            ) : null}
+            {(pipelineStatus.events ?? []).length > 0 ? (
+              <ol className="crawler-event-list">
+                {(pipelineStatus.events ?? [])
+                  .slice(-5)
+                  .reverse()
+                  .map((event) => (
+                    <li
+                      className={`crawler-event crawler-event-${event.level}`}
+                      key={event.sequence}
+                    >
+                      <time>
+                        {new Date(event.created_at).toLocaleTimeString(
+                          "zh-CN",
+                          { hour12: false },
+                        )}
+                      </time>
+                      <span>{event.message}</span>
+                    </li>
+                  ))}
+              </ol>
+            ) : null}
+          </div>
+        ) : null}
 
         {/* 跳过提示 */}
         {status === "skipped" && (

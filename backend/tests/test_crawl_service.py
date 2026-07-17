@@ -59,6 +59,40 @@ def test_submit_sends_start_number_to_crawler(monkeypatch, tmp_path: Path) -> No
     assert captured["start_number"] == 1
 
 
+def test_crawl_observability_is_forwarded_by_backend(tmp_path: Path) -> None:
+    service = CrawlService(
+        db_path=tmp_path / "test.db",
+        crawler_base_url="http://crawler:8100",
+    )
+    run_id = "crawl_debug"
+    service._runs[run_id] = service._new_run(run_id, "APT28", 1, 1, False)
+    service._merge_crawler_status(
+        run_id,
+        {
+            "status": "running",
+            "pipeline": {
+                "job_id": "job_001",
+                "status": "running",
+                "progress": {"phase": "building_graph", "percent": 40},
+            },
+            "events": [
+                {
+                    "sequence": 1,
+                    "phase": "pipeline_building_graph",
+                    "level": "info",
+                    "message": "正在写入 SQLite",
+                    "created_at": "2026-07-17T00:00:00Z",
+                }
+            ],
+        },
+    )
+
+    status = service.status(run_id)
+
+    assert status["pipeline"]["job_id"] == "job_001"
+    assert status["events"][0]["phase"] == "pipeline_building_graph"
+
+
 def _document(doc_id: str, text: str) -> dict:
     import hashlib
 

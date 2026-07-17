@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import inspect
 import json
+import logging
 import sqlite3
 import tempfile
 import uuid
@@ -30,6 +31,8 @@ INTERRUPTED_ERROR = "上次执行因服务进程中断而失败"
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_LIVE_EXTRACTION_DIR = REPO_ROOT / "data/run_artifacts"
 DEFAULT_PIPELINE_RUN_LOG_DIR = REPO_ROOT / "data/run_logs"
+# 复用 Uvicorn 已配置的 logger，确保容器 stdout 可见且不被启动配置禁用。
+LOGGER = logging.getLogger("uvicorn.error")
 
 
 def _now() -> str:
@@ -236,6 +239,73 @@ class PipelineService:
         connection.execute("PRAGMA foreign_keys = ON")
         return connection
 
+    @staticmethod
+    def _insert_event(
+        connection: sqlite3.Connection,
+        *,
+        job_id: str,
+        level: str,
+        phase: str,
+        message: str,
+        current: int = 0,
+        total: int = 0,
+        doc_id: str | None = None,
+        details: dict[str, Any] | None = None,
+        created_at: str | None = None,
+    ) -> dict[str, Any]:
+        timestamp = created_at or _now()
+        sequence = connection.execute(
+            "SELECT COALESCE(MAX(sequence), 0) + 1 FROM pipeline_job_events WHERE job_id = ?",
+            (job_id,),
+        ).fetchone()[0]
+        payload = details or {}
+        connection.execute(
+            """INSERT INTO pipeline_job_events (
+                 job_id, sequence, level, phase, message, current, total,
+                 doc_id, details_json, created_at
+               ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                job_id,
+                sequence,
+                level,
+                phase,
+                message,
+                current,
+                total,
+                doc_id,
+                json.dumps(payload, ensure_ascii=False, default=str),
+                timestamp,
+            ),
+        )
+        return {
+            "job_id": job_id,
+            "sequence": sequence,
+            "level": level,
+            "phase": phase,
+            "message": message,
+            "current": current,
+            "total": total,
+            "doc_id": doc_id,
+            "details": payload,
+            "created_at": timestamp,
+        }
+
+    def _record_event(self, **event: Any) -> dict[str, Any]:
+        with self.connect() as connection:
+            recorded = self._insert_event(connection, **event)
+        log_method = LOGGER.error if recorded["level"] == "error" else LOGGER.info
+        log_method(
+            "pipeline_event job_id=%s phase=%s progress=%s/%s doc_id=%s message=%s details=%s",
+            recorded["job_id"],
+            recorded["phase"],
+            recorded["current"],
+            recorded["total"],
+            recorded["doc_id"] or "-",
+            recorded["message"],
+            json.dumps(recorded["details"], ensure_ascii=False, default=str),
+        )
+        return recorded
+
     def close(self) -> None:
         if self._closed:
             return
@@ -388,6 +458,22 @@ class PipelineService:
                    ) VALUES (?, ?, 0, 'pending')""",
                 (job_id, operation),
             )
+            self._insert_event(
+                connection,
+                job_id=job_id,
+                level="info",
+                phase="pending",
+                message="流水线任务已创建",
+                current=0,
+                total=1,
+                doc_id=doc_id,
+                details={
+                    "target_group": target_group,
+                    "extraction_mode": extraction_mode,
+                    "operation": operation,
+                },
+                created_at=created_at,
+            )
             row = connection.execute(
                 "SELECT * FROM pipeline_jobs WHERE job_id = ?",
                 (job_id,),
@@ -449,6 +535,25 @@ class PipelineService:
                    SET status = 'running', started_at = ?
                    WHERE job_id = ? AND step_name = ? AND status = 'pending'""",
                 (started_at, job_id, row["operation"]),
+            )
+            job_row = connection.execute(
+                "SELECT doc_id, target_group, extraction_mode FROM pipeline_jobs WHERE job_id = ?",
+                (job_id,),
+            ).fetchone()
+            self._insert_event(
+                connection,
+                job_id=job_id,
+                level="info",
+                phase="running",
+                message="流水线开始执行",
+                current=0,
+                total=1,
+                doc_id=job_row["doc_id"],
+                details={
+                    "target_group": job_row["target_group"],
+                    "extraction_mode": job_row["extraction_mode"],
+                },
+                created_at=started_at,
             )
             return True
 
@@ -540,6 +645,23 @@ class PipelineService:
                    WHERE job_id = ?""",
                 (result_json, finished_at, job_id),
             )
+            job_row = connection.execute(
+                "SELECT doc_id FROM pipeline_jobs WHERE job_id = ?",
+                (job_id,),
+            ).fetchone()
+            self._insert_event(
+                connection,
+                job_id=job_id,
+                level="info",
+                phase="completed",
+                message="流水线执行完成",
+                current=1,
+                total=1,
+                doc_id=job_row["doc_id"],
+                details=result if isinstance(result, dict) else {"result": result},
+                created_at=finished_at,
+            )
+        LOGGER.info("pipeline_event job_id=%s phase=completed progress=1/1", job_id)
 
     def _finish_failed(self, job_id: str, exc: Exception) -> None:
         error = str(exc) or exc.__class__.__name__
@@ -561,6 +683,31 @@ class PipelineService:
                    WHERE job_id = ?""",
                 (error, finished_at, job_id),
             )
+            job_row = connection.execute(
+                "SELECT doc_id FROM pipeline_jobs WHERE job_id = ?",
+                (job_id,),
+            ).fetchone()
+            self._insert_event(
+                connection,
+                job_id=job_id,
+                level="error",
+                phase="failed",
+                message=error,
+                current=0,
+                total=1,
+                doc_id=job_row["doc_id"],
+                details={
+                    "error_type": exc.__class__.__name__,
+                    "failed_step": operation,
+                },
+                created_at=finished_at,
+            )
+        LOGGER.error(
+            "pipeline_event job_id=%s phase=failed progress=0/1 error_type=%s message=%s",
+            job_id,
+            exc.__class__.__name__,
+            error,
+        )
 
     def status(self, job_id: str) -> dict[str, Any]:
         with self.connect() as connection:
@@ -577,11 +724,46 @@ class PipelineService:
                    WHERE job_id = ? ORDER BY step_order""",
                 (job_id,),
             ).fetchall()
+            events = connection.execute(
+                """SELECT job_id, sequence, level, phase, message, current,
+                          total, doc_id, details_json, created_at
+                   FROM pipeline_job_events
+                   WHERE job_id = ? ORDER BY sequence""",
+                (job_id,),
+            ).fetchall()
         run_archive = (
             self.run_archive.summary(job_id)
             if row["extraction_mode"] == LIVE_EXTRACTION_MODE
             else None
         )
+        event_items = [
+            {
+                "job_id": item["job_id"],
+                "sequence": item["sequence"],
+                "level": item["level"],
+                "phase": item["phase"],
+                "message": item["message"],
+                "current": item["current"],
+                "total": item["total"],
+                "doc_id": item["doc_id"],
+                "details": json.loads(item["details_json"]),
+                "created_at": item["created_at"],
+            }
+            for item in events
+        ]
+        latest_event = event_items[-1] if event_items else None
+        progress = None
+        if latest_event is not None:
+            total = latest_event["total"]
+            progress = {
+                "phase": latest_event["phase"],
+                "current": latest_event["current"],
+                "total": total,
+                "percent": round(latest_event["current"] / total * 100) if total else 0,
+                "message": latest_event["message"],
+                "doc_id": latest_event["doc_id"],
+                "updated_at": latest_event["created_at"],
+            }
         return {
             **self._job_dict(row),
             "current_step": row["current_step"],
@@ -592,6 +774,8 @@ class PipelineService:
             "started_at": row["started_at"],
             "finished_at": row["finished_at"],
             "run_archive": run_archive,
+            "progress": progress,
+            "events": event_items,
             "steps": [
                 {
                     "step_name": item["step_name"],
@@ -625,23 +809,48 @@ class PipelineService:
         extraction_mode: str,
     ) -> dict[str, Any]:
         if doc_id:
-            result = {
-                "doc_ids": [doc_id],
-                "summaries": [self._run_document(job_id, doc_id, extraction_mode)],
-            }
+            doc_ids = [doc_id]
         else:
             doc_ids = self._document_ids_from_sqlite(target_group or "")
             if not doc_ids:
                 raise ValueError(f"没有匹配文档：target_group={target_group}")
-            result = {
-                "doc_ids": doc_ids,
-                "summaries": [
-                    self._run_document(job_id, item, extraction_mode)
-                    for item in doc_ids
-                ],
-            }
+
+        self._record_event(
+            job_id=job_id,
+            level="info",
+            phase="resolving_scope",
+            message=f"已确定 {len(doc_ids)} 篇待处理文档",
+            current=0,
+            total=len(doc_ids),
+            doc_id=doc_id,
+            details={"doc_ids": doc_ids, "target_group": target_group},
+        )
+        summaries = []
+        for index, item in enumerate(doc_ids):
+            summaries.append(
+                self._run_document(
+                    job_id,
+                    item,
+                    extraction_mode,
+                    current=index,
+                    total=len(doc_ids),
+                )
+            )
+        result = {
+            "doc_ids": doc_ids,
+            "summaries": summaries,
+        }
 
         if self.projection_sync is not None:
+            self._record_event(
+                job_id=job_id,
+                level="info",
+                phase="syncing_projection",
+                message="正在同步 Neo4j 查询投影",
+                current=len(doc_ids),
+                total=len(doc_ids),
+                doc_id=doc_id,
+            )
             try:
                 result["neo4j_sync"] = self.projection_sync()
             except Exception:
@@ -668,7 +877,19 @@ class PipelineService:
         job_id: str,
         doc_id: str,
         extraction_mode: str,
+        *,
+        current: int = 0,
+        total: int = 1,
     ) -> dict[str, Any]:
+        self._record_event(
+            job_id=job_id,
+            level="info",
+            phase="locating_inputs",
+            message=f"正在定位文档与抽取输入：{doc_id}",
+            current=current,
+            total=total,
+            doc_id=doc_id,
+        )
         document, source_document_path, reviewed_extraction_path = self._locate_inputs(
             doc_id,
             include_reviewed=extraction_mode == REVIEWED_EXTRACTION_MODE,
@@ -687,18 +908,48 @@ class PipelineService:
                 if reviewed_extraction_path is None:
                     raise ValueError(f"doc_id={doc_id} 缺少已审核抽取结果")
                 extraction_path = reviewed_extraction_path
+                self._record_event(
+                    job_id=job_id,
+                    level="info",
+                    phase="loading_reviewed",
+                    message=f"已选择审核抽取工件：{doc_id}",
+                    current=current,
+                    total=total,
+                    doc_id=doc_id,
+                    details={"extraction_path": str(extraction_path)},
+                )
                 extraction_metadata = {
                     "mode": REVIEWED_EXTRACTION_MODE,
                     "source": "reviewed_artifact",
                 }
             else:
                 if self._has_existing_extraction(doc_id):
+                    self._record_event(
+                        job_id=job_id,
+                        level="warning",
+                        phase="document_completed",
+                        message=f"文档已有正式证据，跳过重复 LLM 调用：{doc_id}",
+                        current=current + 1,
+                        total=total,
+                        doc_id=doc_id,
+                        details={"skipped": True},
+                    )
                     return {
                         "doc_id": doc_id,
                         "skipped": True,
                         "reason": "文档已抽取，跳过重复 LLM 调用",
                     }
                 extraction_service = self.extraction_service or LLMExtractionService()
+                self._record_event(
+                    job_id=job_id,
+                    level="info",
+                    phase="extracting",
+                    message=f"正在调用 LLM 抽取实体与关系：{doc_id}",
+                    current=current,
+                    total=total,
+                    doc_id=doc_id,
+                    details={"model": getattr(extraction_service, "model", "")},
+                )
                 try:
                     extraction_result = extraction_service.extract(document)
                     if inspect.isawaitable(extraction_result):
@@ -748,9 +999,28 @@ class PipelineService:
                     ),
                 }
 
+            self._record_event(
+                job_id=job_id,
+                level="info",
+                phase="building_graph",
+                message=f"正在校验、归一化并写入 SQLite：{doc_id}",
+                current=current,
+                total=total,
+                doc_id=doc_id,
+            )
             summary = self._invoke_offline_pipeline(
                 str(document_path),
                 str(extraction_path),
+            )
+            self._record_event(
+                job_id=job_id,
+                level="info",
+                phase="document_completed",
+                message=f"文档处理完成：{doc_id}",
+                current=current + 1,
+                total=total,
+                doc_id=doc_id,
+                details=summary,
             )
             return {**summary, "extraction": extraction_metadata}
 

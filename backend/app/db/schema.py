@@ -222,6 +222,25 @@ def ensure_pipeline_schema(connection: sqlite3.Connection) -> None:
           PRIMARY KEY (job_id, step_name),
           FOREIGN KEY (job_id) REFERENCES pipeline_jobs(job_id) ON DELETE CASCADE
         );
+
+        CREATE TABLE IF NOT EXISTS pipeline_job_events (
+          event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          job_id TEXT NOT NULL,
+          sequence INTEGER NOT NULL,
+          level TEXT NOT NULL CHECK (level IN ('info', 'warning', 'error')),
+          phase TEXT NOT NULL,
+          message TEXT NOT NULL,
+          current INTEGER NOT NULL DEFAULT 0,
+          total INTEGER NOT NULL DEFAULT 0,
+          doc_id TEXT,
+          details_json TEXT NOT NULL DEFAULT '{}',
+          created_at TEXT NOT NULL,
+          UNIQUE (job_id, sequence),
+          FOREIGN KEY (job_id) REFERENCES pipeline_jobs(job_id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_pipeline_job_events_job_sequence
+          ON pipeline_job_events(job_id, sequence);
         """
     )
     existing_columns = _table_columns(connection, "pipeline_jobs")

@@ -100,7 +100,7 @@ GET  /api/v1/crawl/runs/{crawl_run_id}
 }
 ```
 
-`phase` 可为 `collecting`、`validating`、`importing`、`completed` 或 `failed`。采集阶段的 `total` 为选中来源数乘以 `limit`；验证和导入阶段的 `total` 为实际进入对应阶段的文档数。旧客户端未收到 `progress` 时应显示通用任务执行状态。任务终态沿用宽松语义：至少一篇文档完成 live Pipeline 且 crawler 主流程未退出失败时返回 `succeeded`；没有任何成功 Pipeline 或 crawler 主流程失败时返回 `failed`。
+`phase` 可为 `collecting`、`validating`、`importing`、`pipeline`、`completed` 或 `failed`。采集阶段的 `total` 为选中来源数乘以 `limit`；验证和导入阶段的 `total` 为实际进入对应阶段的文档数。进入 `pipeline` 后，状态还包含当前文档的 `doc_id`、子任务 `job_id`、子任务百分比，以及 `pipeline` 状态快照。`events` 最多保留最近 100 条阶段事件，包含 `sequence`、`level`、`phase`、`message`、`source`、`doc_id`、`job_id` 和 `created_at`。旧客户端未收到这些字段时应显示通用任务执行状态。任务终态沿用宽松语义：至少一篇文档完成 live Pipeline 且 crawler 主流程未退出失败时返回 `succeeded`；没有任何成功 Pipeline 或 crawler 主流程失败时返回 `failed`。
 
 `POST /sources` 请求：
 
@@ -236,11 +236,12 @@ GET  /api/v1/pipeline/status/{job_id}
 5. `use_cache` 已废弃且会返回 HTTP 400。抽取模式必须使用含义明确的 `reviewed` 或 `live`，不能用布尔值同时表达“缓存偏好”和“外部调用授权”。
 6. `doc_id` 和 `target_group` 必须且只能提供一个。为避免一次误触发大量模型调用，`live` 只允许 `doc_id`；`reviewed` 可按目标组织运行，并按 `doc_id` 排序处理 SQLite 中的匹配文档。
 7. 同一作用域和抽取模式的 `pending` / `running` 请求复用活动任务，且只向后台执行器提交一次；执行前仍通过条件更新原子认领。
-8. `pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息。服务启动时把遗留的 `running` 标记为中断失败，并以 SQLite 终态对账已有 live 运行档案；档案缺失、损坏或不可写不阻塞 SQLite 恢复。服务正常关闭时等待在途任务结束。
+8. `pipeline_jobs` 和 `pipeline_job_steps` 持久化任务、结果、错误和时间信息；`pipeline_job_events` 持久化调试事件。服务启动时把遗留的 `running` 标记为中断失败，并以 SQLite 终态对账已有 live 运行档案；档案缺失、损坏或不可写不阻塞 SQLite 恢复。服务正常关闭时等待在途任务结束。
 9. `live` 模式在调用 SQLite 导入前，将 Extraction 与同 `run_id` 的 Candidate Audit 持久化到本机 `data/run_artifacts/`，并将 `running / succeeded / failed`、工件路径、SHA-256、LLM 调用观测和导入摘要写入 `data/run_logs/pipeline-run-<job_id>.json`。这些目录默认被 Git 忽略，不新增 `data/pipeline_*` 运行时目录。
 10. 流水线只有一个真实复合步骤，不为已经包含在离线流水线中的归一化、建图、分析和报告伪造独立成功状态。
 11. `live` 状态响应的 `run_archive` 用于定位本机运行档案；任务尚未开始时为 `null`。档案损坏时返回 `status=unavailable`，不能阻止 SQLite 中断恢复。档案只记录候选输出和运行观测，不改变 SQLite 作为 canonical 事实源的地位。
 12. `reviewed` 只读取 `config/course-demo.json` 或 `config/reviewed-extractions.json` 显式登记的工件，不扫描运行目录，也不会把刚生成的 live 结果自动视为已审核结果。
+13. 状态响应的 `progress` 是最新事件的聚合视图，`events` 是有序过程时间线。`resolving_scope`、`locating_inputs`、`loading_reviewed`、`extracting`、`building_graph`、`document_completed` 和 `syncing_projection` 只表示复合步骤内部的真实执行边界，不是独立业务步骤，也不代表各阶段可单独提交或回滚。
 
 提交成功响应示例：
 
@@ -263,6 +264,36 @@ GET  /api/v1/pipeline/status/{job_id}
 ```text
 pending -> running -> succeeded
                    -> failed
+```
+
+状态响应中的可观察性字段示例：
+
+```json
+{
+  "progress": {
+    "phase": "building_graph",
+    "current": 0,
+    "total": 1,
+    "percent": 0,
+    "message": "正在校验、归一化并写入 SQLite：apt28_080",
+    "doc_id": "apt28_080",
+    "updated_at": "2026-07-17T12:00:00+08:00"
+  },
+  "events": [
+    {
+      "job_id": "job_0123456789abcdef",
+      "sequence": 5,
+      "level": "info",
+      "phase": "building_graph",
+      "message": "正在校验、归一化并写入 SQLite：apt28_080",
+      "current": 0,
+      "total": 1,
+      "doc_id": "apt28_080",
+      "details": {},
+      "created_at": "2026-07-17T12:00:00+08:00"
+    }
+  ]
+}
 ```
 
 `live` 状态响应会额外返回：

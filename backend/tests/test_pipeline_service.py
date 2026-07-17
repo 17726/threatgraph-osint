@@ -64,8 +64,112 @@ def test_pipeline_schema_is_persisted(tmp_path):
             row[1] for row in connection.execute("PRAGMA table_info(pipeline_jobs)")
         }
 
-    assert {"pipeline_jobs", "pipeline_job_steps"} <= tables
+    assert {"pipeline_jobs", "pipeline_job_steps", "pipeline_job_events"} <= tables
     assert "extraction_mode" in job_columns
+
+
+def test_pipeline_observability_exposes_progress_and_ordered_events(tmp_path):
+    service = PipelineService(
+        tmp_path / "pipeline.db",
+        runner=lambda **_context: {"graph_updated": True},
+    )
+
+    result = service.run_sync(doc_id="doc-1", extraction_mode="live")
+
+    assert result["progress"] == {
+        "phase": "completed",
+        "current": 1,
+        "total": 1,
+        "percent": 100,
+        "message": "流水线执行完成",
+        "doc_id": "doc-1",
+        "updated_at": result["finished_at"],
+    }
+    assert [event["phase"] for event in result["events"]] == [
+        "pending",
+        "running",
+        "completed",
+    ]
+    assert [event["sequence"] for event in result["events"]] == [1, 2, 3]
+    assert all(event["job_id"] == result["job_id"] for event in result["events"])
+    assert result["events"][-1]["details"] == {"graph_updated": True}
+    service.close()
+
+
+def test_pipeline_observability_preserves_failure_context(tmp_path):
+    def failing_runner(**_context):
+        raise RuntimeError("审核工件不可用")
+
+    service = PipelineService(tmp_path / "pipeline.db", runner=failing_runner)
+
+    result = service.run_sync(doc_id="doc-bad", extraction_mode="reviewed")
+
+    assert result["status"] == "failed"
+    assert result["progress"]["phase"] == "failed"
+    assert result["progress"]["doc_id"] == "doc-bad"
+    assert result["progress"]["message"] == "审核工件不可用"
+    assert result["events"][-1]["level"] == "error"
+    assert result["events"][-1]["details"] == {
+        "error_type": "RuntimeError",
+        "failed_step": "import_extraction_and_build",
+    }
+    service.close()
+
+
+def test_pipeline_observability_reports_real_default_operation_boundaries(tmp_path):
+    document_path = tmp_path / "document.json"
+    extraction_path = tmp_path / "extraction.json"
+    document_path.write_text('{"doc_id":"doc-1"}', encoding="utf-8")
+    extraction_path.write_text('{"run_id":"run-1"}', encoding="utf-8")
+
+    class FakeOfflinePipeline:
+        def run(self, _document_path, _extraction_path):
+            return {"canonical_entities": 2, "canonical_relations": 1}
+
+    service = PipelineService(
+        tmp_path / "pipeline.db",
+        offline_pipeline=FakeOfflinePipeline(),
+        document_locator=lambda _doc_id: (str(document_path), str(extraction_path)),
+        projection_sync=lambda: {"status": "succeeded", "changes": 3},
+    )
+
+    result = service.run_sync(doc_id="doc-1", extraction_mode="reviewed")
+
+    phases = [event["phase"] for event in result["events"]]
+    assert phases == [
+        "pending",
+        "running",
+        "resolving_scope",
+        "locating_inputs",
+        "loading_reviewed",
+        "building_graph",
+        "document_completed",
+        "syncing_projection",
+        "completed",
+    ]
+    assert result["events"][4]["details"]["extraction_path"].endswith(
+        "extraction.json"
+    )
+    assert result["events"][6]["details"]["canonical_entities"] == 2
+    service.close()
+
+
+def test_pipeline_observability_emits_docker_visible_structured_log(tmp_path, caplog):
+    service = PipelineService(
+        tmp_path / "pipeline.db",
+        runner=lambda **_context: {"graph_updated": True},
+    )
+
+    with caplog.at_level("INFO", logger="uvicorn.error"):
+        result = service.run_sync(doc_id="doc-log", extraction_mode="reviewed")
+
+    assert any(
+        "pipeline_event" in record.message
+        and result["job_id"] in record.message
+        and "phase=completed" in record.message
+        for record in caplog.records
+    )
+    service.close()
 
 
 def test_pipeline_requires_exactly_one_scope(tmp_path):

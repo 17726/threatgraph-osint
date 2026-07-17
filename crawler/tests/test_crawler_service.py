@@ -289,6 +289,178 @@ def test_service_runs_live_pipeline_after_document_import(monkeypatch, tmp_path:
     )
 
 
+def test_crawl_observability_exposes_child_pipeline_progress(monkeypatch, tmp_path: Path) -> None:
+    service = CrawlerService(
+        workspace_root=tmp_path,
+        backend_base_url="http://backend:8000",
+    )
+    run_id = "crawl_observability"
+    service._runs[run_id] = {
+        "crawl_run_id": run_id,
+        "keyword": "APT28",
+        "status": "running",
+        "events": [],
+        "pipeline": None,
+        "progress": None,
+    }
+
+    class Response:
+        def __init__(self, payload: dict):
+            self.payload = payload
+
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"success": True, "data": self.payload}
+
+    monkeypatch.setattr(
+        "crawler.app.service.httpx.post",
+        lambda *args, **kwargs: Response(
+            {"job_id": "job_child_001", "status": "running"}
+        ),
+    )
+    responses = iter(
+        [
+            Response(
+                {
+                    "job_id": "job_child_001",
+                    "status": "running",
+                    "progress": {
+                        "phase": "building_graph",
+                        "current": 0,
+                        "total": 1,
+                        "percent": 0,
+                        "message": "正在校验、归一化并写入 SQLite：apt28_108",
+                        "doc_id": "apt28_108",
+                    },
+                }
+            ),
+            Response(
+                {
+                    "job_id": "job_child_001",
+                    "status": "succeeded",
+                    "progress": {
+                        "phase": "completed",
+                        "current": 1,
+                        "total": 1,
+                        "percent": 100,
+                        "message": "流水线执行完成",
+                        "doc_id": "apt28_108",
+                    },
+                }
+            ),
+        ]
+    )
+    monkeypatch.setattr(
+        "crawler.app.service.httpx.get", lambda *args, **kwargs: next(responses)
+    )
+
+    result = service._run_live_pipeline(
+        "apt28_108",
+        crawl_run_id=run_id,
+        target="APT28",
+        current=0,
+        total=1,
+        source="FreeBuf",
+    )
+    status = service.status(run_id)
+
+    assert result["status"] == "succeeded"
+    assert status["pipeline"]["job_id"] == "job_child_001"
+    assert status["pipeline"]["progress"]["percent"] == 100
+    assert status["progress"]["phase"] == "pipeline"
+    assert status["progress"]["message"] == "流水线执行完成"
+    assert [event["phase"] for event in status["events"]] == [
+        "pipeline_submitted",
+        "pipeline_building_graph",
+        "pipeline_completed",
+    ]
+
+
+def test_crawl_observability_records_collection_phase_changes() -> None:
+    service = CrawlerService()
+    run_id = "crawl_progress_events"
+    service._runs[run_id] = {
+        "crawl_run_id": run_id,
+        "keyword": "APT28",
+        "status": "running",
+        "events": [],
+        "progress": None,
+    }
+
+    service._update_progress(
+        run_id,
+        {
+            "phase": "collecting",
+            "current": 1,
+            "total": 3,
+            "target": "APT28",
+            "source": "FreeBuf",
+            "message": "正在采集",
+        },
+    )
+    service._update_progress(
+        run_id,
+        {
+            "phase": "collecting",
+            "current": 2,
+            "total": 3,
+            "target": "APT28",
+            "source": "FreeBuf",
+            "message": "正在采集",
+        },
+    )
+    service._update_progress(
+        run_id,
+        {
+            "phase": "validating",
+            "current": 0,
+            "total": 2,
+            "target": "APT28",
+            "source": None,
+            "message": "正在校验",
+        },
+    )
+
+    status = service.status(run_id)
+
+    assert [event["phase"] for event in status["events"]] == [
+        "collecting",
+        "validating",
+    ]
+
+
+def test_crawl_observability_emits_docker_visible_structured_log(caplog) -> None:
+    service = CrawlerService()
+    run_id = "crawl_log_events"
+    service._runs[run_id] = {
+        "crawl_run_id": run_id,
+        "keyword": "APT28",
+        "status": "running",
+        "events": [],
+        "progress": None,
+    }
+
+    with caplog.at_level("INFO", logger="uvicorn.error"):
+        service._update_progress(
+            run_id,
+            {
+                "phase": "collecting",
+                "current": 1,
+                "total": 2,
+                "target": "APT28",
+                "source": "FreeBuf",
+                "message": "正在采集",
+            },
+        )
+
+    assert any(
+        "crawl_event" in record.message and run_id in record.message
+        for record in caplog.records
+    )
+
+
 def test_import_failure_still_counts_document_as_found(monkeypatch, tmp_path: Path) -> None:
     service = CrawlerService(
         workspace_root=tmp_path,
