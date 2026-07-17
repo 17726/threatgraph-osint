@@ -9,6 +9,7 @@ interface Graph3DProps {
   highlightNodeIds?: string[];
   searchNodeId?: string | null;
   focusNodeId?: string | null;
+  focusEdgeId?: string | null;
   onNodeClick: (node: GraphNode) => void;
   onEdgeClick: (edge: GraphEdge) => void;
   onBackgroundClick?: () => void;
@@ -31,6 +32,7 @@ export default function Graph3D({
   highlightNodeIds = [],
   searchNodeId = null,
   focusNodeId = null,
+  focusEdgeId = null,
   onNodeClick,
   onEdgeClick,
   onBackgroundClick,
@@ -39,8 +41,8 @@ export default function Graph3D({
   const graphRef = useRef<ForceGraphMethods<Graph3DNode, Graph3DLink> | undefined>(undefined);
   const [size, setSize] = useState({ width: MINIMUM_WIDTH, height: MINIMUM_HEIGHT });
   const graphData = useMemo(
-    () => buildGraph3DData(graph, { highlightNodeIds, searchNodeId, focusNodeId }),
-    [graph, highlightNodeIds, searchNodeId, focusNodeId],
+    () => buildGraph3DData(graph, { highlightNodeIds, searchNodeId, focusNodeId, focusEdgeId }),
+    [graph, highlightNodeIds, searchNodeId, focusNodeId, focusEdgeId],
   );
   const cameraDistance = Math.max(360, Math.round(Math.cbrt(graphData.nodes.length) * 100));
 
