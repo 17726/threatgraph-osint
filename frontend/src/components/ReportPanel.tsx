@@ -152,7 +152,11 @@ export default function ReportPanel({
               <div
                 style={{ lineHeight: 1.8, whiteSpace: "pre-wrap" }}
                 dangerouslySetInnerHTML={{
-                  __html: renderMarkdown(current.markdown),
+                  __html: renderMarkdown(
+                    current.section_type === "attack_chain"
+                      ? current.markdown.replace(/^####\s+(.+)$/gm, "**$1**")
+                      : current.markdown,
+                  ),
                 }}
               />
 
