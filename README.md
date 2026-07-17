@@ -23,22 +23,22 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 本项目对应《网络空间安全综合实验》实验三：**开源情报资源中潜在行为和关系的大模型深度分析系统**。
 
 > [!IMPORTANT]
-> 当前仓库处于课程 P0 核心链路收口阶段。标准 Document 导入、`reviewed/live` 抽取、候选校验、归一化建图、SQLite 查询和前端刷新已有基础实现；当前优先完成三类来源、三个目标组织、行为/MITRE 和五章节报告的固定样本验收。完整评测平台和 Neo4j 不阻塞 P0。
+> 当前版本已满足课程验收要求。标准 Document 导入、三类来源采集、`reviewed/live` 抽取、候选校验、归一化建图、SQLite 查询、行为/MITRE 分析、五章节报告和前端展示已形成可演示闭环；完整评测平台、Neo4j 多维查询、调度和报告导出属于后续增强能力。
 
 ## 系统能力
 
 | 能力 | 当前状态 | 说明 |
 | --- | --- | --- |
 | 目标组织切换 | 已实现 | 支持按 APT28、Lazarus、Kimsuky 查询 SQLite 正式图谱；空库返回空图 |
-| 知识图谱可视化 | 已实现 | 展示实体、关系、时间过滤和路径追踪 |
+| 知识图谱可视化 | 已实现 | 支持 2D/3D 切换、全屏、展示深度（1～20）、时间过滤、技术/地区筛选和路径追踪 |
 | 实体与关系详情 | 已实现 | 支持查看类型、置信度、验证状态和证据 |
-| 行为分析 | 代码已实现基础规则 | 已有行为模式和分析页面，真实 MITRE 映射待三组织验收 |
-| 评测结果 | 已有开发集数据 | 后端已有候选评测工件；前端仍是 Mock，只计划替换为最小开发集摘要 |
+| 行为分析 | 已实现 | 提供行为模式、MITRE ATT&CK 映射、推断关系和威胁评估接口 |
+| 评测结果 | 后端脚本已实现 | 提供候选审计和开发集 Precision、Recall、F1 计算；当前前端主界面聚焦图谱、分析和报告 |
 | FastAPI API | 已实现 P0 基础接口 | 提供文档导入、Pipeline、图谱、路径、分析和报告接口 |
 | SQLite 运行时主库 | 已确定 | 保存 canonical graph、证据、导入状态和同步水位 |
 | 文档与候选抽取契约 | 已冻结 | 提供 JSON Schema、样例和关系合法性矩阵 |
-| 三类来源采集 | 已有数据，待集成验收 | 已有安全来源和新闻采集器、社媒/论坛数据转换器，待固化清洗与覆盖检查 |
-| Neo4j 图查询投影 | 已实现基础能力 | 支持全量重建、基于 SQLite 水位的幂等增量同步、状态检查和多跳路径查询 |
+| 三类来源采集 | 已实现 | crawler 容器提供来源采集和标准文档提升，backend 负责导入、live 抽取、校验和建图 |
+| Neo4j 图查询投影 | 已实现基础能力 | 支持全量重建、基于 SQLite 水位的幂等增量同步、状态检查和多跳路径查询，失败自动降级到 SQLite |
 
 ### 核心原则
 
@@ -53,11 +53,12 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 
 ![ThreatGraph-OSINT 前端界面](docs/assets/pr3-frontend.png)
 
-前端当前包含三个主要视图：
+前端当前包含两个主要视图：
 
 - **知识图谱**：查看目标组织的实体网络、关系、时间范围和证据详情。
 - **行为分析**：查看攻击阶段、MITRE ATT&CK 映射和行为模式。
-- **评测结果**：查看评测页面原型、Mock 指标和错误样例。
+
+图谱视图支持 2D ECharts 与白底 3D 力导向图切换，并提供全屏显示、节点邻居展开、展示深度、时间轴、技术筛选、地区筛选和路径追踪。顶部的“采集情报”入口通过 backend 创建 crawler 任务；没有有效 LLM 配置时按钮会保持禁用，不会启动采集任务。
 
 ## 架构与数据流
 
@@ -78,10 +79,10 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
           │
      ┌────┴────┐
      ▼         ▼
- graph.json  FastAPI
-     │         │
-     ▼         ▼
-   Neo4j     React + ECharts
+  graph.json  FastAPI
+      │         │
+      ▼         ▼
+    Neo4j     React + ECharts
   P1 增强       图谱研判界面
 ```
 
@@ -89,8 +90,9 @@ ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开�
 
 | 层次 | 技术 |
 | --- | --- |
-| 前端 | React 19、TypeScript、Vite、ECharts、Lucide React |
+| 前端 | React 19、TypeScript、Vite、ECharts、react-force-graph-3d、Three.js、Lucide React |
 | 后端 | FastAPI、Python 3.13 |
+| 采集 | 独立 crawler 容器、HTTP/HTTPS 代理、来源适配器 |
 | 数据层 | SQLite |
 | 图谱增强 | Neo4j 5 Community，P1 阶段使用 |
 | 运行方式 | Docker Compose |
@@ -146,7 +148,7 @@ docker compose up
 | 健康检查 | <http://localhost:8000/api/v1/health> |
 | Neo4j Browser | <http://localhost:7474> |
 
-爬虫服务 `crawler:8100` 只在 Docker Compose 内部网络提供 HTTP API，不映射宿主机端口。开发阶段浏览器可以直接请求 backend 的 `8000` 端口，但不能直接请求 crawler。前端“采集情报”操作的链路为：frontend 请求 backend 创建任务，backend 通过 HTTP 调用 crawler 并轮询状态，crawler 逐篇请求 backend 的 `/api/v1/documents/import`，随后固定复用 `/api/v1/pipeline/run` 的 `live` 模式和 `/api/v1/pipeline/status/{job_id}`，完成抽取、校验、归一化和建图。
+爬虫服务 `crawler:8100` 只在 Docker Compose 内部网络提供 HTTP API，不映射宿主机端口。浏览器只能请求 backend 的 `8000` 端口，不能直接请求 crawler。前端“采集情报”操作的链路为：frontend 请求 backend 创建任务，backend 通过 HTTP 调用 crawler 并轮询状态，crawler 逐篇请求 backend 的 `/api/v1/documents/import`，随后固定复用 `/api/v1/pipeline/run` 的 `live` 模式和 `/api/v1/pipeline/status/{job_id}`，完成抽取、校验、归一化和建图。
 
 由于采集固定使用 live Pipeline，必须在 `.env` 中配置非空的 `LLM_MODEL`、`LLM_BASE_URL` 和 `LLM_API_KEY`。没有有效配置时，“采集情报”按钮仍会显示但处于禁用状态；即使直接调用 API，backend 也会返回 `503 ERR_LLM_NOT_CONFIGURED`，不会启动 crawler。
 
@@ -227,16 +229,24 @@ docker compose down -v
 
 ## API 入口
 
-当前 P0 后端提供以下基础接口：
+当前后端提供以下主要接口：
 
 ```text
 GET /api/v1/health
 GET /api/v1/graph?target=APT28&depth=2
+GET /api/v1/graph/neighbors?entity_id=technique:t1566&depth=2
 GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
+GET /api/v1/analysis/{target_group}/behavior
+GET /api/v1/analysis/{target_group}/mitre
+GET /api/v1/analysis/{target_group}/inferences
+GET /api/v1/analysis/{target_group}/threat-assessment
+POST /api/v1/pipeline/run
+GET /api/v1/pipeline/status/{job_id}
 GET /api/v1/neo4j/status
 POST /api/v1/neo4j/rebuild
 POST /api/v1/neo4j/sync
 GET /api/v1/reports/{target_group}
+POST /api/v1/reports/{target_group}/generate
 POST /api/v1/crawl/runs
 GET /api/v1/crawl/runs/{crawl_run_id}
 ```
@@ -288,6 +298,7 @@ graph.schema.json -> data/graph/graph.json
 ```text
 .
 ├── backend/              FastAPI 后端与服务逻辑
+├── crawler/              独立采集服务与来源适配器
 ├── frontend/             React + TypeScript + Vite 前端
 ├── data/
 │   ├── examples/         契约样例
@@ -310,6 +321,13 @@ docker compose build backend
 docker compose run --rm backend python -m pytest backend/tests -v
 ```
 
+### 采集服务测试
+
+```bash
+docker compose build crawler
+docker compose run --rm crawler python -m pytest crawler/tests -v
+```
+
 ### 前端测试与构建
 
 ```bash
@@ -318,6 +336,8 @@ docker compose run --rm frontend npm run test
 docker compose run --rm frontend npm run build
 docker compose run --rm frontend npm run format:check
 ```
+
+前端当前通过 `App` 集成图谱、分析、报告、Pipeline 和采集入口；`EvaluationPage` 与历史评测数据仍保留在代码仓库中，评测指标以后端脚本和 `docs/reports/` 中的开发集记录为准。
 
 ### 离线抽取结果校验
 
@@ -364,6 +384,7 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
 | [`docs/demo-flow.md`](docs/demo-flow.md) | 课程全链路演示路径、当前实现边界与数据门槛 |
 | [`docs/schemas/README.md`](docs/schemas/README.md) | JSON Schema 与样例说明 |
 | [`docs/docker-runtime.md`](docs/docker-runtime.md) | Docker Compose 运行契约 |
+| [`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md) | LLM 抽取、工件和开发集评测操作 |
 | [`docs/team-workflow.md`](docs/team-workflow.md) | 小组职责与协作流程 |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | 开发规范与 Git 流程 |
 | [`docs/reports/llm-extraction-baseline.md`](docs/reports/llm-extraction-baseline.md) | DeepSeek V4 真实调用、APT28 指标和 golden 门禁结论 |
@@ -390,13 +411,13 @@ docker compose run --rm backend python scripts/run_llm_extraction.py \
 
 ```text
 Step 0  脚手架与 Mock 闭环       已完成
-Step 1  真实样本与后半链路        基础实现已完成
-Step 2  P0 MVP 闭环               待固定工件集成验收
-Step 3  课程验收闭环              进行中
-Step 4  Neo4j、调度与报告导出增强    P1
+Step 1  真实样本与后半链路        已完成
+Step 2  P0 MVP 闭环               已完成
+Step 3  课程验收闭环              已完成
+Step 4  Neo4j、调度与报告导出增强  P1，后续增强
 ```
 
-当前首要目标是使用 APT28、Kimsuky、Lazarus 三份显式审核工件，在独立 SQLite 中复现“导入 → 候选抽取 → 归一化 → 正式图谱 → 行为/MITRE → 结构化报告 → 前端展示”。
+当前版本已使用 APT28、Kimsuky、Lazarus 三个目标组织和三类公开来源，完成“采集/导入 → 候选抽取 → 归一化 → 正式图谱 → 行为/MITRE → 结构化报告 → 前端展示”的课程演示链路。后续开发重点为 Neo4j 多维查询、定时调度、增量更新、报告导出和更完整的评测能力。
 
 ## 数据与隐私约束
 
