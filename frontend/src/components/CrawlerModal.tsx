@@ -157,13 +157,13 @@ export default function CrawlerModal({
   return (
     <div className="crawler-modal-backdrop" onClick={handleClose}>
       <section
-        aria-label="采集情报弹窗"
+        aria-label="流水线弹窗"
         className="crawler-modal"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="crawler-modal-header">
           <div>
-            <h2>采集情报</h2>
+            <h2>流水线</h2>
           </div>
           <button
             className="crawler-close"
@@ -181,7 +181,7 @@ export default function CrawlerModal({
 
         {!llmConfigured ? (
           <div className="crawler-result crawler-result-warning" role="status">
-            <AlertCircle size={16} /> 需要有效 LLM 配置后才能采集情报。
+            <AlertCircle size={16} /> 需要有效 LLM 配置后才能运行流水线。
           </div>
         ) : null}
 
