@@ -20,6 +20,7 @@ export interface BuildOptions {
   highlightNodeIds?: string[];
   searchNodeId?: string | null;
   focusNodeId?: string | null;
+  focusEdgeId?: string | null;
 }
 
 export function getGraphCategories(payload: GraphPayload): GraphLegendItem[] {
@@ -50,6 +51,7 @@ export function buildGraph3DData(payload: GraphPayload, opts?: BuildOptions) {
   const highlightSet = new Set(opts?.highlightNodeIds ?? []);
   const searchNodeId = opts?.searchNodeId;
   const focusNodeId = opts?.focusNodeId;
+  const focusEdgeId = opts?.focusEdgeId;
   const focusNodeIds = new Set<string>();
 
   if (focusNodeId) {
@@ -60,7 +62,16 @@ export function buildGraph3DData(payload: GraphPayload, opts?: BuildOptions) {
     });
   }
 
-  const hasFocus = highlightSet.size > 0 || Boolean(searchNodeId) || Boolean(focusNodeId);
+  if (focusEdgeId) {
+    const focusedEdge = payload.edges.find((edge) => edge.id === focusEdgeId);
+    if (focusedEdge) {
+      focusNodeIds.add(focusedEdge.source);
+      focusNodeIds.add(focusedEdge.target);
+    }
+  }
+
+  const hasFocus =
+    highlightSet.size > 0 || Boolean(searchNodeId) || Boolean(focusNodeId) || Boolean(focusEdgeId);
 
   const nodes: Graph3DNode[] = payload.nodes.map((node) => {
     const isHighlighted = highlightSet.has(node.id);
@@ -83,7 +94,9 @@ export function buildGraph3DData(payload: GraphPayload, opts?: BuildOptions) {
   });
 
   const links: Graph3DLink[] = payload.edges.map((edge) => {
+    const isFocusedEdge = focusEdgeId === edge.id;
     const isFocusLink =
+      isFocusedEdge ||
       (highlightSet.has(edge.source) && highlightSet.has(edge.target)) ||
       Boolean(searchNodeId && (edge.source === searchNodeId || edge.target === searchNodeId)) ||
       Boolean(focusNodeId && (edge.source === focusNodeId || edge.target === focusNodeId));
@@ -99,8 +112,8 @@ export function buildGraph3DData(payload: GraphPayload, opts?: BuildOptions) {
           : edge.validation_status === "invalid"
             ? "rgba(156, 163, 175, 0.45)"
             : "#94a3b8",
-      width: isFocusLink ? 3 : 1.2,
-      particles: isFocusLink ? 3 : 0,
+      width: isFocusedEdge ? 4 : isFocusLink ? 3 : 1.2,
+      particles: isFocusedEdge ? 4 : isFocusLink ? 3 : 0,
       _raw: edge,
     };
   });

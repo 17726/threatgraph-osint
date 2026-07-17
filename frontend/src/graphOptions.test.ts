@@ -144,6 +144,40 @@ describe("3D 点击聚焦", () => {
     expect(result.links[0]).toMatchObject({ color: "#f59e0b", width: 3, particles: 3 });
     expect(result.links[1]).toMatchObject({ color: "#e2e8f0", width: 1.2, particles: 0 });
   });
+
+  it("强调点击关系及其端点并调暗无关元素", () => {
+    const focusPayload: GraphPayload = {
+      ...payload,
+      nodes: [
+        ...payload.nodes,
+        {
+          ...payload.nodes[1],
+          id: "country:ukraine",
+          name: "Ukraine",
+          type: "COUNTRY",
+        },
+      ],
+      edges: [
+        ...payload.edges,
+        {
+          ...payload.edges[0],
+          id: "rel:x-agent:targets:ukraine",
+          source: "malware:x-agent",
+          target: "country:ukraine",
+        },
+      ],
+    };
+
+    const result = graphOptions.buildGraph3DData(focusPayload, {
+      focusEdgeId: "rel:apt28:uses:x-agent",
+    });
+
+    expect(result.nodes[0].color).toBe("#0f766e");
+    expect(result.nodes[1].color).toBe("#be123c");
+    expect(result.nodes[2].color).toBe("#cbd5e1");
+    expect(result.links[0]).toMatchObject({ color: "#f59e0b", width: 4, particles: 4 });
+    expect(result.links[1]).toMatchObject({ color: "#e2e8f0", width: 1.2, particles: 0 });
+  });
 });
 
 describe("2D 图谱关系 tooltip", () => {

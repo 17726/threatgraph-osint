@@ -733,6 +733,19 @@ h2 {
   flex-direction: column;
 }
 
+.graph-edge-detail-fullscreen {
+  position: absolute;
+  z-index: 40;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 92vw);
+  overflow-y: auto;
+  border-left: 1px solid #d7dfdd;
+  background: #ffffff;
+  box-shadow: -8px 0 24px rgb(15 23 42 / 14%);
+}
+
 .evidence-list {
   display: grid;
   gap: 8px;

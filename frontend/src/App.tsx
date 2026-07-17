@@ -27,6 +27,7 @@ import AnalysisPage from "./pages/AnalysisPage";
 import PipelineModal from "./components/PipelineModal";
 import CrawlerModal from "./components/CrawlerModal";
 import GraphLegend from "./components/GraphLegend";
+import GraphEdgeDetail from "./components/GraphEdgeDetail";
 
 const Graph3D = lazy(() => import("./components/Graph3D"));
 
@@ -43,6 +44,7 @@ export function App() {
   const [reloadKey, setReloadKey] = useState(0);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [focused3DNodeId, setFocused3DNodeId] = useState<string | null>(null);
+  const [focused3DEdgeId, setFocused3DEdgeId] = useState<string | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
   const [generating, setGenerating] = useState(false);
   const chartRef = useRef<any>(null);
@@ -116,6 +118,7 @@ export function App() {
     setError(null);
     setSelectedNode(null);
     setFocused3DNodeId(null);
+    setFocused3DEdgeId(null);
     setSelectedEdge(null);
     setSearchNodeId(null);
     setRegionFilter("");
@@ -248,13 +251,24 @@ export function App() {
   const handle3DNodeClick = useCallback(
     (node: GraphNode) => {
       setFocused3DNodeId(node.id);
+      setFocused3DEdgeId(null);
       handleNodeClick(node);
     },
     [handleNodeClick],
   );
 
+  const handle3DEdgeClick = useCallback(
+    (edge: GraphEdge) => {
+      setFocused3DNodeId(null);
+      setFocused3DEdgeId(edge.id);
+      handleEdgeClick(edge);
+    },
+    [handleEdgeClick],
+  );
+
   const handle3DBackgroundClick = useCallback(() => {
     setFocused3DNodeId(null);
+    setFocused3DEdgeId(null);
     setSelectedNode(null);
     setSelectedEdge(null);
   }, []);
@@ -262,6 +276,11 @@ export function App() {
   const handleNodeDetailClose = useCallback(() => {
     setFocused3DNodeId(null);
     setSelectedNode(null);
+  }, []);
+
+  const handleEdgeDetailClose = useCallback(() => {
+    setFocused3DEdgeId(null);
+    setSelectedEdge(null);
   }, []);
 
   const handleChartReady = useCallback(
@@ -572,8 +591,9 @@ export function App() {
                       highlightNodeIds={highlightNodeIds}
                       searchNodeId={searchNodeId}
                       focusNodeId={focused3DNodeId}
+                      focusEdgeId={focused3DEdgeId}
                       onNodeClick={handle3DNodeClick}
-                      onEdgeClick={handleEdgeClick}
+                      onEdgeClick={handle3DEdgeClick}
                       onBackgroundClick={handle3DBackgroundClick}
                     />
                   </Suspense>
@@ -602,132 +622,27 @@ export function App() {
                   <NodeDetail entityId={selectedNode?.id ?? null} onClose={handleNodeDetailClose} />
                 </>
               )}
+              {selectedEdge && isGraphFullscreen ? (
+                <aside
+                  className="graph-edge-detail-fullscreen"
+                  data-testid="graph-edge-detail-fullscreen"
+                >
+                  <GraphEdgeDetail
+                    edge={selectedEdge}
+                    evidence={filteredGraph?.evidence ?? []}
+                    onClose={handleEdgeDetailClose}
+                  />
+                </aside>
+              ) : null}
             </div>
 
             <aside className="side-panel">
-              {selectedEdge ? (
-                <>
-                  <div className="panel-heading">
-                    <h2>关系详情</h2>
-                    <button
-                      onClick={() => setSelectedEdge(null)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "#64748b",
-                        fontSize: 18,
-                      }}
-                    >
-                      &times;
-                    </button>
-                  </div>
-                  <div style={{ padding: 16, fontSize: 13, color: "#334155" }}>
-                    <div style={{ marginBottom: 12 }}>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          padding: "2px 8px",
-                          borderRadius: 4,
-                          background: "#0f766e",
-                          color: "#fff",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {selectedEdge.label}
-                      </span>
-                      <span
-                        style={{
-                          marginLeft: 8,
-                          fontSize: 12,
-                          color: "#64748b",
-                        }}
-                      >
-                        {selectedEdge.type}
-                      </span>
-                      {selectedEdge.validation_status === "valid" ? (
-                        <span
-                          style={{
-                            display: "inline-block",
-                            marginLeft: 8,
-                            padding: "2px 6px",
-                            borderRadius: 4,
-                            background: "#dcfce7",
-                            color: "#166534",
-                            fontSize: 11,
-                            fontWeight: 600,
-                          }}
-                        >
-                          证据事实
-                        </span>
-                      ) : (
-                        <span
-                          style={{
-                            display: "inline-block",
-                            marginLeft: 8,
-                            padding: "2px 6px",
-                            borderRadius: 4,
-                            background: "#f1f5f9",
-                            color: "#64748b",
-                            fontSize: 11,
-                            fontWeight: 600,
-                          }}
-                        >
-                          系统推断
-                        </span>
-                      )}
-                    </div>
-                    <p>
-                      置信度:{" "}
-                      <strong style={{ color: "#172026" }}>{selectedEdge.confidence}</strong>
-                    </p>
-                    <p>
-                      来源数: {selectedEdge.source_count} · 证据: {selectedEdge.evidence_count} 条
-                    </p>
-                    <hr
-                      style={{
-                        border: "none",
-                        borderTop: "1px solid #e2e8e6",
-                        margin: "12px 0",
-                      }}
-                    />
-                    <p style={{ color: "#64748b" }}>
-                      {selectedEdge.source} → {selectedEdge.target}
-                    </p>
-                    <div style={{ marginTop: 12 }}>
-                      {(selectedEdge.evidence_ids ?? []).map((evId, evIdx) => {
-                        const e = filteredGraph?.evidence.find((ev) => ev.id === evId);
-                        if (!e) return null;
-                        return (
-                          <div
-                            key={e.id}
-                            style={{
-                              padding: 10,
-                              marginBottom: 8,
-                              border: "1px solid #e2e8e6",
-                              borderRadius: 8,
-                              background: "#f8faf9",
-                            }}
-                          >
-                            <p style={{ margin: "0 0 4px", fontSize: 12 }}>{e.text}</p>
-                            <a
-                              href={e.source_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              style={{
-                                fontSize: 11,
-                                color: "#0f766e",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {e.source_name}
-                            </a>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </>
+              {selectedEdge && !isGraphFullscreen ? (
+                <GraphEdgeDetail
+                  edge={selectedEdge}
+                  evidence={filteredGraph?.evidence ?? []}
+                  onClose={handleEdgeDetailClose}
+                />
               ) : (
                 <>
                   <div className="panel-heading">

@@ -68,6 +68,8 @@ vi.mock("react-force-graph-3d", async () => {
           data-node-rel-size={props.nodeRelSize}
           data-first-node-color={(props.graphData.nodes[0] as { color?: string })?.color}
           data-second-node-color={(props.graphData.nodes[1] as { color?: string })?.color}
+          data-first-link-color={(props.graphData.links[0] as { color?: string })?.color}
+          data-first-link-width={(props.graphData.links[0] as { width?: number })?.width}
         >
           <button type="button" onClick={() => props.onNodeClick(props.graphData.nodes[0])}>
             模拟选择 3D 节点
@@ -364,16 +366,42 @@ describe("实体一跳筛选", () => {
     expect(screen.getByTestId("node-detail").textContent).toBe("base-1");
   });
 
-  it("在 3D 视图选择关系时复用关系详情", async () => {
+  it("在全屏 3D 视图选择关系时高亮关系并显示可见详情", async () => {
+    let fullscreenElement: Element | null = null;
+    const requestFullscreen = vi.fn(function (this: HTMLElement) {
+      fullscreenElement = this;
+      document.dispatchEvent(new Event("fullscreenchange"));
+      return Promise.resolve();
+    });
+    Object.defineProperty(document, "fullscreenElement", {
+      configurable: true,
+      get: () => fullscreenElement,
+    });
+    Object.defineProperty(HTMLElement.prototype, "requestFullscreen", {
+      configurable: true,
+      value: requestFullscreen,
+    });
     vi.mocked(fetchGraph).mockResolvedValue(graphWithRelation());
     render(<App />);
     await waitFor(() => expect(entityMetric().textContent).toContain("2"));
 
+    fireEvent.click(screen.getByRole("button", { name: "全屏显示图谱" }));
+    await waitFor(() => expect(requestFullscreen).toHaveBeenCalledTimes(1));
     fireEvent.click(screen.getByRole("button", { name: "3D 视图" }));
     fireEvent.click(await screen.findByRole("button", { name: "模拟选择 3D 关系" }));
 
+    const graph3DCanvas = screen.getByTestId("graph-3d-canvas");
+    expect(graph3DCanvas.getAttribute("data-first-link-color")).toBe("#f59e0b");
+    expect(graph3DCanvas.getAttribute("data-first-link-width")).toBe("4");
+    expect(screen.getByTestId("graph-edge-detail-fullscreen")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "关系详情" })).toBeTruthy();
     expect(screen.getByText("使用")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "模拟点击 3D 空白" }));
+    expect(screen.queryByTestId("graph-edge-detail-fullscreen")).toBeNull();
+    expect(screen.getByTestId("graph-3d-canvas").getAttribute("data-first-link-color")).toBe(
+      "#94a3b8",
+    );
   });
 
   it("2D 和 3D 共用类型标签筛选并可通过全部一次清除", async () => {
