@@ -8,7 +8,11 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { createCrawlRun, fetchCrawlRun, type CrawlRunStats } from "../api/crawler";
+import {
+  createCrawlRun,
+  fetchCrawlRun,
+  type CrawlRunStats,
+} from "../api/crawler";
 
 type CrawlerModalProps = {
   open: boolean;
@@ -18,7 +22,8 @@ type CrawlerModalProps = {
   onSuccess: () => void;
 };
 
-type ModalStatus = "idle" | "submitting" | "running" | "success" | "failed";
+type ModalStatus =
+  "idle" | "submitting" | "running" | "success" | "partial_success" | "failed";
 
 const TARGETS = ["APT28", "Kimsuky", "Lazarus"];
 const SOURCES = [
@@ -63,9 +68,15 @@ export default function CrawlerModal({
   const isRunning = status === "running";
   const isBusy = isRunning || status === "submitting";
   const progress = run?.progress;
-  const progressPercent = progress && progress.total > 0
-    ? Math.min(100, Math.round((progress.current / progress.total) * 100))
-    : 0;
+  const progressPercent =
+    progress && progress.total > 0
+      ? Math.min(
+          100,
+          progress.percent ??
+            Math.round((progress.current / progress.total) * 100),
+        )
+      : 0;
+  const recentEvents = (run?.events ?? []).slice(-6).reverse();
 
   useEffect(() => {
     if (open) {
@@ -105,7 +116,8 @@ export default function CrawlerModal({
     requestControllerRef.current = controller;
     const generation = requestGenerationRef.current + 1;
     requestGenerationRef.current = generation;
-    const isCurrent = () => requestGenerationRef.current === generation && !controller.signal.aborted;
+    const isCurrent = () =>
+      requestGenerationRef.current === generation && !controller.signal.aborted;
     try {
       const created = await createCrawlRun(
         {
@@ -119,11 +131,19 @@ export default function CrawlerModal({
       const runId = created.crawl_run_id;
       const poll = async () => {
         try {
-          const current = await fetchCrawlRun(runId, { signal: controller.signal });
+          const current = await fetchCrawlRun(runId, {
+            signal: controller.signal,
+          });
           if (!isCurrent()) return;
           setRun(current);
           if (current.status === "succeeded") {
             setStatus("success");
+            onSuccess();
+            return;
+          }
+          if (current.status === "partial_success") {
+            setStatus("partial_success");
+            setError(current.error_message);
             onSuccess();
             return;
           }
@@ -249,11 +269,14 @@ export default function CrawlerModal({
             <div className="crawler-progress-title">
               <Loader2 size={16} className="loader-spin" />
               <strong>
-                {status === "submitting" ? "正在提交采集任务" : progress?.message ?? "任务正在执行"}
+                {status === "submitting"
+                  ? "正在提交采集任务"
+                  : (progress?.message ?? "任务正在执行")}
               </strong>
               {progress ? (
                 <span>
-                  {progress.current}/{progress.total} {progress.message} 目标：{progress.target}
+                  {progress.current}/{progress.total} {progress.message} 目标：
+                  {progress.target}
                   {progress.source ? ` 来源：${progress.source}` : ""}
                 </span>
               ) : (
@@ -261,10 +284,51 @@ export default function CrawlerModal({
               )}
             </div>
             <div className="crawler-progress-track">
-              <div style={{ width: status === "submitting" ? "33%" : `${progressPercent}%` }} />
+              <div
+                style={{
+                  width:
+                    status === "submitting" ? "33%" : `${progressPercent}%`,
+                }}
+              />
             </div>
             <p>任务正在执行，页面会自动同步 backend 状态。</p>
           </div>
+        ) : null}
+
+        {run ? (
+          <section className="crawler-debug" aria-label="流水线调试信息">
+            <div className="crawler-debug-ids">
+              <span className="crawler-debug-id">
+                采集任务 {run.crawl_run_id}
+              </span>
+              {run.pipeline?.job_id ? (
+                <span className="crawler-debug-id">
+                  子 Pipeline {run.pipeline.job_id}
+                </span>
+              ) : null}
+            </div>
+            {progress?.doc_id ? <p>当前文档：{progress.doc_id}</p> : null}
+            {recentEvents.length > 0 ? (
+              <ol className="crawler-event-list">
+                {recentEvents.map((event) => (
+                  <li
+                    className={`crawler-event crawler-event-${event.level}`}
+                    key={event.sequence}
+                  >
+                    <time>
+                      {new Date(event.created_at).toLocaleTimeString("zh-CN", {
+                        hour12: false,
+                      })}
+                    </time>
+                    <span>{event.message}</span>
+                    {event.doc_id ? <small>{event.doc_id}</small> : null}
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p>等待后端产生阶段事件…</p>
+            )}
+          </section>
         ) : null}
 
         {status === "success" ? (
@@ -273,11 +337,32 @@ export default function CrawlerModal({
             <div>
               <strong>采集任务完成</strong>
               <span>
-                发现 {run?.items_found ?? 0} 篇 · 清洗 {run?.items_promoted ?? 0} 篇 · 导入 {run?.items_imported ?? 0} 篇
+                发现 {run?.items_found ?? 0} 篇 · 清洗{" "}
+                {run?.items_promoted ?? 0} 篇 · 导入 {run?.items_imported ?? 0}{" "}
+                篇
               </span>
               <span>
-                Live 建图成功 {run?.items_pipeline_succeeded ?? 0} 篇 · 失败 {run?.items_pipeline_failed ?? 0} 篇
+                Live 建图成功 {run?.items_pipeline_succeeded ?? 0} 篇 · 失败{" "}
+                {run?.items_pipeline_failed ?? 0} 篇
               </span>
+            </div>
+          </div>
+        ) : null}
+
+        {status === "partial_success" ? (
+          <div className="crawler-result crawler-result-partial" role="status">
+            <AlertCircle size={18} />
+            <div>
+              <strong>采集任务部分成功</strong>
+              {error ? <span>{error}</span> : null}
+              {run?.filter_summary?.failed_documents.map((item) => (
+                <span key={item.doc_id}>
+                  {item.doc_id}：{item.message}
+                </span>
+              ))}
+              {run?.artifact_path ? (
+                <span>中间产物：{run.artifact_path}</span>
+              ) : null}
             </div>
           </div>
         ) : null}
@@ -308,11 +393,21 @@ export default function CrawlerModal({
             <button
               className="crawler-primary"
               type="button"
-              disabled={!llmConfigured || isRunning || status === "submitting" || sources === 0 || limit < 1}
+              disabled={
+                !llmConfigured ||
+                isRunning ||
+                status === "submitting" ||
+                sources === 0 ||
+                limit < 1
+              }
               onClick={handleRun}
             >
               <Search size={15} />
-              {status === "success" || status === "failed" ? "再次采集" : "开始采集"}
+              {status === "success" ||
+              status === "partial_success" ||
+              status === "failed"
+                ? "再次采集"
+                : "开始采集"}
             </button>
           </div>
         </div>

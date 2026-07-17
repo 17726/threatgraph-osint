@@ -290,8 +290,25 @@ def load_checkpoint(checkpoint_path: Path) -> dict:
     """加载断点文件。"""
     if checkpoint_path.exists():
         with open(checkpoint_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"processed": {}, "warnings": []}
+            checkpoint = json.load(f)
+            checkpoint.setdefault("processed", {})
+            checkpoint.setdefault("warnings", [])
+            checkpoint.setdefault("failures", [])
+            return checkpoint
+    return {"processed": {}, "warnings": [], "failures": []}
+
+
+def _remove_failure(checkpoint: dict, doc_id: str) -> None:
+    checkpoint["failures"] = [
+        item for item in checkpoint.get("failures", []) if item.get("doc_id") != doc_id
+    ]
+
+
+def _record_failure(checkpoint: dict, doc_id: str, reason: str, message: str) -> None:
+    _remove_failure(checkpoint, doc_id)
+    checkpoint.setdefault("failures", []).append(
+        {"doc_id": doc_id, "reason": reason, "message": message}
+    )
 
 
 def save_checkpoint(checkpoint_path: Path, checkpoint: dict):
@@ -334,7 +351,11 @@ def process_folder(
 
     checkpoint_path = output_dir / f".checkpoint_{folder}.json"
     checkpoint = load_checkpoint(checkpoint_path)
-    processed_set = set(checkpoint["processed"].keys())
+    processed_set = {
+        doc_id
+        for doc_id, status in checkpoint["processed"].items()
+        if not str(status).startswith("error")
+    }
 
     json_files = sorted(input_dir.glob("*.json"))
     pending_files = [f for f in json_files if f.stem not in processed_set]
@@ -365,6 +386,7 @@ def process_folder(
         except (json.JSONDecodeError, OSError) as e:
             print(f"    {pbar} ⚠ [{doc_id}] 读取失败: {e}")
             checkpoint["processed"][doc_id] = "error"
+            _record_failure(checkpoint, doc_id, "error_read", str(e))
             save_checkpoint(checkpoint_path, checkpoint)
             continue
 
@@ -379,6 +401,9 @@ def process_folder(
         if len(clean_text) > MAX_TEXT_LENGTH:
             print(f"    {pbar} ⚠ [{doc_id}] 文本过长 ({len(clean_text)} 字符) → 跳过")
             checkpoint["processed"][doc_id] = "error_too_long"
+            _record_failure(
+                checkpoint, doc_id, "error_too_long", f"文本过长：{len(clean_text)} 字符"
+            )
             save_checkpoint(checkpoint_path, checkpoint)
             continue
 
@@ -388,6 +413,7 @@ def process_folder(
         except Exception as e:
             print(f"    {pbar} ✗ [{doc_id}] API 失败: {e}")
             checkpoint["processed"][doc_id] = "error_api"
+            _record_failure(checkpoint, doc_id, "error_api", str(e))
             save_checkpoint(checkpoint_path, checkpoint)
             continue
 
@@ -397,6 +423,7 @@ def process_folder(
         if not is_relevant:
             print(f"    {pbar} ✕ [{doc_id}] 不相关 → 丢弃")
             checkpoint["processed"][doc_id] = "discarded_irrelevant"
+            _remove_failure(checkpoint, doc_id)
             save_checkpoint(checkpoint_path, checkpoint)
             continue
 
@@ -434,6 +461,7 @@ def process_folder(
             json.dump(data, f, ensure_ascii=False, indent=2)
 
         checkpoint["processed"][doc_id] = "kept"
+        _remove_failure(checkpoint, doc_id)
         save_checkpoint(checkpoint_path, checkpoint)
 
     return _summarize(checkpoint, json_files)
@@ -451,7 +479,17 @@ def _summarize(checkpoint: dict, json_files: list) -> dict:
         "kept": kept,
         "discarded": discarded,
         "errors": errors,
+        "failed_documents": list(checkpoint.get("failures", [])),
+        "warnings": list(checkpoint.get("warnings", [])),
     }
+
+
+def write_filter_result(path: Path, payload: dict) -> None:
+    """原子写入机器可读的过滤批次摘要。"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp")
+    temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    temporary.replace(path)
 
 
 def renumber_folder(output_dir: Path, folder: str):
@@ -581,6 +619,8 @@ def main():
     grand_kept = 0
     grand_discarded = 0
     grand_errors = 0
+    failed_documents: list[dict] = []
+    validation_warnings: list[dict] = []
 
     for folder in folders:
         in_dir = input_dir / folder
@@ -614,6 +654,8 @@ def main():
         grand_kept += stats["kept"]
         grand_discarded += stats["discarded"]
         grand_errors += stats["errors"]
+        failed_documents.extend(stats.get("failed_documents", []))
+        validation_warnings.extend(stats.get("warnings", []))
 
     print("\n" + "=" * 60)
     print(f"总计: {grand_total} 文件 → 保留 {grand_kept} | "
@@ -621,11 +663,26 @@ def main():
     print("=" * 60)
 
     if grand_errors > 0:
-        print("\n⚠ 有文件处理出错。修复后重新运行脚本即可断点续传。")
+        print("\n⚠ 有文件处理出错；失败文档本批跳过，成功结果继续进入 promote。")
     if args.sample > 0:
         print(f"\n💡 抽样验证完毕。确认无误后去掉 --sample 参数全量运行。")
 
-    return 1 if grand_errors > 0 else 0
+    result_path = os.environ.get("CRAWLER_FILTER_RESULT_FILE")
+    if result_path:
+        write_filter_result(
+            Path(result_path),
+            {
+                "status": "partial_success" if grand_errors else "succeeded",
+                "total": grand_total,
+                "kept": grand_kept,
+                "discarded": grand_discarded,
+                "errors": grand_errors,
+                "failed_documents": failed_documents,
+                "warnings": validation_warnings,
+            },
+        )
+    # 单文档错误属于可容忍结果；未捕获的系统级异常仍会让进程非零退出。
+    return 0
 
 
 if __name__ == "__main__":

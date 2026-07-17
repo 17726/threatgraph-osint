@@ -59,6 +59,69 @@ def test_submit_sends_start_number_to_crawler(monkeypatch, tmp_path: Path) -> No
     assert captured["start_number"] == 1
 
 
+def test_crawl_observability_is_forwarded_by_backend(tmp_path: Path) -> None:
+    service = CrawlService(
+        db_path=tmp_path / "test.db",
+        crawler_base_url="http://crawler:8100",
+    )
+    run_id = "crawl_debug"
+    service._runs[run_id] = service._new_run(run_id, "APT28", 1, 1, False)
+    service._merge_crawler_status(
+        run_id,
+        {
+            "status": "running",
+            "pipeline": {
+                "job_id": "job_001",
+                "status": "running",
+                "progress": {"phase": "building_graph", "percent": 40},
+            },
+            "events": [
+                {
+                    "sequence": 1,
+                    "phase": "pipeline_building_graph",
+                    "level": "info",
+                    "message": "正在写入 SQLite",
+                    "created_at": "2026-07-17T00:00:00Z",
+                }
+            ],
+        },
+    )
+
+    status = service.status(run_id)
+
+    assert status["pipeline"]["job_id"] == "job_001"
+    assert status["events"][0]["phase"] == "pipeline_building_graph"
+
+
+def test_backend_treats_partial_success_as_terminal_and_forwards_artifacts(tmp_path: Path) -> None:
+    service = CrawlService(
+        db_path=tmp_path / "test.db",
+        crawler_base_url="http://crawler:8100",
+    )
+    run_id = "crawl_partial"
+    service._runs[run_id] = service._new_run(run_id, "Kimsuky", 5, 1, True)
+
+    service._merge_crawler_status(
+        run_id,
+        {
+            "status": "partial_success",
+            "items_failed": 1,
+            "filter_summary": {
+                "kept": 12,
+                "discarded": 11,
+                "errors": 1,
+                "failed_documents": [{"doc_id": "kimsuky_011", "message": "TLS EOF"}],
+            },
+            "artifact_path": "data/crawl_runs/crawl_partial",
+        },
+    )
+
+    status = service.status(run_id)
+    assert status["status"] == "partial_success"
+    assert status["filter_summary"]["errors"] == 1
+    assert status["artifact_path"] == "data/crawl_runs/crawl_partial"
+
+
 def _document(doc_id: str, text: str) -> dict:
     import hashlib
 

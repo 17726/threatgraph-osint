@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import pytest
 
 from scripts import filter_by_relevance
@@ -95,8 +98,8 @@ def test_filter_parser_accepts_folder() -> None:
     assert args.folder == "apt28"
 
 
-def test_filter_main_returns_nonzero_when_processing_errors(monkeypatch) -> None:
-    monkeypatch.setattr("sys.argv", ["filter_by_relevance.py"])
+def test_filter_main_allows_document_errors_to_continue(monkeypatch) -> None:
+    monkeypatch.setattr("sys.argv", ["filter_by_relevance.py", "--folder", "apt28"])
     monkeypatch.setattr(filter_by_relevance, "require_llm_config", lambda: ("model", "url", "key"))
     monkeypatch.setattr(filter_by_relevance.Path, "is_dir", lambda self: True)
     monkeypatch.setattr(filter_by_relevance, "process_folder", lambda *args, **kwargs: {
@@ -105,4 +108,62 @@ def test_filter_main_returns_nonzero_when_processing_errors(monkeypatch) -> None
         "discarded": 0,
         "errors": 1,
     })
-    assert filter_by_relevance.main() == 1
+    assert filter_by_relevance.main() == 0
+
+
+def test_filter_retries_checkpoint_api_error(monkeypatch, tmp_path: Path) -> None:
+    input_dir = tmp_path / "cleaned" / "apt28"
+    output_dir = tmp_path / "filtered"
+    input_dir.mkdir(parents=True)
+    input_dir.joinpath("apt28_001.json").write_text(
+        json.dumps({"doc_id": "apt28_001", "clean_text": "APT28 text"}),
+        encoding="utf-8",
+    )
+    output_dir.mkdir()
+    output_dir.joinpath(".checkpoint_apt28.json").write_text(
+        json.dumps({"processed": {"apt28_001": "error_api"}, "warnings": []}),
+        encoding="utf-8",
+    )
+    calls = 0
+
+    def successful_api(system: str, user: str) -> dict:
+        nonlocal calls
+        calls += 1
+        return {"is_relevant": True, "cleaned_text": "APT28 text"}
+
+    monkeypatch.setattr(filter_by_relevance, "call_api", successful_api)
+    monkeypatch.setattr(
+        filter_by_relevance,
+        "require_llm_config",
+        lambda: ("model", "url", "key"),
+    )
+
+    stats = filter_by_relevance.process_folder(input_dir, output_dir, "apt28")
+
+    assert calls == 1
+    assert stats["kept"] == 1
+    assert stats["errors"] == 0
+
+
+def test_filter_writes_machine_readable_partial_summary(monkeypatch, tmp_path: Path) -> None:
+    result_path = tmp_path / "filter-result.json"
+    monkeypatch.setenv("CRAWLER_FILTER_RESULT_FILE", str(result_path))
+    monkeypatch.setattr("sys.argv", ["filter_by_relevance.py", "--folder", "apt28"])
+    monkeypatch.setattr(filter_by_relevance, "require_llm_config", lambda: ("model", "url", "key"))
+    monkeypatch.setattr(filter_by_relevance.Path, "is_dir", lambda self: True)
+    monkeypatch.setattr(filter_by_relevance, "process_folder", lambda *args, **kwargs: {
+        "total": 3,
+        "kept": 1,
+        "discarded": 1,
+        "errors": 1,
+        "failed_documents": [
+            {"doc_id": "apt28_003", "reason": "error_api", "message": "TLS EOF"}
+        ],
+        "warnings": [],
+    })
+
+    assert filter_by_relevance.main() == 0
+    summary = json.loads(result_path.read_text(encoding="utf-8"))
+    assert summary["status"] == "partial_success"
+    assert summary["errors"] == 1
+    assert summary["failed_documents"][0]["doc_id"] == "apt28_003"

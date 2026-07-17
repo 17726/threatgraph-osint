@@ -323,6 +323,7 @@ def main() -> int:
                 **os.environ,
                 "CRAWLER_DATA_ROOT": str(root),
                 "CRAWLER_PROGRESS_FILE": str(progress_path),
+                "CRAWLER_FILTER_RESULT_FILE": str(root / "filter-result.json"),
             },
             progress_path=progress_path,
             output_root=(root / "cleaned_filtered" if "filter_by_relevance.py" in command[1] else root / "documents"),
