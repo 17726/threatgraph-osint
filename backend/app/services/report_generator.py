@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from backend.app.services.llm_report_service import LLMReportService
+from backend.app.services.llm_report_service import LLMReportService, _debug_report
 
 
 def generate_intelligent_report(
@@ -24,11 +24,23 @@ def generate_intelligent_report(
         llm_service = LLMReportService()
 
     try:
+        _debug_report("B", "report_generator.generate_intelligent_report.before_generate", "starting intelligent report generation", {
+            "target_group": target_group,
+            "service_injected": llm_service is not None,
+        })
         result = llm_service.generate(target_group)
         result["_llm_generated"] = True
+        _debug_report("B", "report_generator.generate_intelligent_report.llm_success", "LLM report generated", {
+            "target_group": target_group,
+            "section_count": len(result.get("sections", [])),
+        })
         return result
     except Exception as exc:
-        # LLM 失败时降级到规则模板
+        _debug_report("B", "report_generator.generate_intelligent_report.fallback", "LLM report generation failed; using fallback", {
+            "target_group": target_group,
+            "error_type": type(exc).__name__,
+            "error": str(exc)[:300],
+        })
         result = _fallback_generate(connection, target_group, target_entity_id)
         result["_llm_generated"] = False
         return result
@@ -48,6 +60,7 @@ def _fallback_generate(
         _fallback_network(connection, target_group, target_entity_id),
         _fallback_timeline(connection, target_group, target_entity_id),
         _fallback_threat_assessment(connection, target_group),
+        _fallback_attack_chain(connection, target_group, target_entity_id),
     ]
 
     section_markdowns = [s["markdown"] for s in sections]
@@ -246,9 +259,71 @@ def _fallback_threat_assessment(connection: Any, target_group: str) -> dict[str,
     return _section("threat_assessment", "威胁评估与预警建议", markdown, sort_order=4)
 
 
+def _fallback_attack_chain(connection: Any, target_group: str, entity_id: str) -> dict[str, Any]:
+    rows = connection.execute(
+        """
+        SELECT r.relation_id, r.relation_type, r.label, r.confidence,
+               r.source_entity_id, r.target_entity_id,
+               e1.name AS source_name, e1.type AS source_type,
+               e2.name AS target_name, e2.type AS target_type,
+               r.first_seen, r.last_seen
+        FROM relations r
+        JOIN entities e1 ON e1.entity_id = r.source_entity_id
+        JOIN entities e2 ON e2.entity_id = r.target_entity_id
+        WHERE r.source_entity_id = ? OR r.target_entity_id = ?
+        ORDER BY COALESCE(r.first_seen, ''), r.relation_id
+        """,
+        (entity_id, entity_id),
+    ).fetchall()
+    if not rows:
+        return _section("attack_chain", "攻击链分析", "暂无足够的图谱关系形成完整攻击链。", sort_order=5)
+
+    grouped: dict[tuple[str, str], dict[str, list[str]]] = {}
+    node_ids: set[str] = set()
+    edge_ids: list[str] = []
+    for row in rows:
+        time_text = row["first_seen"] or row["last_seen"] or "未知"
+        key = (time_text, row["source_name"])
+        event = grouped.setdefault(
+            key, {"vulnerabilities": [], "tools": [], "techniques": [], "targets": [], "other": [], "evidence": []}
+        )
+        node_ids.update((row["source_entity_id"], row["target_entity_id"]))
+        edge_ids.append(row["relation_id"])
+        value = row["target_name"]
+        if row["target_type"] == "CVE":
+            bucket = "vulnerabilities"
+        elif row["target_type"] in {"TOOL", "MALWARE"}:
+            bucket = "tools"
+        elif row["relation_type"] in {"TARGETS", "TARGETED_BY"}:
+            bucket = "targets"
+        elif row["relation_type"] in {"USES", "EXPLOITS"}:
+            bucket = "techniques"
+        else:
+            bucket = "other"
+        if value not in event[bucket]:
+            event[bucket].append(value)
+        for evidence_row in connection.execute(
+            "SELECT evidence_id FROM evidence WHERE relation_id = ?", (row["relation_id"],)
+        ).fetchall():
+            if evidence_row["evidence_id"] not in event["evidence"]:
+                event["evidence"].append(evidence_row["evidence_id"])
+
+    lines = ["#### 攻击链叙事总览\n\n"]
+    for (time_text, source), event in sorted(grouped.items()):
+        lines.append(
+            f"- **{time_text}**：{source} 利用 **{'、'.join(event['vulnerabilities']) or '未知'}**，"
+            f"通过 **{'、'.join(event['tools']) or '未知'}**，使用或关联技术 **{'、'.join(event['techniques']) or '未知'}**，"
+            f"目标为 **{'、'.join(event['targets']) or '未知'}**。\n"
+        )
+    return _section(
+        "attack_chain", "攻击链分析", "".join(lines), sort_order=5,
+        graph_refs={"node_ids": list(node_ids), "edge_ids": edge_ids},
+    )
+
+
 def _section(section_type: str, title: str, markdown: str, sort_order: int = 0,
              evidence_ids: list[str] | None = None, analysis_refs: list[str] | None = None,
-             graph_refs: dict[str, list[str]] | None = None) -> dict[str, Any]:
+             graph_refs: dict[str, Any] | None = None) -> dict[str, Any]:
     return {
         "section_id": section_type,
         "section_type": section_type,

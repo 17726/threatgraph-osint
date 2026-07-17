@@ -16,6 +16,7 @@ const SECTION_ICONS: Record<string, string> = {
   network: "🔗",
   timeline: "📅",
   threat_assessment: "🛡️",
+  attack_chain: "⛓️",
 };
 
 export default function ReportPanel({
@@ -30,7 +31,9 @@ export default function ReportPanel({
 
   // 如果有结构化报告章节，使用结构化展示
   if (report?.sections && report.sections.length > 0) {
-    const sections = report.sections.sort((a, b) => a.sort_order - b.sort_order);
+    const sections = report.sections
+      .map((section) => ({ ...section, graph_refs: section.graph_refs ?? {} }))
+      .sort((a, b) => a.sort_order - b.sort_order);
     const current = sections.find((s) => s.section_type === activeSection) ?? sections[0];
 
     return (
@@ -149,7 +152,11 @@ export default function ReportPanel({
               <div
                 style={{ lineHeight: 1.8, whiteSpace: "pre-wrap" }}
                 dangerouslySetInnerHTML={{
-                  __html: renderMarkdown(current.markdown),
+                  __html: renderMarkdown(
+                    current.section_type === "attack_chain"
+                      ? current.markdown.replace(/^####\s+(.+)$/gm, "**$1**")
+                      : current.markdown,
+                  ),
                 }}
               />
 
@@ -409,31 +416,33 @@ export default function ReportPanel({
   );
 }
 
-/** 简单的 Markdown 转 HTML 渲染 */
 function renderMarkdown(md: string): string {
   let html = md
     // 表格（处理前后空白、对齐标记 `:---`）
-    .replace(/\s*\|(.+)\|\s*\n\s*\|[-:| ]+\|\s*\n((?:\s*\|.+\|\s*\n)*)/g, (_match, header: string, body: string) => {
-      const headers = header
-        .split("|")
-        .map((h: string) => `<th>${h.trim()}</th>`)
-        .join("");
-      const rows = body
-        .trim()
-        .split("\n")
-        .map((row: string) => {
-          const cells = row
-            .split("|")
-            .map((c: string) => `<td>${c.trim()}</td>`)
-            .join("");
-          return `<tr>${cells}</tr>`;
-        })
-        .join("");
-      return `<table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:12px">
+    .replace(
+      /\s*\|(.+)\|\s*\n\s*\|[-:| ]+\|\s*\n((?:\s*\|.+\|\s*\n)*)/g,
+      (_match, header: string, body: string) => {
+        const headers = header
+          .split("|")
+          .map((h: string) => `<th>${h.trim()}</th>`)
+          .join("");
+        const rows = body
+          .trim()
+          .split("\n")
+          .map((row: string) => {
+            const cells = row
+              .split("|")
+              .map((c: string) => `<td>${c.trim()}</td>`)
+              .join("");
+            return `<tr>${cells}</tr>`;
+          })
+          .join("");
+        return `<table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:12px">
           <thead><tr>${headers}</tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
-    })
+      },
+    )
     // 标题 (####)
     .replace(/^#### (.+)$/gm, '<h4 style="margin:12px 0 6px;color:#0f766e;">$1</h4>')
     // 标题 (###)
