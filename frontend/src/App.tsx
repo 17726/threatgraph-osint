@@ -14,7 +14,7 @@ import {
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchGraph, fetchNeighbors, fetchReport, generateReport, fetchHealth } from "./api/client";
-import { buildGraphOption } from "./graphOptions";
+import { buildGraphOption, getGraphCategories } from "./graphOptions";
 import type { Evidence, GraphEdge, GraphNode, GraphPayload, ReportPayload } from "./types";
 import NodeDetail from "./components/NodeDetail";
 import SearchBar from "./components/SearchBar";
@@ -26,6 +26,7 @@ import ReportPanel from "./components/ReportPanel";
 import AnalysisPage from "./pages/AnalysisPage";
 import PipelineModal from "./components/PipelineModal";
 import CrawlerModal from "./components/CrawlerModal";
+import GraphLegend from "./components/GraphLegend";
 
 const Graph3D = lazy(() => import("./components/Graph3D"));
 
@@ -41,6 +42,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [focused3DNodeId, setFocused3DNodeId] = useState<string | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
   const [generating, setGenerating] = useState(false);
   const chartRef = useRef<any>(null);
@@ -113,6 +115,7 @@ export function App() {
     setLoading(true);
     setError(null);
     setSelectedNode(null);
+    setFocused3DNodeId(null);
     setSelectedEdge(null);
     setSearchNodeId(null);
     setRegionFilter("");
@@ -224,6 +227,7 @@ export function App() {
       [],
     [graph],
   );
+  const graphCategories = useMemo(() => (graph ? getGraphCategories(graph) : []), [graph]);
   const graphOption = useMemo(
     () =>
       filteredGraph ? buildGraphOption(filteredGraph, { highlightNodeIds, searchNodeId }) : null,
@@ -241,6 +245,25 @@ export function App() {
     setSelectedNode(null);
   }, []);
 
+  const handle3DNodeClick = useCallback(
+    (node: GraphNode) => {
+      setFocused3DNodeId(node.id);
+      handleNodeClick(node);
+    },
+    [handleNodeClick],
+  );
+
+  const handle3DBackgroundClick = useCallback(() => {
+    setFocused3DNodeId(null);
+    setSelectedNode(null);
+    setSelectedEdge(null);
+  }, []);
+
+  const handleNodeDetailClose = useCallback(() => {
+    setFocused3DNodeId(null);
+    setSelectedNode(null);
+  }, []);
+
   const handleChartReady = useCallback(
     (instance: any) => {
       chartInstanceRef.current = instance;
@@ -252,18 +275,6 @@ export function App() {
           const raw = params.data._raw as GraphEdge | undefined;
           if (raw) handleEdgeClick(raw);
         }
-      });
-      instance.on("legendselectchanged", (params: any) => {
-        setLegendFilter((prev: string | null) => (prev === params.name ? null : params.name));
-        setTimeout(() => {
-          const cats = instance.getOption().legend?.[0]?.data || [];
-          cats.forEach((cat: any) => {
-            instance.dispatchAction({
-              type: "legendSelect",
-              name: typeof cat === "string" ? cat : cat.name,
-            });
-          });
-        }, 0);
       });
     },
     [handleEdgeClick, handleNodeClick],
@@ -542,6 +553,11 @@ export function App() {
                   </button>
                 </div>
               </div>
+              <GraphLegend
+                items={graphCategories}
+                value={legendFilter}
+                onChange={setLegendFilter}
+              />
               <div className="graph-canvas">
                 {graphDimension === "3d" && filteredGraph ? (
                   <Suspense
@@ -555,8 +571,10 @@ export function App() {
                       graph={filteredGraph}
                       highlightNodeIds={highlightNodeIds}
                       searchNodeId={searchNodeId}
-                      onNodeClick={handleNodeClick}
+                      focusNodeId={focused3DNodeId}
+                      onNodeClick={handle3DNodeClick}
                       onEdgeClick={handleEdgeClick}
+                      onBackgroundClick={handle3DBackgroundClick}
                     />
                   </Suspense>
                 ) : graphOption ? (
@@ -570,19 +588,18 @@ export function App() {
               </div>
               {selectedNode && (
                 <>
-                  <div
-                    onClick={() => setSelectedNode(null)}
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: "rgba(0,0,0,0.2)",
-                      zIndex: 25,
-                    }}
-                  />
-                  <NodeDetail
-                    entityId={selectedNode?.id ?? null}
-                    onClose={() => setSelectedNode(null)}
-                  />
+                  {graphDimension === "2d" ? (
+                    <div
+                      onClick={handleNodeDetailClose}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.2)",
+                        zIndex: 25,
+                      }}
+                    />
+                  ) : null}
+                  <NodeDetail entityId={selectedNode?.id ?? null} onClose={handleNodeDetailClose} />
                 </>
               )}
             </div>

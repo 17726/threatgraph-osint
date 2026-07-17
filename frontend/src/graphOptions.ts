@@ -1,6 +1,7 @@
 import type { EChartsOption } from "echarts";
 
 import type { GraphEdge, GraphNode, GraphPayload } from "./types";
+import type { GraphLegendItem } from "./components/GraphLegend";
 
 const TYPE_COLORS: Record<string, string> = {
   APT_GROUP: "#0f766e",
@@ -18,6 +19,14 @@ const TYPE_COLORS: Record<string, string> = {
 export interface BuildOptions {
   highlightNodeIds?: string[];
   searchNodeId?: string | null;
+  focusNodeId?: string | null;
+}
+
+export function getGraphCategories(payload: GraphPayload): GraphLegendItem[] {
+  return Array.from(new Set(payload.nodes.map((node) => node.type))).map((type) => ({
+    name: type,
+    color: TYPE_COLORS[type] ?? "#64748b",
+  }));
 }
 
 export type Graph3DNode = GraphNode & {
@@ -40,17 +49,35 @@ export type Graph3DLink = {
 export function buildGraph3DData(payload: GraphPayload, opts?: BuildOptions) {
   const highlightSet = new Set(opts?.highlightNodeIds ?? []);
   const searchNodeId = opts?.searchNodeId;
-  const hasFocus = highlightSet.size > 0 || Boolean(searchNodeId);
+  const focusNodeId = opts?.focusNodeId;
+  const focusNodeIds = new Set<string>();
+
+  if (focusNodeId) {
+    focusNodeIds.add(focusNodeId);
+    payload.edges.forEach((edge) => {
+      if (edge.source === focusNodeId) focusNodeIds.add(edge.target);
+      if (edge.target === focusNodeId) focusNodeIds.add(edge.source);
+    });
+  }
+
+  const hasFocus = highlightSet.size > 0 || Boolean(searchNodeId) || Boolean(focusNodeId);
 
   const nodes: Graph3DNode[] = payload.nodes.map((node) => {
     const isHighlighted = highlightSet.has(node.id);
     const isSearched = searchNodeId === node.id;
+    const isFocusedSubject = focusNodeId === node.id;
+    const isVisibleFocus = isHighlighted || isSearched || focusNodeIds.has(node.id);
     const baseColor = TYPE_COLORS[node.type] ?? "#64748b";
     const baseValue = node.type === "APT_GROUP" ? 12 : node.type === "COUNTRY" ? 9 : 6;
     return {
       ...node,
-      color: isSearched ? "#f59e0b" : hasFocus && !isHighlighted ? "#cbd5e1" : baseColor,
-      val: isSearched ? baseValue * 1.5 : baseValue,
+      color:
+        isSearched || isFocusedSubject
+          ? "#f59e0b"
+          : hasFocus && !isVisibleFocus
+            ? "#cbd5e1"
+            : baseColor,
+      val: isSearched || isFocusedSubject ? baseValue * 1.5 : baseValue,
       _raw: node,
     };
   });
@@ -58,7 +85,8 @@ export function buildGraph3DData(payload: GraphPayload, opts?: BuildOptions) {
   const links: Graph3DLink[] = payload.edges.map((edge) => {
     const isFocusLink =
       (highlightSet.has(edge.source) && highlightSet.has(edge.target)) ||
-      Boolean(searchNodeId && (edge.source === searchNodeId || edge.target === searchNodeId));
+      Boolean(searchNodeId && (edge.source === searchNodeId || edge.target === searchNodeId)) ||
+      Boolean(focusNodeId && (edge.source === focusNodeId || edge.target === focusNodeId));
     return {
       id: edge.id,
       source: edge.source,
@@ -84,9 +112,9 @@ export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EC
   const highlightSet = new Set(opts?.highlightNodeIds ?? []);
   const searchNodeId: string | null | undefined = opts?.searchNodeId;
 
-  const categories = Array.from(new Set(payload.nodes.map((node) => node.type))).map((type) => ({
-    name: type,
-    itemStyle: { color: TYPE_COLORS[type] ?? "#64748b" },
+  const categories = getGraphCategories(payload).map((category) => ({
+    name: category.name,
+    itemStyle: { color: category.color },
   }));
 
   return {
@@ -111,16 +139,12 @@ export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EC
         return `${tag}${data.name}<br/>类型：${data.type ?? "关系"}<br/>置信度：${data.value ?? "-"}`;
       },
     },
-    legend: {
-      top: 8,
-      left: 8,
-      data: categories,
-    },
     series: [
       {
         type: "graph",
         layout: "force",
         roam: true,
+        roamTrigger: "global",
         draggable: true,
         categories,
         force: {
