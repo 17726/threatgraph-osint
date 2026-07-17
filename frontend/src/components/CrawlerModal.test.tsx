@@ -139,6 +139,79 @@ describe("CrawlerModal", () => {
     );
   });
 
+  it("shows partial success, failed documents, and artifact path", async () => {
+    const onSuccess = vi.fn();
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              success: true,
+              data: { crawl_run_id: "crawl_partial", status: "pending" },
+            }),
+            { status: 202 },
+          ),
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              success: true,
+              data: {
+                crawl_run_id: "crawl_partial",
+                keyword: "Kimsuky",
+                status: "partial_success",
+                items_found: 12,
+                items_promoted: 12,
+                items_imported: 12,
+                items_skipped: 0,
+                items_failed: 1,
+                items_pipeline_succeeded: 12,
+                items_pipeline_failed: 0,
+                document_ids: [],
+                workspace_cleaned: true,
+                error_message: "1 篇文档过滤失败，其余文档已继续处理",
+                artifact_path: "data/crawl_runs/crawl_partial",
+                filter_summary: {
+                  total: 24,
+                  kept: 12,
+                  discarded: 11,
+                  errors: 1,
+                  warnings: [],
+                  failed_documents: [
+                    {
+                      doc_id: "kimsuky_011",
+                      reason: "error_api",
+                      message: "TLS EOF",
+                    },
+                  ],
+                },
+              },
+            }),
+            { status: 200 },
+          ),
+        ),
+    );
+    render(
+      <CrawlerModal
+        open
+        target="Kimsuky"
+        llmConfigured
+        onClose={vi.fn()}
+        onSuccess={onSuccess}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "开始采集" }));
+    await act(async () => await Promise.resolve());
+
+    expect(screen.getByText("采集任务部分成功")).toBeTruthy();
+    expect(screen.getByText(/kimsuky_011.*TLS EOF/)).toBeTruthy();
+    expect(screen.getByText(/data\/crawl_runs\/crawl_partial/)).toBeTruthy();
+    expect(onSuccess).toHaveBeenCalledOnce();
+  });
+
   it("renders collecting progress from backend", async () => {
     vi.stubGlobal(
       "fetch",

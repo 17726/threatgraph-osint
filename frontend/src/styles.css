@@ -442,6 +442,12 @@ h2 {
   color: #166534;
 }
 
+.crawler-result-partial {
+  border: 1px solid #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+}
+
 .crawler-result-warning {
   border: 1px solid #fed7aa;
   background: #fff7ed;

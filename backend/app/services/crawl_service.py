@@ -158,7 +158,7 @@ class CrawlService:
                 time.sleep(self.poll_interval)
                 continue
             self._merge_crawler_status(run_id, crawler_run)
-            if crawler_run.get("status") in {"succeeded", "failed"}:
+            if crawler_run.get("status") in {"succeeded", "partial_success", "failed"}:
                 return
             if crawler_run.get("status") not in {"pending", "running"}:
                 raise RuntimeError("crawler 返回未知任务状态")
@@ -186,6 +186,9 @@ class CrawlService:
                 "events",
                 "workspace_cleaned",
                 "error_message",
+                "filter_summary",
+                "artifact_path",
+                "artifact_error",
             ):
                 if key in crawler_run:
                     run[key] = crawler_run[key]
@@ -194,7 +197,7 @@ class CrawlService:
                 for event in crawler_run.get("events", [])
                 if event.get("sequence") not in previous_sequences
             ]
-            if crawler_run.get("status") in {"succeeded", "failed"}:
+            if crawler_run.get("status") in {"succeeded", "partial_success", "failed"}:
                 run["status"] = crawler_run["status"]
         for event in new_events:
             log_method = LOGGER.error if event.get("level") == "error" else LOGGER.info
@@ -238,6 +241,9 @@ class CrawlService:
             "events": [],
             "workspace_cleaned": False,
             "error_message": None,
+            "filter_summary": None,
+            "artifact_path": None,
+            "artifact_error": None,
         }
     @staticmethod
     def public_status(run: dict[str, Any]) -> dict[str, Any]:
@@ -261,6 +267,9 @@ class CrawlService:
                 "events",
                 "workspace_cleaned",
                 "error_message",
+                "filter_summary",
+                "artifact_path",
+                "artifact_error",
             )
         }
 

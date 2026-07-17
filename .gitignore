@@ -30,6 +30,7 @@ data/reports/*
 data/evaluation/*
 data/run_artifacts/*
 data/run_logs/*
+data/crawl_runs/*
 scripts/calculate_char_positions.py
 !data/.gitkeep
 !data/raw/.gitkeep

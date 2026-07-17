@@ -22,7 +22,8 @@ type CrawlerModalProps = {
   onSuccess: () => void;
 };
 
-type ModalStatus = "idle" | "submitting" | "running" | "success" | "failed";
+type ModalStatus =
+  "idle" | "submitting" | "running" | "success" | "partial_success" | "failed";
 
 const TARGETS = ["APT28", "Kimsuky", "Lazarus"];
 const SOURCES = [
@@ -137,6 +138,12 @@ export default function CrawlerModal({
           setRun(current);
           if (current.status === "succeeded") {
             setStatus("success");
+            onSuccess();
+            return;
+          }
+          if (current.status === "partial_success") {
+            setStatus("partial_success");
+            setError(current.error_message);
             onSuccess();
             return;
           }
@@ -342,6 +349,24 @@ export default function CrawlerModal({
           </div>
         ) : null}
 
+        {status === "partial_success" ? (
+          <div className="crawler-result crawler-result-partial" role="status">
+            <AlertCircle size={18} />
+            <div>
+              <strong>采集任务部分成功</strong>
+              {error ? <span>{error}</span> : null}
+              {run?.filter_summary?.failed_documents.map((item) => (
+                <span key={item.doc_id}>
+                  {item.doc_id}：{item.message}
+                </span>
+              ))}
+              {run?.artifact_path ? (
+                <span>中间产物：{run.artifact_path}</span>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
         {status === "failed" ? (
           <div className="crawler-result crawler-result-warning" role="alert">
             <AlertCircle size={16} />
@@ -378,7 +403,9 @@ export default function CrawlerModal({
               onClick={handleRun}
             >
               <Search size={15} />
-              {status === "success" || status === "failed"
+              {status === "success" ||
+              status === "partial_success" ||
+              status === "failed"
                 ? "再次采集"
                 : "开始采集"}
             </button>

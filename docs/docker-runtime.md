@@ -178,6 +178,20 @@ Pipeline 阶段日志统一包含 `pipeline_event job_id=... phase=...`，采集
 `crawl_event crawl_run_id=... phase=...`。排查跨容器问题时先从前端复制任务标识，再过滤 backend
 和 crawler 日志；不要只依赖 Uvicorn 的 HTTP 访问记录。
 
+### 采集中间产物
+
+`crawler` 将 `/app/data/crawl_runs` 映射到宿主机 `./data/crawl_runs`。每次任务结束前先把临时
+工作区复制到同级隐藏目录，复制完成后再原子改名为 `<crawl_run_id>`，随后才清理 `/tmp`。
+成功、部分成功和失败任务都可在仓库工作区检查实际产生的 raw、cleaned、cleaned_filtered、
+documents、progress.json 和 filter-result.json：
+
+```powershell
+Get-ChildItem -Recurse data/crawl_runs/<crawl_run_id>
+Get-Content data/crawl_runs/<crawl_run_id>/data/filter-result.json
+```
+
+归档失败会返回 `artifact_error` 并保留临时工作区。`data/crawl_runs/*` 被 Git 忽略，不应提交来源全文。
+
 ---
 
 ## 6. 本地备用运行

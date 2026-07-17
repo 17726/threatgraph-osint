@@ -222,6 +222,14 @@ docker compose logs backend crawler | Select-String 'pipeline_event|crawl_event'
 docker compose logs backend crawler | Select-String '<前端显示的 crawl_ 或 job_ 任务 ID>'
 ```
 
+采集过滤采用文档级容错：单篇文档发生 LLM 网络或解析错误时，该文档记入
+`filter_summary.failed_documents`，其他已成功过滤的文档继续导入和建图，任务终态为
+`partial_success`。脚本崩溃、配置缺失或目录损坏等批次级错误仍会中止任务。
+
+每次采集的中间产物都会归档到 `data/crawl_runs/<crawl_run_id>/`，包括实际产生的原始采集、
+清洗、过滤、待导入文档、进度和过滤摘要，便于人工复核。该目录属于本机运行产物并被 Git 忽略，
+不要强制提交其中的来源全文。
+
 ### 4. 停止服务
 
 ```bash

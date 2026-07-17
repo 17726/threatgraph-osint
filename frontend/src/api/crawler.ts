@@ -12,7 +12,7 @@ export type CrawlRunRequest = {
 export type CrawlRunStats = {
   crawl_run_id: string;
   keyword: string;
-  status: "pending" | "running" | "succeeded" | "failed";
+  status: "pending" | "running" | "succeeded" | "partial_success" | "failed";
   items_found: number;
   items_promoted: number;
   items_imported: number;
@@ -23,6 +23,20 @@ export type CrawlRunStats = {
   document_ids: string[];
   workspace_cleaned: boolean;
   error_message: string | null;
+  artifact_path?: string | null;
+  artifact_error?: string | null;
+  filter_summary?: {
+    total: number;
+    kept: number;
+    discarded: number;
+    errors: number;
+    warnings: Array<{ doc_id: string; warning: string }>;
+    failed_documents: Array<{
+      doc_id: string;
+      reason: string;
+      message: string;
+    }>;
+  } | null;
   pipeline?: {
     job_id: string;
     status: "pending" | "running" | "succeeded" | "failed";
@@ -37,6 +51,7 @@ export type CrawlRunStats = {
       | "importing"
       | "pipeline"
       | "completed"
+      | "partial_success"
       | "failed";
     current: number;
     total: number;

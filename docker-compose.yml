@@ -43,6 +43,7 @@ services:
       PYTHONPATH: /app
       BACKEND_BASE_URL: ${BACKEND_BASE_URL:-http://backend:8000}
       CRAWLER_DATA_ROOT: /tmp/threatgraph-crawler-data
+      CRAWLER_ARTIFACT_ROOT: /app/data/crawl_runs
       LLM_MODEL: ${LLM_MODEL:-}
       LLM_BASE_URL: ${LLM_BASE_URL:-}
       LLM_API_KEY: ${LLM_API_KEY:-}
@@ -53,6 +54,7 @@ services:
     volumes:
       - ./crawler:/app/crawler
       - ./scripts:/app/scripts
+      - ./data/crawl_runs:/app/data/crawl_runs
     depends_on:
       - backend
     command: uvicorn crawler.app.main:app --host 0.0.0.0 --port 8100

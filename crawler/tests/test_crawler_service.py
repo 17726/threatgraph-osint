@@ -22,6 +22,19 @@ def test_finalize_succeeds_when_any_source_has_successful_pipeline() -> None:
     assert result["status"] == "succeeded"
 
 
+def test_finalize_marks_mixed_document_outcomes_as_partial_success() -> None:
+    service = CrawlerService()
+
+    result = service._finalize_result(
+        {"selected_sources": ["SecureList"]},
+        {"items_pipeline_succeeded": 2, "items_failed": 1},
+        None,
+    )
+
+    assert result["status"] == "partial_success"
+    assert result["progress"]["phase"] == "partial_success"
+
+
 def test_partial_source_success_is_succeeded_again() -> None:
     service = CrawlerService()
 
@@ -431,6 +444,28 @@ def test_crawl_observability_records_collection_phase_changes() -> None:
     ]
 
 
+def test_crawl_observability_records_partial_filter_summary() -> None:
+    service = CrawlerService()
+    run_id = "crawl_filter_partial"
+    service._runs[run_id] = {
+        "crawl_run_id": run_id,
+        "keyword": "Kimsuky",
+        "status": "running",
+        "events": [],
+        "progress": None,
+    }
+
+    service._publish_filter_summary(
+        run_id,
+        {"total": 24, "kept": 12, "discarded": 11, "errors": 1},
+    )
+
+    event = service.status(run_id)["events"][-1]
+    assert event["phase"] == "filter_partial"
+    assert event["level"] == "warning"
+    assert event["details"]["errors"] == 1
+
+
 def test_crawl_observability_emits_docker_visible_structured_log(caplog) -> None:
     service = CrawlerService()
     run_id = "crawl_log_events"
@@ -519,3 +554,31 @@ def test_service_cleans_workspace_on_failure(monkeypatch, tmp_path: Path) -> Non
     assert result["status"] == "failed"
     assert result["workspace_cleaned"] is True
     assert not (tmp_path / "crawl_failed" / "documents").exists()
+
+
+def test_service_archives_intermediate_artifacts_before_cleanup(tmp_path: Path) -> None:
+    workspace_root = tmp_path / "workspace"
+    artifact_root = tmp_path / "artifacts"
+    service = CrawlerService(
+        workspace_root=workspace_root,
+        artifact_root=artifact_root,
+        backend_base_url="http://backend:8000",
+    )
+    workspace = workspace_root / "crawl_archive"
+    for relative in (
+        "data/raw/source.json",
+        "data/cleaned/apt28/doc.json",
+        "data/cleaned_filtered/apt28/doc.json",
+        "data/documents/apt28/doc.json",
+        "data/progress.json",
+        "data/filter-result.json",
+    ):
+        path = workspace / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{}", encoding="utf-8")
+
+    artifact_path = service._archive_workspace("crawl_archive", workspace)
+
+    assert artifact_path == "data/crawl_runs/crawl_archive"
+    assert (artifact_root / "crawl_archive/data/raw/source.json").exists()
+    assert (artifact_root / "crawl_archive/data/filter-result.json").exists()

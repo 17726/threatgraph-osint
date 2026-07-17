@@ -79,7 +79,9 @@ GET  /api/v1/crawl/runs/{crawl_run_id}
 
 开发阶段浏览器可以直接访问宿主机暴露的 backend API，但 crawler 只在 Docker Compose 内部网络提供服务，浏览器不能直接访问 crawler。backend 生成 `crawl_run_id`，查询当前目标组织最大文档编号后计算 `start_number`，再通过 HTTP 调用内部 crawler。任务状态当前只保存在 backend 进程内存中；同一时间已有 `pending` 或 `running` 任务时返回 HTTP 409。
 
-任务状态包括 `pending`、`running`、`succeeded` 和 `failed`。至少成功导入一篇文档时任务为 `succeeded`，单篇失败会继续处理并计入 `items_failed`；没有成功导入文档时任务为 `failed`。
+任务状态包括 `pending`、`running`、`succeeded`、`partial_success` 和 `failed`。至少一篇文档完成 live Pipeline 且没有失败时为 `succeeded`；有成功也有过滤、导入或子 Pipeline 失败时为终态 `partial_success`，前端停止轮询并刷新已成功写入的图谱；没有成功文档或发生批次级错误时为 `failed`。
+
+启用过滤时，终态响应可包含 `filter_summary`，其中记录 `total`、`kept`、`discarded`、`errors`、`warnings` 和带原因的 `failed_documents`。`artifact_path` 返回仓库工作区相对路径 `data/crawl_runs/<crawl_run_id>`，用于人工检查中间产物，不是公开下载 URL。
 
 采集固定使用 live Pipeline，因此启动采集前必须配置非空的 `LLM_MODEL`、`LLM_BASE_URL` 和 `LLM_API_KEY`。三项配置任一缺失时，health 的 `components.llm` 为 `not_configured`，`POST /api/v1/crawl/runs` 返回 HTTP 503、错误码 `ERR_LLM_NOT_CONFIGURED` 和消息 `无有效 LLM 配置`；backend 不创建任务，也不调用 crawler。frontend 仍显示“采集情报”按钮，但将其置为 disabled。
 

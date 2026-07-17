@@ -114,3 +114,4 @@ flowchart LR
 3. Docker 日志使用同一标识关联：`docker compose logs backend crawler | Select-String '<任务 ID>'`（PowerShell）或 `docker compose logs backend crawler | grep '<任务 ID>'`（Bash）。
 4. 稳定验收使用 `config/course-demo.json` 的 `apt28_080`、`kimsuky_001` 或 `lazarus_001`，选择 `reviewed`；外部网络与模型均正常时，另跑一篇 `live` 作为增强演示。
 5. 失败验收应保留 `phase=failed` 事件、异常类型和失败步骤；不得把失败任务描述成成功，也不得为了演示隐藏真实错误。
+6. 单篇过滤失败时验收 `partial_success`：成功文档继续入库，失败文档进入 `filter_summary`，并在 `data/crawl_runs/<crawl_run_id>/` 人工检查中间产物；只有批次级错误才停止全部后续步骤。

@@ -15,7 +15,7 @@ from typing import Any
 import httpx
 
 
-TERMINAL_STATUSES = {"succeeded", "failed"}
+TERMINAL_STATUSES = {"succeeded", "partial_success", "failed"}
 SOURCE_NAMES = (
     "奇安信威胁情报中心",
     "The Hacker News",
@@ -36,9 +36,20 @@ MAX_EVENTS = 100
 
 
 class CrawlerService:
-    def __init__(self, workspace_root: Path | None = None, backend_base_url: str | None = None):
+    def __init__(
+        self,
+        workspace_root: Path | None = None,
+        backend_base_url: str | None = None,
+        artifact_root: Path | None = None,
+    ):
         self.workspace_root = workspace_root or Path(os.getenv("CRAWLER_WORKSPACE", "/tmp/threatgraph-crawler"))
         self.backend_base_url = (backend_base_url or os.getenv("BACKEND_BASE_URL", "http://backend:8000")).rstrip("/")
+        configured_artifact_root = os.getenv("CRAWLER_ARTIFACT_ROOT")
+        self.artifact_root = (
+            artifact_root
+            or (Path(configured_artifact_root) if configured_artifact_root else None)
+            or (workspace_root.parent / "crawl_runs" if workspace_root else Path("/app/data/crawl_runs"))
+        )
         self._runs: dict[str, dict[str, Any]] = {}
         self._lock = Lock()
 
@@ -85,6 +96,8 @@ class CrawlerService:
                 },
                 "workspace_cleaned": False,
                 "error_message": None,
+                "filter_summary": None,
+                "artifact_path": None,
             }
         import threading
 
@@ -219,6 +232,38 @@ class CrawlerService:
                 message,
             )
 
+    def _publish_filter_summary(self, run_id: str, summary: dict[str, Any]) -> None:
+        errors = int(summary.get("errors", 0))
+        if errors <= 0:
+            return
+        message = (
+            f"过滤部分完成：保留 {summary.get('kept', 0)}，"
+            f"丢弃 {summary.get('discarded', 0)}，失败 {errors}；继续处理成功文档"
+        )
+        with self._lock:
+            run = self._runs.get(run_id)
+            if run is None:
+                return
+            event = self._append_event_locked(
+                run,
+                phase="filter_partial",
+                message=message,
+                level="warning",
+                details={
+                    "total": summary.get("total", 0),
+                    "kept": summary.get("kept", 0),
+                    "discarded": summary.get("discarded", 0),
+                    "errors": errors,
+                },
+            )
+        LOGGER.warning(
+            "crawl_event crawl_run_id=%s phase=%s message=%s details=%s",
+            run_id,
+            event["phase"],
+            event["message"],
+            json.dumps(event["details"], ensure_ascii=False),
+        )
+
     @staticmethod
     def _empty_source_result() -> dict[str, int]:
         return {
@@ -297,6 +342,8 @@ class CrawlerService:
             "source_results": self._initial_source_results(payload["sources"]),
             "workspace_cleaned": False,
             "error_message": None,
+            "filter_summary": None,
+            "artifact_path": None,
         }
         try:
             workspace.mkdir(parents=True, exist_ok=True)
@@ -342,7 +389,13 @@ class CrawlerService:
                 if return_code
                 else None
             )
+            filter_summary = self._read_json(workspace / "data" / "filter-result.json")
+            if filter_summary:
+                self._publish_filter_summary(run_id, filter_summary)
             result.update(self._import_documents(payload))
+            if filter_summary:
+                result["filter_summary"] = filter_summary
+                result["items_failed"] += int(filter_summary.get("errors", 0))
             selected_sources = [
                 SOURCE_NAMES[index]
                 for index in range(len(SOURCE_NAMES))
@@ -367,7 +420,13 @@ class CrawlerService:
             result["progress"]["phase"] = "failed"
             result["progress"]["message"] = "采集任务失败"
         finally:
-            result["workspace_cleaned"] = self._cleanup_workspace(workspace)
+            try:
+                result["artifact_path"] = self._archive_workspace(run_id, workspace)
+            except Exception as archive_error:
+                result["artifact_error"] = str(archive_error)
+                result["workspace_cleaned"] = False
+            else:
+                result["workspace_cleaned"] = self._cleanup_workspace(workspace)
         return result
 
     @staticmethod
@@ -378,6 +437,14 @@ class CrawlerService:
             return None
         progress = payload.get("progress")
         return progress if isinstance(progress, dict) else None
+
+    @staticmethod
+    def _read_json(path: Path) -> dict[str, Any] | None:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        return payload if isinstance(payload, dict) else None
 
     @classmethod
     def _failed_result(cls, payload: dict[str, Any], message: str) -> dict[str, Any]:
@@ -404,6 +471,8 @@ class CrawlerService:
             },
             "workspace_cleaned": False,
             "error_message": message,
+            "filter_summary": None,
+            "artifact_path": None,
         }
 
     def _import_documents(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -530,12 +599,21 @@ class CrawlerService:
             return result
 
         result["status"] = (
-            "succeeded" if result.get("items_pipeline_succeeded", 0) > 0 else "failed"
+            "partial_success"
+            if result.get("items_pipeline_succeeded", 0) > 0
+            and result.get("items_failed", 0) > 0
+            else "succeeded"
+            if result.get("items_pipeline_succeeded", 0) > 0
+            else "failed"
         )
         if result["status"] == "failed":
             result["error_message"] = "没有成功完成任何文档的 live Pipeline"
             result["progress"]["phase"] = "failed"
             result["progress"]["message"] = "采集任务失败"
+        elif result["status"] == "partial_success":
+            result["progress"]["phase"] = "partial_success"
+            result["progress"]["message"] = "采集任务部分成功"
+            result["error_message"] = f"{result.get('items_failed', 0)} 篇文档处理失败，其余文档已继续处理"
         else:
             result["progress"]["phase"] = "completed"
             result["progress"]["message"] = "采集任务完成"
@@ -619,3 +697,16 @@ class CrawlerService:
             return True
         except OSError:
             return False
+
+    def _archive_workspace(self, run_id: str, workspace: Path) -> str:
+        """将运行中间产物原子归档到仓库挂载目录。"""
+        self.artifact_root.mkdir(parents=True, exist_ok=True)
+        target = self.artifact_root / run_id
+        staging = self.artifact_root / f".{run_id}.tmp"
+        if staging.exists():
+            shutil.rmtree(staging)
+        if target.exists():
+            shutil.rmtree(target)
+        shutil.copytree(workspace, staging)
+        staging.rename(target)
+        return f"data/crawl_runs/{run_id}"
