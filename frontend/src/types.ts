@@ -74,7 +74,11 @@ export type ReportSection = {
   markdown: string;
   evidence_ids: string[];
   analysis_refs: string[];
-  graph_refs: Record<string, unknown>;
+  graph_refs: {
+    node_ids?: string[];
+    edge_ids?: string[];
+    [key: string]: unknown;
+  };
   sort_order: number;
 };
 
