@@ -145,3 +145,40 @@ describe("3D 点击聚焦", () => {
     expect(result.links[1]).toMatchObject({ color: "#e2e8f0", width: 1.2, particles: 0 });
   });
 });
+
+describe("2D 图谱关系 tooltip", () => {
+  it("映射关系类型、置信度和稳定标识", () => {
+    const option = graphOptions.buildGraphOption(payload) as {
+      series: Array<{
+        links?: Array<Record<string, unknown>>;
+      }>;
+    };
+    const relation = option.series[0].links?.[0];
+
+    expect(relation).toMatchObject({
+      id: "rel:apt28:uses:x-agent",
+      name: "使用",
+      type: "USES",
+      value: 0.91,
+      _raw: payload.edges[0],
+    });
+  });
+
+  it("悬浮关系时显示真实类型和置信度", () => {
+    const option = graphOptions.buildGraphOption(payload) as {
+      tooltip: {
+        formatter: (params: unknown) => string;
+      };
+    };
+    const relation = {
+      name: "攻击目标",
+      type: "TARGETS",
+      value: 0.95,
+      _raw: { validation_status: "valid" },
+    };
+
+    const tooltip = option.tooltip.formatter({ data: relation });
+
+    expect(tooltip).toBe("攻击目标<br/>类型：TARGETS<br/>置信度：0.95");
+  });
+});

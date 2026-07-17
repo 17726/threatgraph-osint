@@ -215,9 +215,12 @@ export function buildGraphOption(payload: GraphPayload, opts?: BuildOptions): EC
             (isSearched && (edge.source === searchNodeId || edge.target === searchNodeId));
           const isInfer = edge.validation_status === "invalid";
           return {
+            id: edge.id,
             source: edge.source,
             target: edge.target,
             name: edge.label,
+            type: edge.type,
+            value: Number(edge.confidence.toFixed(2)),
             lineStyle:
               highlightSet.size > 0 || isSearched
                 ? { opacity: pathEdge ? 1 : 0.08 }

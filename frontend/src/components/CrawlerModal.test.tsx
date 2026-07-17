@@ -67,7 +67,7 @@ describe("CrawlerModal", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "采集情报" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "流水线" })).toBeTruthy();
     expect(
       (screen.getByRole("combobox", { name: "目标组织" }) as HTMLSelectElement)
         .value,

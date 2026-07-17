@@ -437,7 +437,7 @@ export function App() {
             onClick={() => setCrawlerOpen(true)}
           >
             <Radar size={16} />
-            <span>采集情报</span>
+            <span>流水线</span>
           </button>
         </div>
         <div className="status-strip">
