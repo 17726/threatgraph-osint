@@ -8,6 +8,7 @@
 
 简体中文 | [English](README.en.md)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](backend/requirements.txt)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](frontend/package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](frontend/package.json)
@@ -108,3 +109,20 @@ flowchart TD
 | 提交约定与评审流程           | [贡献指南](docs/CONTRIBUTING.md)                                                    |
 
 欢迎通过 [Issue](https://github.com/17726/threatgraph-osint/issues) 反馈问题；开发与提交约定见 [贡献指南](docs/CONTRIBUTING.md)。更多资料见 [文档索引](docs/README.md)。
+
+本项目采用 [MIT 开源协议](LICENSE)。
+
+## 贡献者
+
+感谢每一位参与项目的伙伴！
+
+<p>
+  <a href="https://github.com/17726"><img src="https://avatars.githubusercontent.com/u/112075023?v=4&amp;s=64" width="64" height="64" alt="17726" title="17726" /></a>
+  <a href="https://github.com/yzq38"><img src="https://avatars.githubusercontent.com/u/218994863?v=4&amp;s=64" width="64" height="64" alt="yzq38" title="yzq38" /></a>
+  <a href="https://github.com/czt0221"><img src="https://avatars.githubusercontent.com/u/110171389?v=4&amp;s=64" width="64" height="64" alt="czt0221" title="czt0221" /></a>
+  <a href="https://github.com/78-future"><img src="https://avatars.githubusercontent.com/u/141977614?v=4&amp;s=64" width="64" height="64" alt="78-future" title="78-future" /></a>
+  <a href="https://github.com/liusk9"><img src="https://avatars.githubusercontent.com/u/218700268?v=4&amp;s=64" width="64" height="64" alt="liusk9" title="liusk9" /></a>
+  <a href="https://github.com/tomolin1"><img src="https://avatars.githubusercontent.com/u/218564308?v=4&amp;s=64" width="64" height="64" alt="tomolin1" title="tomolin1" /></a>
+  <a href="https://github.com/SuQi-create"><img src="https://avatars.githubusercontent.com/u/297550536?v=4&amp;s=64" width="64" height="64" alt="SuQi-create" title="SuQi-create" /></a>
+  <a href="https://github.com/wyh0916"><img src="https://avatars.githubusercontent.com/u/218702089?v=4&amp;s=64" width="64" height="64" alt="wyh0916" title="wyh0916" /></a>
+</p>
