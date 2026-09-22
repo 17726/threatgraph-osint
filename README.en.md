@@ -108,5 +108,3 @@ flowchart TD
 | Commit conventions and review                  | [Contributor guide](docs/CONTRIBUTING.md)                                            |
 
 Report problems through [Issues](https://github.com/17726/threatgraph-osint/issues). See the [contributor guide](docs/CONTRIBUTING.md) for development conventions and the [documentation index](docs/README.md) for more resources. Most detailed reference documents are in Chinese.
-
-The repository does not yet include a `LICENSE`; the project license remains to be specified. Check usage conditions for third-party intelligence materials separately.

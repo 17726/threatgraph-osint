@@ -108,5 +108,3 @@ flowchart TD
 | 提交约定与评审流程           | [贡献指南](docs/CONTRIBUTING.md)                                                    |
 
 欢迎通过 [Issue](https://github.com/17726/threatgraph-osint/issues) 反馈问题；开发与提交约定见 [贡献指南](docs/CONTRIBUTING.md)。更多资料见 [文档索引](docs/README.md)。
-
-仓库尚未包含 `LICENSE`，项目许可待明确；第三方情报材料的使用条件应分别核对。
