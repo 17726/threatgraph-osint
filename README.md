@@ -8,437 +8,121 @@
 
 简体中文 | [English](README.en.md)
 
-[![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=111827)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.116%2B-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Docker Compose](https://img.shields.io/badge/Docker_Compose-ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white)](backend/requirements.txt)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](frontend/package.json)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](frontend/package.json)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](backend/app/main.py)
+[![Docker Compose](https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
 
-[快速开始](#快速开始) · [系统能力](#系统能力) · [架构与数据流](#架构与数据流) · [项目文档](#项目文档) · [开发验证](#开发验证)
+[功能](#功能) · [快速开始](#快速开始) · [架构](#架构) · [文档](#文档)
 
 </div>
 
 ThreatGraph-OSINT 面向 APT28、Lazarus、Kimsuky 等目标组织，将公开情报文档转换为可检索、可视化、可追溯的威胁情报知识图谱，辅助分析人员查看实体关系、证据来源、行为模式和评测结果。
 
-本项目对应《网络空间安全综合实验》实验三：**开源情报资源中潜在行为和关系的大模型深度分析系统**。
+![ThreatGraph-OSINT 图谱与证据面板](docs/assets/pr3-frontend.png)
 
-> [!IMPORTANT]
-> 当前版本已满足课程验收要求。标准 Document 导入、三类来源采集、`reviewed/live` 抽取、候选校验、归一化建图、SQLite 查询、行为/MITRE 分析、五章节报告和前端展示已形成可演示闭环；完整评测平台、Neo4j 多维查询、调度和报告导出属于后续增强能力。
+_已有数据集的界面示例；首次启动为空库，上手指南中的样例导入会生成一个较小的 APT28 图谱。_
 
-## 系统能力
+## 功能
 
-| 能力 | 当前状态 | 说明 |
-| --- | --- | --- |
-| 目标组织切换 | 已实现 | 支持按 APT28、Lazarus、Kimsuky 查询 SQLite 正式图谱；空库返回空图 |
-| 知识图谱可视化 | 已实现 | 支持 2D/3D 切换、全屏、展示深度（1～20）、时间过滤、技术/地区筛选和路径追踪 |
-| 实体与关系详情 | 已实现 | 支持查看类型、置信度、验证状态和证据 |
-| 行为分析 | 已实现 | 提供行为模式、MITRE ATT&CK 映射、推断关系和威胁评估接口 |
-| 评测结果 | 后端脚本已实现 | 提供候选审计和开发集 Precision、Recall、F1 计算；当前前端主界面聚焦图谱、分析和报告 |
-| FastAPI API | 已实现 P0 基础接口 | 提供文档导入、Pipeline、图谱、路径、分析和报告接口 |
-| SQLite 运行时主库 | 已确定 | 保存 canonical graph、证据、导入状态和同步水位 |
-| 文档与候选抽取契约 | 已冻结 | 提供 JSON Schema、样例和关系合法性矩阵 |
-| 三类来源采集 | 已实现 | crawler 容器提供来源采集和标准文档提升，backend 负责导入、live 抽取、校验和建图 |
-| Neo4j 图查询投影 | 已实现基础能力 | 支持全量重建、基于 SQLite 水位的幂等增量同步、状态检查和多跳路径查询，失败自动降级到 SQLite |
-
-### 核心原则
-
-- **事实按职责分层**：Git JSON 保存人工输入及经评审实验档案；SQLite 是运行时 canonical graph、证据和导入状态的权威来源。
-- **候选层与正式图谱层分离**：LLM 输出先进入候选表，经过校验和归一化后才能进入正式实体与关系。
-- **证据链贯穿分析流程**：实体、关系、行为分析和报告结论都应能追溯到 `evidence_ids`。
-- **graph.json 是导出快照**：用于离线样例、演示兜底和 Neo4j 同步输入，不替代 SQLite。
-- **Neo4j 是可重建查询投影**：只接收 SQLite canonical graph 的已验证实体和关系；同步失败不能反向污染 SQLite。
-- **前端只调用 FastAPI**：React 不直接读取 SQLite、`graph.json` 或 Neo4j。
-
-## 界面预览
-
-![ThreatGraph-OSINT 前端界面](docs/assets/pr3-frontend.png)
-
-前端当前包含两个主要视图：
-
-- **知识图谱**：查看目标组织的实体网络、关系、时间范围和证据详情。
-- **行为分析**：查看攻击阶段、MITRE ATT&CK 映射和行为模式。
-
-图谱视图支持 2D ECharts 与白底 3D 力导向图切换，并提供全屏显示、节点邻居展开、展示深度、时间轴、技术筛选、地区筛选和路径追踪。顶部的“采集情报”入口通过 backend 创建 crawler 任务；没有有效 LLM 配置时按钮会保持禁用，不会启动采集任务。
-
-## 架构与数据流
-
-```text
-公开情报 / 本地清洗文档
-          │
-          ▼
-     文档导入与切块
-          │
-          ▼
-   LLM 候选实体与关系
-          │
-          ▼
- 校验、归一化与证据绑定
-          │
-          ▼
- SQLite 运行时 canonical graph
-          │
-     ┌────┴────┐
-     ▼         ▼
-  graph.json  FastAPI
-      │         │
-      ▼         ▼
-    Neo4j     React + ECharts
-  P1 增强       图谱研判界面
-```
-
-### 技术栈
-
-| 层次 | 技术 |
-| --- | --- |
-| 前端 | React 19、TypeScript、Vite、ECharts、react-force-graph-3d、Three.js、Lucide React |
-| 后端 | FastAPI、Python 3.13 |
-| 采集 | 独立 crawler 容器、HTTP/HTTPS 代理、来源适配器 |
-| 数据层 | SQLite |
-| 图谱增强 | Neo4j 5 Community，P1 阶段使用 |
-| 运行方式 | Docker Compose |
-| LLM 接口 | OpenAI-compatible API |
+| 能力           | 可以做什么                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| 图谱探索       | 切换 2D / 3D 视图，搜索实体、展开邻居、调整展示深度，按时间、技术和地区筛选，追踪节点间路径 |
+| 证据追溯       | 查看实体与关系的来源、原文片段、置信度及校验状态，回到支持该关系的文档证据                  |
+| 情报采集       | 独立 crawler 服务采集、清洗和过滤来源内容，后端统一导入与建图；界面展示阶段进度及任务事件   |
+| LLM 抽取       | 从标准文档生成候选实体与关系，执行 Schema、关系类型和原文证据校验，保留候选审计工件         |
+| 行为分析与报告 | 查看行为模式、MITRE ATT&CK 映射和推断关系，生成组织画像、关联网络、时间线等结构化报告       |
+| 抽取评测       | 使用脚本对照人工 Golden 数据计算实体与关系的 Precision、Recall、F1，记录调用量和运行耗时    |
+| 图查询增强     | 可选启用 Neo4j 全量重建、增量同步和多跳路径查询；投影不可用或未追平时回退到 SQLite          |
 
 ## 快速开始
 
-### 环境要求
-
-- Docker Desktop，包含 Docker Compose
-- Git
-
-项目默认通过 Docker Compose 运行，不要求本机安装 Python 或前端依赖。
-
-### 1. 配置环境变量
-
-复制示例配置文件：
+准备 **Git** 和 **Docker Compose**，然后执行：
 
 ```bash
+git clone https://github.com/17726/threatgraph-osint.git
+cd threatgraph-osint
 cp .env.example .env
+docker compose up --build -d backend frontend
 ```
 
-Windows PowerShell：
+PowerShell 用户将复制命令换成 `Copy-Item .env.example .env`。
 
-```powershell
-Copy-Item .env.example .env
+打开 [前端](http://localhost:5173)，API 文档位于 [Swagger UI](http://localhost:8000/docs)。
+
+> [!NOTE]
+> 首次启动为空库。按[导入审核样例](docs/guides/getting-started.md#3-导入审核样例)加载 APT28 数据后即可探索图谱，**无需模型 API Key 或 Neo4j**。
+
+处理新情报、模型配置及完整操作见[上手指南](docs/guides/getting-started.md)。
+
+## 架构
+
+```mermaid
+flowchart TD
+    Sources[公开情报来源] --> Crawler[采集 / 清洗 / 过滤]
+    Crawler --> Document[标准文档与切块]
+    Local[本地标准文档] --> Document
+    Document --> LLM[LLM 候选抽取]
+    LLM --> Validate[校验 / 归一化 / 证据绑定]
+    Reviewed[已有审核抽取结果] --> Validate
+    Validate --> SQLite[(SQLite 正式图谱)]
+    SQLite --> API[FastAPI 查询 / 分析 / 报告]
+    API --> UI[React 2D / 3D 界面]
+    SQLite --> Snapshot[graph.json 导出快照]
+    SQLite -. 同步 .-> Neo4j[(Neo4j 可选查询投影)]
+    Neo4j -. 路径查询 .-> API
 ```
 
-启动时只创建 SQLite 表，不自动写入演示数据。真实抽取默认使用 DeepSeek V4 Flash；只在本地 `.env`
-填写 `LLM_API_KEY`，不要把密钥放进命令行、代码或提交记录。
-
-### 2. 启动服务
-
-首次启动或依赖发生变化时：
-
-```bash
-docker compose up --build
-```
-
-后续启动：
-
-```bash
-docker compose up
-```
-
-服务地址：
-
-| 服务 | 地址 |
-| --- | --- |
-| 前端 | <http://localhost:5173> |
-| 后端 API | <http://localhost:8000> |
-| Swagger API 文档 | <http://localhost:8000/docs> |
-| 健康检查 | <http://localhost:8000/api/v1/health> |
-| Neo4j Browser | <http://localhost:7474> |
-
-爬虫服务 `crawler:8100` 只在 Docker Compose 内部网络提供 HTTP API，不映射宿主机端口。浏览器只能请求 backend 的 `8000` 端口，不能直接请求 crawler。前端“采集情报”操作的链路为：frontend 请求 backend 创建任务，backend 通过 HTTP 调用 crawler 并轮询状态，crawler 逐篇请求 backend 的 `/api/v1/documents/import`，随后固定复用 `/api/v1/pipeline/run` 的 `live` 模式和 `/api/v1/pipeline/status/{job_id}`，完成抽取、校验、归一化和建图。
-
-由于采集固定使用 live Pipeline，必须在 `.env` 中配置非空的 `LLM_MODEL`、`LLM_BASE_URL` 和 `LLM_API_KEY`。没有有效配置时，“采集情报”按钮仍会显示但处于禁用状态；即使直接调用 API，backend 也会返回 `503 ERR_LLM_NOT_CONFIGURED`，不会启动 crawler。
-
-### 3. 导入真实抽取结果
-
-启动后数据库默认为空。要调用 LLM 抽取、导入 SQLite 并导出图谱快照，执行：
-
-```bash
-docker compose run --rm backend python scripts/run_llm_extraction.py \
-  --document data/documents/apt28/your-document.json \
-  --import --export-graph --json
-```
-
-也可以将已有的 `document.json` 和 `extraction_result.json` 导入：
-
-```bash
-docker compose run --rm backend python scripts/import_extraction_result.py \
-  --document data/documents/apt28/your-document.json \
-  --extraction-result data/extracted/your-extraction-result.json \
-  --export-graph
-```
-
-运行后生成或更新：
-
-```text
-SQLite 数据库：data/threatgraph_osint.db
-图谱快照：data/graph/graph.json
-运行摘要：data/run_logs/run-log-<run_id>.json
-```
-
-运行摘要记录文档加载、LLM、Golden 评测、SQLite 导入、图谱导出和总耗时，
-并聚合本次 LLM API 调用次数与 Token 使用量。`data/run_logs/` 是本机运行产物，
-默认不提交到 Git；如需临时输出到其他目录，可增加
-`--run-log-dir <目录>`。
-
-前端显式发起的 `live` Pipeline 使用同一套本机档案目录：Extraction 与 Candidate Audit
-写入 `data/run_artifacts/<run_id>*.json`，任务摘要写入
-`data/run_logs/pipeline-run-<job_id>.json`。任务失败或服务进程中断时仍保留摘要，已经成功生成的
-候选工件不会因后续 SQLite 导入失败而删除。这些运行时文件默认被 Git 忽略，也不会被 `reviewed`
-模式自动消费；只有经过评审、迁入 `data/extracted/` 并登记到
-`config/reviewed-extractions.json` 或课程演示清单的工件，才能作为已审核输入使用。
-服务重启时以 SQLite 任务终态对账已有 live 摘要；本机档案损坏不会阻止服务恢复。
-
-每次默认 Pipeline 成功写入 SQLite 后会尝试推进 Neo4j 增量投影。Neo4j 未启动或尚未完成首次
-全量重建时，SQLite 任务仍保持成功，任务结果中的 `neo4j_sync` 会说明投影状态。首次使用或清空
-Neo4j 数据后，执行：
-
-```bash
-curl -X POST http://localhost:8000/api/v1/neo4j/rebuild
-curl http://localhost:8000/api/v1/neo4j/status
-```
-
-后续也可手动触发幂等增量同步：
-
-```bash
-curl -X POST http://localhost:8000/api/v1/neo4j/sync
-```
-
-`GET /api/v1/graph/path` 在投影就绪且水位追平时优先使用 Neo4j；连接失败、查询失败、投影未初始化
-或存在待同步变更时自动降级到 SQLite，并通过 `fallback_reason` 说明原因。全量重建先清理带项目
-ownership 的关系，再以非 `DETACH` 方式删除带 `ThreatGraphProjection` 标签的节点；如果同库其他图
-给项目节点增加了外部关系，重建会失败并回滚，不会静默删除外部关系。
-
-LLM 请求等待期间默认每 30 秒输出一次心跳，并在重试时显示尝试序号和失败原因。
-可使用 `--heartbeat-seconds <秒数>` 调整间隔，设为 `0` 可关闭心跳。
-
-流水线状态接口会返回最新 `progress` 和有序 `events`。前端弹窗展示采集任务 ID、子 Pipeline
-任务 ID、当前来源/文档、阶段百分比和最近事件；Docker 日志使用相同 ID 输出结构化阶段记录。
-PowerShell 下可用以下命令关联排查：
-
-```powershell
-docker compose logs backend crawler | Select-String 'pipeline_event|crawl_event'
-docker compose logs backend crawler | Select-String '<前端显示的 crawl_ 或 job_ 任务 ID>'
-```
-
-采集过滤采用文档级容错：单篇文档发生 LLM 网络或解析错误时，该文档记入
-`filter_summary.failed_documents`，其他已成功过滤的文档继续导入和建图，任务终态为
-`partial_success`。脚本崩溃、配置缺失或目录损坏等批次级错误仍会中止任务。
-
-每次采集的中间产物都会归档到 `data/crawl_runs/<crawl_run_id>/`，包括实际产生的原始采集、
-清洗、过滤、待导入文档、进度和过滤摘要，便于人工复核。该目录属于本机运行产物并被 Git 忽略，
-不要强制提交其中的来源全文。
-
-### 4. 停止服务
-
-```bash
-docker compose down
-```
-
-如果需要同时清理 Neo4j 的 Docker 数据卷：
-
-```bash
-docker compose down -v
-```
-
-## API 入口
-
-当前后端提供以下主要接口：
-
-```text
-GET /api/v1/health
-GET /api/v1/graph?target=APT28&depth=2
-GET /api/v1/graph/neighbors?entity_id=technique:t1566&depth=2
-GET /api/v1/graph/path?source=apt_group:apt28&target=malware:x-agent
-GET /api/v1/analysis/{target_group}/behavior
-GET /api/v1/analysis/{target_group}/mitre
-GET /api/v1/analysis/{target_group}/inferences
-GET /api/v1/analysis/{target_group}/threat-assessment
-POST /api/v1/pipeline/run
-GET /api/v1/pipeline/status/{job_id}
-GET /api/v1/neo4j/status
-POST /api/v1/neo4j/rebuild
-POST /api/v1/neo4j/sync
-GET /api/v1/reports/{target_group}
-POST /api/v1/reports/{target_group}/generate
-POST /api/v1/crawl/runs
-GET /api/v1/crawl/runs/{crawl_run_id}
-```
-
-成功响应统一使用以下结构：
-
-```json
-{
-  "success": true,
-  "data": {},
-  "timestamp": "2026-07-12T00:00:00+08:00"
-}
-```
-
-完整接口字段、错误码和后续接口规划见 [`docs/api-contract.md`](docs/api-contract.md)。
-
-## 数据契约
-
-项目使用 schema-first 方式冻结跨组数据边界：
-
-```text
-data/documents/<target_group>/*.json
-        │
-        ▼
-document.schema.json
-        │
-        ▼
-extraction-result.schema.json
-        │
-        ▼
-校验、归一化、证据绑定
-        │
-        ▼
-graph.schema.json -> data/graph/graph.json
-```
-
-主要契约文件：
-
-- [`document.schema.json`](docs/schemas/document.schema.json)：清洗后的标准文档。
-- [`extraction-result.schema.json`](docs/schemas/extraction-result.schema.json)：LLM 候选实体和关系。
-- [`golden.schema.json`](docs/schemas/golden.schema.json)：人工标准答案和评测数据。
-- [`graph.schema.json`](docs/schemas/graph.schema.json)：SQLite 导出的完整图谱快照。
-- [`relationship-matrix.md`](docs/schemas/relationship-matrix.md)：实体类型与关系类型合法性矩阵。
-
-可复用样例位于 [`data/examples/`](data/examples/)。真实清洗文档默认放在 `data/documents/<target_group>/`。
-
-## 项目结构
-
-```text
-.
-├── backend/              FastAPI 后端与服务逻辑
-├── crawler/              独立采集服务与来源适配器
-├── frontend/             React + TypeScript + Vite 前端
-├── data/
-│   ├── examples/         契约样例
-│   ├── documents/        标准化真实文档
-│   ├── extracted/        抽取结果
-│   ├── graph/            graph.json 导出快照
-│   └── threatgraph_osint.db
-├── scripts/              数据导入、转换和导出脚本
-├── docs/                 架构、契约、运行和协作文档
-├── TODO.md               当前任务与进展
-└── docker-compose.yml    本地开发编排配置
-```
-
-## 开发验证
-
-### 后端测试
-
-```bash
-docker compose build backend
-docker compose run --rm backend python -m pytest backend/tests -v
-```
-
-### 采集服务测试
-
-```bash
-docker compose build crawler
-docker compose run --rm crawler python -m pytest crawler/tests -v
-```
-
-### 前端测试与构建
-
-```bash
-docker compose build frontend
-docker compose run --rm frontend npm run test
-docker compose run --rm frontend npm run build
-docker compose run --rm frontend npm run format:check
-```
-
-前端当前通过 `App` 集成图谱、分析、报告、Pipeline 和采集入口；`EvaluationPage` 与历史评测数据仍保留在代码仓库中，评测指标以后端脚本和 `docs/reports/` 中的开发集记录为准。
-
-### 离线抽取结果校验
-
-```bash
-docker compose run --rm backend python scripts/validate_extraction_result.py \
-  data/extracted/extract-apt28_049-manual-reviewed-1.0-1.0-20260709121032840760-00000000.json \
-  --document data/examples/document.apt28.thn.beardshell.example.json
-```
-
-### DeepSeek V4 真实抽取与评测
-
-先在本地 `.env` 配置 `LLM_API_KEY`，然后执行最小连通性检查：
-
-```bash
-docker compose run --rm backend python scripts/run_llm_extraction.py \
-  --preflight-only --json
-```
-
-对人工 golden 文档执行真实抽取并计算实体、关系 Precision、Recall、F1：
-
-```bash
-docker compose run --rm backend python scripts/run_llm_extraction.py \
-  --document data/documents/apt28/apt28_080.json \
-  --golden data/golden/golden-en-apt28_080-1.0-1.0.json \
-  --json
-```
-
-抽取结果仍只进入候选层；被过滤的候选会单独写入同一 `run_id` 的 Candidate Audit。当前
-评测器会把其中 rejected 项计入预测数量和 false positive，这是待拆分为 raw/validated 多作用域
-指标的历史口径，不能直接解释为模型本身的最终 F1。需要生成正式图谱时显式追加
-`--import --export-graph`。
-完整操作和评测口径见
-[`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md)。
-
-## 项目文档
-
-| 文档 | 用途 |
-| --- | --- |
-| [`TODO.md`](TODO.md) | 当前进展、优先级和下一步任务 |
-| [`docs/stage-roadmap.md`](docs/stage-roadmap.md) | Step 0～Step 4 阶段路线和验收标准 |
-| [`docs/architecture.md`](docs/architecture.md) | 系统架构、数据流和分层边界 |
-| [`docs/api-contract.md`](docs/api-contract.md) | FastAPI 接口契约 |
-| [`docs/data-contract.md`](docs/data-contract.md) | SQLite 数据层契约 |
-| [`docs/demo-flow.md`](docs/demo-flow.md) | 课程全链路演示路径、当前实现边界与数据门槛 |
-| [`docs/schemas/README.md`](docs/schemas/README.md) | JSON Schema 与样例说明 |
-| [`docs/docker-runtime.md`](docs/docker-runtime.md) | Docker Compose 运行契约 |
-| [`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md) | LLM 抽取、工件和开发集评测操作 |
-| [`docs/team-workflow.md`](docs/team-workflow.md) | 小组职责与协作流程 |
-| [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | 开发规范与 Git 流程 |
-| [`docs/reports/llm-extraction-baseline.md`](docs/reports/llm-extraction-baseline.md) | DeepSeek V4 真实调用、APT28 指标和 golden 门禁结论 |
-
-新成员建议按以下顺序阅读：
-
-1. 本 README，了解项目定位和运行方式。
-2. [`TODO.md`](TODO.md)，了解当前任务和完成边界。
-3. [`docs/stage-roadmap.md`](docs/stage-roadmap.md)，了解项目阶段。
-4. [`docs/architecture.md`](docs/architecture.md)，了解系统数据流。
-5. 与负责小组对应的契约和协作文档。
-
-按组别选择入口：
-
-| 组别 | 优先阅读 |
-| --- | --- |
-| 架构与数据规范组 `arch` | [`docs/architecture.md`](docs/architecture.md)、[`docs/api-contract.md`](docs/api-contract.md)、[`docs/data-contract.md`](docs/data-contract.md) |
-| 数据与样本组 `data` | [`docs/data-contract.md`](docs/data-contract.md)、[`docs/schemas/README.md`](docs/schemas/README.md)、[`docs/team-workflow.md`](docs/team-workflow.md) |
-| LLM 抽取与分析组 `llm` | [`docs/guides/llm-extraction-and-evaluation.md`](docs/guides/llm-extraction-and-evaluation.md)、[`docs/data-contract.md`](docs/data-contract.md)、[`docs/schemas/README.md`](docs/schemas/README.md) |
-| 图谱与前端组 `fe` | [`docs/api-contract.md`](docs/api-contract.md)、[`docs/team-workflow.md`](docs/team-workflow.md) |
-| 报告答辩与测试组 `qa` | [`docs/team-workflow.md`](docs/team-workflow.md)、[`docs/reference-comparison.md`](docs/reference-comparison.md)、[`docs/references/course-requirements.md`](docs/references/course-requirements.md) |
-
-## 当前路线
-
-```text
-Step 0  脚手架与 Mock 闭环       已完成
-Step 1  真实样本与后半链路        已完成
-Step 2  P0 MVP 闭环               已完成
-Step 3  课程验收闭环              已完成
-Step 4  Neo4j、调度与报告导出增强  P1，后续增强
-```
-
-当前版本已使用 APT28、Kimsuky、Lazarus 三个目标组织和三类公开来源，完成“采集/导入 → 候选抽取 → 归一化 → 正式图谱 → 行为/MITRE → 结构化报告 → 前端展示”的课程演示链路。后续开发重点为 Neo4j 多维查询、定时调度、增量更新、报告导出和更完整的评测能力。
-
-## 数据与隐私约束
-
-- 不提交原始课程 PDF。
-- 不提交未脱敏的聊天记录、私有链接、教师联系方式或个人联系方式。
-- 不提交 API Key、真实密码或 `.env` 文件；仓库只保留 [`.env.example`](.env.example)。
-- 公开材料只保留必要的课程要求和脱敏文档。
+- **SQLite 是运行时唯一事实源**，保存文档、候选、正式实体、关系、证据与 Pipeline 任务状态。
+- **模型输出先作为候选处理**，通过校验和归一化后才进入正式图谱。校验状态不等同于情报事实已经被独立证实。
+- **Neo4j 可以从 SQLite 重建**，用于增强查询；`graph.json` 是导出快照，不替代数据库。
+- **前端只调用 FastAPI**，不直接读取 SQLite、Neo4j 或本地 JSON。
+
+| 层次       | 技术                                                                |
+| ---------- | ------------------------------------------------------------------- |
+| 前端       | React 19、TypeScript、Vite、ECharts、react-force-graph-3d、Three.js |
+| 后端与采集 | Python 3.13、FastAPI、独立 crawler 服务                             |
+| 存储与查询 | SQLite、Neo4j 5 Community（可选）                                   |
+| 模型接口   | OpenAI-compatible API                                               |
+| 本地运行   | Docker Compose                                                      |
+
+## 当前边界
+
+- 默认 Compose 使用开发服务器，后端尚未提供用户认证与权限管理；当前定位是本地运行与研究使用。
+- 行为分析、MITRE 映射和报告受输入数据及规则覆盖范围影响，推断关系和模型结论需要结合原文复核。
+- 评测结果来自固定开发样本，不能代表未知数据上的泛化效果；评测以脚本为入口，旧评测页面仍保留 Mock 数据，未接入当前主界面。
+- 定时采集调度、跨重启的采集任务历史、Word/PDF 报告导出、完整 STIX/MISP 互操作仍属于后续工作。
+
+## 文档
+
+| 你想了解                     | 入口                                                                                |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
+| 首次运行、审核样例与模型接入 | [上手指南](docs/guides/getting-started.md)                                          |
+| 运行日志、产物目录与 Neo4j   | [运行与排障](docs/guides/running-and-troubleshooting.md)                            |
+| 模型配置、抽取与 Golden 评测 | [LLM 抽取与评测](docs/guides/llm-extraction-and-evaluation.md)                      |
+| 系统分层与设计决策           | [架构设计](docs/architecture.md)                                                    |
+| API 字段、响应与错误码       | [API 契约](docs/api-contract.md)；运行后的 [Swagger UI](http://localhost:8000/docs) |
+| 数据表、实体与关系约束       | [数据契约](docs/data-contract.md)、[JSON Schema](docs/schemas/README.md)            |
+| 输入与输出样例               | [data/examples](data/examples/)                                                     |
+| 提交约定与评审流程           | [贡献指南](docs/CONTRIBUTING.md)                                                    |
+
+欢迎通过 [Issue](https://github.com/17726/threatgraph-osint/issues) 反馈问题；开发与提交约定见 [贡献指南](docs/CONTRIBUTING.md)。更多资料见 [文档索引](docs/README.md)。
+
+本项目采用 [MIT 开源协议](LICENSE)。
+
+## 贡献者
+
+感谢每一位参与项目的伙伴！
+
+<p>
+  <a href="https://github.com/17726"><img src="https://avatars.githubusercontent.com/u/112075023?v=4&amp;s=64" width="64" height="64" alt="17726" title="17726" /></a>
+  <a href="https://github.com/yzq38"><img src="https://avatars.githubusercontent.com/u/218994863?v=4&amp;s=64" width="64" height="64" alt="yzq38" title="yzq38" /></a>
+  <a href="https://github.com/czt0221"><img src="https://avatars.githubusercontent.com/u/110171389?v=4&amp;s=64" width="64" height="64" alt="czt0221" title="czt0221" /></a>
+  <a href="https://github.com/78-future"><img src="https://avatars.githubusercontent.com/u/141977614?v=4&amp;s=64" width="64" height="64" alt="78-future" title="78-future" /></a>
+  <a href="https://github.com/liusk9"><img src="https://avatars.githubusercontent.com/u/218700268?v=4&amp;s=64" width="64" height="64" alt="liusk9" title="liusk9" /></a>
+  <a href="https://github.com/tomolin1"><img src="https://avatars.githubusercontent.com/u/218564308?v=4&amp;s=64" width="64" height="64" alt="tomolin1" title="tomolin1" /></a>
+  <a href="https://github.com/SuQi-create"><img src="https://avatars.githubusercontent.com/u/297550536?v=4&amp;s=64" width="64" height="64" alt="SuQi-create" title="SuQi-create" /></a>
+  <a href="https://github.com/wyh0916"><img src="https://avatars.githubusercontent.com/u/218702089?v=4&amp;s=64" width="64" height="64" alt="wyh0916" title="wyh0916" /></a>
+</p>
