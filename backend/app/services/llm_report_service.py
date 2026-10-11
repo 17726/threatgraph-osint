@@ -1,7 +1,7 @@
 """LLM 驱动的智能报告生成服务。
 
 从 SQLite 图谱读取指定组织的全量数据，构建 prompt 发给 DeepSeek，
-让大模型生成 5 个章节的自然语言分析报告。
+让大模型生成 6 个章节的自然语言分析报告。
 """
 
 from __future__ import annotations
@@ -19,32 +19,6 @@ import httpx
 DEFAULT_BASE_URL = "https://api.deepseek.com"
 DEFAULT_MODEL = "deepseek-v4-flash"
 DEFAULT_DB_PATH = Path("data/threatgraph_osint.db")
-
-
-# #region debug-point A:runtime-reporting
-_DEBUG_EVENT_URL = "http://127.0.0.1:7777/event"
-_DEBUG_SESSION_ID = "report-llm-fallback"
-
-
-def _debug_report(hypothesis_id: str, location: str, message: str, data: dict[str, Any] | None = None) -> None:
-    try:
-        httpx.post(
-            _DEBUG_EVENT_URL,
-            json={
-                "sessionId": _DEBUG_SESSION_ID,
-                "runId": "pre-fix",
-                "hypothesisId": hypothesis_id,
-                "location": location,
-                "msg": f"[DEBUG] {message}",
-                "data": data or {},
-            },
-            timeout=0.5,
-        )
-    except Exception:
-        pass
-
-
-# #endregion
 
 
 SECTION_TYPES = [
@@ -126,7 +100,7 @@ REPORT_PROMPT_TEMPLATE = """你是一名专业的网络安全威胁情报分析�
 
 ## 报告要求
 
-请按以下 5 个章节撰写报告，每个章节用 "## 章节类型" 标题开头：
+请按以下 6 个章节撰写报告，每个章节用 "## 章节类型" 标题开头：
 
 1. ## profile — {profile_prompt}
 2. ## behavior_patterns — {behavior_prompt}
@@ -213,13 +187,6 @@ class LLMReportService:
         self.db_path = db_path or DEFAULT_DB_PATH
         self.last_response_text: str | None = None
         self.attack_chain_steps: list[dict[str, Any]] = []
-        _debug_report("A", "LLMReportService.__init__", "LLM service initialized", {
-            "api_key_configured": bool(self.api_key),
-            "base_url": self.base_url,
-            "model": self.model,
-            "timeout": self.timeout,
-            "db_exists": self.db_path.exists(),
-        })
 
     def _chat(self, messages: list[dict[str, str]]) -> str:
         """调用 LLM chat completion API。"""
@@ -236,24 +203,9 @@ class LLMReportService:
         }
 
         with httpx.Client(timeout=self.timeout) as client:
-            _debug_report("C", "LLMReportService._chat.before_request", "sending LLM request", {
-                "url": url,
-                "model": self.model,
-                "message_count": len(messages),
-                "prompt_chars": sum(len(message.get("content", "")) for message in messages),
-            })
             response = client.post(url, headers=headers, json=body)
 
-        _debug_report("C", "LLMReportService._chat.after_request", "LLM response received", {
-            "status_code": response.status_code,
-            "response_chars": len(response.text),
-        })
-
         if response.status_code != 200:
-            _debug_report("C", "LLMReportService._chat.error_response", "LLM returned non-200 response", {
-                "status_code": response.status_code,
-                "response_preview": response.text[:200],
-            })
             raise RuntimeError(
                 f"LLM API 返回 {response.status_code}: {response.text[:500]}"
             )
@@ -264,11 +216,6 @@ class LLMReportService:
             raise RuntimeError("LLM API 返回空 choices")
 
         content = choices[0].get("message", {}).get("content", "")
-        _debug_report("C", "LLMReportService._chat.parsed_response", "LLM response parsed", {
-            "choices": len(choices),
-            "content_chars": len(content),
-            "has_reasoning_content": bool(choices[0].get("message", {}).get("reasoning_content")),
-        })
         self.last_response_text = content
         return content
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from backend.app.services.llm_report_service import LLMReportService, _debug_report
+from backend.app.services.llm_report_service import LLMReportService
 
 
 def generate_intelligent_report(
@@ -24,23 +24,10 @@ def generate_intelligent_report(
         llm_service = LLMReportService()
 
     try:
-        _debug_report("B", "report_generator.generate_intelligent_report.before_generate", "starting intelligent report generation", {
-            "target_group": target_group,
-            "service_injected": llm_service is not None,
-        })
         result = llm_service.generate(target_group)
         result["_llm_generated"] = True
-        _debug_report("B", "report_generator.generate_intelligent_report.llm_success", "LLM report generated", {
-            "target_group": target_group,
-            "section_count": len(result.get("sections", [])),
-        })
         return result
-    except Exception as exc:
-        _debug_report("B", "report_generator.generate_intelligent_report.fallback", "LLM report generation failed; using fallback", {
-            "target_group": target_group,
-            "error_type": type(exc).__name__,
-            "error": str(exc)[:300],
-        })
+    except Exception:
         result = _fallback_generate(connection, target_group, target_entity_id)
         result["_llm_generated"] = False
         return result

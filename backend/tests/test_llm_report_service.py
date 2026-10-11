@@ -1,5 +1,8 @@
 import sqlite3
 
+from httpx import Response
+
+from backend.app.services import llm_report_service
 from backend.app.services.llm_report_service import LLMReportService
 
 
@@ -63,3 +66,45 @@ def test_parse_sections_includes_attack_chain_as_sixth_section():
     assert len(sections) == 6
     assert sections[5]["section_type"] == "attack_chain"
     assert sections[5]["markdown"] == "攻击链叙事"
+
+
+def test_chat_uses_configured_chat_completion_endpoint(monkeypatch):
+    captured = {}
+
+    class FakeClient:
+        def __init__(self, timeout):
+            captured["timeout"] = timeout
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            return False
+
+        def post(self, url, headers, json):
+            captured["url"] = url
+            captured["authorization"] = headers["Authorization"]
+            captured["content_type"] = headers["Content-Type"]
+            captured["payload"] = json
+            return Response(
+                200,
+                json={"choices": [{"message": {"content": "报告正文"}}]},
+            )
+
+    monkeypatch.setattr(llm_report_service.httpx, "Client", FakeClient)
+
+    service = LLMReportService(
+        base_url="https://api.deepseek.com",
+        api_key="test-secret",
+        model="deepseek-v4-flash",
+        timeout=3,
+    )
+
+    assert service._chat([{"role": "user", "content": "生成报告"}]) == "报告正文"
+    assert captured["url"] == "https://api.deepseek.com/chat/completions"
+    assert captured["authorization"] == "Bearer test-secret"
+    assert captured["content_type"] == "application/json"
+    assert captured["payload"]["model"] == "deepseek-v4-flash"
+    assert captured["payload"]["messages"] == [{"role": "user", "content": "生成报告"}]
+    assert captured["timeout"] == 3
+    assert service.last_response_text == "报告正文"
